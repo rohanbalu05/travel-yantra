@@ -68,10 +68,10 @@ def main() -> int:
         ROOT / "ts" / "index.ts": render(),
     }
     if "--check" in sys.argv:
-        return 0 if all(p.exists() and p.read_text() == c for p, c in files.items()) else 1
+        return 0 if all(p.exists() and p.read_text(encoding="utf-8") == c for p, c in files.items()) else 1
     for p, c in files.items():
         p.parent.mkdir(exist_ok=True)
-        p.write_text(c)
+        p.write_text(c, encoding="utf-8")
     return 0
 
 

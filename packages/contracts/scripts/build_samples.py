@@ -35,7 +35,7 @@ def offer(seller, price, kind="deep_link"):
 
 def write(name, req, itin):
     data = {"request": req.model_dump(mode="json"), "itinerary": itin.model_dump(mode="json", by_alias=True)}
-    (OUT / name).write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
+    (OUT / name).write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def goa():

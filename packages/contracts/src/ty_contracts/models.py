@@ -6,7 +6,7 @@ from datetime import date, datetime, time
 from enum import StrEnum
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class _Model(BaseModel):
@@ -57,6 +57,12 @@ class TripRequest(_Model):
     lang: Lang = Lang.en
     notes: str | None = None
 
+    @model_validator(mode="after")
+    def _dates_in_order(self) -> TripRequest:
+        if self.end_date < self.start_date:
+            raise ValueError("end_date must not be before start_date")
+        return self
+
 
 class OpeningHours(_Model):
     day: Literal["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
@@ -87,6 +93,12 @@ class Leg(_Model):
 
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
+    @model_validator(mode="after")
+    def _times_in_order(self) -> Leg:
+        if self.arrive < self.depart:
+            raise ValueError("arrive must not be before depart")
+        return self
+
 
 class SellerOffer(_Model):
     seller: str
@@ -113,6 +125,12 @@ class Stay(_Model):
     check_out: date
     price_per_night_inr: int = Field(ge=0)
     offers: list[SellerOffer] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _dates_in_order(self) -> Stay:
+        if self.check_out < self.check_in:
+            raise ValueError("check_out must not be before check_in")
+        return self
 
 
 class DayPlan(_Model):
@@ -181,4 +199,5 @@ class PlanStage(StrEnum):
 class PlanEvent(_Model):
     stage: PlanStage
     message: str
+    # Only sent once a complete Itinerary (request, days, budget) exists; earlier stages send None.
     partial: Itinerary | None = None

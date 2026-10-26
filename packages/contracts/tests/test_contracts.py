@@ -23,7 +23,7 @@ def roundtrip(model, obj):
 
 @pytest.mark.parametrize("path", SAMPLES, ids=lambda p: p.stem)
 def test_sample_validates_and_roundtrips(path):
-    data = json.loads(path.read_text())
+    data = json.loads(path.read_text(encoding="utf-8"))
     req = roundtrip(TripRequest, data["request"])
     itin = roundtrip(Itinerary, data["itinerary"])
     assert itin.request == req
@@ -31,7 +31,7 @@ def test_sample_validates_and_roundtrips(path):
 
 
 def test_goa_sample_persona():
-    data = json.loads((ROOT / "samples" / "goa_family.json").read_text())
+    data = json.loads((ROOT / "samples" / "goa_family.json").read_text(encoding="utf-8"))
     req = TripRequest.model_validate(data["request"])
     assert [t.age for t in req.constraints.travellers] == [34, 64, 58, 22]
     assert req.constraints.pace == "relaxed"
@@ -39,13 +39,13 @@ def test_goa_sample_persona():
 
 
 def test_mysuru_dates():
-    data = json.loads((ROOT / "samples" / "mysuru_weekend.json").read_text())
+    data = json.loads((ROOT / "samples" / "mysuru_weekend.json").read_text(encoding="utf-8"))
     req = TripRequest.model_validate(data["request"])
     assert (str(req.start_date), str(req.end_date)) == ("2026-10-31", "2026-11-01")
 
 
 def test_plan_event_roundtrip_with_and_without_partial():
-    data = json.loads(SAMPLES[0].read_text())
+    data = json.loads(SAMPLES[0].read_text(encoding="utf-8"))
     roundtrip(PlanEvent, {"stage": "planning", "message": "x", "partial": data["itinerary"]})
     ev = roundtrip(PlanEvent, {"stage": "intake", "message": "hi"})
     assert ev.partial is None
@@ -77,3 +77,16 @@ def test_rejects_bad_input():
 def test_generated_outputs_are_fresh():
     r = subprocess.run([sys.executable, str(ROOT / "scripts" / "gen_ts.py"), "--check"])
     assert r.returncode == 0, "run: python packages/contracts/scripts/gen_ts.py"
+
+
+def test_rejects_out_of_order_dates():
+    from ty_contracts import Leg, Stay
+
+    with pytest.raises(ValidationError):
+        TripRequest.model_validate({"origin": "A", "destinations": ["B"], "start_date": "2026-01-02", "end_date": "2026-01-01"})
+    with pytest.raises(ValidationError):
+        Leg.model_validate({"from": "A", "to": "B", "mode": "road", "depart": "2026-01-01T10:00:00",
+                            "arrive": "2026-01-01T09:00:00", "minutes": 0, "cost_inr": 0})
+    with pytest.raises(ValidationError):
+        Stay.model_validate({"name": "n", "city": "c", "check_in": "2026-01-02", "check_out": "2026-01-01",
+                             "price_per_night_inr": 1})
