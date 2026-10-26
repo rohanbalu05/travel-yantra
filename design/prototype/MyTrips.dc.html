@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My trips · Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#1D6A84}a:hover{color:#13212B}
+.mt-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}
+.mt-list{display:flex;flex-direction:column;gap:16px;margin-top:22px}
+.trip{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);overflow:hidden;border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1}
+.trip-art{position:relative;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;min-height:200px;padding:20px;color:#F4EFE6;overflow:hidden}
+.trip-art .script{font-size:52px;line-height:1.05;font-weight:700}
+.trip-art small{font-size:13px;font-weight:700;opacity:.85}
+.trip-art svg{position:absolute;right:-30px;top:-30px;width:200px;height:200px;opacity:.18}
+.art-mys{background:#245A4B}
+.art-goa{background:#9E4529}
+.art-udu{background:#8A5A12}
+.art-kol{background:#1D6A84}
+.art-ham{background:#6B5638}
+.art-kod{background:#2F4B36}
+.trip-body{display:flex;flex-direction:column;gap:12px;padding:20px 22px}
+.trip-top{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:10px}
+.trip-top h2{margin:0;font-size:26px;letter-spacing:-0.02em}
+.trip-meta{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:15px;color:#2B3B47}
+.trip-meta span{display:inline-flex;align-items:center;gap:8px}
+.trip-meta .ic{width:18px;height:18px;color:#56646E}
+.trip-status{display:flex;flex-wrap:wrap;gap:8px 18px}
+.trip-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:4px}
+.empty{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:28px;border:1px dashed #A99E8B;border-radius:4px}
+.empty b{font-family:"Bricolage Grotesque",sans-serif;font-size:22px}
+.empty span{color:#56646E;font-size:15.5px;max-width:52ch}
+@media (max-width:760px){.trip{grid-template-columns:minmax(0,1fr)}.trip-art{min-height:140px}}
+</style>
+</helmet>
+
+<div class="app">
+  <header class="appbar">
+    <a class="brand" href="Home.dc.html">
+      <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#B4452A"></circle></svg>
+      <span>Travel Yantra</span>
+    </a>
+    <nav class="appnav" aria-label="Main">
+      <a href="Home.dc.html">Home</a>
+      <a href="PlanStart.dc.html">Plan a trip</a>
+      <a href="KathaHome.dc.html">Katha</a>
+      <a href="MyTrips.dc.html" class="on">My trips</a>
+    </nav>
+    <div class="appbar-end">
+      <a class="btn btn-quiet btn-sm" href="Settings.dc.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"></path></svg>English</a>
+      <a class="avatar" href="Settings.dc.html" aria-label="Account and settings">AR</a>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="wrap">
+      <div class="mt-head">
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <h1 class="page-title">My trips</h1>
+          <p class="page-sub">Plans, bookings and Katha for every trip, in one place. Shared trips show here too.</p>
+        </div>
+        <a class="btn btn-primary" href="PlanStart.dc.html"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>Plan a new trip</a>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Trips">
+        <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3"><button type="button" role="tab" aria-selected="{{ t.sel }}" class="{{ t.cls }}" onClick="{{ t.pick }}">{{ t.label }}</button></sc-for>
+      </div>
+
+      <sc-if value="{{ isUp }}" hint-placeholder-val="{{ true }}">
+        <div class="mt-list">
+          <article class="trip">
+            <div class="trip-art art-mys">
+              <svg viewBox="0 0 100 100" fill="none" stroke="#F4EFE6" stroke-width="2"><rect x="10" y="10" width="80" height="80"></rect><circle cx="50" cy="50" r="30"></circle><path d="M50 22L74 64H26Z"></path></svg>
+              <small>This weekend</small>
+              <span class="script kn">ಮೈಸೂರು</span>
+            </div>
+            <div class="trip-body">
+              <div class="trip-top"><h2>Mysuru weekend</h2><span class="badge badge-ok">Ready to go</span></div>
+              <div class="trip-meta">
+                <span><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="1"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>Sat 31 Oct to Sun 1 Nov</span>
+                <span><svg class="ic" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0"></path><circle cx="17" cy="9" r="2.5"></circle><path d="M16 14.5a5 5 0 0 1 5.5 5"></path></svg>You and your parents</span>
+                <span><svg class="ic" viewBox="0 0 24 24"><path d="M5 16V12l2-5h10l2 5v4"></path><path d="M3 16h18v2H3z"></path></svg>By car, 3 hours</span>
+              </div>
+              <div class="trip-status"><span class="st st-ok">Day plan ready for both days</span><span class="st st-ok">City and Day Katha saved, English and Kannada</span><span class="st st-ok">Palace lights on Sunday, 7 pm</span></div>
+              <div class="trip-actions">
+                <a class="btn btn-dark btn-sm" href="KathaDay.dc.html">Open the day plan</a>
+                <a class="btn btn-quiet btn-sm" href="KathaCity.dc.html">Mysuru City Katha</a>
+                <a class="btn btn-quiet btn-sm" href="KathaPlace.dc.html">Mysore Palace</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="trip">
+            <div class="trip-art art-goa">
+              <svg viewBox="0 0 100 100" fill="none" stroke="#F4EFE6" stroke-width="2"><rect x="10" y="10" width="80" height="80"></rect><circle cx="50" cy="50" r="30"></circle><path d="M50 22L74 64H26Z"></path></svg>
+              <small>In 6 weeks</small>
+              <span class="script hi">गोंय</span>
+            </div>
+            <div class="trip-body">
+              <div class="trip-top"><h2>Goa with family</h2><span class="badge badge-warn">3 of 5 booked</span></div>
+              <div class="trip-meta">
+                <span><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="1"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>Fri 11 to Mon 14 Dec</span>
+                <span><svg class="ic" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0"></path><circle cx="17" cy="9" r="2.5"></circle><path d="M16 14.5a5 5 0 0 1 5.5 5"></path></svg>4 travellers</span>
+                <span><svg class="ic" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="13" rx="2"></rect><path d="M6 10h12"></path><path d="M8 16l-2 4M16 16l2 4M7 19h10"></path></svg>By rail, past Dudhsagar</span>
+              </div>
+              <div class="trip-status"><span class="st st-ok">Train out confirmed</span><span class="st st-wait">Return waitlisted, WL 7</span><span class="st st-wait">2 cabs to book</span><span class="st st-ok">14 Kathas ready</span></div>
+              <div class="trip-actions">
+                <a class="btn btn-dark btn-sm" href="Itinerary.dc.html">Open the plan</a>
+                <a class="btn btn-quiet btn-sm" href="Book.dc.html">Bookings</a>
+                <a class="btn btn-quiet btn-sm" href="TripLive.dc.html">Preview trip mode</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isDraft }}" hint-placeholder-val="{{ false }}">
+        <div class="mt-list">
+          <article class="trip">
+            <div class="trip-art art-udu">
+              <svg viewBox="0 0 100 100" fill="none" stroke="#F4EFE6" stroke-width="2"><rect x="10" y="10" width="80" height="80"></rect><circle cx="50" cy="50" r="30"></circle><path d="M50 22L74 64H26Z"></path></svg>
+              <small>Draft</small>
+              <span class="script kn">ಉಡುಪಿ</span>
+            </div>
+            <div class="trip-body">
+              <div class="trip-top"><h2>Temple trail: Udupi, Kollur and Sringeri</h2><span class="badge">Draft</span></div>
+              <div class="trip-meta"><span>3 days, dates not set</span><span>Spiritual, gentle pace</span><span>Katha in Kannada</span></div>
+              <div class="trip-status"><span class="st st-wait">Waiting for dates</span><span class="st st-off">Temple timings and dress codes added</span></div>
+              <div class="trip-actions"><a class="btn btn-dark btn-sm" href="PlanStart.dc.html">Continue planning</a></div>
+            </div>
+          </article>
+          <article class="trip">
+            <div class="trip-art art-kol">
+              <svg viewBox="0 0 100 100" fill="none" stroke="#F4EFE6" stroke-width="2"><rect x="10" y="10" width="80" height="80"></rect><circle cx="50" cy="50" r="30"></circle><path d="M50 22L74 64H26Z"></path></svg>
+              <small>Draft</small>
+              <span class="script bn">কলকাতা</span>
+            </div>
+            <div class="trip-body">
+              <div class="trip-top"><h2>Kolkata for Durga Puja</h2><span class="badge">Draft</span></div>
+              <div class="trip-meta"><span>October 2027, 5 days</span><span>Pandal hopping, food</span><span>Katha in Bengali</span></div>
+              <div class="trip-status"><span class="st st-off">Puja dates are announced in the spring; we will remind you</span></div>
+              <div class="trip-actions"><a class="btn btn-dark btn-sm" href="PlanStart.dc.html">Continue planning</a></div>
+            </div>
+          </article>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isPast }}" hint-placeholder-val="{{ false }}">
+        <div class="mt-list">
+          <article class="trip">
+            <div class="trip-art art-ham">
+              <svg viewBox="0 0 100 100" fill="none" stroke="#F4EFE6" stroke-width="2"><rect x="10" y="10" width="80" height="80"></rect><circle cx="50" cy="50" r="30"></circle><path d="M50 22L74 64H26Z"></path></svg>
+              <small>August 2026</small>
+              <span class="script kn">ಹಂಪಿ</span>
+            </div>
+            <div class="trip-body">
+              <div class="trip-top"><h2>Hampi with friends</h2><span class="badge">Done</span></div>
+              <div class="trip-meta"><span>3 days, 5 travellers</span><span>By bus and auto</span></div>
+              <div class="trip-status"><span class="st st-off">9 Kathas heard, 2 saved as favourites</span></div>
+              <div class="trip-actions"><a class="btn btn-dark btn-sm" href="KathaHome.dc.html">Relive the Katha</a><a class="btn btn-quiet btn-sm" href="PlanStart.dc.html">Plan it again</a></div>
+            </div>
+          </article>
+          <article class="trip">
+            <div class="trip-art art-kod">
+              <svg viewBox="0 0 100 100" fill="none" stroke="#F4EFE6" stroke-width="2"><rect x="10" y="10" width="80" height="80"></rect><circle cx="50" cy="50" r="30"></circle><path d="M50 22L74 64H26Z"></path></svg>
+              <small>July 2026</small>
+              <span class="script kn">ಕೊಡಗು</span>
+            </div>
+            <div class="trip-body">
+              <div class="trip-top"><h2>Coorg in the monsoon</h2><span class="badge">Done</span></div>
+              <div class="trip-meta"><span>2 days, 2 travellers</span><span>By car</span></div>
+              <div class="trip-status"><span class="st st-off">Abbey Falls swapped for a coffee estate walk when the path closed</span></div>
+              <div class="trip-actions"><a class="btn btn-dark btn-sm" href="KathaHome.dc.html">Relive the Katha</a></div>
+            </div>
+          </article>
+        </div>
+      </sc-if>
+
+      <div class="empty" style="margin-top: 28px">
+        <b>Somewhere new?</b>
+        <span>Describe it in a sentence in any of six languages, or start from a form. Karnataka has the deepest coverage today, and more of India is added every week.</span>
+        <a class="btn btn-line btn-sm" href="PlanStart.dc.html">Plan a new trip</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-foot">
+    <div class="wrap"><span>Travel Yantra prototype. Trips shown are sample data.</span><span><a href="Legal.dc.html">Terms and privacy</a></span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const tab = s.tab || 'up';
+    const tabs = [['up', 'Upcoming, 2'], ['draft', 'Drafts, 2'], ['past', 'Past, 2']].map(([k, label]) => ({
+      label, sel: k === tab ? 'true' : 'false', cls: 'tab' + (k === tab ? ' on' : ''), pick: () => this.setState({ tab: k })
+    }));
+    return { tabs, isUp: tab === 'up', isDraft: tab === 'draft', isPast: tab === 'past' };
+  }
+}
+</script>
+</body>
+</html>

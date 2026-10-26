@@ -1,0 +1,1048 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#0E1B24}
+a{color:#1D6A84}a:hover{color:#13212B}
+.site{background:#0E1B24}
+
+/* ---------- site bar ---------- */
+.sitebar{display:flex;align-items:center;gap:28px;flex-wrap:wrap;padding:18px clamp(16px,4vw,56px);background:#0E1B24;color:#F4EFE6;border-bottom:1px solid #1C3140}
+.sitebar .brand{color:#F4EFE6}
+.sitebar nav{display:flex;gap:4px;flex-wrap:wrap}
+.sitebar nav a{color:#C3CED5;text-decoration:none;font-weight:600;font-size:15px;padding:8px 12px;border-radius:4px}
+.sitebar nav a:hover{color:#F4EFE6;background:#182C3A}
+.sb-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.sb-link{color:#F4EFE6;text-decoration:none;font-weight:600;font-size:15px;padding:8px 12px}
+.sb-link:hover{color:#E7B25C}
+
+/* ---------- the journey: one pinned stage, driven by scroll ---------- */
+.journey{position:relative;height:5600px;background:#0E1B24;view-timeline:--journey block}
+.stage{position:sticky;top:0;height:min(100vh,960px);min-height:620px;overflow:hidden;background:#0E1B24;
+  --pw:300px;--ph:620px;--sw:280px;--sh:600px;--px:21vw;--py:0px;--ex:-20vw;--ey:0px;--es:1}
+.contours{position:absolute;inset:0;width:100%;height:100%;animation:fadeOut linear both;animation-timeline:--journey;animation-range:contain 3% contain 9%}
+
+.world{position:absolute;inset:0;opacity:0;z-index:1;
+  clip-path:inset(calc(50% - var(--sh) / 2) calc(50% - var(--sw) / 2) round 34px);
+  animation:worldIn linear both,worldOut linear forwards,worldHide linear forwards;
+  animation-timeline:--journey,--journey,--journey;
+  animation-range:contain 6% contain 14%,contain 84% contain 96%,contain 96% contain 98%}
+@keyframes worldIn{
+  0%{opacity:0;clip-path:inset(calc(50% - var(--sh) / 2) calc(50% - var(--sw) / 2) round 34px)}
+  25%{opacity:1;clip-path:inset(calc(50% - var(--sh) / 2) calc(50% - var(--sw) / 2) round 34px)}
+  100%{opacity:1;clip-path:inset(0px 0px round 0px)}}
+@keyframes worldOut{
+  0%{opacity:1;clip-path:inset(0px 0px round 0px)}
+  100%{opacity:1;clip-path:inset(calc(50% - var(--sh) / 2) calc(50% - var(--sw) / 2) round 34px)}}
+@keyframes worldHide{from{opacity:1}to{opacity:0}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+
+/* the phone */
+.phone{position:absolute;left:50%;top:50%;z-index:3;width:var(--pw);height:var(--ph);margin-left:calc(var(--pw) / -2);margin-top:calc(var(--ph) / -2);
+  box-sizing:border-box;border:10px solid #0B1217;border-radius:44px;outline:1.5px solid #34444F;transform-style:preserve-3d;
+  transform:translateX(var(--px)) translateY(var(--py)) perspective(1600px) rotateY(-22deg) rotateX(9deg) rotateZ(-3deg) scale(1);
+  animation:phoneIn linear both,phoneOut linear forwards,phoneEnd linear forwards;
+  animation-timeline:--journey,--journey,--journey;
+  animation-range:contain 0% contain 14%,contain 84% contain 96%,contain 96% contain 100%}
+.phone::before{content:"";position:absolute;inset:-12px;border:12px solid #05090C;border-radius:46px;transform:translateZ(-16px)}
+@keyframes phoneIn{
+  0%{transform:translateX(var(--px)) translateY(var(--py)) perspective(1600px) rotateY(-22deg) rotateX(9deg) rotateZ(-3deg) scale(1);opacity:1}
+  42%{transform:translateX(0px) translateY(0px) perspective(1600px) rotateY(0deg) rotateX(0deg) rotateZ(0deg) scale(1);opacity:1}
+  78%{opacity:1}
+  100%{transform:translateX(0px) translateY(0px) perspective(1600px) rotateY(0deg) rotateX(0deg) rotateZ(0deg) scale(7);opacity:0}}
+@keyframes phoneOut{
+  0%{transform:translateX(0px) translateY(0px) perspective(1600px) rotateY(0deg) rotateX(0deg) rotateZ(0deg) scale(7);opacity:0}
+  55%{opacity:1}
+  100%{transform:translateX(0px) translateY(0px) perspective(1600px) rotateY(0deg) rotateX(0deg) rotateZ(0deg) scale(1);opacity:1}}
+@keyframes phoneEnd{
+  0%{transform:translateX(0px) translateY(0px) perspective(1600px) rotateY(0deg) rotateX(0deg) rotateZ(0deg) scale(1);opacity:1}
+  100%{transform:translateX(var(--ex)) translateY(var(--ey)) perspective(1600px) rotateY(18deg) rotateX(6deg) rotateZ(2deg) scale(var(--es));opacity:1}}
+.punch{position:absolute;top:12px;left:50%;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:#0B1217;z-index:3}
+.screen{position:absolute;inset:0;border-radius:34px;overflow:hidden;background:#F4EFE6;display:flex;flex-direction:column;color:#13212B}
+.screen-start{animation:fadeOut linear both;animation-timeline:--journey;animation-range:contain 6% contain 9%}
+.screen-end{opacity:0;animation:fadeIn linear both;animation-timeline:--journey;animation-range:contain 92% contain 97%}
+.ps-top{display:flex;align-items:center;gap:8px;padding:30px 16px 12px;font:700 14px/1.2 "Bricolage Grotesque",sans-serif;border-bottom:1px solid #D8CFBF}
+.ps-top .logo{width:20px;height:20px}
+.ps-body{flex:1;padding:14px;display:flex;flex-direction:column;gap:10px;font-size:12.5px;line-height:1.45}
+.ps-user{align-self:flex-end;max-width:88%;background:#13212B;color:#F4EFE6;padding:10px 12px;border-radius:14px 14px 3px 14px}
+.ps-ai{max-width:94%;background:#FAF7F1;border:1px solid #D8CFBF;padding:10px 12px;border-radius:14px 14px 14px 3px}
+.ps-ai b{display:block;margin-bottom:4px}
+.ps-row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid #E6DED0}
+.ps-row span:last-child{color:#56646E}
+.ps-compose{display:flex;align-items:center;justify-content:space-between;margin:0 12px 16px;padding:10px 14px;border:1px solid #D8CFBF;border-radius:22px;font-size:12.5px;color:#56646E;background:#FAF7F1}
+.ps-compose .ic{width:18px;height:18px;color:#B4452A}
+.ps-day{display:grid;grid-template-columns:36px 1fr;gap:6px;padding:9px 0;border-top:1px solid #E6DED0}
+.ps-day b{font-family:"Bricolage Grotesque",sans-serif}
+.ps-status{margin-top:6px;color:#245A4B;font-weight:700}
+.ps-actions{display:flex;gap:8px;padding:0 12px 18px}
+.ps-btn{flex:1;text-align:center;padding:11px 6px;border-radius:4px;background:#B4452A;color:#FBF6EE;font-weight:700;font-size:12.5px}
+.ps-btn.ghost{background:transparent;border:1px solid #13212B;color:#13212B}
+
+/* hero words */
+.hero-copy{position:absolute;inset:0;z-index:4;display:flex;align-items:center;pointer-events:none;
+  animation:copyOut linear both;animation-timeline:--journey;animation-range:contain 0% contain 6%}
+@keyframes copyOut{from{opacity:1;transform:translateY(0);visibility:visible}to{opacity:0;transform:translateY(-40px);visibility:hidden}}
+.hero-in{pointer-events:auto;width:min(560px,44vw);margin-left:clamp(16px,6vw,96px);color:#F4EFE6;display:flex;flex-direction:column;gap:22px}
+.hc-kicker{margin:0;font-size:16px;font-weight:600;color:#E7B25C}
+.hc-title{margin:0;font-family:"Bricolage Grotesque",sans-serif;font-weight:650;font-size:clamp(44px,5.4vw,84px);line-height:.98;letter-spacing:-0.035em}
+.hc-sub{margin:0;font-size:clamp(17px,1.35vw,20px);line-height:1.55;color:#C9D3D9;max-width:48ch}
+.hc-actions{display:flex;gap:12px;flex-wrap:wrap}
+.hc-hint{margin:6px 0 0;font-size:14px;color:#8FA3AF;display:flex;align-items:center;gap:10px}
+.hc-hint i{display:block;width:36px;height:1px;background:#8FA3AF}
+
+.end-copy{position:absolute;inset:0;z-index:4;display:flex;align-items:center;justify-content:flex-end;pointer-events:none;opacity:0;
+  animation:endIn linear both;animation-timeline:--journey;animation-range:contain 95% contain 100%}
+@keyframes endIn{0%{opacity:0;transform:translateY(30px);visibility:hidden}2%{visibility:visible}100%{opacity:1;transform:translateY(0);visibility:visible}}
+.end-in{pointer-events:auto;width:min(470px,40vw);margin-right:clamp(16px,7vw,110px);color:#F4EFE6;display:flex;flex-direction:column;gap:20px}
+.end-in h2{margin:0;font-family:"Bricolage Grotesque",sans-serif;font-weight:650;font-size:clamp(36px,3.8vw,58px);line-height:1;letter-spacing:-0.03em}
+.end-in p{margin:0;color:#C9D3D9;font-size:18px;line-height:1.55}
+
+/* captions and progress */
+.cap{position:absolute;left:clamp(16px,5vw,72px);bottom:clamp(20px,7vh,72px);z-index:5;width:min(460px,calc(100% - 32px));box-sizing:border-box;padding:22px 24px 24px;background:#0E1B24F2;color:#F4EFE6;border-radius:4px;opacity:0;
+  animation:capShow linear both;animation-timeline:--journey}
+.cap1{animation-range:contain 14% contain 31%}
+.cap2{animation-range:contain 36% contain 51%}
+.cap3{animation-range:contain 56% contain 71%}
+.cap4{animation-range:contain 77% contain 86%}
+@keyframes capShow{0%{opacity:0;transform:translateY(18px)}15%{opacity:1;transform:translateY(0)}85%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-14px)}}
+.cap-k{display:flex;align-items:center;gap:10px;font-size:14px;color:#E7B25C;font-weight:600;margin-bottom:10px}
+.cap-k .ic{width:20px;height:20px}
+.cap h3{margin:0 0 10px;font-family:"Bricolage Grotesque",sans-serif;font-size:30px;line-height:1.05;letter-spacing:-0.02em}
+.cap p{margin:0;color:#D5DDE2;font-size:16px;line-height:1.55}
+.rail{position:absolute;top:22px;left:50%;z-index:6;width:min(640px,calc(100% - 32px));box-sizing:border-box;transform:translateX(-50%);padding:12px 16px 14px;background:#0E1B24E8;border-radius:4px;opacity:0;
+  animation:railShow linear both;animation-timeline:--journey;animation-range:contain 10% contain 90%}
+@keyframes railShow{0%{opacity:0}6%{opacity:1}94%{opacity:1}100%{opacity:0}}
+.rail-labels{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:#F4EFE6;margin-bottom:9px}
+.rail-track{height:3px;background:#F4EFE633;border-radius:2px;overflow:hidden}
+.rail-fill{height:100%;background:#E3A33B;transform-origin:0 50%;transform:scaleX(0);animation:railFill linear both;animation-timeline:--journey;animation-range:contain 12% contain 86%}
+@keyframes railFill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+/* ---------- chapter 1: by road, through the windshield ---------- */
+.ch{position:absolute;inset:0;overflow:hidden}
+.full{position:absolute;inset:0;width:100%;height:100%;display:block}
+.ch-car{animation:fadeOut linear both;animation-timeline:--journey;animation-range:contain 30% contain 36%}
+.sky-car{position:absolute;inset:0;background:linear-gradient(180deg,#86A9BE 0%,#B6C2BC 36%,#E3C49A 55%,#EFD3AE 60%)}
+.hills{position:absolute;left:-6%;width:112%;display:block;transform-origin:50% 100%}
+.hills-far{bottom:40%;height:19%;animation:grow1 linear both;animation-timeline:--journey;animation-range:contain 6% contain 36%}
+.hills-mid{bottom:40%;height:12%;animation:grow2 linear both;animation-timeline:--journey;animation-range:contain 6% contain 36%}
+@keyframes grow1{from{transform:scale(1)}to{transform:scale(1.07)}}
+@keyframes grow2{from{transform:scale(1)}to{transform:scale(1.22)}}
+.roadwrap{position:absolute;left:0;right:0;bottom:0;height:41%;overflow:hidden;perspective:520px;perspective-origin:50% 0%;background:#A88A62}
+.road{position:absolute;left:50%;bottom:0;width:1600px;height:3600px;margin-left:-800px;transform-origin:50% 100%;transform:rotateX(81deg);
+  background-image:linear-gradient(180deg,#ECE3CA 0 90px,transparent 90px 230px),linear-gradient(180deg,#F2EEE3 0 34px,#D9A33A 34px 52px,transparent 52px 700px),linear-gradient(180deg,#F2EEE3 0 34px,#D9A33A 34px 52px,transparent 52px 700px),linear-gradient(90deg,transparent 0 230px,#ECE3CA 230px 244px,transparent 244px 1356px,#ECE3CA 1356px 1370px,transparent 1370px),linear-gradient(90deg,transparent 0 200px,#3C3F43 200px 1400px,transparent 1400px);
+  background-size:16px 230px,22px 700px,22px 700px,100% 100%,100% 100%;
+  background-repeat:repeat-y,repeat-y,repeat-y,no-repeat,no-repeat;
+  background-position:50% 0,140px 0,1438px 0,0 0,0 0;
+  animation:roadMove linear both;animation-timeline:--journey;animation-range:contain 6% contain 36%}
+@keyframes roadMove{from{background-position:50% 0,140px 0,1438px 0,0 0,0 0}to{background-position:50% 2760px,140px 2800px,1438px 2800px,0 0,0 0}}
+.sign{position:absolute;left:57%;top:50%;transform-origin:0% 100%;opacity:0;animation:signPass linear both;animation-timeline:--journey;animation-range:contain 15% contain 29%}
+@keyframes signPass{0%{opacity:0;transform:translate(0,0) scale(.2)}12%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translate(44vw,-6vh) scale(2.1)}}
+.sign-board{display:grid;grid-template-columns:auto auto;gap:4px 18px;padding:10px 14px;background:#1D6A46;border:3px solid #F1EFE6;border-radius:4px;color:#F7F5EE;font:700 17px/1.2 Figtree,sans-serif}
+.sign-board b{text-align:right}
+.sign-post{display:flex;justify-content:space-between;padding:0 18px}
+.sign-post i{display:block;width:6px;height:70px;background:#6B7378}
+.frame-car{transform-origin:50% 60%;animation:frameOut linear both;animation-timeline:--journey;animation-range:contain 30% contain 36%}
+@keyframes frameOut{from{transform:scale(1)}to{transform:scale(1.3)}}
+
+/* ---------- chapter 2: by air, through the cabin window ---------- */
+.ch-plane{opacity:0;animation:chShow linear both;animation-timeline:--journey;animation-range:contain 30% contain 56%}
+@keyframes chShow{0%{opacity:0}22%{opacity:1}78%{opacity:1}100%{opacity:0}}
+.sky-plane{position:absolute;inset:0;background:linear-gradient(180deg,#4F7FA6 0%,#8DB5D0 46%,#CFE1E9 68%)}
+.coast{position:absolute;left:0;bottom:0;width:170%;height:46%;display:block;animation:slideA linear both;animation-timeline:--journey;animation-range:contain 30% contain 56%}
+@keyframes slideA{from{transform:translateX(0)}to{transform:translateX(-22%)}}
+.clouds{position:absolute;left:0;width:300%;display:block}
+.clouds-far{top:20%;height:30%;opacity:.8;animation:slideB linear both;animation-timeline:--journey;animation-range:contain 30% contain 56%}
+.clouds-near{top:36%;height:42%;animation:slideC linear both;animation-timeline:--journey;animation-range:contain 30% contain 56%}
+@keyframes slideB{from{transform:translateX(0)}to{transform:translateX(-25%)}}
+@keyframes slideC{from{transform:translateX(0)}to{transform:translateX(-55%)}}
+.frame-plane{transform-origin:50% 50%;animation:frameIn linear both;animation-timeline:--journey;animation-range:contain 30% contain 37%}
+@keyframes frameIn{from{transform:scale(1.35)}to{transform:scale(1)}}
+
+/* ---------- chapter 3: by rail, past Dudhsagar ---------- */
+.ch-train{opacity:0;animation:chShow linear both;animation-timeline:--journey;animation-range:contain 50% contain 76%}
+.sky-train{position:absolute;inset:0;background:linear-gradient(180deg,#9AB3B9 0%,#C8D6D2 52%,#DCE5DC 68%)}
+.ridge{position:absolute;left:0;width:200%;display:block}
+.ridge-far{bottom:34%;height:34%;animation:slideD linear both;animation-timeline:--journey;animation-range:contain 50% contain 76%}
+.ridge-mid{bottom:24%;height:30%;animation:slideE linear both;animation-timeline:--journey;animation-range:contain 50% contain 76%}
+@keyframes slideD{from{transform:translateX(0)}to{transform:translateX(-12%)}}
+@keyframes slideE{from{transform:translateX(0)}to{transform:translateX(-26%)}}
+.falls{position:absolute;bottom:18%;left:0;width:min(46vw,640px);height:64%;display:block;animation:fallsPass linear both;animation-timeline:--journey;animation-range:contain 50% contain 76%}
+@keyframes fallsPass{from{transform:translateX(105vw)}to{transform:translateX(-60vw)}}
+.flow path{stroke-dasharray:46 22;animation:flow 1.1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-68}}
+.bush{position:absolute;left:0;bottom:10%;width:200%;height:24%;display:block;animation:slideF linear both;animation-timeline:--journey;animation-range:contain 50% contain 76%}
+@keyframes slideF{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.poles{position:absolute;inset:0;background-image:linear-gradient(#2A2F2B,#2A2F2B),repeating-linear-gradient(90deg,transparent 0 560px,#2B312D 560px 574px);background-size:100% 2px,100% 100%;background-repeat:no-repeat,repeat;background-position:0 16%,0 0;
+  animation:polesMove linear both;animation-timeline:--journey;animation-range:contain 50% contain 76%}
+@keyframes polesMove{from{background-position:0 16%,0 0}to{background-position:0 16%,-6000px 0}}
+.steam{animation:steam 3s ease-in-out infinite}
+.steam2{animation-delay:-1.5s}
+@keyframes steam{0%{opacity:0;transform:translateY(6px)}40%{opacity:.75}100%{opacity:0;transform:translateY(-18px)}}
+
+/* ---------- chapter 4: Goa, and the story ---------- */
+.ch-goa{opacity:0;animation:fadeIn linear both;animation-timeline:--journey;animation-range:contain 70% contain 76%}
+.sky-goa{position:absolute;inset:0;background:linear-gradient(180deg,#DE9A58 0%,#ECB87D 40%,#F3D4A2 60%)}
+.sun{animation:sunDown linear both;animation-timeline:--journey;animation-range:contain 72% contain 96%}
+@keyframes sunDown{from{transform:translateY(0)}to{transform:translateY(60px)}}
+.glint{animation:glint 2.4s ease-in-out infinite alternate}
+@keyframes glint{from{opacity:.35}to{opacity:.9}}
+.katha-card{position:absolute;right:clamp(16px,5vw,80px);top:clamp(96px,15vh,150px);width:min(410px,calc(100% - 32px));box-sizing:border-box;background:#F7F2E9;color:#13212B;border-radius:4px;padding:20px 22px 22px;opacity:0;
+  animation:kcIn linear both;animation-timeline:--journey;animation-range:contain 76% contain 80%}
+@keyframes kcIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.kc-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
+.kc-head b{font-family:"Bricolage Grotesque",sans-serif;font-size:20px;letter-spacing:-0.01em}
+.kc-head span{font-size:13px;color:#56646E}
+.kc-langs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.kc-langs span{font-size:13px;padding:3px 8px;border:1px solid #D8CFBF;border-radius:3px}
+.kc-langs span.on{background:#13212B;color:#F4EFE6;border-color:#13212B}
+.katha-card p{margin:12px 0 0;font-size:14.5px;line-height:1.55}
+.katha-card .wave{color:#B4452A}
+
+/* ---------- sections after the ride ---------- */
+.sec{padding:clamp(72px,9vw,136px) 0}
+.sec-paper{background:#F4EFE6;color:#13212B}
+.sec-sand{background:#ECE5D8;color:#13212B}
+.sec-ghat{background:#173B31;color:#F4EFE6}
+.sec-night{background:#0E1B24;color:#F4EFE6}
+.sec-head{display:flex;flex-direction:column;gap:16px;max-width:780px;margin-bottom:56px}
+.kicker{margin:0;font-size:16px;font-weight:600;color:#B4452A}
+.sec-ghat .kicker,.sec-night .kicker{color:#E7B25C}
+.sec-head h2{margin:0;font-family:"Bricolage Grotesque",sans-serif;font-weight:650;font-size:clamp(34px,3.8vw,58px);line-height:1.02;letter-spacing:-0.03em}
+.sec-head p{margin:0;font-size:clamp(17px,1.3vw,20px);line-height:1.55;max-width:60ch}
+.sec-paper .sec-head p,.sec-sand .sec-head p{color:#2B3B47}
+.sec-ghat .sec-head p,.sec-night .sec-head p{color:#C9D3D9}
+
+/* how it works: steps drive a pinned demo */
+.how{timeline-scope:--s1,--s2,--s3,--s4,--s5,--s6}
+.how-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(32px,5vw,80px);align-items:start}
+.step{min-height:440px;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;gap:14px;border-top:1px solid #D8CFBF;padding:32px 0}
+.step-n{font-family:"JetBrains Mono",monospace;font-size:14px;color:#56646E}
+.step h3{margin:0;font-family:"Bricolage Grotesque",sans-serif;font-weight:650;font-size:clamp(28px,2.5vw,40px);line-height:1.06;letter-spacing:-0.02em}
+.step p{margin:0;color:#2B3B47;font-size:18px;line-height:1.55;max-width:46ch}
+.s1{view-timeline:--s1 block}.s2{view-timeline:--s2 block}.s3{view-timeline:--s3 block}.s4{view-timeline:--s4 block}.s5{view-timeline:--s5 block}.s6{view-timeline:--s6 block}
+.how-demo{position:sticky;top:96px;height:560px}
+.frame{position:absolute;inset:0;opacity:0;animation:frameShow linear both;animation-range:cover 30% cover 72%}
+.f1{opacity:1;animation-name:frameFirst;animation-timeline:--s1}
+.f2{animation-timeline:--s2}.f3{animation-timeline:--s3}.f4{animation-timeline:--s4}.f5{animation-timeline:--s5}
+.f6{animation-name:frameLast;animation-timeline:--s6}
+@keyframes frameShow{0%{opacity:0}12%{opacity:1}88%{opacity:1}100%{opacity:0}}
+@keyframes frameFirst{0%{opacity:1}88%{opacity:1}100%{opacity:0}}
+@keyframes frameLast{0%{opacity:0}12%{opacity:1}100%{opacity:1}}
+.demo{position:absolute;inset:0;background:#FAF7F1;border:1px solid #D8CFBF;border-radius:4px;display:flex;flex-direction:column;overflow:hidden}
+.demo-bar{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid #D8CFBF;font-weight:700;font-size:14px;color:#13212B}
+.demo-bar .logo{width:20px;height:20px}
+.demo-bar span{margin-left:auto;font-weight:500;color:#56646E}
+.demo-body{flex:1;padding:22px;display:flex;flex-direction:column;gap:14px;overflow:hidden;font-size:15px}
+.d-user{align-self:flex-end;max-width:84%;background:#13212B;color:#F4EFE6;padding:14px 16px;border-radius:16px 16px 4px 16px;line-height:1.5}
+.d-label{font-size:13.5px;font-weight:600;color:#56646E}
+.d-chips{display:flex;flex-wrap:wrap;gap:8px}
+.d-chip{display:inline-flex;align-items:center;gap:8px;min-height:34px;padding:0 12px;border:1px solid #D8CFBF;border-radius:4px;background:#F4EFE6;font-size:14px}
+.d-row{display:grid;grid-template-columns:28px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-top:1px solid #E6DED0}
+.d-row .ic{width:22px;height:22px;color:#245A4B}
+.d-row b{display:block}
+.d-row small{color:#56646E;font-size:13.5px}
+.d-ok{font-size:13px;font-weight:700;color:#245A4B}
+.d-wait{font-size:13px;font-weight:700;color:#8A5A12}
+.d-note{margin-top:auto;padding:12px 14px;background:#E9F0EC;color:#1B4539;border-radius:4px;font-size:14px;font-weight:600}
+.d-ai{max-width:90%;background:#F4EFE6;border:1px solid #D8CFBF;padding:14px 16px;border-radius:16px 16px 16px 4px;line-height:1.5}
+.d-table{width:100%;border-collapse:collapse;font-size:14px}
+.d-table th{text-align:left;color:#56646E;font-weight:600;font-size:12.5px;padding:8px 6px;border-bottom:1px solid #D8CFBF}
+.d-table td{padding:12px 6px;border-bottom:1px solid #E6DED0}
+.d-table tr.pick td{background:#F1E6D6}
+.d-pill{display:inline-block;font-size:12px;font-weight:700;padding:2px 7px;border-radius:3px;background:#245A4B;color:#F4EFE6}
+
+/* languages */
+.lang-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(32px,5vw,72px);align-items:center}
+.lang-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
+.lang-btn{min-height:46px;padding:0 18px;border-radius:4px;border:1px solid #F4EFE666;background:transparent;color:#F4EFE6;font-size:17px;font-weight:600;font-family:Figtree,sans-serif;cursor:pointer}
+.lang-btn:hover{border-color:#F4EFE6}
+.lang-btn.on{background:#F4EFE6;color:#173B31;border-color:#F4EFE6}
+.lang-btn.hi{font-family:"Anek Devanagari",Figtree,sans-serif}
+.lang-btn.kn{font-family:"Anek Kannada",Figtree,sans-serif}
+.lang-btn.ta{font-family:"Anek Tamil",Figtree,sans-serif}
+.lang-btn.te{font-family:"Anek Telugu",Figtree,sans-serif}
+.lang-btn.bn{font-family:"Anek Bangla",Figtree,sans-serif}
+.lang-stage{background:#F4EFE6;color:#13212B;border-radius:4px;padding:clamp(22px,3vw,36px);display:flex;flex-direction:column;gap:18px;min-height:320px;box-sizing:border-box}
+.lang-who{font-size:13.5px;font-weight:600;color:#56646E}
+.lang-say{margin:0;font-size:clamp(24px,2.4vw,36px);line-height:1.3;font-weight:600}
+.lang-reply{margin:0;font-size:clamp(18px,1.5vw,22px);line-height:1.45;color:#245A4B;font-weight:600}
+.lang-say.hi,.lang-reply.hi{font-family:"Anek Devanagari",Figtree,sans-serif}
+.lang-say.kn,.lang-reply.kn{font-family:"Anek Kannada",Figtree,sans-serif}
+.lang-say.ta,.lang-reply.ta{font-family:"Anek Tamil",Figtree,sans-serif}
+.lang-say.te,.lang-reply.te{font-family:"Anek Telugu",Figtree,sans-serif}
+.lang-say.bn,.lang-reply.bn{font-family:"Anek Bangla",Figtree,sans-serif}
+.lang-foot{margin-top:auto;font-size:14px;color:#56646E;border-top:1px solid #D8CFBF;padding-top:14px}
+
+/* katha preview */
+.katha-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(32px,5vw,72px);align-items:start}
+.kt-points{display:flex;flex-direction:column;gap:0;margin-top:8px}
+.kt-point{padding:18px 0;border-top:1px solid #CDC3B2}
+.kt-point b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:21px;margin-bottom:6px}
+.kt-point span{color:#2B3B47;font-size:16px}
+.player{background:#0E1B24;color:#F4EFE6;border-radius:4px;padding:clamp(20px,2.6vw,32px);display:flex;flex-direction:column;gap:20px}
+.seg{display:flex;gap:4px;padding:4px;background:#1A2E3C;border-radius:4px;align-self:flex-start;flex-wrap:wrap}
+.seg button{min-height:40px;padding:0 16px;border:0;border-radius:3px;background:transparent;color:#C9D3D9;font:600 15px Figtree,sans-serif;cursor:pointer}
+.seg button.on{background:#F4EFE6;color:#13212B}
+.player-top{display:flex;align-items:center;gap:16px}
+.play-btn{width:56px;height:56px;flex:none;border-radius:50%;border:0;background:#E3A33B;color:#13212B;display:grid;place-items:center;cursor:pointer}
+.play-btn .ic{width:22px;height:22px}
+.player-title b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:24px;letter-spacing:-0.01em}
+.player-title span{color:#AFC0CA;font-size:14px}
+.player .wave{color:#E3A33B;height:44px}
+.quote{margin:0;padding:16px 18px;background:#16293A;border-radius:4px;font-size:16px;line-height:1.6;color:#E9EEF0}
+.quote .tag{margin-right:8px;vertical-align:1px}
+.segrows{display:flex;flex-direction:column}
+.segrow{display:grid;grid-template-columns:28px 1fr auto auto;gap:14px;padding:13px 0;border-top:1px solid #FFFFFF1F;align-items:center;font-size:15.5px}
+.segrow .n{font-family:"JetBrains Mono",monospace;font-size:13px;color:#8FA3AF}
+.segrow .t{font-family:"JetBrains Mono",monospace;font-size:13px;color:#AFC0CA}
+
+/* ways to get there */
+.ways-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(28px,4vw,64px);align-items:start}
+.routemap{background:#112634;border:1px solid #22404F;border-radius:4px;overflow:hidden}
+.routemap svg{display:block;width:100%;height:auto}
+.legend{display:flex;flex-wrap:wrap;gap:16px;padding:14px 16px;border-top:1px solid #22404F;font-size:13.5px;color:#C9D3D9}
+.legend span{display:flex;align-items:center;gap:8px}
+.legend i{display:block;width:26px;height:0;border-top:3px solid #E3A33B}
+.legend i.rail{border-top:3px dashed #F4EFE6}
+.legend i.air{border-top:3px dotted #8FC0DA}
+.ways-table{width:100%;border-collapse:collapse;font-size:15.5px;color:#F4EFE6}
+.ways-table th{text-align:left;font-weight:600;font-size:13.5px;color:#AFC0CA;padding:10px 12px;border-bottom:1px solid #FFFFFF2A}
+.ways-table td{padding:18px 12px;border-bottom:1px solid #FFFFFF1A;vertical-align:top}
+.ways-table td b{display:flex;align-items:center;gap:10px;font-family:"Bricolage Grotesque",sans-serif;font-size:19px}
+.ways-table td b .ic{width:22px;height:22px;color:#E7B25C}
+.ways-table small{display:block;color:#AFC0CA;font-size:13.5px;margin-top:4px}
+.fine{margin:16px 0 0;font-size:13.5px;color:#8FA3AF}
+
+/* checks */
+.checks-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(28px,4vw,64px);align-items:start}
+.inspector{background:#FAF7F1;border:1px solid #D8CFBF;border-radius:4px}
+.inspector-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid #D8CFBF}
+.inspector-head b{font-family:"Bricolage Grotesque",sans-serif;font-size:19px}
+.passed{font-size:13px;font-weight:700;padding:4px 9px;border-radius:3px;background:#245A4B;color:#F4EFE6}
+.check-t{width:100%;border-collapse:collapse;font-size:15px}
+.check-t td{padding:14px 20px;border-bottom:1px solid #E6DED0;vertical-align:top}
+.check-t td:first-child{font-weight:700;width:30%}
+.check-t td:last-child{text-align:right;white-space:nowrap;font-weight:700;color:#245A4B;font-size:13.5px}
+.check-t small{display:block;color:#56646E;font-size:13.5px;font-weight:400;margin-top:2px}
+
+/* channels */
+.ch-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:clamp(28px,5vw,80px);align-items:center}
+.mini-phone{width:340px;max-width:100%;margin:0 auto;border:10px solid #0B1217;border-radius:40px;outline:1.5px solid #34444F;background:#EFE7DA;overflow:hidden}
+.mp-head{display:flex;align-items:center;gap:10px;padding:26px 16px 12px;background:#1F4A3F;color:#F4EFE6}
+.mp-head .logo{width:30px;height:30px;padding:4px;background:#F4EFE6;color:#13212B;border-radius:50%;box-sizing:border-box}
+.mp-head b{display:block;font-size:15px}
+.mp-head small{font-size:12px;color:#C8DCD3}
+.mp-body{padding:14px 12px 18px;display:flex;flex-direction:column;gap:8px;font-size:13.5px;line-height:1.45}
+.b-in{align-self:flex-end;max-width:82%;background:#D9F0CF;color:#13212B;padding:9px 11px;border-radius:10px 10px 2px 10px}
+.b-out{align-self:flex-start;max-width:86%;background:#FFFDF8;color:#13212B;padding:9px 11px;border-radius:10px 10px 10px 2px}
+.b-btns{align-self:flex-start;width:86%;display:grid;gap:4px}
+.b-btns span{display:block;text-align:center;padding:9px;background:#FFFDF8;border-radius:6px;color:#1D6A84;font-weight:700}
+.voice-note{display:flex;align-items:center;gap:10px}
+.voice-note .wave{height:22px;color:#245A4B}
+.chan-rows{display:flex;flex-direction:column}
+.chan-row{display:grid;grid-template-columns:48px 1fr;gap:18px;padding:24px 0;border-top:1px solid #CDC3B2}
+.chan-row .ic-box{width:48px;height:48px;border-radius:4px;background:#13212B;color:#F4EFE6;display:grid;place-items:center}
+.chan-row .ic-box .ic{width:24px;height:24px}
+.chan-row b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:22px;margin-bottom:6px}
+.chan-row span{color:#2B3B47;font-size:16.5px;line-height:1.55}
+
+/* call to action and footer */
+.cta{background:#B4452A;color:#FBF6EE;padding:clamp(64px,8vw,112px) 0}
+.cta-in{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:32px}
+.cta h2{margin:0;font-family:"Bricolage Grotesque",sans-serif;font-weight:650;font-size:clamp(36px,4.4vw,68px);line-height:1;letter-spacing:-0.035em;max-width:14ch}
+.cta-box{display:flex;flex-direction:column;gap:14px;width:min(520px,100%)}
+.cta-field{display:block;padding:18px 20px;background:#FBF6EE;color:#56646E;border-radius:4px;font-size:17px;text-decoration:none}
+.cta-field:hover{color:#13212B}
+.btn-cream{background:#FBF6EE;color:#13212B}
+.btn-cream:hover{background:#FFFFFF}
+.foot{background:#0E1B24;color:#C9D3D9;padding:64px 0 32px}
+.foot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:32px}
+.foot h4{margin:0 0 12px;font-size:14px;color:#F4EFE6}
+.foot a{display:block;color:#C9D3D9;text-decoration:none;padding:5px 0;font-size:15px}
+.foot a:hover{color:#E7B25C}
+.foot p{margin:0;font-size:15px;line-height:1.6}
+.foot .brand{color:#F4EFE6;margin-bottom:12px}
+.foot-base{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;margin-top:48px;padding-top:20px;border-top:1px solid #1C3140;font-size:13.5px;color:#8FA3AF}
+
+/* phones and narrow screens */
+@media (max-width:900px){
+  .how-grid,.lang-wrap,.katha-grid,.ways-grid,.checks-grid,.ch-grid{grid-template-columns:minmax(0,1fr)}
+  .how-demo{position:relative;top:0;height:auto;display:flex;flex-direction:column;gap:16px}
+  .frame{position:relative;inset:auto;opacity:1;animation:none}
+  .demo{position:relative;inset:auto;min-height:420px}
+  .step{min-height:0}
+}
+@media (max-width:760px){
+  .stage{--pw:240px;--ph:496px;--sw:220px;--sh:476px;--px:0px;--py:120px;--ex:0px;--ey:-110px;--es:.72}
+  .hero-copy{align-items:flex-start}
+  .hero-in{width:auto;margin:22px 16px 0;gap:14px}
+  .hc-sub,.hc-hint{display:none}
+  .hc-title{font-size:38px}
+  .end-copy{align-items:flex-end;justify-content:center}
+  .end-in{width:auto;margin:0 16px 28px;gap:12px}
+  .end-in h2{font-size:30px}
+  .end-in p{display:none}
+  .cap{left:12px;right:12px;width:auto;bottom:14px;padding:16px 18px}
+  .cap h3{font-size:24px}
+  .cap p{font-size:15px}
+  .katha-card{top:86px}
+  .sitebar nav{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .journey{height:auto}
+  .stage{position:relative;height:auto;min-height:800px}
+  .world,.cap,.rail,.end-copy{display:none}
+  .phone,.hero-copy,.screen-start,.screen-end,.contours{animation:none}
+}
+@supports not (animation-timeline:view()){
+  .journey{height:auto}
+  .stage{position:relative;height:auto;min-height:800px}
+  .world,.cap,.rail,.end-copy{display:none}
+  .phone,.hero-copy,.screen-start,.screen-end,.contours{animation:none}
+  .frame{animation:none}
+}
+/* on the design canvas the frame is as tall as the page, so the hero shows still */
+@media (min-height:2600px){
+  .journey{height:auto}
+  .stage{position:relative;height:auto;min-height:800px}
+  .world,.cap,.rail,.end-copy{display:none}
+  .phone,.hero-copy,.screen-start,.screen-end,.contours{animation:none}
+  .frame{animation:none}
+}
+</style>
+</helmet>
+
+<div class="site">
+
+<header class="sitebar">
+  <a class="brand" href="Main.dc.html">
+    <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#E07A52" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#E07A52"></circle></svg>
+    <span>Travel Yantra</span>
+  </a>
+  <nav aria-label="Sections">
+    <a href="#how">How it works</a>
+    <a href="#languages">Languages</a>
+    <a href="#katha">Katha</a>
+    <a href="#ways">Getting there</a>
+  </nav>
+  <div class="sb-right">
+    <a class="sb-link" href="SignIn.dc.html">Sign in</a>
+    <a class="btn btn-primary btn-sm" href="SignIn.dc.html">Plan a trip</a>
+  </div>
+</header>
+
+<section class="journey" aria-label="A ride from Bengaluru to Goa">
+<div class="stage">
+
+  <svg class="contours" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g fill="none" stroke="#1C3443" stroke-width="1.4">
+      <path d="M-40 760 C180 700 360 780 600 740 S1000 650 1240 700 S1560 780 1680 730"></path>
+      <path d="M-40 820 C200 770 380 850 620 810 S1020 730 1260 770 S1560 840 1680 800"></path>
+      <path d="M-40 690 C160 640 340 700 580 670 S980 580 1220 630 S1540 700 1680 660"></path>
+      <path d="M1030 300 C1090 220 1260 200 1340 260 C1420 320 1400 430 1300 470 C1200 510 1060 480 1020 400 C1000 360 1005 330 1030 300 Z"></path>
+      <path d="M1070 312 C1120 256 1240 244 1300 290 C1360 336 1346 414 1272 444 C1198 474 1094 452 1066 394 C1050 360 1052 334 1070 312 Z"></path>
+      <path d="M1112 326 C1150 290 1222 286 1262 316 C1300 346 1292 396 1246 414 C1200 432 1132 418 1112 382 C1100 360 1100 342 1112 326 Z"></path>
+      <path d="M120 180 C200 120 340 130 380 200 C420 270 340 330 240 320 C140 310 70 240 120 180 Z"></path>
+      <path d="M160 196 C220 156 316 164 342 214 C368 264 310 300 240 294 C170 288 128 236 160 196 Z"></path>
+    </g>
+  </svg>
+
+  <div class="world" aria-hidden="true">
+
+    <div class="ch ch-car">
+      <div class="sky-car"></div>
+      <svg class="hills hills-far" viewBox="0 0 1600 200" preserveAspectRatio="none"><path d="M0 200 L0 118 C120 92 210 58 330 78 C450 98 530 40 670 50 C810 60 870 108 990 100 C1110 92 1190 30 1330 46 C1450 60 1520 98 1600 92 L1600 200 Z" fill="#8EA398"></path></svg>
+      <svg class="hills hills-mid" viewBox="0 0 1600 200" preserveAspectRatio="none"><path d="M0 200 L0 120 C150 96 260 132 380 110 C520 86 600 136 760 122 C900 110 980 74 1120 96 C1260 118 1380 98 1600 112 L1600 200 Z" fill="#5F7D6C"></path><path d="M280 116 l14 -40 l14 40 Z M330 112 l10 -28 l10 28 Z M1180 100 l14 -42 l14 42 Z M1236 104 l10 -30 l10 30 Z M640 128 l12 -34 l12 34 Z" fill="#4A6656"></path></svg>
+      <div class="roadwrap"><div class="road"></div></div>
+      <div class="sign"><div class="sign-board"><span>Dharwad</span><b>18 km</b><span>Panaji</span><b>186 km</b></div><div class="sign-post"><i></i><i></i></div></div>
+      <svg class="full frame-car" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+        <path fill="#10171C" fill-rule="evenodd" d="M0 0H1600V900H0Z M170 92 Q800 52 1430 92 L1540 650 Q800 708 60 650 Z"></path>
+        <path d="M60 650 Q800 708 1540 650" fill="none" stroke="#28333B" stroke-width="6"></path>
+        <rect x="790" y="58" width="20" height="34" fill="#1A242B"></rect>
+        <rect x="712" y="88" width="176" height="54" rx="10" fill="#1A242B"></rect>
+        <rect x="722" y="97" width="156" height="36" rx="6" fill="#33434E"></rect>
+        <circle cx="1240" cy="960" r="250" fill="none" stroke="#0A0F12" stroke-width="54"></circle>
+        <rect x="300" y="700" width="196" height="114" rx="12" fill="#0B1014"></rect>
+        <rect x="310" y="710" width="176" height="94" rx="6" fill="#1D2B35"></rect>
+        <text x="326" y="740" fill="#9FB6C4" font-family="Figtree, sans-serif" font-size="15">Next stop</text>
+        <text x="326" y="769" fill="#F4EFE6" font-family="Figtree, sans-serif" font-size="20" font-weight="700">Lunch, Hubballi</text>
+        <text x="326" y="793" fill="#E3A33B" font-family="Figtree, sans-serif" font-size="15">42 km, 12:40</text>
+      </svg>
+    </div>
+
+    <div class="ch ch-plane">
+      <div class="sky-plane"></div>
+      <svg class="coast" viewBox="0 0 2400 400" preserveAspectRatio="none">
+        <rect width="2400" height="400" fill="#4A84A3"></rect>
+        <path d="M0 400 L0 250 C200 230 300 300 520 270 C700 246 820 180 1000 200 C1180 220 1260 300 1480 280 C1700 260 1820 190 2020 210 C2200 228 2300 260 2400 250 L2400 400 Z" fill="#C9B48A"></path>
+        <path d="M0 400 L0 284 C220 266 320 334 540 304 C720 280 840 218 1020 236 C1200 256 1280 334 1500 314 C1720 294 1840 226 2040 244 C2210 260 2310 292 2400 284 L2400 400 Z" fill="#6E8A5C"></path>
+        <path d="M0 252 C200 232 300 302 520 272 C700 248 820 182 1000 202 C1180 222 1260 302 1480 282 C1700 262 1820 192 2020 212 C2200 230 2300 262 2400 252" fill="none" stroke="#EEF0E6" stroke-width="4" opacity=".8"></path>
+        <path d="M600 330 C700 320 760 360 860 352 M1600 320 C1680 312 1760 346 1860 340" fill="none" stroke="#4A84A3" stroke-width="10"></path>
+      </svg>
+      <svg class="clouds clouds-far" viewBox="0 0 3200 300" preserveAspectRatio="none">
+        <g fill="#F2F5F5"><ellipse cx="220" cy="170" rx="120" ry="34"></ellipse><ellipse cx="290" cy="150" rx="80" ry="40"></ellipse><ellipse cx="900" cy="120" rx="150" ry="36"></ellipse><ellipse cx="980" cy="98" rx="90" ry="42"></ellipse><ellipse cx="1600" cy="190" rx="130" ry="30"></ellipse><ellipse cx="1660" cy="170" rx="70" ry="34"></ellipse><ellipse cx="2300" cy="130" rx="160" ry="38"></ellipse><ellipse cx="2380" cy="110" rx="90" ry="40"></ellipse><ellipse cx="2950" cy="180" rx="120" ry="30"></ellipse></g>
+      </svg>
+      <svg class="clouds clouds-near" viewBox="0 0 3200 400" preserveAspectRatio="none">
+        <g fill="#FBFCFB"><ellipse cx="420" cy="250" rx="260" ry="70"></ellipse><ellipse cx="540" cy="200" rx="160" ry="90"></ellipse><ellipse cx="320" cy="220" rx="130" ry="70"></ellipse><ellipse cx="1400" cy="280" rx="300" ry="60"></ellipse><ellipse cx="1520" cy="236" rx="170" ry="80"></ellipse><ellipse cx="2400" cy="230" rx="280" ry="74"></ellipse><ellipse cx="2280" cy="196" rx="150" ry="82"></ellipse><ellipse cx="2540" cy="214" rx="120" ry="60"></ellipse></g>
+      </svg>
+      <svg class="full" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+        <path d="M-40 900 L-40 704 L760 812 L830 900 Z" fill="#C3C9CE"></path>
+        <path d="M-40 704 L760 812" stroke="#99A2AA" stroke-width="10"></path>
+        <path d="M720 806 L800 716 L822 728 L772 814 Z" fill="#A9B1B8"></path>
+      </svg>
+      <svg class="full frame-plane" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+        <path fill="#E4DFD5" fill-rule="evenodd" d="M0 0H1600V900H0Z M680 110H920A260 260 0 0 1 1180 370V530A260 260 0 0 1 920 790H680A260 260 0 0 1 420 530V370A260 260 0 0 1 680 110Z"></path>
+        <path fill="none" stroke="#CFC8BA" stroke-width="24" d="M676 86H924A284 284 0 0 1 1208 370V530A284 284 0 0 1 924 814H676A284 284 0 0 1 392 530V370A284 284 0 0 1 676 86Z"></path>
+        <path fill="none" stroke="#B9B1A2" stroke-width="3" d="M680 110H920A260 260 0 0 1 1180 370V530A260 260 0 0 1 920 790H680A260 260 0 0 1 420 530V370A260 260 0 0 1 680 110Z"></path>
+      </svg>
+    </div>
+
+    <div class="ch ch-train">
+      <div class="sky-train"></div>
+      <svg class="ridge ridge-far" viewBox="0 0 2400 300" preserveAspectRatio="none"><path d="M0 300 L0 150 C180 90 320 120 480 70 C640 20 780 90 960 60 C1140 30 1260 110 1440 80 C1620 50 1760 120 1940 70 C2120 20 2260 90 2400 70 L2400 300 Z" fill="#7C9A84"></path></svg>
+      <svg class="ridge ridge-mid" viewBox="0 0 2400 300" preserveAspectRatio="none"><path d="M0 300 L0 170 C160 130 300 170 460 130 C620 90 760 150 940 120 C1120 90 1240 160 1420 130 C1600 100 1740 170 1920 130 C2100 90 2240 150 2400 130 L2400 300 Z" fill="#567A5E"></path></svg>
+      <svg class="falls" viewBox="0 0 600 700" preserveAspectRatio="xMidYMax meet">
+        <path d="M0 700 L0 180 C60 150 120 120 190 130 C260 140 320 90 400 110 C470 128 540 160 600 150 L600 700 Z" fill="#3F4C40"></path>
+        <path d="M0 190 C70 150 130 128 190 138 C260 150 320 100 400 120 C470 138 540 168 600 158 L600 214 C520 224 470 192 400 182 C320 170 260 202 190 198 C120 194 70 216 0 238 Z" fill="#4E7A54"></path>
+        <g class="flow" fill="none" stroke="#F6F5EE" stroke-linecap="round">
+          <path d="M262 150 C258 300 250 450 240 690" stroke-width="22"></path>
+          <path d="M300 140 C298 300 296 470 300 690" stroke-width="30"></path>
+          <path d="M338 150 C344 300 352 470 362 690" stroke-width="20"></path>
+          <path d="M226 200 C220 360 214 520 206 690" stroke-width="10" opacity=".8"></path>
+          <path d="M372 190 C382 350 392 520 404 690" stroke-width="10" opacity=".8"></path>
+        </g>
+        <ellipse cx="300" cy="684" rx="230" ry="46" fill="#F3F4EE" opacity=".55"></ellipse>
+      </svg>
+      <svg class="bush" viewBox="0 0 3200 300" preserveAspectRatio="none"><path d="M0 300 L0 120 C60 60 140 80 190 120 C240 60 330 70 380 120 C430 50 520 60 580 118 C640 70 720 76 780 120 C830 60 920 66 980 120 C1040 50 1120 64 1180 116 C1240 70 1320 80 1380 120 C1440 56 1520 66 1600 120 C1660 60 1740 80 1790 120 C1840 60 1930 70 1980 120 C2030 50 2120 60 2180 118 C2240 70 2320 76 2380 120 C2430 60 2520 66 2580 120 C2640 50 2720 64 2780 116 C2840 70 2920 80 2980 120 C3040 56 3120 66 3200 120 L3200 300 Z" fill="#2F4B36"></path></svg>
+      <div class="poles"></div>
+      <svg class="full" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+        <path fill="#58747F" fill-rule="evenodd" d="M0 0H1600V900H0Z M330 130H1270Q1300 130 1300 160V690Q1300 720 1270 720H330Q300 720 300 690V160Q300 130 330 130Z"></path>
+        <path d="M300 130H1300V720H300Z" fill="none" stroke="#3F5966" stroke-width="16"></path>
+        <g fill="#8E9FA6"><rect x="300" y="380" width="1000" height="15"></rect><rect x="300" y="470" width="1000" height="15"></rect><rect x="300" y="560" width="1000" height="15"></rect><rect x="300" y="650" width="1000" height="15"></rect></g>
+        <g fill="#C9D3D7"><rect x="300" y="380" width="1000" height="4"></rect><rect x="300" y="470" width="1000" height="4"></rect><rect x="300" y="560" width="1000" height="4"></rect><rect x="300" y="650" width="1000" height="4"></rect></g>
+        <rect x="260" y="720" width="1080" height="54" fill="#46606C"></rect>
+        <rect x="0" y="806" width="1600" height="94" fill="#2C4C78"></rect>
+        <path d="M0 818H1600" stroke="#244066" stroke-width="4"></path>
+        <path d="M1180 664 L1236 664 L1229 720 L1187 720 Z" fill="#EDE8DA" opacity=".6"></path>
+        <path d="M1184 680 L1232 680 L1228 717 L1188 717 Z" fill="#A86B34"></path>
+        <path class="steam" d="M1200 652 C1192 632 1208 618 1200 598" stroke="#F2F2EC" stroke-width="3" fill="none"></path>
+        <path class="steam steam2" d="M1216 652 C1224 632 1208 618 1216 598" stroke="#F2F2EC" stroke-width="3" fill="none"></path>
+      </svg>
+    </div>
+
+    <div class="ch ch-goa">
+      <div class="sky-goa"></div>
+      <svg class="full" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+        <circle class="sun" cx="1120" cy="450" r="62" fill="#F8E3B2"></circle>
+        <rect y="540" width="1600" height="160" fill="#3B7A91"></rect>
+        <g class="glint" stroke="#F4D7A0" stroke-width="5" stroke-linecap="round"><path d="M1060 572H1180"></path><path d="M1080 600H1160"></path><path d="M1095 628H1145"></path><path d="M1106 654H1134"></path></g>
+        <path d="M0 690 C300 668 600 700 900 684 C1200 668 1400 692 1600 680 V900 H0Z" fill="#E2C898"></path>
+        <g fill="#9E4529">
+          <rect x="250" y="520" width="460" height="176"></rect>
+          <rect x="285" y="410" width="390" height="112"></rect>
+          <rect x="340" y="318" width="280" height="94"></rect>
+          <path d="M376 320 L376 272 Q480 196 584 272 L584 320 Z"></path>
+          <rect x="474" y="176" width="12" height="44"></rect><rect x="462" y="188" width="36" height="10"></rect>
+        </g>
+        <g fill="#B85B37">
+          <rect x="270" y="520" width="10" height="176"></rect><rect x="680" y="520" width="10" height="176"></rect><rect x="402" y="520" width="8" height="176"></rect><rect x="550" y="520" width="8" height="176"></rect>
+          <rect x="305" y="410" width="8" height="112"></rect><rect x="647" y="410" width="8" height="112"></rect>
+          <rect x="250" y="512" width="460" height="10"></rect><rect x="285" y="402" width="390" height="10"></rect>
+        </g>
+        <g fill="#6D2E1B">
+          <path d="M452 696 V626 A28 28 0 0 1 508 626 V696 Z"></path>
+          <path d="M318 696 V640 A18 18 0 0 1 354 640 V696 Z"></path>
+          <path d="M606 696 V640 A18 18 0 0 1 642 640 V696 Z"></path>
+          <path d="M466 500 V462 A14 14 0 0 1 494 462 V500 Z"></path>
+          <path d="M350 500 V470 A12 12 0 0 1 374 470 V500 Z"></path>
+          <path d="M586 500 V470 A12 12 0 0 1 610 470 V500 Z"></path>
+          <circle cx="480" cy="364" r="20"></circle>
+          <circle cx="480" cy="282" r="18"></circle>
+        </g>
+        <g fill="none" stroke="#21342A" stroke-linecap="round">
+          <path d="M1350 900 C1356 770 1384 650 1444 548" stroke-width="16"></path>
+          <path d="M1444 548 C1384 506 1324 512 1270 546" stroke-width="12"></path>
+          <path d="M1444 548 C1414 476 1372 446 1318 436" stroke-width="12"></path>
+          <path d="M1444 548 C1482 474 1534 452 1594 462" stroke-width="12"></path>
+          <path d="M1444 548 C1504 526 1562 546 1604 588" stroke-width="12"></path>
+          <path d="M1444 548 C1452 604 1442 644 1418 684" stroke-width="10"></path>
+          <path d="M1530 900 C1532 806 1548 726 1580 654" stroke-width="12"></path>
+          <path d="M1580 654 C1540 626 1500 630 1466 652" stroke-width="9"></path>
+          <path d="M1580 654 C1566 606 1538 588 1504 582" stroke-width="9"></path>
+          <path d="M1580 654 C1610 608 1640 598 1680 604" stroke-width="9"></path>
+        </g>
+      </svg>
+      <div class="katha-card">
+        <div class="kc-head"><b>Old Goa in 2 minutes</b><span>Katha</span></div>
+        <div class="kc-langs"><span class="on">English</span><span class="kn">ಕನ್ನಡ</span><span class="hi">हिन्दी</span><span class="ta">தமிழ்</span><span class="te">తెలుగు</span><span class="bn">বাংলা</span></div>
+        <div class="wave play">
+          <sc-for list="{{ bars }}" as="b" hint-placeholder-count="32"><i style="animation-delay: {{ b.d }}; height: {{ b.h }}"></i></sc-for>
+        </div>
+        <p><span class="tag tag-legend">Legend</span> As the story goes, Parashurama shot an arrow into the sea, the waves drew back, and the Konkan coast rose from the water.</p>
+        <p><span class="tag tag-history">History</span> The Basilica of Bom Jesus, consecrated in 1605, keeps the remains of St Francis Xavier.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="hero-copy">
+    <div class="hero-in">
+      <p class="hc-kicker">Plans, stories and bookings for travel in India</p>
+      <h1 class="hc-title">The whole trip, in your language.</h1>
+      <p class="hc-sub">Tell Travel Yantra where you want to go, in Kannada, Hindi, Tamil, Telugu, Bengali or English. It works out the route by road, rail or air, checks every stop, tells you the story of each place and lines up every booking.</p>
+      <div class="hc-actions">
+        <a class="btn btn-primary" href="SignIn.dc.html">Plan a trip</a>
+        <a class="btn btn-on-dark" href="KathaCity.dc.html">Hear a Katha</a>
+      </div>
+      <p class="hc-hint"><i></i>Scroll to ride along from Bengaluru to Goa</p>
+    </div>
+  </div>
+
+  <div class="phone" aria-hidden="true">
+    <div class="screen screen-start">
+      <div class="ps-top">
+        <svg class="logo" viewBox="0 0 28 28"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.8"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.8"></path></svg>
+        <span>Travel Yantra</span>
+      </div>
+      <div class="ps-body">
+        <div class="ps-user">Bengaluru to Goa, 11 to 14 Dec. Me, my parents and my sister. Churches, temples, a little beach. Veg food.</div>
+        <div class="ps-ai"><b>Three ways to go</b>
+          <div class="ps-row"><span>Fly to Mopa</span><span>1 h 10 m</span></div>
+          <div class="ps-row"><span>Rail past Dudhsagar</span><span>overnight</span></div>
+          <div class="ps-row"><span>Road via Hubballi</span><span>10 h</span></div>
+        </div>
+        <div class="ps-ai">Katha ready for 14 places, in all six languages.</div>
+      </div>
+      <div class="ps-compose"><span>Ask or change anything</span><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0"></path><path d="M12 17.5V21"></path></svg></div>
+    </div>
+    <div class="screen screen-end">
+      <div class="ps-top">
+        <svg class="logo" viewBox="0 0 28 28"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.8"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.8"></path></svg>
+        <span>Goa with family</span>
+      </div>
+      <div class="ps-body">
+        <div class="ps-day"><b>Fri</b><span>Fontainhas walk, Miramar sunset</span></div>
+        <div class="ps-day"><b>Sat</b><span>Old Goa churches, Mangueshi, spice farm lunch</span></div>
+        <div class="ps-day"><b>Sun</b><span>Reis Magos, Aguada, Candolim beach</span></div>
+        <div class="ps-day"><b>Mon</b><span>Divar island ferry, train home</span></div>
+        <div class="ps-status">41 of 41 checks passed</div>
+      </div>
+      <div class="ps-actions"><span class="ps-btn">Book 5 items</span><span class="ps-btn ghost">Play Katha</span></div>
+    </div>
+    <div class="punch"></div>
+  </div>
+
+  <div class="rail" aria-hidden="true">
+    <div class="rail-labels"><span>Bengaluru</span><span>Road</span><span>Air</span><span>Rail</span><span>Goa</span></div>
+    <div class="rail-track"><div class="rail-fill"></div></div>
+  </div>
+
+  <div class="cap cap1">
+    <div class="cap-k"><svg class="ic" viewBox="0 0 24 24"><path d="M5 16V12l2-5h10l2 5v4"></path><path d="M3 16h18v2H3z"></path><circle cx="7.5" cy="18.5" r="1.5"></circle><circle cx="16.5" cy="18.5" r="1.5"></circle><path d="M6.5 12h11"></path></svg>One way to go</div>
+    <h3>By road</h3>
+    <p>Bengaluru to Panaji is about 560 km. The plan puts lunch at Hubballi and gets you down Anmod Ghat before dark.</p>
+  </div>
+  <div class="cap cap2">
+    <div class="cap-k"><svg class="ic" viewBox="0 0 24 24"><path d="M3 13h13.5a3.5 3.5 0 0 0 0-3H13L10 5H8l1.5 5H5L3.5 8H2l1 5Z"></path><path d="M9 13l-1.5 5h2L13 13"></path></svg>Another way</div>
+    <h3>By air</h3>
+    <p>Seventy minutes to Mopa. Fares from every airline side by side, and a cab waiting when you land.</p>
+  </div>
+  <div class="cap cap3">
+    <div class="cap-k"><svg class="ic" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="13" rx="2"></rect><path d="M6 10h12"></path><path d="M8 16l-2 4M16 16l2 4M7 19h10"></path></svg>The scenic one</div>
+    <h3>By rail</h3>
+    <p>The line from Londa runs right past Dudhsagar falls. Travel Yantra tells you when to get to the window, and why it is called the sea of milk.</p>
+  </div>
+  <div class="cap cap4">
+    <div class="cap-k"><svg class="ic" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"></path><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"></path></svg>When you arrive</div>
+    <h3>Then, the story</h3>
+    <p>Every place comes with a Katha: its history, its legends and the food worth trying, told in your language and labelled so you know which is which.</p>
+  </div>
+
+  <div class="end-copy">
+    <div class="end-in">
+      <h2>Every way there. Every story on the way.</h2>
+      <p>Plan it in words, change it by asking, book it with the official sellers, and travel with a guide that speaks your language.</p>
+      <div class="hc-actions">
+        <a class="btn btn-primary" href="SignIn.dc.html">Start planning</a>
+        <a class="btn btn-on-dark" href="#how">See how it works</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<section class="sec sec-paper how" id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">How it works</p>
+      <h2>From one sentence to a trip you can take.</h2>
+      <p>Talk to it the way you would talk to a friend who knows India well. The AI listens, compares and explains. Our planner checks every stop before you see the plan.</p>
+    </div>
+    <div class="how-grid">
+      <div class="how-steps">
+        <div class="step s1"><span class="step-n">01</span><h3>Say it the way you would say it to a friend.</h3><p>Type or speak in any of six languages, or mix them. Dates, people, budget, food and pace are picked out for you to check.</p></div>
+        <div class="step s2"><span class="step-n">02</span><h3>Watch it plan.</h3><p>Four specialists work at once: transport, places, stays and stories. Every stop is checked against opening hours, closing days, travel time, meals and your budget.</p></div>
+        <div class="step s3"><span class="step-n">03</span><h3>Pick a way to go.</h3><p>Road, rail or air, compared on time, cost and comfort for the people you are travelling with, with a clear recommendation and the reason for it.</p></div>
+        <div class="step s4"><span class="step-n">04</span><h3>Change anything by asking.</h3><p>Say it should be lighter, cheaper or more about temples. Only the day you touched is rebuilt, and you are told exactly what moved.</p></div>
+        <div class="step s5"><span class="step-n">05</span><h3>Book with the official sellers.</h3><p>Trains on IRCTC, with every detail ready to copy across. Flights and stays on the airline and booking sites, opened with your dates filled in. Add the PNR and we keep watch.</p></div>
+        <div class="step s6"><span class="step-n">06</span><h3>Go with a guide that tells the story.</h3><p>Each place plays its Katha as you arrive, in your language, saved for when there is no signal.</p></div>
+      </div>
+      <div class="how-demo">
+        <div class="frame f1"><div class="demo">
+          <div class="demo-bar"><svg class="logo" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.8"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.8"></path></svg>New trip<span>Hinglish</span></div>
+          <div class="demo-body">
+            <div class="d-user">Goa jaana hai 11 se 14 Dec, mummy papa aur behen ke saath. Churches aur temples, thoda beach. Veg khana, budget 60 hazaar.</div>
+            <div class="d-label">We understood</div>
+            <div class="d-chips"><span class="d-chip">Bengaluru to Goa</span><span class="d-chip">Fri 11 to Mon 14 Dec</span><span class="d-chip">4 travellers, one over 60</span><span class="d-chip">Churches and temples</span><span class="d-chip">Some beach time</span><span class="d-chip">Vegetarian</span><span class="d-chip">About ₹60,000 in all</span><span class="d-chip">Gentle pace</span></div>
+            <div class="d-note">Anything wrong? Tap a detail to change it before we plan.</div>
+          </div>
+        </div></div>
+        <div class="frame f2"><div class="demo">
+          <div class="demo-bar"><svg class="logo" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.8"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.8"></path></svg>Planning your Goa trip<span>12 seconds</span></div>
+          <div class="demo-body">
+            <div class="d-row"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="13" rx="2"></rect><path d="M6 10h12"></path><path d="M8 16l-2 4M16 16l2 4M7 19h10"></path></svg><div><b>Transport</b><small>Road, rail and air compared door to door</small></div><span class="d-ok">Done</span></div>
+            <div class="d-row"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21Z"></path><circle cx="12" cy="10" r="2.3"></circle></svg><div><b>Places</b><small>14 chosen from 142, grouped into four easy days</small></div><span class="d-ok">Done</span></div>
+            <div class="d-row"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18V7"></path><path d="M3 14h18v4"></path><path d="M3 11h7a2 2 0 0 1 2 2v1"></path><path d="M12 14v-2a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v2"></path></svg><div><b>Stays</b><small>Panaji is closest to all four days</small></div><span class="d-ok">Done</span></div>
+            <div class="d-row"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"></path><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"></path></svg><div><b>Katha</b><small>14 stories ready, 4 of them legends</small></div><span class="d-wait">Writing</span></div>
+            <div class="d-note">41 of 41 checks passed: hours, closing days, travel time, meals, day ends by 7 pm, budget.</div>
+          </div>
+        </div></div>
+        <div class="frame f3"><div class="demo">
+          <div class="demo-bar"><svg class="logo" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.8"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.8"></path></svg>Three ways to Goa<span>For 4, return</span></div>
+          <div class="demo-body">
+            <table class="d-table">
+              <thead><tr><th>Way</th><th>Door to door</th><th>Whole trip (est.)</th><th>For Papa</th></tr></thead>
+              <tbody>
+                <tr><td><b>Fly to Mopa</b></td><td>4½ h</td><td>₹86,700</td><td>Easiest</td></tr>
+                <tr class="pick"><td><b>Rail past Dudhsagar</b> <span class="d-pill">Picked</span></td><td>12 h, overnight</td><td>₹57,400</td><td>Lower berth</td></tr>
+                <tr><td><b>Road via Hubballi</b></td><td>10 to 11 h</td><td>₹55,800</td><td>Long day</td></tr>
+              </tbody>
+            </table>
+            <div class="d-ai">Rail fits your budget with room to spare, Papa gets a lower berth, and you pass Dudhsagar at breakfast time.</div>
+          </div>
+        </div></div>
+        <div class="frame f4"><div class="demo">
+          <div class="demo-bar"><svg class="logo" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.8"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.8"></path></svg>Goa with family<span>Saturday</span></div>
+          <div class="demo-body">
+            <div class="d-user">Make Saturday lighter, Papa gets tired by afternoon.</div>
+            <div class="d-ai">Done. Saturday now ends at 4 pm. I took out the Shantadurga temple and moved the spice farm lunch half an hour earlier. Friday, Sunday and Monday are unchanged.</div>
+            <div class="d-row"><span></span><div><b>Saturday</b><small>5 stops, ends 4:00 pm, 12 km less in the cab</small></div><span class="d-ok">Rebuilt</span></div>
+            <div class="d-row"><span></span><div><b>Friday, Sunday, Monday</b><small>Exactly as before</small></div><span class="d-ok">Unchanged</span></div>
+          </div>
+        </div></div>
+        <div class="frame f5"><div class="demo">
+          <div class="demo-bar"><svg class="logo" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.8"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.8"></path></svg>Bookings<span>3 of 5 done</span></div>
+          <div class="demo-body">
+            <div class="d-row"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="13" rx="2"></rect><path d="M6 10h12"></path><path d="M8 16l-2 4M16 16l2 4M7 19h10"></path></svg><div><b>Train out, Thu 10 Dec</b><small>IRCTC, 3A, four berths</small></div><span class="d-ok">Confirmed</span></div>
+            <div class="d-row"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18V7"></path><path d="M3 14h18v4"></path><path d="M3 11h7a2 2 0 0 1 2 2v1"></path><path d="M12 14v-2a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v2"></path></svg><div><b>Stay in Panaji, 3 nights</b><small>Booking.com, two rooms</small></div><span class="d-ok">Booked</span></div>
+            <div class="d-row"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="13" rx="2"></rect><path d="M6 10h12"></path><path d="M8 16l-2 4M16 16l2 4M7 19h10"></path></svg><div><b>Train back, Mon 14 Dec</b><small>Waitlist 12, we are watching it</small></div><span class="d-wait">Waiting</span></div>
+            <div class="d-row"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 16V12l2-5h10l2 5v4"></path><path d="M3 16h18v2H3z"></path><circle cx="7.5" cy="18.5" r="1.5"></circle><circle cx="16.5" cy="18.5" r="1.5"></circle></svg><div><b>Day cab, Saturday</b><small>Goa licensed taxi, about ₹2,600</small></div><span class="d-wait">To book</span></div>
+          </div>
+        </div></div>
+        <div class="frame f6"><div class="demo">
+          <div class="demo-bar"><svg class="logo" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.8"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.8"></path></svg>Now at Shri Mangueshi Temple<span>2 min</span></div>
+          <div class="demo-body">
+            <div class="d-label">Place Katha, in Hindi</div>
+            <p class="hi" style="margin:0;font-size:19px;line-height:1.6">कहते हैं, एक बार शिव ने बाघ का रूप लेकर पार्वती को डराया। घबराकर पार्वती ने पुकारा, "त्राहि माम् गिरीश"। वही शब्द यहाँ देवता का नाम बन गए: मंगेश।</p>
+            <div class="d-chips"><span class="tag tag-legend">Legend</span><span class="tag tag-history">History next: why the temple moved inland in 1560</span></div>
+            <div class="d-note">Saved for offline. Plays on its own when you reach the next stop.</div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-ghat" id="languages">
+  <div class="wrap lang-wrap">
+    <div>
+      <div class="sec-head" style="margin-bottom:0">
+        <p class="kicker">Six languages</p>
+        <h2>Plan in the language you think in.</h2>
+        <p>Type or speak in Kannada, Hindi, Tamil, Telugu, Bengali or English. Mix them the way you talk, or type Hinglish and Kanglish in English letters. Plans, replies and every Katha come back in the same language.</p>
+      </div>
+      <div class="lang-list" role="group" aria-label="Pick a language">
+        <sc-for list="{{ langs }}" as="l" hint-placeholder-count="7">
+          <button type="button" class="{{ l.cls }}" onClick="{{ l.pick }}">{{ l.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+    <div class="lang-stage">
+      <span class="lang-who">You say</span>
+      <p class="{{ sayCls }}">{{ say }}</p>
+      <span class="lang-who">Travel Yantra replies</span>
+      <p class="{{ replyCls }}">{{ reply }}</p>
+      <p class="lang-foot">Speech in and out in all six languages. On the web, on WhatsApp and by voice.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-sand" id="katha">
+  <div class="wrap katha-grid">
+    <div>
+      <div class="sec-head" style="margin-bottom:24px">
+        <p class="kicker">Katha</p>
+        <h2>A guide that knows the stories, and tells you which are stories.</h2>
+        <p>History is told as history. Every legend begins with "As the story goes", so you always know which is which. Each paragraph carries its source.</p>
+      </div>
+      <div class="kt-points">
+        <div class="kt-point"><b>City Katha</b><span>A portrait of a whole city in 2, 5 or 10 minutes: what it is, who built it, what it eats.</span></div>
+        <div class="kt-point"><b>Place Katha</b><span>One temple, fort or palace in depth, with the legends people tell there.</span></div>
+        <div class="kt-point"><b>Day Katha</b><span>The story of your planned day, stop by stop, ready before you leave the hotel.</span></div>
+      </div>
+    </div>
+    <div class="player">
+      <div class="seg" role="group" aria-label="Kind of Katha">
+        <sc-for list="{{ ktabs }}" as="t" hint-placeholder-count="3"><button type="button" class="{{ t.cls }}" onClick="{{ t.pick }}">{{ t.label }}</button></sc-for>
+      </div>
+      <div class="player-top">
+        <button type="button" class="play-btn" onClick="{{ togglePlay }}" aria-label="{{ playLabel }}">
+          <sc-if value="{{ playing }}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24"><rect x="6.5" y="5" width="3.6" height="14" fill="currentColor" stroke="none"></rect><rect x="13.9" y="5" width="3.6" height="14" fill="currentColor" stroke="none"></rect></svg></sc-if>
+          <sc-if value="{{ paused }}" hint-placeholder-val="{{ true }}"><svg class="ic" viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z" fill="currentColor" stroke="none"></path></svg></sc-if>
+        </button>
+        <div class="player-title"><b>{{ kt.title }}</b><span>{{ kt.meta }}</span></div>
+      </div>
+      <div class="{{ waveCls }}">
+        <sc-for list="{{ bars }}" as="b" hint-placeholder-count="32"><i style="animation-delay: {{ b.d }}; height: {{ b.h }}"></i></sc-for>
+      </div>
+      <p class="quote"><span class="{{ kt.qtagCls }}">{{ kt.qtag }}</span>{{ kt.quote }}</p>
+      <div class="segrows">
+        <sc-for list="{{ kt.rows }}" as="r" hint-placeholder-count="5">
+          <div class="segrow"><span class="n">{{ r.n }}</span><span>{{ r.title }}</span><span class="{{ r.tcls }}">{{ r.tag }}</span><span class="t">{{ r.t }}</span></div>
+        </sc-for>
+      </div>
+      <a class="btn btn-cream btn-sm" href="KathaCity.dc.html" style="align-self:flex-start">Open the full Katha</a>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-night" id="ways">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker">Getting there</p>
+      <h2>Every way to get there, compared honestly.</h2>
+      <p>Road, rail and air are routed on a real network and compared door to door, including the time it takes to reach the airport or the station.</p>
+    </div>
+    <div class="ways-grid">
+      <div class="routemap">
+        <svg viewBox="0 0 880 760" role="img" aria-label="Map of the road, rail and air routes from Bengaluru to Goa">
+          <rect width="880" height="760" fill="#1B3A4C"></rect>
+          <path d="M120 0 L46 28 L60 62 L82 104 L76 118 L102 144 L124 198 L144 238 L180 268 L184 290 L202 314 L208 344 L230 402 L258 476 L268 532 L288 626 L318 700 L340 760 L880 760 L880 0 Z" fill="#203545"></path>
+          <path d="M150 0 L120 60 L150 120 L190 200 L224 280 L250 360 L282 450 L300 540 L326 640 L352 760 L410 760 L384 640 L356 540 L334 450 L306 360 L280 280 L246 200 L214 120 L190 50 L200 0 Z" fill="#244836" opacity=".9"></path>
+          <path d="M838 606 L740 532 L600 354 L504 308 L344 128 L322 108 L282 112 L218 112 L197 115 L150 112 L111 120 L87 100" fill="none" stroke="#E3A33B" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"></path>
+          <path d="M838 606 L760 520 L690 430 L600 354 L504 308 L344 128 L322 108 L222 108 L183 137 L111 145" fill="none" stroke="#F4EFE6" stroke-width="4" stroke-dasharray="12 9" stroke-linecap="round"></path>
+          <path d="M838 606 Q520 160 93 54" fill="none" stroke="#8FC0DA" stroke-width="4" stroke-dasharray="2 10" stroke-linecap="round"></path>
+          <g fill="#F4EFE6">
+            <circle cx="838" cy="606" r="8"></circle><circle cx="87" cy="100" r="8"></circle><circle cx="93" cy="54" r="6"></circle><circle cx="111" cy="145" r="6"></circle><circle cx="344" cy="128" r="6"></circle><circle cx="183" cy="137" r="6" fill="#E3A33B"></circle><circle cx="197" cy="115" r="5"></circle><circle cx="600" cy="354" r="5"></circle>
+          </g>
+          <g font-family="Figtree, sans-serif" font-size="21" fill="#E9EEF0" font-weight="600">
+            <text x="760" y="646">Bengaluru</text>
+            <text x="102" y="94">Panaji</text>
+            <text x="104" y="48">Mopa airport</text>
+            <text x="122" y="176">Madgaon</text>
+            <text x="356" y="124">Hubballi</text>
+            <text x="200" y="168" fill="#E3A33B">Dudhsagar</text>
+            <text x="214" y="98">Anmod Ghat</text>
+            <text x="614" y="352">Chitradurga</text>
+          </g>
+          <text x="22" y="420" font-family="Figtree, sans-serif" font-size="18" fill="#8FB6CB">Arabian Sea</text>
+          <text x="236" y="600" font-family="Figtree, sans-serif" font-size="16" fill="#9FC2A6" transform="rotate(-62 236 600)">Western Ghats</text>
+        </svg>
+        <div class="legend"><span><i></i>Road</span><span><i class="rail"></i>Rail</span><span><i class="air"></i>Air</span></div>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="ways-table">
+          <thead><tr><th>Way</th><th>Door to door</th><th>One way for 4 (est.)</th><th>What you see</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><b><svg class="ic" viewBox="0 0 24 24"><path d="M3 13h13.5a3.5 3.5 0 0 0 0-3H13L10 5H8l1.5 5H5L3.5 8H2l1 5Z"></path><path d="M9 13l-1.5 5h2L13 13"></path></svg>Fly to Mopa</b><small>Shortest for elders and short trips</small></td>
+              <td>About 4 h with the airport</td><td>₹19,000 to ₹26,000</td><td>The Konkan coast from above</td>
+            </tr>
+            <tr>
+              <td><b><svg class="ic" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="13" rx="2"></rect><path d="M6 10h12"></path><path d="M8 16l-2 4M16 16l2 4M7 19h10"></path></svg>Rail past Dudhsagar</b><small>Overnight, best value</small></td>
+              <td>About 12 h, you sleep through most of it</td><td>₹5,000 to ₹6,000 in 3A</td><td>Dudhsagar falls and the ghats</td>
+            </tr>
+            <tr>
+              <td><b><svg class="ic" viewBox="0 0 24 24"><path d="M5 16V12l2-5h10l2 5v4"></path><path d="M3 16h18v2H3z"></path><circle cx="7.5" cy="18.5" r="1.5"></circle><circle cx="16.5" cy="18.5" r="1.5"></circle><path d="M6.5 12h11"></path></svg>Road via Hubballi</b><small>Your own pace, stops on the way</small></td>
+              <td>10 to 11 h of driving</td><td>₹5,000 to ₹6,500 fuel and tolls</td><td>The Deccan plateau, Anmod Ghat</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="fine">Figures in this prototype are illustrative. In the product they come from live fares and the rail timetable when you plan.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-paper">
+  <div class="wrap checks-grid">
+    <div class="sec-head" style="margin-bottom:0">
+      <p class="kicker">Plans that hold up</p>
+      <h2>Checked before you see it.</h2>
+      <p>The AI understands you, compares options and writes the plan up. Before any plan reaches you, our planner tests every stop on every day, and fixes the day that fails.</p>
+    </div>
+    <div class="inspector">
+      <div class="inspector-head"><b>Goa with family, 4 days</b><span class="passed">41 of 41 passed</span></div>
+      <table class="check-t">
+        <tbody>
+          <tr><td>Opening hours<small>Every stop is open when you arrive</small></td><td>14 stops checked against their hours</td><td>Passed</td></tr>
+          <tr><td>Closing days<small>Weekly closures and festival days</small></td><td>A museum shut on Fridays moved to Saturday</td><td>Passed</td></tr>
+          <tr><td>Travel time<small>Between stops and between cities</small></td><td>No day has more than 2 h on the road</td><td>Passed</td></tr>
+          <tr><td>Meals<small>A food stop that suits you, on time</small></td><td>Vegetarian lunch within reach every day</td><td>Passed</td></tr>
+          <tr><td>Your day's end<small>When your group wants to stop</small></td><td>Every day ends by 7 pm for Papa</td><td>Passed</td></tr>
+          <tr><td>Walking<small>For elders and small children</small></td><td>Steep forts swapped for easy ones</td><td>Passed</td></tr>
+          <tr><td>Season<small>Monsoon closures and crowds</small></td><td>Dry season, and home before the Christmas rush</td><td>Passed</td></tr>
+          <tr><td>Budget<small>Travel, stay, food and tickets</small></td><td>₹57,400 of ₹60,000, estimated</td><td>Passed</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="sec sec-sand">
+  <div class="wrap ch-grid">
+    <div class="mini-phone" aria-label="A trip planned in a chat">
+      <div class="mp-head"><svg class="logo" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.8"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.8"></path></svg><div><b>Travel Yantra</b><small>Replies in your language</small></div></div>
+      <div class="mp-body">
+        <div class="b-in"><div class="voice-note"><svg class="ic" viewBox="0 0 24 24" style="width:18px;height:18px;color:#245A4B"><path d="M8 5v14l11-7L8 5Z" fill="currentColor" stroke="none"></path></svg><div class="wave play" style="height:22px"><sc-for list="{{ smallBars }}" as="b" hint-placeholder-count="14"><i style="animation-delay: {{ b.d }}; height: {{ b.h }}"></i></sc-for></div><span>0:14</span></div></div>
+        <div class="b-out">Theek hai. Bengaluru se Goa, 11 se 14 Dec, aap chaar log, ek 60 se upar, veg khana. Kaise jaana pasand karenge?</div>
+        <div class="b-btns"><span>Fly to Mopa</span><span>Rail past Dudhsagar</span><span>Road via Hubballi</span></div>
+        <div class="b-in">Rail past Dudhsagar</div>
+        <div class="b-out">Plan taiyaar hai. Shanivar ko Old Goa ke churches, Mangueshi mandir aur spice farm mein lunch. Poora plan PDF mein bhej raha hoon.</div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-head" style="margin-bottom:16px">
+        <p class="kicker">Wherever you are</p>
+        <h2>On the web, on WhatsApp, or just say it.</h2>
+      </div>
+      <div class="chan-rows">
+        <div class="chan-row"><span class="ic-box"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="1.5"></rect><path d="M8 21h8M12 17v4"></path></svg></span><div><b>On the web</b><span>The full planner with maps, side by side comparisons and the Katha library. Share a link with the family.</span></div></div>
+        <div class="chan-row"><span class="ic-box"><svg class="ic" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4V5Z"></path></svg></span><div><b>On WhatsApp</b><span>Send a voice note or a message. Get the plan, map pins, the PDF and the day's Katha back in the chat.</span></div></div>
+        <div class="chan-row"><span class="ic-box"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0"></path><path d="M12 17.5V21"></path></svg></span><div><b>By voice</b><span>Talk to it hands free in your language, on the road or at the site, and hear the answer read back.</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="wrap cta-in">
+    <h2>Where are you going next?</h2>
+    <div class="cta-box">
+      <a class="cta-field" href="SignIn.dc.html">Bengaluru to Goa, 11 to 14 Dec, with my parents</a>
+      <a class="btn btn-cream" href="SignIn.dc.html">Plan a trip</a>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="Main.dc.html"><svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#E07A52" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#E07A52"></circle></svg><span>Travel Yantra</span></a>
+        <p>Plans, stories and bookings for travel in India, in six languages.</p>
+      </div>
+      <div><h4>Product</h4><a href="SignIn.dc.html">Plan a trip</a><a href="KathaHome.dc.html">Katha library</a><a href="MyTrips.dc.html">My trips</a><a href="WhatsApp.dc.html">On WhatsApp</a></div>
+      <div><h4>Project</h4><p>A final-year major project, Department of Information Science and Engineering, BMS Institute of Technology and Management, Bengaluru.</p></div>
+      <div><h4>Legal</h4><a href="Legal.dc.html">Terms of Service</a><a href="Legal.dc.html">Privacy Policy</a><a href="Settings.dc.html">Your data</a></div>
+    </div>
+    <div class="foot-base"><span>Prototype with sample data. Fares, timings and ratings shown are illustrative.</span><span>2026</span></div>
+  </div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":9800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const lang = s.lang || 'en';
+    const tab = s.tab || 'city';
+    const playing = !!s.playing;
+    const L = {
+      en: { label: 'English', cls: '', say: 'Plan a Goa trip for me and my parents.', reply: 'Here are three ways to get to Goa.' },
+      hi: { label: 'हिन्दी', cls: 'hi', say: 'मेरे और मेरे माता-पिता के लिए गोवा की यात्रा प्लान करो।', reply: 'गोवा पहुँचने के तीन रास्ते ये रहे।' },
+      kn: { label: 'ಕನ್ನಡ', cls: 'kn', say: 'ನನಗೂ ನನ್ನ ಅಪ್ಪ ಅಮ್ಮನಿಗೂ ಒಂದು ಗೋವಾ ಪ್ರವಾಸ ಪ್ಲಾನ್ ಮಾಡು.', reply: 'ಗೋವಾ ತಲುಪಲು ಮೂರು ದಾರಿಗಳು ಇಲ್ಲಿವೆ.' },
+      ta: { label: 'தமிழ்', cls: 'ta', say: 'எனக்கும் என் அப்பா அம்மாவுக்கும் ஒரு கோவா பயணம் திட்டமிடு.', reply: 'கோவா செல்ல மூன்று வழிகள் இதோ.' },
+      te: { label: 'తెలుగు', cls: 'te', say: 'నాకూ మా అమ్మానాన్నలకూ ఒక గోవా ట్రిప్ ప్లాన్ చెయ్యి.', reply: 'గోవాకు వెళ్ళడానికి మూడు దారులు ఇవిగో.' },
+      bn: { label: 'বাংলা', cls: 'bn', say: 'আমার আর আমার বাবা-মায়ের জন্য একটা গোয়া ট্রিপ প্ল্যান করো।', reply: 'গোয়া যাওয়ার তিনটে উপায় এই রইল।' },
+      mix: { label: 'Hinglish', cls: '', say: 'Mere aur mummy papa ke liye Goa trip plan karo.', reply: 'Goa jaane ke teen raaste ye rahe.' }
+    };
+    const order = ['en', 'kn', 'hi', 'ta', 'te', 'bn', 'mix'];
+    const langs = order.map((k) => ({
+      label: L[k].label,
+      cls: 'lang-btn ' + L[k].cls + (k === lang ? ' on' : ''),
+      pick: () => this.setState({ lang: k })
+    }));
+    const K = {
+      city: {
+        title: 'Mysuru in 5 minutes', meta: 'City Katha, 7 parts, English',
+        qtag: 'Legend', qtagCls: 'tag tag-legend',
+        quote: 'As the story goes, the goddess Chamundeshwari fought the buffalo demon Mahishasura on the hill above the city. The town took his name, Mahishuru, and in time became Mysuru.',
+        rows: [
+          { n: '1', title: 'What Mysuru is', tag: 'History', tcls: 'tag tag-history', t: '0:48' },
+          { n: '2', title: 'How it got its name', tag: 'Legend', tcls: 'tag tag-legend', t: '0:52' },
+          { n: '3', title: 'Who built the city you see', tag: 'History', tcls: 'tag tag-history', t: '0:41' },
+          { n: '4', title: 'The palace', tag: 'History', tcls: 'tag tag-history', t: '0:46' },
+          { n: '5', title: 'What it eats', tag: 'Food', tcls: 'tag tag-food', t: '0:39' }
+        ]
+      },
+      place: {
+        title: 'Shri Mangueshi Temple', meta: 'Place Katha, Ponda, Goa',
+        qtag: 'Legend', qtagCls: 'tag tag-legend',
+        quote: 'As the story goes, Shiva once took the form of a tiger to tease Parvati. Frightened, she cried out "Trahi mam Girisha", save me, lord of the mountain. Those words became the name of the god here: Manguesh.',
+        rows: [
+          { n: '1', title: 'The tiger on the hill', tag: 'Legend', tcls: 'tag tag-legend', t: '0:44' },
+          { n: '2', title: 'Why the temple moved inland', tag: 'History', tcls: 'tag tag-history', t: '0:50' },
+          { n: '3', title: 'The seven storey lamp tower', tag: 'History', tcls: 'tag tag-history', t: '0:31' },
+          { n: '4', title: 'Before you go in', tag: 'Practical', tcls: 'tag tag-practical', t: '0:22' }
+        ]
+      },
+      day: {
+        title: 'Saturday in Old Goa and Ponda', meta: 'Day Katha, 5 stops, 12 minutes',
+        qtag: 'History', qtagCls: 'tag tag-history',
+        quote: 'Plays stop by stop as you arrive, starting with the Basilica of Bom Jesus at 9:00. Saved on your phone, so it works with no signal.',
+        rows: [
+          { n: '1', title: 'Basilica of Bom Jesus', tag: 'History', tcls: 'tag tag-history', t: '3:10' },
+          { n: '2', title: 'Sé Cathedral', tag: 'History', tcls: 'tag tag-history', t: '2:20' },
+          { n: '3', title: 'Church of St Francis of Assisi', tag: 'History', tcls: 'tag tag-history', t: '1:40' },
+          { n: '4', title: 'Shri Mangueshi Temple', tag: 'Legend', tcls: 'tag tag-legend', t: '2:40' },
+          { n: '5', title: 'Spice farm lunch', tag: 'Food', tcls: 'tag tag-food', t: '1:50' }
+        ]
+      }
+    };
+    const tabNames = [['city', 'City'], ['place', 'Place'], ['day', 'Day']];
+    const ktabs = tabNames.map(([k, label]) => ({
+      label, cls: k === tab ? 'on' : '', pick: () => this.setState({ tab: k })
+    }));
+    const heights = [38, 62, 80, 54, 92, 70, 44, 66, 88, 58, 74, 40, 96, 64, 50, 82, 60, 72, 46, 90, 56, 68, 84, 42, 76, 52, 94, 62, 48, 78, 58, 70];
+    const bars = heights.map((h, i) => ({ h: h + '%', d: (-(i * 0.13) % 1).toFixed(2) + 's' }));
+    const smallBars = heights.slice(0, 14).map((h, i) => ({ h: h + '%', d: (-(i * 0.17) % 1).toFixed(2) + 's' }));
+    return {
+      langs,
+      say: L[lang].say, reply: L[lang].reply,
+      sayCls: 'lang-say ' + L[lang].cls, replyCls: 'lang-reply ' + L[lang].cls,
+      ktabs, kt: K[tab],
+      playing, paused: !playing,
+      playLabel: playing ? 'Pause the Katha' : 'Play the Katha',
+      togglePlay: () => this.setState({ playing: !playing }),
+      waveCls: playing ? 'wave play' : 'wave',
+      bars, smallBars
+    };
+  }
+}
+</script>
+</body>
+</html>

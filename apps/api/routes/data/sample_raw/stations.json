@@ -1,0 +1,243 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     77.5696,
+     12.978
+    ]
+   },
+   "properties": {
+    "code": "SBC",
+    "name": "KSR Bengaluru City Jn",
+    "state": "Karnataka",
+    "zone": "SAMPLE",
+    "address": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     77.1017,
+     13.3392
+    ]
+   },
+   "properties": {
+    "code": "TK",
+    "name": "Tumakuru",
+    "state": "Karnataka",
+    "zone": "SAMPLE",
+    "address": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     76.2547,
+     13.3139
+    ]
+   },
+   "properties": {
+    "code": "ASK",
+    "name": "Arsikere Jn",
+    "state": "Karnataka",
+    "zone": "SAMPLE",
+    "address": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     75.124,
+     15.3647
+    ]
+   },
+   "properties": {
+    "code": "UBL",
+    "name": "Hubballi Jn",
+    "state": "Karnataka",
+    "zone": "SAMPLE",
+    "address": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     74.512,
+     15.459
+    ]
+   },
+   "properties": {
+    "code": "LD",
+    "name": "Londa Jn",
+    "state": "Karnataka",
+    "zone": "SAMPLE",
+    "address": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     73.957,
+     15.273
+    ]
+   },
+   "properties": {
+    "code": "MAO",
+    "name": "Madgaon Jn",
+    "state": "Goa",
+    "zone": "SAMPLE",
+    "address": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     73.93,
+     15.48
+    ]
+   },
+   "properties": {
+    "code": "KRMI",
+    "name": "Karmali",
+    "state": "Goa",
+    "zone": "SAMPLE",
+    "address": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     73.8742,
+     18.5287
+    ]
+   },
+   "properties": {
+    "code": "PUNE",
+    "name": "Pune Jn",
+    "state": "Maharashtra",
+    "zone": "SAMPLE",
+    "address": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     72.8355,
+     18.9398
+    ]
+   },
+   "properties": {
+    "code": "CSMT",
+    "name": "Mumbai CSMT",
+    "state": "Maharashtra",
+    "zone": "SAMPLE",
+    "address": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     76.2909,
+     9.9697
+    ]
+   },
+   "properties": {
+    "code": "ERS",
+    "name": "Ernakulam Jn",
+    "state": "Kerala",
+    "zone": "SAMPLE",
+    "address": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     76.9525,
+     8.4875
+    ]
+   },
+   "properties": {
+    "code": "TVC",
+    "name": "Thiruvananthapuram Central",
+    "state": "Kerala",
+    "zone": "SAMPLE",
+    "address": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     80.2757,
+     13.0827
+    ]
+   },
+   "properties": {
+    "code": "MAS",
+    "name": "Chennai Central",
+    "state": "Tamil Nadu",
+    "zone": "SAMPLE",
+    "address": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     80.62,
+     16.519
+    ]
+   },
+   "properties": {
+    "code": "BZA",
+    "name": "Vijayawada Jn",
+    "state": "Andhra Pradesh",
+    "zone": "SAMPLE",
+    "address": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     77.2197,
+     28.643
+    ]
+   },
+   "properties": {
+    "code": "DEL",
+    "name": "New Delhi",
+    "state": "Delhi",
+    "zone": "SAMPLE",
+    "address": ""
+   }
+  }
+ ]
+}

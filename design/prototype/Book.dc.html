@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Book the Goa trip · Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#1D6A84}a:hover{color:#13212B}
+.bk-top{display:flex;flex-direction:column;gap:18px;margin-bottom:24px}
+.bk-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:1px;margin-bottom:32px;border:1px solid #D8CFBF;border-radius:4px;overflow:hidden;background:#D8CFBF}
+.bk-strip div{display:flex;flex-direction:column;gap:4px;padding:16px 18px;background:#FAF7F1}
+.bk-strip small{font-size:13px;font-weight:700;color:#56646E}
+.bk-strip b{font-family:"Bricolage Grotesque",sans-serif;font-size:26px;letter-spacing:-0.02em;font-variant-numeric:tabular-nums}
+.bk-sec{display:flex;flex-direction:column;gap:16px;padding:32px 0;border-top:1px solid #D8CFBF}
+.bk-sec-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px}
+.item{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:16px;align-items:start;padding:18px;border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1}
+.item-ic{width:48px;height:48px;border-radius:4px;display:grid;place-items:center;background:#EDE6D9;color:#13212B}
+.item-ic.ok{background:#245A4B;color:#F4EFE6}
+.item-ic.wait{background:#F3E1C2;color:#714409}
+.item b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:19px;letter-spacing:-0.01em;line-height:1.2}
+.item-sub{display:block;margin-top:4px;font-size:14.5px;color:#56646E;line-height:1.5}
+.item-facts{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:14px}
+.item-facts span b{display:inline;font-family:Figtree,sans-serif;font-size:13px;color:#56646E;margin-right:4px}
+.item-side{display:flex;flex-direction:column;align-items:flex-end;gap:8px;text-align:right}
+.mono-id{font-family:"JetBrains Mono",monospace;font-size:13.5px}
+.copy{display:flex;flex-direction:column;gap:14px;padding:clamp(18px,2vw,24px);border-radius:4px;background:#13212B;color:#F4EFE6}
+.copy-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
+.copy-head b{font-family:"Bricolage Grotesque",sans-serif;font-size:20px}
+.copy p{margin:0;font-size:14.5px;line-height:1.55;color:#C9D3D9}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(130px,100%),1fr));gap:8px}
+.cfield{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:4px;background:#1A2E3C}
+.cfield small{font-size:12px;font-weight:700;color:#8FA3AF}
+.cfield span{font-family:"JetBrains Mono",monospace;font-size:14.5px}
+.ptable{width:100%;border-collapse:collapse;font-size:14.5px}
+.ptable th{text-align:left;font-size:12px;font-weight:700;color:#8FA3AF;padding:6px 8px;border-bottom:1px solid #FFFFFF26}
+.ptable td{padding:10px 8px;border-bottom:1px solid #FFFFFF14}
+.copy .row-wrap{gap:8px}
+.btn-cream{background:#F4EFE6;color:#13212B}
+.btn-cream:hover{background:#FFFFFF;color:#13212B}
+.track{display:flex;gap:8px;flex-wrap:wrap}
+.track .input{flex:1 1 200px;background:#FFFDF9}
+.timeline{list-style:none;margin:0;padding:0}
+.timeline li{display:grid;grid-template-columns:118px 14px minmax(0,1fr);gap:12px;align-items:start;padding:10px 0;font-size:14.5px}
+.timeline time{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:#56646E;padding-top:2px}
+.timeline i{width:10px;height:10px;margin-top:5px;border-radius:50%;background:#A99E8B}
+.timeline li:first-child i{background:#245A4B}
+.opts3{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:12px}
+.o3{display:flex;flex-direction:column;gap:8px;padding:16px;border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1}
+.o3.on{border:2px solid #245A4B;padding:15px}
+.o3 b{font-family:"Bricolage Grotesque",sans-serif;font-size:18px}
+.o3 .price{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.o3 small{font-size:14px;color:#56646E;line-height:1.5}
+.o3 .btn{align-self:flex-start;margin-top:auto}
+.pack{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;margin-top:32px;padding:clamp(20px,2.6vw,32px);border-radius:4px;background:#173B31;color:#F4EFE6}
+.pack b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:clamp(24px,2.2vw,32px);letter-spacing:-0.02em;margin-bottom:6px}
+.pack p{margin:0;font-size:16px;line-height:1.55;color:#CFE0D8;max-width:62ch}
+.pack .row-wrap{gap:10px;margin-top:16px}
+@media (max-width:760px){.item{grid-template-columns:40px minmax(0,1fr)}.item-side{grid-column:2;align-items:flex-start;text-align:left}.pack{grid-template-columns:minmax(0,1fr)}}
+</style>
+</helmet>
+
+<div class="app">
+  <header class="appbar">
+    <a class="brand" href="Home.dc.html">
+      <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#B4452A"></circle></svg>
+      <span>Travel Yantra</span>
+    </a>
+    <nav class="appnav" aria-label="Main">
+      <a href="Home.dc.html">Home</a>
+      <a href="PlanStart.dc.html">Plan a trip</a>
+      <a href="KathaHome.dc.html">Katha</a>
+      <a href="MyTrips.dc.html" class="on">My trips</a>
+    </nav>
+    <div class="appbar-end">
+      <a class="btn btn-quiet btn-sm" href="Settings.dc.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"></path></svg>English</a>
+      <a class="avatar" href="Settings.dc.html" aria-label="Account and settings">AR</a>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="wrap">
+      <div class="bk-top">
+        <nav class="trail" aria-label="Planning steps">
+          <a class="done" href="PlanStart.dc.html"><i>1</i>Describe</a><span class="sep"></span>
+          <a class="done" href="PlanThinking.dc.html"><i>2</i>Plan</a><span class="sep"></span>
+          <a class="done" href="PlanOptions.dc.html"><i>3</i>Choose a way</a><span class="sep"></span>
+          <a class="done" href="Itinerary.dc.html"><i>4</i>Itinerary</a><span class="sep"></span>
+          <span class="on"><i>5</i>Book</span><span class="sep"></span>
+          <a href="TripLive.dc.html"><i>6</i>Katha</a>
+        </nav>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <h1 class="page-title">Book the Goa trip</h1>
+          <p class="page-sub">We line everything up and hand you to the official seller. You pay them directly, then add the booking here and we watch it for you.</p>
+        </div>
+      </div>
+
+      <div class="bk-strip">
+        <div><small>Booked</small><b>{{ bookedText }}</b></div>
+        <div><small>Paid so far</small><b>₹36,400</b></div>
+        <div><small>Still to pay, est.</small><b>{{ leftText }}</b></div>
+        <div><small>Needs watching</small><b>1 waitlist</b></div>
+      </div>
+
+      <section class="bk-sec" style="border-top: 0; padding-top: 0" aria-labelledby="t-h">
+        <div class="bk-sec-head"><h2 class="h2" id="t-h">Trains</h2><span class="hint">Booked on IRCTC by you, tracked by us</span></div>
+        <div class="split">
+          <div class="main" style="display: flex; flex-direction: column; gap: 12px">
+            <article class="item">
+              <span class="item-ic ok"><svg class="ic" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="13" rx="2"></rect><path d="M6 10h12"></path><path d="M8 16l-2 4M16 16l2 4M7 19h10"></path></svg></span>
+              <div>
+                <b>Going: Thu 10 Dec, Yesvantpur to Madgaon</b>
+                <span class="item-sub">Night train, 9:10 pm to 9:40 am. 3A, four berths together.</span>
+                <div class="item-facts"><span><b>PNR</b><span class="mono-id">452 168 3907</span></span><span><b>Coach</b>B2, berths 9 to 12</span><span><b>Lower berths</b>9 and 12 for your parents</span></div>
+              </div>
+              <div class="item-side"><span class="st st-ok">Confirmed</span><span class="hint">₹5,600 paid</span></div>
+            </article>
+            <article class="item">
+              <span class="item-ic wait"><svg class="ic" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="13" rx="2"></rect><path d="M6 10h12"></path><path d="M8 16l-2 4M16 16l2 4M7 19h10"></path></svg></span>
+              <div>
+                <b>Coming back: Mon 14 Dec, Madgaon to Yesvantpur</b>
+                <span class="item-sub">Night train, 7:05 pm to 7:30 am. 3A, four berths.</span>
+                <div class="item-facts"><span><b>PNR</b><span class="mono-id">452 169 0144</span></span><span><b>Status</b>WL 7, was WL 12</span><span><b>Chance it confirms</b>Good, estimated</span></div>
+              </div>
+              <div class="item-side"><span class="st st-wait">Waitlisted</span><span class="hint">₹5,600 paid, refunded if it stays waitlisted</span></div>
+            </article>
+            <div class="panel panel-pad" style="display: flex; flex-direction: column; gap: 12px">
+              <h3 class="h3">We are watching the return</h3>
+              <ul class="timeline">
+                <li><time>Today, 7:02 am</time><i></i><span>Moved from WL 12 to WL 7. We sent you a WhatsApp message.</span></li>
+                <li><time>Sun 25 Oct</time><i></i><span>Moved from WL 15 to WL 12.</span></li>
+                <li><time>Fri 23 Oct</time><i></i><span>Moved from WL 19 to WL 15.</span></li>
+                <li><time>Tue 20 Oct</time><i></i><span>Booked at WL 19. You added the PNR, and tracking started.</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <aside class="side copy" aria-labelledby="irctc-h">
+            <div class="copy-head"><b id="irctc-h">Ready for IRCTC</b><span class="badge badge-ink" style="background: #F4EFE6; color: #13212B">Sample travellers</span></div>
+            <p>IRCTC does not let other apps fill in its booking form, so here is everything in the order its form asks for it. Copy, paste, book, then bring the PNR back here.</p>
+            <div class="cgrid">
+              <div class="cfield"><small>From</small><span>YPR</span></div>
+              <div class="cfield"><small>To</small><span>MAO</span></div>
+              <div class="cfield"><small>Date</small><span>10-12-2026</span></div>
+              <div class="cfield"><small>Class</small><span>3A</span></div>
+              <div class="cfield"><small>Quota</small><span>General</span></div>
+              <div class="cfield"><small>Departs</small><span>21:10</span></div>
+            </div>
+            <div class="table-box">
+              <table class="ptable">
+                <thead><tr><th>Name</th><th>Age</th><th>Gender</th><th>Berth</th></tr></thead>
+                <tbody>
+                  <tr><td>Venkatesh Rao</td><td>64</td><td>Male</td><td>Lower</td></tr>
+                  <tr><td>Shobha Rao</td><td>58</td><td>Female</td><td>Lower</td></tr>
+                  <tr><td>Arjun Rao</td><td>27</td><td>Male</td><td>Upper</td></tr>
+                  <tr><td>Meera Rao</td><td>22</td><td>Female</td><td>Middle</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="row-wrap">
+              <button type="button" class="btn btn-cream btn-sm" onClick="{{ copyAll }}">{{ copyText }}</button>
+              <a class="btn btn-on-dark btn-sm" href="https://www.irctc.co.in">Open IRCTC</a>
+            </div>
+            <div class="field">
+              <label for="pnr" style="color: #C9D3D9">Booked? Add the PNR</label>
+              <div class="track"><input class="input" id="pnr" inputmode="numeric" placeholder="10-digit PNR"><button type="button" class="btn btn-primary" onClick="{{ addPnr }}">Track it</button></div>
+              <sc-if value="{{ pnrAdded }}" hint-placeholder-val="{{ false }}"><span style="font-size: 14px; color: #CFE0D8" role="status">Tracking. We will message you on WhatsApp when it changes.</span></sc-if>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="bk-sec" aria-labelledby="s-h">
+        <div class="bk-sec-head"><h2 class="h2" id="s-h">Stay</h2><span class="hint">Compared for a lift, ground floor and veg breakfast</span></div>
+        <article class="item">
+          <span class="item-ic ok"><svg class="ic" viewBox="0 0 24 24"><path d="M3 18V7"></path><path d="M3 14h18v4"></path><path d="M3 11h7a2 2 0 0 1 2 2v1"></path><path d="M12 14v-2a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v2"></path></svg></span>
+          <div>
+            <b>Riverside hotel near Campal, Panaji</b>
+            <span class="item-sub">Fri 11 to Mon 14 Dec, 3 nights, 2 rooms on the ground floor, vegetarian breakfast. Late check-out asked for Monday.</span>
+            <div class="item-facts"><span><b>Booking ID</b><span class="mono-id">7314 9826</span></span><span><b>Booked on</b>a hotel booking site</span><span><b>Free cancellation</b>until 8 Dec</span></div>
+          </div>
+          <div class="item-side"><span class="st st-ok">Booked</span><span class="hint">₹25,200 paid</span></div>
+        </article>
+        <div class="opts3">
+          <div class="o3 on"><b>Riverside, Campal</b><span class="price">₹4,200 <small>a room a night</small></span><small>Lift, ground-floor rooms, 1.2 km to the market. Closest to all four days.</small><span class="st st-ok">Your booking</span></div>
+          <div class="o3"><b>Heritage homestay, Fontainhas</b><span class="price">₹3,600 <small>a room a night</small></span><small>Beautiful old house, but stairs only. Not suggested for your father.</small></div>
+          <div class="o3"><b>Business hotel, Patto</b><span class="price">₹4,800 <small>a room a night</small></span><small>Lift and parking, ten minutes from the bus stand, further from the river.</small></div>
+        </div>
+      </section>
+
+      <section class="bk-sec" aria-labelledby="cmp-h">
+        <div class="bk-sec-head"><h2 class="h2" id="cmp-h">Same booking, every seller</h2><span class="hint">Fees shown up front, before checkout</span></div>
+        <p class="page-sub" style="margin: 0">The same room and the same flight, priced by each seller side by side. Prices here are samples; in the product they come from a live hotel and fare search when you plan, and each button opens that seller with your dates and number of travellers filled in.</p>
+        <div class="grid-2">
+          <div class="panel">
+            <div class="panel-head"><h3 class="h3">Riverside hotel, Campal</h3><span class="hint">3 nights, 2 rooms</span></div>
+            <div class="table-box"><table class="table">
+              <thead><tr><th>Seller</th><th class="r">Rooms</th><th class="r">Tax and fees</th><th class="r">Total</th><th>Free cancellation</th></tr></thead>
+              <tbody>
+                <tr class="pick"><td><b>Booking.com</b><br><span class="badge badge-ok">Cheapest, your booking</span></td><td class="r num">₹24,000</td><td class="r num">₹1,200</td><td class="r num"><b>₹25,200</b></td><td>Until 8 Dec</td></tr>
+                <tr><td>Hotel's own site</td><td class="r num">₹24,300</td><td class="r num">₹1,215</td><td class="r num">₹25,515</td><td>Until 9 Dec</td></tr>
+                <tr><td>MakeMyTrip</td><td class="r num">₹23,700</td><td class="r num">₹2,085</td><td class="r num">₹25,785</td><td>No</td></tr>
+                <tr><td>Agoda</td><td class="r num">₹24,600</td><td class="r num">₹1,230</td><td class="r num">₹25,830</td><td>Until 6 Dec</td></tr>
+              </tbody></table></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h3 class="h3">Backup flight, Mon 14 Dec, 4:40 pm</h3><span class="hint">Mopa to Bengaluru, 4 travellers</span></div>
+            <div class="table-box"><table class="table">
+              <thead><tr><th>Seller</th><th class="r">Fare</th><th class="r">Fees</th><th class="r">Total</th><th>Change fee</th></tr></thead>
+              <tbody>
+                <tr class="pick"><td><b>Airline's own site</b><br><span class="badge badge-ok">Cheapest</span></td><td class="r num">₹19,800</td><td class="r num">₹0</td><td class="r num"><b>₹19,800</b></td><td>Fare difference only</td></tr>
+                <tr><td>Cleartrip</td><td class="r num">₹19,950</td><td class="r num">₹400</td><td class="r num">₹20,350</td><td>Airline's fee plus ₹300</td></tr>
+                <tr><td>ixigo</td><td class="r num">₹19,650</td><td class="r num">₹860</td><td class="r num">₹20,510</td><td>Airline's fee</td></tr>
+                <tr><td>MakeMyTrip</td><td class="r num">₹19,500</td><td class="r num">₹1,196</td><td class="r num">₹20,696</td><td>Airline's fee plus ₹400</td></tr>
+              </tbody></table></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="bk-sec" aria-labelledby="c-h">
+        <div class="bk-sec-head"><h2 class="h2" id="c-h">Cabs in Goa</h2><span class="hint">Licensed taxis only</span></div>
+        <article class="item">
+          <span class="{{ cabIcCls }}"><svg class="ic" viewBox="0 0 24 24"><path d="M5 16V12l2-5h10l2 5v4"></path><path d="M3 16h18v2H3z"></path><circle cx="7.5" cy="18.5" r="1.5"></circle><circle cx="16.5" cy="18.5" r="1.5"></circle></svg></span>
+          <div>
+            <b>Day cab for Saturday, Old Goa and Ponda</b>
+            <span class="item-sub">8:30 am to 4:00 pm, about 46 km, a sedan for four. About ₹2,600.</span>
+            <div class="item-facts"><span><b>Book with</b>the Goa Miles app, your hotel's desk, or a taxi stand</span></div>
+          </div>
+          <div class="item-side">
+            <sc-if value="{{ cabDone }}" hint-placeholder-val="{{ false }}"><span class="st st-ok">Asked the hotel</span></sc-if>
+            <sc-if value="{{ cabTodo }}" hint-placeholder-val="{{ true }}"><button type="button" class="btn btn-primary btn-sm" onClick="{{ bookCab }}">Ask the hotel to arrange it</button></sc-if>
+          </div>
+        </article>
+        <article class="item">
+          <span class="{{ pickIcCls }}"><svg class="ic" viewBox="0 0 24 24"><path d="M5 16V12l2-5h10l2 5v4"></path><path d="M3 16h18v2H3z"></path><circle cx="7.5" cy="18.5" r="1.5"></circle><circle cx="16.5" cy="18.5" r="1.5"></circle></svg></span>
+          <div>
+            <b>Station pick-up and drop, Madgaon</b>
+            <span class="item-sub">Fri 11 Dec at 9:40 am to Panaji, and Mon 14 Dec at 5:30 pm back to the station. About ₹1,400 each way.</span>
+          </div>
+          <div class="item-side">
+            <sc-if value="{{ pickDone }}" hint-placeholder-val="{{ false }}"><span class="st st-ok">Asked the hotel</span></sc-if>
+            <sc-if value="{{ pickTodo }}" hint-placeholder-val="{{ true }}"><button type="button" class="btn btn-primary btn-sm" onClick="{{ bookPick }}">Ask the hotel to arrange it</button></sc-if>
+          </div>
+        </article>
+      </section>
+
+      <section class="bk-sec" aria-labelledby="b-h">
+        <div class="bk-sec-head"><h2 class="h2" id="b-h">A backup for the way home</h2><span class="hint">Only if the return train stays waitlisted</span></div>
+        <p class="page-sub" style="margin: 0">Flights from Mopa on Monday 14 December, for four. Fares are samples; in the product they are searched live. Pick one to keep as the backup and we will tell you if it gets more expensive.</p>
+        <div class="opts3">
+          <sc-for list="{{ flights }}" as="f" hint-placeholder-count="3">
+            <div class="{{ f.cls }}">
+              <b>{{ f.time }}</b>
+              <span class="price">{{ f.price }} <small>for four</small></span>
+              <small>{{ f.note }}</small>
+              <button type="button" class="{{ f.btnCls }}" onClick="{{ f.pick }}">{{ f.btn }}</button>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section class="bk-sec" aria-labelledby="m-h">
+        <div class="bk-sec-head"><h2 class="h2" id="m-h">Where the money goes</h2><span class="hint">Estimated against your ₹60,000</span></div>
+        <div class="panel table-box">
+          <table class="table">
+            <thead><tr><th>Item</th><th>Status</th><th class="r">Amount</th></tr></thead>
+            <tbody>
+              <tr><td>Trains, both ways</td><td><span class="st st-ok">Paid</span></td><td class="r num">₹11,200</td></tr>
+              <tr><td>Stay, 3 nights, 2 rooms</td><td><span class="st st-ok">Paid</span></td><td class="r num">₹25,200</td></tr>
+              <tr><td>Cabs: stations and Saturday</td><td><span class="{{ cabSt }}">{{ cabStText }}</span></td><td class="r num">₹5,400</td></tr>
+              <tr><td>Other local cabs</td><td><span class="st st-off">As you go</span></td><td class="r num">₹3,400</td></tr>
+              <tr><td>Food, vegetarian</td><td><span class="st st-off">As you go</span></td><td class="r num">₹9,600</td></tr>
+              <tr><td>Tickets and entry</td><td><span class="st st-off">At the gate</span></td><td class="r num">₹2,600</td></tr>
+              <tr><td><b>Whole trip</b></td><td><span class="badge badge-ok">₹2,600 under budget</span></td><td class="r num"><b>₹57,400</b></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="pack">
+        <div>
+          <b>Your Katha pack is ready</b>
+          <p>Fourteen stories for the four days, in English and Hinglish, with every legend labelled. Save them on your phone and they play on their own as you reach each place, even with no signal.</p>
+          <div class="row-wrap">
+            <button type="button" class="btn btn-cream" onClick="{{ download }}">{{ dlText }}</button>
+            <a class="btn btn-on-dark" href="TripLive.dc.html">Hear Saturday's Day Katha</a>
+            <a class="btn btn-on-dark" href="KathaHome.dc.html">Open the library</a>
+          </div>
+        </div>
+        <a class="btn btn-on-dark" href="MyTrips.dc.html">Back to my trips</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-foot">
+    <div class="wrap"><span>Travel Yantra prototype. PNRs, booking IDs, fares and travellers shown are sample data.</span><span><a href="Legal.dc.html">Terms and privacy</a></span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const cab = !!s.cab;
+    const pick = !!s.pick;
+    const backup = s.backup || null;
+    const booked = 3 + (cab ? 1 : 0) + (pick ? 1 : 0);
+    const F = [
+      { id: 'a', time: '4:40 pm to 5:55 pm', price: '₹19,800', note: 'Leaves after Divar and the market. Mopa is 50 minutes from Panaji.' },
+      { id: 'b', time: '7:30 pm to 8:45 pm', price: '₹21,600', note: 'Closest to the train time, so the Monday plan stays as it is.' },
+      { id: 'c', time: '9:10 pm to 10:20 pm', price: '₹18,800', note: 'Cheapest, but home after midnight. Late for your father.' }
+    ];
+    const flights = F.map((f) => ({
+      ...f,
+      cls: 'o3' + (backup === f.id ? ' on' : ''),
+      btn: backup === f.id ? 'Kept as the backup' : 'Keep as the backup',
+      btnCls: backup === f.id ? 'btn btn-ok btn-sm' : 'btn btn-quiet btn-sm',
+      pick: () => this.setState({ backup: backup === f.id ? null : f.id })
+    }));
+    return {
+      bookedText: booked + ' of 5',
+      leftText: '₹21,000',
+      copyText: s.copied ? 'Copied in IRCTC order' : 'Copy all details',
+      copyAll: () => this.setState({ copied: true }),
+      pnrAdded: !!s.pnr, addPnr: () => this.setState({ pnr: true }),
+      cabDone: cab, cabTodo: !cab, bookCab: () => this.setState({ cab: true }),
+      pickDone: pick, pickTodo: !pick, bookPick: () => this.setState({ pick: true }),
+      cabIcCls: 'item-ic' + (cab ? ' ok' : ''),
+      pickIcCls: 'item-ic' + (pick ? ' ok' : ''),
+      cabSt: cab && pick ? 'st st-ok' : 'st st-wait',
+      cabStText: cab && pick ? 'Arranged' : 'To book',
+      flights,
+      dlText: s.dl ? 'Saved on this phone, 52 MB' : 'Save for offline',
+      download: () => this.setState({ dl: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

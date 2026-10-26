@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan a trip: describe it · Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#1D6A84}a:hover{color:#13212B}
+.ps-head{display:flex;flex-direction:column;gap:18px;margin-bottom:28px}
+.ps-titlebar{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.ai-row{display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px;align-items:start}
+.ai-av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#13212B;color:#F4EFE6}
+.ai-av svg{width:20px;height:20px}
+.ai-col{display:flex;flex-direction:column;gap:10px;min-width:0}
+.ai-col .msg-ai{max-width:100%}
+.q-chips{display:flex;flex-wrap:wrap;gap:8px}
+.you{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.you small{font-size:13px;color:#56646E}
+.und{display:flex;flex-direction:column}
+.und-row{display:grid;grid-template-columns:22px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid #E6DED0}
+.und-row:first-child{border-top:0}
+.und-row .ic{width:20px;height:20px;margin-top:1px}
+.und-row .ok{color:#245A4B}
+.und-row .ask{color:#8A5A12}
+.und-row b{display:block;font-size:13px;color:#56646E;font-weight:700}
+.und-row span{display:block;font-size:15.5px;line-height:1.45}
+.ps-cta{display:flex;flex-direction:column;gap:10px;padding:18px clamp(18px,2vw,24px);border-top:1px solid #D8CFBF}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(440px,100%),1fr));gap:20px;align-items:start}
+.fsec{display:flex;flex-direction:column;gap:18px}
+.fsec h2{margin:0}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));gap:14px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.cal span{display:grid;place-items:center;height:28px;font-size:12.5px;font-weight:700;color:#56646E}
+.cal button{position:relative;height:44px;border:0;border-radius:4px;background:transparent;font-size:15px;font-weight:600;color:#13212B;cursor:pointer;font-variant-numeric:tabular-nums}
+.cal button:hover{background:#EDE6D9}
+.cal button.in{background:#F1E6D6;border-radius:0}
+.cal button.end,.cal button.end:hover{background:#13212B;color:#F4EFE6}
+.cal button.fest::after{content:"";position:absolute;left:50%;bottom:6px;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:#B4452A}
+.cal button.end.fest::after{background:#E3A33B}
+.cal-head{display:flex;justify-content:space-between;align-items:center}
+.stepper{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 0;border-top:1px solid #E6DED0}
+.stepper:first-child{border-top:0}
+.stepper b{display:block;font-size:16px}
+.stepper small{display:block;font-size:13.5px;color:#56646E}
+.step-ctl{display:flex;align-items:center;gap:10px}
+.step-ctl output{min-width:24px;text-align:center;font-weight:700;font-size:17px;font-variant-numeric:tabular-nums}
+.money{display:flex;align-items:stretch}
+.money span{display:grid;place-items:center;padding:0 14px;border:1px solid #958A78;border-right:0;border-radius:4px 0 0 4px;background:#EDE6D9;font-weight:700}
+.money .input{border-radius:0 4px 4px 0}
+</style>
+</helmet>
+
+<div class="app">
+  <header class="appbar">
+    <a class="brand" href="Home.dc.html">
+      <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#B4452A"></circle></svg>
+      <span>Travel Yantra</span>
+    </a>
+    <nav class="appnav" aria-label="Main">
+      <a href="Home.dc.html">Home</a>
+      <a href="PlanStart.dc.html" class="on">Plan a trip</a>
+      <a href="KathaHome.dc.html">Katha</a>
+      <a href="MyTrips.dc.html">My trips</a>
+    </nav>
+    <div class="appbar-end">
+      <a class="btn btn-quiet btn-sm" href="Settings.dc.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"></path></svg>English</a>
+      <a class="avatar" href="Settings.dc.html" aria-label="Account and settings">AR</a>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="wrap">
+      <div class="ps-head">
+        <nav class="trail" aria-label="Planning steps">
+          <span class="on"><i>1</i>Describe</span><span class="sep"></span>
+          <span><i>2</i>Plan</span><span class="sep"></span>
+          <span><i>3</i>Choose a way</span><span class="sep"></span>
+          <span><i>4</i>Itinerary</span><span class="sep"></span>
+          <span><i>5</i>Book</span><span class="sep"></span>
+          <span><i>6</i>Katha</span>
+        </nav>
+        <div class="ps-titlebar">
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <h1 class="page-title">Tell us about the trip</h1>
+            <p class="page-sub">In your own words, in any of six languages, or fill in a form. Either way the AI checks what it understood before it plans.</p>
+          </div>
+          <div class="toggle" role="group" aria-label="How to describe the trip">
+            <button type="button" class="{{ wordsCls }}" onClick="{{ toWords }}">In your words</button>
+            <button type="button" class="{{ formCls }}" onClick="{{ toForm }}">Fill a form</button>
+          </div>
+        </div>
+      </div>
+
+      <sc-if value="{{ isWords }}" hint-placeholder-val="{{ true }}">
+        <div class="split">
+          <section class="main chat" aria-label="Conversation">
+            <div class="you">
+              <div class="msg-user">Goa jaana hai 11 se 14 Dec, mummy papa aur behen ke saath. Churches aur temples, thoda beach. Veg khana, budget 60 hazaar.</div>
+              <small>Typed in Hinglish · 9:12 pm</small>
+            </div>
+
+            <div class="ai-row">
+              <span class="ai-av" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.8"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#E07A52" stroke-width="1.8"></path></svg></span>
+              <div class="ai-col">
+                <div class="msg-ai">A family trip to Goa from Friday 11 to Monday 14 December: churches, temples and a little beach, vegetarian food, about ₹60,000. Three quick questions so the plan fits all four of you.</div>
+              </div>
+            </div>
+
+            <div class="ai-row">
+              <span class="ai-av" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.8"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#E07A52" stroke-width="1.8"></path></svg></span>
+              <div class="ai-col">
+                <div class="msg-ai">How old are your parents? It changes the pace, how much walking there is, and which berths we look for.</div>
+                <div class="q-chips" role="group" aria-label="Parents' ages">
+                  <sc-for list="{{ q1 }}" as="o" hint-placeholder-count="3"><button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for>
+                </div>
+              </div>
+            </div>
+
+            <div class="ai-row">
+              <span class="ai-av" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.8"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#E07A52" stroke-width="1.8"></path></svg></span>
+              <div class="ai-col">
+                <div class="msg-ai">Is the ₹60,000 for everything, including getting there and back?</div>
+                <div class="q-chips" role="group" aria-label="What the budget covers">
+                  <sc-for list="{{ q2 }}" as="o" hint-placeholder-count="2"><button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for>
+                </div>
+              </div>
+            </div>
+
+            <div class="ai-row">
+              <span class="ai-av" aria-hidden="true"><svg viewBox="0 0 28 28"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.8"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#E07A52" stroke-width="1.8"></path></svg></span>
+              <div class="ai-col">
+                <div class="msg-ai">How would you like to get there?</div>
+                <div class="q-chips" role="group" aria-label="Way to travel">
+                  <sc-for list="{{ q3 }}" as="o" hint-placeholder-count="4"><button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for>
+                </div>
+              </div>
+            </div>
+
+            <div class="composer" style="margin-top: 8px">
+              <label for="more" class="sr">Anything else</label>
+              <textarea id="more" placeholder="Anything else? Must-sees, things to skip, a hotel you like..."></textarea>
+              <button type="button" class="iconbtn round" aria-label="Speak instead"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0"></path><path d="M12 17.5V21"></path></svg></button>
+              <button type="button" class="iconbtn round dark" aria-label="Send"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></button>
+            </div>
+          </section>
+
+          <aside class="side panel" aria-labelledby="und-h">
+            <div class="panel-head"><h2 class="h3" id="und-h">What we understood</h2><span class="{{ readyCls }}">{{ readyText }}</span></div>
+            <div class="panel-pad und" style="padding-top: 6px; padding-bottom: 6px">
+              <sc-for list="{{ rows }}" as="r" hint-placeholder-count="9">
+                <div class="und-row">
+                  <sc-if value="{{ r.ok }}" hint-placeholder-val="{{ true }}"><svg class="ic ok" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></sc-if>
+                  <sc-if value="{{ r.ask }}" hint-placeholder-val="{{ false }}"><svg class="ic ask" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.6"></path><path d="M12 17h.01"></path></svg></sc-if>
+                  <div><b>{{ r.k }}</b><span>{{ r.v }}</span></div>
+                </div>
+              </sc-for>
+              <div class="und-row">
+                <svg class="ic ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"></path></svg>
+                <div style="display: flex; flex-direction: column; gap: 8px"><b>Plan and Katha in</b>
+                  <div class="toggle" role="group" aria-label="Language for the plan">
+                    <sc-for list="{{ langs }}" as="l" hint-placeholder-count="3"><button type="button" class="{{ l.cls }}" onClick="{{ l.pick }}">{{ l.label }}</button></sc-for>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="ps-cta">
+              <a class="btn btn-primary btn-lg btn-block" href="PlanThinking.dc.html">Plan my trip</a>
+              <span class="hint">Takes about 15 seconds. Nothing is booked until you say so.</span>
+            </div>
+          </aside>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isForm }}" hint-placeholder-val="{{ false }}">
+        <div class="form-grid">
+          <section class="panel panel-pad fsec" aria-labelledby="f1">
+            <h2 class="h3" id="f1">Where and when</h2>
+            <div class="two">
+              <div class="field"><label for="from">From</label><input class="input" id="from" placeholder="Bengaluru"></div>
+              <div class="field"><label for="to">To</label><input class="input" id="to" placeholder="Goa"></div>
+            </div>
+            <div class="field">
+              <div class="cal-head"><span class="label">{{ rangeText }}</span><span class="hint">December 2026</span></div>
+              <div class="cal" role="group" aria-label="Pick the first and last day">
+                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                <i></i>
+                <sc-for list="{{ days }}" as="d" hint-placeholder-count="31"><button type="button" class="{{ d.cls }}" onClick="{{ d.pick }}" aria-label="{{ d.aria }}">{{ d.n }}</button></sc-for>
+              </div>
+              <span class="hint">{{ calNote }}</span>
+            </div>
+          </section>
+
+          <section class="panel panel-pad fsec" aria-labelledby="f2">
+            <h2 class="h3" id="f2">Who is going</h2>
+            <div>
+              <sc-for list="{{ people }}" as="p" hint-placeholder-count="3">
+                <div class="stepper">
+                  <div><b>{{ p.label }}</b><small>{{ p.hint }}</small></div>
+                  <div class="step-ctl">
+                    <button type="button" class="iconbtn round" onClick="{{ p.less }}" aria-label="{{ p.lessLabel }}"><svg class="ic" viewBox="0 0 24 24"><path d="M6 12h12"></path></svg></button>
+                    <output>{{ p.n }}</output>
+                    <button type="button" class="iconbtn round" onClick="{{ p.more }}" aria-label="{{ p.moreLabel }}"><svg class="ic" viewBox="0 0 24 24"><path d="M6 12h12"></path><path d="M12 6v12"></path></svg></button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <label class="check"><input type="checkbox"><span>Someone needs step-free access or a wheelchair</span></label>
+          </section>
+
+          <section class="panel panel-pad fsec" aria-labelledby="f3">
+            <h2 class="h3" id="f3">What you would like</h2>
+            <div class="q-chips" role="group" aria-label="Interests">
+              <sc-for list="{{ interests }}" as="c" hint-placeholder-count="10"><button type="button" class="{{ c.cls }}" onClick="{{ c.pick }}">{{ c.label }}</button></sc-for>
+            </div>
+            <div class="field"><span class="label">Pace</span>
+              <div class="toggle" role="group" aria-label="Pace"><sc-for list="{{ paces }}" as="c" hint-placeholder-count="3"><button type="button" class="{{ c.cls }}" onClick="{{ c.pick }}">{{ c.label }}</button></sc-for></div>
+            </div>
+            <div class="field"><span class="label">Food</span>
+              <div class="toggle" role="group" aria-label="Food"><sc-for list="{{ foods }}" as="c" hint-placeholder-count="4"><button type="button" class="{{ c.cls }}" onClick="{{ c.pick }}">{{ c.label }}</button></sc-for></div>
+            </div>
+          </section>
+
+          <section class="panel panel-pad fsec" aria-labelledby="f4">
+            <h2 class="h3" id="f4">Budget, travel and stay</h2>
+            <div class="field"><label for="budget">Budget for everyone</label><div class="money"><span>₹</span><input class="input" id="budget" inputmode="numeric" placeholder="60,000"></div><span class="hint">For everything, including getting there. We show the split before you book.</span></div>
+            <div class="field"><span class="label">Getting there</span>
+              <div class="toggle" role="group" aria-label="Getting there"><sc-for list="{{ ways }}" as="c" hint-placeholder-count="4"><button type="button" class="{{ c.cls }}" onClick="{{ c.pick }}">{{ c.label }}</button></sc-for></div>
+            </div>
+            <div class="field"><span class="label">Stay</span>
+              <div class="toggle" role="group" aria-label="Stay"><sc-for list="{{ stays }}" as="c" hint-placeholder-count="3"><button type="button" class="{{ c.cls }}" onClick="{{ c.pick }}">{{ c.label }}</button></sc-for></div>
+            </div>
+            <a class="btn btn-primary btn-lg btn-block" href="PlanThinking.dc.html">Plan my trip</a>
+          </section>
+        </div>
+      </sc-if>
+    </div>
+  </main>
+
+  <footer class="app-foot">
+    <div class="wrap"><span>Travel Yantra prototype. Trips, fares and timings shown are sample data.</span><span><a href="Legal.dc.html">Terms and privacy</a></span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const mode = s.mode || 'words';
+    const age = s.age === undefined ? null : s.age;
+    const scope = s.scope === undefined ? null : s.scope;
+    const way = s.way === undefined ? null : s.way;
+    const lang = s.lang || 'en';
+    const opt = (labels, cur, key) => labels.map((label, i) => ({
+      label, cls: 'chip' + (cur === i ? ' on' : ''), pick: () => this.setState({ [key]: i })
+    }));
+    const q1 = opt(['Both under 60', 'One is 60 or older', 'Both are 60 or older'], age, 'age');
+    const q2 = opt(['Everything, travel included', 'Only stay, food and tickets'], scope, 'scope');
+    const q3 = opt(['Compare road, rail and air', 'By road', 'By rail', 'By air'], way, 'way');
+    const older = age === 1 || age === 2;
+    const ageText = age === null ? 'Four of you: you, your sister and your parents. Asking their ages.'
+      : age === 0 ? 'Four of you: you, your sister and your parents, all under 60.'
+      : age === 1 ? 'Four of you: you, your sister and your parents, one of them 60 or older.'
+      : 'Four of you: you, your sister and your parents, both 60 or older.';
+    const paceText = age === null ? 'Waiting on the ages question.'
+      : older ? 'Gentle: days end by 7 pm, short walks, lower berths on trains.'
+      : 'Balanced: about six hours of sightseeing a day.';
+    const budgetText = scope === null ? '₹60,000 in all. Assuming it covers travel too.'
+      : scope === 0 ? '₹60,000 for everything, travel included.'
+      : '₹60,000 for stay, food and tickets. Travel on top.';
+    const wayText = way === null ? 'We will compare road, rail and air.'
+      : ['Compare road, rail and air.', 'By road.', 'By rail.', 'By air.'][way];
+    const rows = [
+      { k: 'Route', v: 'Bengaluru to Goa. Bengaluru is your home city in Settings.', ok: true, ask: false },
+      { k: 'Dates', v: 'Fri 11 to Mon 14 Dec 2026. 4 days, 3 nights.', ok: true, ask: false },
+      { k: 'Travellers', v: ageText, ok: age !== null, ask: age === null },
+      { k: 'Interests', v: 'Churches, temples, some beach time.', ok: true, ask: false },
+      { k: 'Food', v: 'Vegetarian, every meal.', ok: true, ask: false },
+      { k: 'Budget', v: budgetText, ok: scope !== null, ask: scope === null },
+      { k: 'Getting there', v: wayText, ok: way !== null, ask: way === null },
+      { k: 'Pace', v: paceText, ok: age !== null, ask: age === null }
+    ];
+    const asked = [age, scope, way].filter((x) => x === null).length;
+    const langs = [['en', 'English'], ['mix', 'Hinglish'], ['hi', 'हिन्दी']].map(([k, label]) => ({
+      label, cls: k === lang ? 'on' + (k === 'hi' ? ' hi' : '') : (k === 'hi' ? 'hi' : ''), pick: () => this.setState({ lang: k })
+    }));
+
+    const start = s.start === undefined ? 11 : s.start;
+    const end = s.end === undefined ? 14 : s.end;
+    const dayNames = ['Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon'];
+    const days = [];
+    for (let n = 1; n <= 31; n++) {
+      const inRange = end !== null && n > start && n < end;
+      const isEnd = n === start || n === end;
+      const fest = n === 25;
+      days.push({
+        n: String(n),
+        aria: dayNames[(n - 1) % 7] + ' ' + n + ' December' + (fest ? ', Christmas' : ''),
+        cls: (isEnd ? 'end' : inRange ? 'in' : '') + (fest ? ' fest' : ''),
+        pick: () => {
+          if (end === null && n > start) this.setState({ end: n });
+          else this.setState({ start: n, end: null });
+        }
+      });
+    }
+    const nights = end === null ? 0 : end - start;
+    const rangeText = end === null ? dayNames[(start - 1) % 7] + ' ' + start + ' Dec. Now pick the last day.'
+      : dayNames[(start - 1) % 7] + ' ' + start + ' to ' + dayNames[(end - 1) % 7] + ' ' + end + ' Dec · ' + (nights + 1) + ' days, ' + nights + ' nights';
+    const busy = end !== null && end >= 20;
+    const calNote = busy ? 'Christmas week is Goa\'s busiest. Expect higher prices and crowds.' : 'Your dates are before the Christmas rush.';
+
+    const counts = { adults: s.adults === undefined ? 3 : s.adults, seniors: s.seniors === undefined ? 1 : s.seniors, kids: s.kids === undefined ? 0 : s.kids };
+    const people = [
+      ['adults', 'Adults', '18 to 59'],
+      ['seniors', 'Seniors', '60 and over'],
+      ['kids', 'Children', 'Under 18, ages asked next']
+    ].map(([k, label, hint]) => ({
+      label, hint, n: String(counts[k]),
+      lessLabel: 'One less: ' + label, moreLabel: 'One more: ' + label,
+      less: () => this.setState({ [k]: Math.max(0, counts[k] - 1) }),
+      more: () => this.setState({ [k]: Math.min(9, counts[k] + 1) })
+    }));
+
+    const picked = s.picked || { Churches: true, Temples: true, Beaches: true };
+    const interests = ['Churches', 'Temples', 'Beaches', 'Forts and palaces', 'Food', 'Nature and waterfalls', 'Museums', 'Markets', 'Festivals', 'Boat rides'].map((label) => ({
+      label, cls: 'chip' + (picked[label] ? ' on' : ''), pick: () => this.setState({ picked: { ...picked, [label]: !picked[label] } })
+    }));
+    const one = (labels, cur, key) => labels.map((label) => ({ label, cls: label === cur ? 'on' : '', pick: () => this.setState({ [key]: label }) }));
+    const paces = one(['Gentle', 'Balanced', 'Packed'], s.pace || 'Gentle', 'pace');
+    const foods = one(['Vegetarian', 'Jain', 'Eggs are fine', 'Anything'], s.food || 'Vegetarian', 'food');
+    const ways = one(['Compare all three', 'Road', 'Rail', 'Air'], s.wayF || 'Compare all three', 'wayF');
+    const stays = one(['Homestay', 'Hotel', 'Resort'], s.stay || 'Hotel', 'stay');
+
+    return {
+      isWords: mode === 'words', isForm: mode === 'form',
+      wordsCls: mode === 'words' ? 'on' : '', formCls: mode === 'form' ? 'on' : '',
+      toWords: () => this.setState({ mode: 'words' }), toForm: () => this.setState({ mode: 'form' }),
+      q1, q2, q3, rows, langs,
+      readyText: asked === 0 ? 'Ready to plan' : asked + (asked === 1 ? ' question left' : ' questions left'),
+      readyCls: asked === 0 ? 'badge badge-ok' : 'badge badge-warn',
+      days, rangeText, calNote, people, interests, paces, foods, ways, stays
+    };
+  }
+}
+</script>
+</body>
+</html>

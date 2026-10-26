@@ -6,7 +6,7 @@ param(
     [string]$Model = 'claude-sonnet-5-5',
     [int]$PollSeconds = 60,
     [int]$TimeoutMinutes = 120,
-    [int]$AutoEveryMinutes = 20,
+    [int]$AutoEveryMinutes = 45,
     [switch]$NoAuto
 )
 . "$PSScriptRoot\common.ps1"

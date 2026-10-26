@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mysore Palace, a Place Katha · Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#1D6A84}a:hover{color:#13212B}
+.crumbs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;font-size:14px;color:#56646E}
+.crumbs a{font-weight:600}
+.kp-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);overflow:hidden;margin-bottom:24px;border-radius:4px;background:#E3A33B}
+.kp-hero-text{display:flex;flex-direction:column;justify-content:flex-end;gap:12px;padding:clamp(22px,3vw,40px);background:#FAF7F1}
+.kp-hero-text h1{margin:0;font-size:clamp(40px,4.4vw,66px);line-height:.98;letter-spacing:-0.04em}
+.kp-hero-text .alt{font-family:"Anek Kannada",sans-serif;font-size:24px;font-weight:600;color:#943720}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:10px;margin-top:8px}
+.facts div{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:4px;background:#EDE6D9}
+.facts small{font-size:12px;font-weight:700;color:#56646E}
+.facts span{font-size:14.5px;font-weight:650;line-height:1.35}
+.kp-hero-art{position:relative;min-height:360px}
+.kp-hero-art svg{position:absolute;inset:0;width:100%;height:100%}
+.station{display:flex;flex-direction:column;gap:12px;padding:18px 20px;border-radius:4px;background:#16293A}
+.station-top{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.station-top b{font-family:"Bricolage Grotesque",sans-serif;font-size:24px;letter-spacing:-0.01em}
+.station p{margin:0;font-size:18px;line-height:1.65;color:#F4EFE6}
+.station small{font-size:14px;color:#AFC0CA}
+.stations{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr));gap:6px}
+.stn{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:52px;padding:8px 12px;border:1px solid #FFFFFF1F;border-radius:4px;background:transparent;color:#E9EEF0;font-size:15px;text-align:left;cursor:pointer}
+.stn:hover{border-color:#F4EFE6}
+.stn.on{background:#F4EFE6;color:#13212B;border-color:#F4EFE6}
+.stn .n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#E3A33B;color:#13212B;font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:700}
+.stn .t{font-family:"JetBrains Mono",monospace;font-size:12.5px;opacity:.8}
+.plan{position:relative;aspect-ratio:4/3;border:1px solid #D8CFBF;border-radius:4px;overflow:hidden;background:#E8E1D2}
+.plan svg{position:absolute;inset:0;width:100%;height:100%}
+.ppin{position:absolute;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:2px solid #FFFDF9;background:#13212B;color:#F4EFE6;font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:700;cursor:pointer;box-shadow:0 1px 3px #13212B55}
+.ppin.on{background:#E3A33B;color:#13212B;width:36px;height:36px}
+.legendcard{display:flex;flex-direction:column;gap:14px;padding:clamp(18px,2vw,24px);border-radius:4px;background:#F3E1C2;color:#3F2A08}
+.legendcard .h3{color:#3F2A08}
+.legendcard blockquote{margin:0;font-family:"Bricolage Grotesque",sans-serif;font-size:20px;line-height:1.5;letter-spacing:-0.005em}
+.legendcard blockquote.kn{font-family:"Anek Kannada",sans-serif;font-size:21px}
+.legendcard blockquote.hi{font-family:"Anek Devanagari",sans-serif;font-size:21px}
+.legendcard blockquote.ta{font-family:"Anek Tamil",sans-serif;font-size:20px}
+.legendcard blockquote.te{font-family:"Anek Telugu",sans-serif;font-size:21px}
+.legendcard blockquote.bn{font-family:"Anek Bangla",sans-serif;font-size:21px}
+.legendcard .lang{background:#FBF1DE;border-color:#D9B97A}
+.legendcard .lang.on{background:#3F2A08;color:#FBF1DE;border-color:#3F2A08}
+.legendcard small{font-size:14px;line-height:1.5;color:#5F3D0B}
+.near{display:flex;flex-direction:column}
+.near div{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-top:1px solid #E6DED0;font-size:15px}
+.near div:first-child{border-top:0}
+.near span:last-child{color:#56646E;font-family:"JetBrains Mono",monospace;font-size:13px}
+@media (max-width:900px){.kp-hero{grid-template-columns:minmax(0,1fr)}.kp-hero-art{min-height:240px}}
+</style>
+</helmet>
+
+<div class="app">
+  <header class="appbar">
+    <a class="brand" href="Home.dc.html">
+      <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#B4452A"></circle></svg>
+      <span>Travel Yantra</span>
+    </a>
+    <nav class="appnav" aria-label="Main">
+      <a href="Home.dc.html">Home</a>
+      <a href="PlanStart.dc.html">Plan a trip</a>
+      <a href="KathaHome.dc.html" class="on">Katha</a>
+      <a href="MyTrips.dc.html">My trips</a>
+    </nav>
+    <div class="appbar-end">
+      <a class="btn btn-quiet btn-sm" href="Settings.dc.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"></path></svg>English</a>
+      <a class="avatar" href="Settings.dc.html" aria-label="Account and settings">AR</a>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="You are here"><a href="KathaHome.dc.html">Katha</a><span>/</span><a href="KathaCity.dc.html">Mysuru</a><span>/</span><span>Mysore Palace</span></nav>
+
+      <section class="kp-hero" aria-labelledby="pl-h">
+        <div class="kp-hero-text">
+          <p class="eyebrow">Place Katha · 8 stops · 8 minutes</p>
+          <h1 id="pl-h">Mysore Palace</h1>
+          <span class="alt" lang="kn">ಅಂಬಾ ವಿಲಾಸ ಅರಮನೆ</span>
+          <div class="facts">
+            <div><small>Open</small><span>Every day, 10 am to 5:30 pm</span></div>
+            <div><small>The lights</small><span>Sundays and holidays, 7 to 7:45 pm</span></div>
+            <div><small>Allow</small><span>About 90 minutes</span></div>
+            <div><small>Before you go in</small><span>Shoes at the counter</span></div>
+          </div>
+        </div>
+        <div class="kp-hero-art">
+          <svg viewBox="0 0 640 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect width="640" height="380" fill="#E3A33B"></rect>
+            <circle cx="520" cy="80" r="34" fill="#F3CB7A"></circle>
+            <rect y="320" width="640" height="60" fill="#C98A2C"></rect>
+            <g fill="#7A3A1E">
+              <rect x="70" y="210" width="500" height="112"></rect>
+              <rect x="262" y="140" width="116" height="72"></rect>
+              <path d="M254 144 Q320 30 386 144Z"></path>
+              <rect x="316" y="28" width="8" height="30"></rect>
+              <rect x="110" y="170" width="70" height="42"></rect><path d="M104 174 Q145 108 186 174Z"></path>
+              <rect x="460" y="170" width="70" height="42"></rect><path d="M454 174 Q495 108 536 174Z"></path>
+              <rect x="70" y="200" width="500" height="12" fill="#5E2B15"></rect>
+            </g>
+            <g fill="#E3A33B"><path d="M96 322V286a13 13 0 0 1 26 0V322Z"></path><path d="M144 322V286a13 13 0 0 1 26 0V322Z"></path><path d="M192 322V286a13 13 0 0 1 26 0V322Z"></path><path d="M240 322V286a13 13 0 0 1 26 0V322Z"></path><path d="M296 322V274a24 24 0 0 1 48 0V322Z"></path><path d="M374 322V286a13 13 0 0 1 26 0V322Z"></path><path d="M422 322V286a13 13 0 0 1 26 0V322Z"></path><path d="M470 322V286a13 13 0 0 1 26 0V322Z"></path><path d="M518 322V286a13 13 0 0 1 26 0V322Z"></path></g>
+            <g fill="#F3CB7A"><rect x="300" y="160" width="12" height="20" rx="6"></rect><rect x="328" y="160" width="12" height="20" rx="6"></rect><rect x="132" y="186" width="10" height="16" rx="5"></rect><rect x="152" y="186" width="10" height="16" rx="5"></rect><rect x="482" y="186" width="10" height="16" rx="5"></rect><rect x="502" y="186" width="10" height="16" rx="5"></rect></g>
+          </svg>
+        </div>
+      </section>
+
+      <div class="split">
+        <section class="main kp" aria-labelledby="walk-h">
+          <div class="kp-top">
+            <button type="button" class="kp-play" onClick="{{ togglePlay }}" aria-label="{{ playLabel }}">
+              <sc-if value="{{ playing }}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24"><rect x="6.5" y="5" width="3.6" height="14" fill="currentColor" stroke="none"></rect><rect x="13.9" y="5" width="3.6" height="14" fill="currentColor" stroke="none"></rect></svg></sc-if>
+              <sc-if value="{{ paused }}" hint-placeholder-val="{{ true }}"><svg class="ic" viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z" fill="currentColor" stroke="none"></path></svg></sc-if>
+            </button>
+            <div class="kp-title"><b id="walk-h">Walk through the palace</b><span>Stop {{ cur.n }} of 8 · {{ cur.t }} · plays as you reach each spot</span></div>
+          </div>
+          <div class="{{ waveCls }}">
+            <sc-for list="{{ bars }}" as="b" hint-placeholder-count="64"><i style="animation-delay: {{ b.d }}; height: {{ b.h }}"></i></sc-for>
+          </div>
+          <div class="station">
+            <div class="station-top"><span class="{{ cur.tagCls }}">{{ cur.tag }}</span><b>{{ cur.title }}</b></div>
+            <p>{{ cur.text }}</p>
+            <small>{{ cur.where }}</small>
+          </div>
+          <div class="stations" role="group" aria-label="Stops in the palace">
+            <sc-for list="{{ list }}" as="x" hint-placeholder-count="8">
+              <button type="button" class="{{ x.cls }}" onClick="{{ x.pick }}"><span class="n">{{ x.n }}</span><span>{{ x.title }}</span><span class="t">{{ x.t }}</span></button>
+            </sc-for>
+          </div>
+          <div class="row-wrap" style="gap: 8px">
+            <button type="button" class="kp-btn" onClick="{{ prev }}">Previous stop</button>
+            <button type="button" class="kp-btn" onClick="{{ next }}">Next stop</button>
+          </div>
+        </section>
+
+        <aside class="side" style="flex: 1 1 400px; display: flex; flex-direction: column; gap: 16px">
+          <section aria-labelledby="plan-h">
+            <h2 class="h3" id="plan-h" style="margin-bottom: 10px">Where each stop is</h2>
+            <div class="plan">
+              <svg viewBox="0 0 400 300" aria-hidden="true">
+                <rect x="14" y="14" width="372" height="272" fill="none" stroke="#A99E8B" stroke-width="3" stroke-dasharray="10 6"></rect>
+                <rect x="40" y="40" width="320" height="220" fill="#D8CDB8"></rect>
+                <rect x="120" y="60" width="200" height="120" fill="#C9B89A" stroke="#7A3A1E" stroke-width="2"></rect>
+                <rect x="150" y="84" width="140" height="60" fill="#E8E1D2"></rect>
+                <rect x="172" y="200" width="56" height="60" fill="#C9B89A"></rect>
+                <g fill="#7A3A1E"><circle cx="70" cy="70" r="7"></circle><circle cx="330" cy="70" r="7"></circle><circle cx="70" cy="230" r="7"></circle><circle cx="330" cy="230" r="7"></circle><circle cx="96" cy="150" r="6"></circle><circle cx="304" cy="150" r="6"></circle></g>
+                <rect x="186" y="278" width="28" height="12" fill="#7A3A1E"></rect>
+                <g font-family="Figtree, sans-serif" font-size="11" font-weight="600" fill="#56646E"><text x="168" y="276">Entry, south gate</text><text x="168" y="118">Courtyard</text><text x="52" y="54">Temples inside the walls</text></g>
+              </svg>
+              <sc-for list="{{ pins }}" as="p" hint-placeholder-count="8"><button type="button" class="{{ p.cls }}" style="left: {{ p.x }}; top: {{ p.y }}" onClick="{{ p.pick }}" aria-label="{{ p.aria }}">{{ p.n }}</button></sc-for>
+            </div>
+          </section>
+
+          <section class="legendcard" aria-labelledby="lg-h">
+            <div class="row-wrap" style="justify-content: space-between"><h2 class="h3" id="lg-h">The legend of the golden throne</h2><span class="tag tag-legend" style="background: #3F2A08; color: #FBF1DE">Legend</span></div>
+            <div class="langs" role="group" aria-label="Language for the legend"><sc-for list="{{ langs }}" as="l" hint-placeholder-count="6"><button type="button" class="{{ l.cls }}" onClick="{{ l.pick }}">{{ l.label }}</button></sc-for></div>
+            <blockquote class="{{ legendCls }}">{{ legend }}</blockquote>
+            <small>History note: records trace the throne to the Wadiyar court. The older story is told, not documented, and we say so.</small>
+          </section>
+
+          <section class="panel panel-pad" aria-labelledby="nb-h">
+            <h2 class="h3" id="nb-h" style="margin-bottom: 6px">Close by</h2>
+            <div class="near">
+              <div><span>Devaraja Market</span><span>1.1 km</span></div>
+              <div><span>Jaganmohan Palace art gallery</span><span>1.4 km</span></div>
+              <div><span>St Philomena's Church</span><span>3 km</span></div>
+              <div><span>Chamundi Hill</span><span>12 km</span></div>
+            </div>
+            <a class="btn btn-quiet btn-sm" href="AskGuide.dc.html" style="margin-top: 12px">Ask about the palace</a>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-foot">
+    <div class="wrap"><span>Travel Yantra prototype. Story text is sample content; visiting details should be checked before you go.</span><span><a href="Legal.dc.html">Terms and privacy</a></span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const i = s.i === undefined ? 4 : s.i;
+    const lang = s.lang || 'en';
+    const playing = !!s.playing;
+    const ST = [
+      { title: 'Gombe Thotti, the doll pavilion', tag: 'History', t: '1:00', x: 32, y: 74, where: 'Just inside the entrance, to your left.', text: 'Rows of traditional dolls from the royal collection, and a wooden elephant howdah decorated with 84 kilograms of gold.' },
+      { title: 'Kalyana Mantapa, the wedding hall', tag: 'History', t: '1:10', x: 50, y: 48, where: 'Ground floor, around the courtyard.', text: 'An eight-sided hall of cast-iron pillars made in Glasgow, under a stained-glass ceiling of peacocks. The paintings along the walls show the Dasara procession, figure by figure.' },
+      { title: 'Amba Vilasa, the private hall', tag: 'History', t: '0:55', x: 64, y: 34, where: 'First floor, east side.', text: 'Where the king met his ministers and guests: rosewood doors inlaid with ivory, and a ceiling of carved and gilded wood.' },
+      { title: 'The public Durbar Hall', tag: 'History', t: '0:50', x: 43, y: 27, where: 'First floor, facing the parade ground.', text: 'A long open hall where the king met the public. Look out over the grounds towards Chamundi Hill.' },
+      { title: 'The golden throne', tag: 'Legend', t: '1:20', x: 55, y: 22, where: 'Brought out for Dasara only. The rest of the year, its story plays here.', text: 'As the story goes, this golden throne first belonged to the Pandavas of the Mahabharata. Hidden for centuries at Penukonda, it was found by the kings of Vijayanagara and came to the Wadiyars in 1609.' },
+      { title: 'The fire and the architect', tag: 'History', t: '1:05', x: 34, y: 40, where: 'The portrait gallery, first floor.', text: 'The old wooden palace burned down in 1897, during a royal wedding. The British architect Henry Irwin designed the new one, finished in 1912 in stone, with domes and arches that mix Hindu, Islamic and Gothic styles.' },
+      { title: 'The temples inside the walls', tag: 'History', t: '0:50', x: 17, y: 23, where: 'Around the palace, inside the fort walls.', text: 'Twelve temples stand inside the palace walls. The oldest, Sri Lakshmiramana Swamy, is older than the palace you see.' },
+      { title: 'The lights', tag: 'Practical', t: '0:50', x: 50, y: 88, where: 'The main lawn, facing the palace.', text: 'Nearly 100,000 bulbs, lit on Sundays and holidays from 7 to 7:45 pm. Stand on the main lawn to see the whole front.' }
+    ];
+    const LEG = {
+      en: 'As the story goes, this golden throne first belonged to the Pandavas of the Mahabharata. Hidden for centuries at Penukonda, it was found by the kings of Vijayanagara and came to the Wadiyars in 1609.',
+      kn: 'ಕಥೆಯ ಪ್ರಕಾರ, ಈ ಚಿನ್ನದ ಸಿಂಹಾಸನ ಮೊದಲು ಮಹಾಭಾರತದ ಪಾಂಡವರದ್ದಾಗಿತ್ತು. ಶತಮಾನಗಳ ಕಾಲ ಪೆನುಕೊಂಡದಲ್ಲಿ ಹುದುಗಿದ್ದ ಇದನ್ನು ವಿಜಯನಗರದ ಅರಸರು ಪತ್ತೆಹಚ್ಚಿದರು. 1609ರಲ್ಲಿ ಇದು ಒಡೆಯರ್ ಮನೆತನಕ್ಕೆ ಬಂತು.',
+      hi: 'कहते हैं, यह सोने का सिंहासन पहले महाभारत के पांडवों का था। सदियों तक पेनुकोंडा में छिपा रहा, फिर विजयनगर के राजाओं ने इसे खोज निकाला, और 1609 में यह वाडियार राजवंश के पास आया।',
+      ta: 'கதையின்படி, இந்தத் தங்க அரியணை முதலில் மகாபாரதப் பாண்டவர்களுடையது. பல நூற்றாண்டுகள் பெனுகொண்டாவில் மறைந்திருந்த இதை விஜயநகர மன்னர்கள் கண்டெடுத்தனர். 1609-இல் இது உடையார்களிடம் வந்தது.',
+      te: 'కథ ప్రకారం, ఈ బంగారు సింహాసనం మొదట మహాభారతంలోని పాండవులది. శతాబ్దాల పాటు పెనుకొండలో దాగి ఉన్న దీనిని విజయనగర రాజులు కనుగొన్నారు. 1609లో ఇది వడయార్ల చేతికి వచ్చింది.',
+      bn: 'কথিত আছে, এই সোনার সিংহাসন প্রথমে ছিল মহাভারতের পাণ্ডবদের। শতাব্দীর পর শতাব্দী পেনুকোন্ডায় লুকিয়ে থাকার পর বিজয়নগরের রাজারা এটি খুঁজে পান, আর ১৬০৯ সালে এটি আসে ওয়াদিয়ারদের হাতে।'
+    };
+    const LN = { en: 'English', kn: 'ಕನ್ನಡ', hi: 'हिन्दी', ta: 'தமிழ்', te: 'తెలుగు', bn: 'বাংলা' };
+    const C = ST[i];
+    const list = ST.map((x, k) => ({ n: String(k + 1), title: x.title, t: x.t, cls: 'stn' + (k === i ? ' on' : ''), pick: () => this.setState({ i: k }) }));
+    const pins = ST.map((x, k) => ({ n: String(k + 1), x: x.x + '%', y: x.y + '%', cls: 'ppin' + (k === i ? ' on' : ''), aria: 'Stop ' + (k + 1) + ': ' + x.title, pick: () => this.setState({ i: k }) }));
+    const langs = Object.keys(LN).map((k) => ({ label: LN[k], cls: 'lang' + (k === 'en' ? '' : ' ' + k) + (k === lang ? ' on' : ''), pick: () => this.setState({ lang: k }) }));
+    const heights = [38, 62, 80, 54, 92, 70, 44, 66, 88, 58, 74, 40, 96, 64, 50, 82, 60, 72, 46, 90, 56, 68, 84, 42, 76, 52, 94, 62, 48, 78, 58, 70, 40, 86, 64, 52, 74, 60, 90, 48, 66, 80, 44, 70, 58, 92, 50, 76, 62, 84, 46, 68, 88, 54, 72, 60, 82, 50, 70, 44, 90, 62, 76, 54];
+    const bars = heights.map((h, k) => ({ h: h + '%', d: (-(k * 0.07) % 1).toFixed(2) + 's' }));
+    return {
+      cur: { ...C, n: String(i + 1), tagCls: 'tag tag-' + C.tag.toLowerCase() },
+      list, pins, langs, bars,
+      legend: LEG[lang], legendCls: lang === 'en' ? '' : lang,
+      prev: () => this.setState({ i: (i + 7) % 8 }),
+      next: () => this.setState({ i: (i + 1) % 8 }),
+      playing, paused: !playing,
+      playLabel: playing ? 'Pause the Katha' : 'Play the Katha',
+      togglePlay: () => this.setState({ playing: !playing }),
+      waveCls: playing ? 'wave play' : 'wave'
+    };
+  }
+}
+</script>
+</body>
+</html>

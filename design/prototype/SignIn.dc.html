@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in to Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#1D6A84}a:hover{color:#13212B}
+.si{min-height:100vh;display:flex;flex-wrap:wrap;background:#F4EFE6;color:#13212B}
+.si-art{position:relative;overflow:hidden;flex:1 1 520px;display:flex;flex-direction:column;gap:44px;padding:clamp(24px,4vw,56px);background:#0E1B24;color:#F4EFE6}
+.si-art .brand{position:relative;color:#F4EFE6}
+.si-yantra{position:absolute;right:-180px;bottom:-200px;width:680px;height:680px;color:#1A3140;pointer-events:none}
+.si-words{position:relative;margin-top:auto;display:flex;flex-direction:column;max-width:520px}
+.si-w{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:10px 0;border-top:1px solid #FFFFFF1F}
+.si-w span{font-size:clamp(34px,3.6vw,54px);line-height:1.15;font-weight:600}
+.si-w small{font-size:13.5px;color:#8FA3AF;font-weight:600}
+.si-w:nth-child(2) span{color:#E3A33B}
+.si-w:nth-child(4) span{color:#E79A7C}
+.si-list{position:relative;list-style:none;margin:0;padding:0;display:grid;gap:14px;max-width:470px}
+.si-list li{display:grid;grid-template-columns:24px minmax(0,1fr);gap:14px;font-size:16px;line-height:1.5;color:#D5DDE2}
+.si-list .ic{width:22px;height:22px;color:#E3A33B}
+.si-foot{position:relative;margin:0;font-size:13.5px;color:#8FA3AF}
+.si-main{flex:1 1 560px;min-width:0;display:flex;flex-direction:column;padding:clamp(20px,4vw,56px)}
+.si-top{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:12px}
+.si-form{width:100%;max-width:480px;margin:auto;padding-block:40px;display:flex;flex-direction:column;gap:22px}
+.si-title{margin:0;font-family:"Bricolage Grotesque",sans-serif;font-weight:650;font-size:clamp(30px,2.8vw,42px);line-height:1.08;letter-spacing:-0.025em}
+.si-title.kn,.si-title.hi,.si-title.ta,.si-title.te,.si-title.bn{letter-spacing:0;line-height:1.25}
+.si-langhead{display:flex;flex-direction:column;gap:10px}
+.si-phone{display:flex;align-items:stretch}
+.si-phone span{display:grid;place-items:center;padding:0 14px;border:1px solid #958A78;border-right:0;border-radius:4px 0 0 4px;background:#EDE6D9;font-weight:700}
+.si-phone .input{border-radius:0 4px 4px 0}
+.si-or{display:flex;align-items:center;gap:14px;color:#56646E;font-size:14px;font-weight:600}
+.si-or::before,.si-or::after{content:"";flex:1;height:1px;background:#D8CFBF}
+.si-consent{display:flex;flex-direction:column;gap:12px;padding:16px;border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1}
+.si-err{margin:0;padding:12px 14px;border-radius:4px;background:#F6DFD7;color:#7C2A16;font-size:14.5px;font-weight:600}
+.si-link{padding:0;border:0;background:none;color:#1D6A84;font-weight:700;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.si-link:hover{color:#13212B}
+.si-otp{letter-spacing:.4em;font-family:"JetBrains Mono",monospace;font-size:20px}
+.si-small{margin:0;font-size:14px;color:#56646E}
+@media (max-width:760px){
+  .si-art{flex-basis:100%;gap:24px}
+  .si-words{margin-top:8px}
+  .si-w span{font-size:30px}
+  .si-list{display:none}
+  .si-yantra{width:420px;height:420px;right:-160px;bottom:-160px}
+}
+</style>
+</helmet>
+
+<div class="si">
+
+  <aside class="si-art">
+    <svg class="si-yantra" viewBox="0 0 680 680" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <rect x="20" y="20" width="640" height="640"></rect>
+      <rect x="60" y="60" width="560" height="560"></rect>
+      <circle cx="340" cy="340" r="250"></circle>
+      <circle cx="340" cy="340" r="210"></circle>
+      <path d="M340 130L522 445H158Z"></path>
+      <path d="M340 550L158 235H522Z"></path>
+      <path d="M340 190L470 415H210Z"></path>
+      <path d="M340 490L210 265H470Z"></path>
+      <circle cx="340" cy="340" r="14"></circle>
+    </svg>
+    <a class="brand" href="Main.dc.html">
+      <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#E07A52" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#E07A52"></circle></svg>
+      <span>Travel Yantra</span>
+    </a>
+    <div class="si-words" aria-label="The word for journey in six languages">
+      <div class="si-w"><span class="kn">ಪ್ರಯಾಣ</span><small>Kannada</small></div>
+      <div class="si-w"><span class="hi">यात्रा</span><small>Hindi</small></div>
+      <div class="si-w"><span class="ta">பயணம்</span><small>Tamil</small></div>
+      <div class="si-w"><span class="te">ప్రయాణం</span><small>Telugu</small></div>
+      <div class="si-w"><span class="bn">যাত্রা</span><small>Bengali</small></div>
+      <div class="si-w"><span>Journey</span><small>English</small></div>
+    </div>
+    <ul class="si-list">
+      <li><svg class="ic" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>Plans checked stop by stop for hours, travel time, meals and budget.</span></li>
+      <li><svg class="ic" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"></path><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"></path></svg><span>A Katha for every place, with history and legend told apart.</span></li>
+      <li><svg class="ic" viewBox="0 0 24 24"><path d="M4 7h16v12H4z"></path><path d="M8 7V4h8v3"></path><path d="M4 12h16"></path></svg><span>Bookings handed to the official sellers, then watched for you.</span></li>
+    </ul>
+    <p class="si-foot">A final-year project at BMS Institute of Technology and Management, Bengaluru.</p>
+  </aside>
+
+  <main class="si-main">
+    <div class="si-top">
+      <a class="btn btn-quiet btn-sm" href="Main.dc.html">Back to the website</a>
+    </div>
+
+    <div class="si-form">
+      <div class="si-langhead">
+        <span class="label">Choose your language</span>
+        <div class="langs" role="group" aria-label="Language">
+          <sc-for list="{{ langs }}" as="l" hint-placeholder-count="6">
+            <button type="button" class="{{ l.cls }}" onClick="{{ l.pick }}">{{ l.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <h1 class="{{ titleCls }}">{{ t.title }}</h1>
+        <p class="{{ subCls }}">{{ t.sub }}</p>
+      </div>
+
+      <sc-if value="{{ isPhone }}" hint-placeholder-val="{{ true }}">
+        <div class="field">
+          <label for="phone" class="{{ t.cls }}">{{ t.phone }}</label>
+          <div class="si-phone"><span>+91</span><input class="input" id="phone" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="98450 12345"></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isOtp }}" hint-placeholder-val="{{ false }}">
+        <div class="field">
+          <label for="otp" class="{{ t.cls }}">{{ t.code }}</label>
+          <input class="input si-otp" id="otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="······">
+          <span class="hint">We sent a 6-digit code by SMS. It works for 10 minutes. <button type="button" class="si-link" onClick="{{ back }}">Change number</button></span>
+        </div>
+      </sc-if>
+
+      <div class="si-consent">
+        <label class="check"><input type="checkbox" checked="{{ agree }}" onChange="{{ toggleAgree }}"><span>I agree to the <a href="Legal.dc.html">Terms of Service</a> and the <a href="Legal.dc.html">Privacy Policy</a>, and to Travel Yantra using my trip details to plan my trips.</span></label>
+        <label class="check"><input type="checkbox" checked="{{ wa }}" onChange="{{ toggleWa }}"><span>Send me trip updates on WhatsApp. Optional, and I can stop them any time.</span></label>
+      </div>
+
+      <sc-if value="{{ isPhone }}" hint-placeholder-val="{{ true }}">
+        <button type="button" class="btn btn-primary btn-lg btn-block" onClick="{{ sendCode }}"><span class="{{ t.cls }}">{{ t.otp }}</span></button>
+      </sc-if>
+      <sc-if value="{{ otpReady }}" hint-placeholder-val="{{ false }}">
+        <a class="btn btn-primary btn-lg btn-block" href="Home.dc.html"><span class="{{ t.cls }}">{{ t.verify }}</span></a>
+      </sc-if>
+      <sc-if value="{{ otpBlocked }}" hint-placeholder-val="{{ false }}">
+        <button type="button" class="btn btn-primary btn-lg btn-block" onClick="{{ needAgree }}"><span class="{{ t.cls }}">{{ t.verify }}</span></button>
+      </sc-if>
+
+      <sc-if value="{{ showNeed }}" hint-placeholder-val="{{ false }}">
+        <p class="si-err" role="alert">Tick the first box to agree to the Terms and the Privacy Policy, then continue.</p>
+      </sc-if>
+
+      <div class="si-or"><span class="{{ t.cls }}">{{ t.or }}</span></div>
+
+      <sc-if value="{{ agree }}" hint-placeholder-val="{{ false }}">
+        <a class="btn btn-dark btn-lg btn-block" href="Home.dc.html"><span class="{{ t.cls }}">{{ t.google }}</span></a>
+      </sc-if>
+      <sc-if value="{{ notAgree }}" hint-placeholder-val="{{ true }}">
+        <button type="button" class="btn btn-dark btn-lg btn-block" onClick="{{ needAgree }}"><span class="{{ t.cls }}">{{ t.google }}</span></button>
+      </sc-if>
+
+      <p class="si-small">New here? Signing in creates your account. Just looking? <a href="KathaCity.dc.html">Listen to a Katha</a> first, no account needed.</p>
+    </div>
+  </main>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const lang = s.lang || 'en';
+    const step = s.step || 'phone';
+    const agree = !!s.agree;
+    const wa = !!s.wa;
+    const tried = !!s.tried;
+    const T = {
+      en: { name: 'English', cls: '', title: 'Sign in to plan your trip', sub: 'Your plans, bookings and Katha stay saved on your phone and your computer.', phone: 'Mobile number', otp: 'Send code', code: 'Code from the SMS', verify: 'Verify and continue', google: 'Continue with Google', or: 'or' },
+      kn: { name: 'ಕನ್ನಡ', cls: 'kn', title: 'ನಿಮ್ಮ ಪ್ರವಾಸ ಯೋಜಿಸಲು ಸೈನ್ ಇನ್ ಮಾಡಿ', sub: 'ನಿಮ್ಮ ಯೋಜನೆಗಳು, ಬುಕಿಂಗ್‌ಗಳು ಮತ್ತು ಕಥೆಗಳು ನಿಮ್ಮ ಫೋನ್ ಮತ್ತು ಕಂಪ್ಯೂಟರ್‌ನಲ್ಲಿ ಉಳಿಯುತ್ತವೆ.', phone: 'ಮೊಬೈಲ್ ಸಂಖ್ಯೆ', otp: 'ಕೋಡ್ ಕಳುಹಿಸಿ', code: 'SMS ನಲ್ಲಿ ಬಂದ ಕೋಡ್', verify: 'ಪರಿಶೀಲಿಸಿ ಮುಂದುವರಿಯಿರಿ', google: 'Google ಮೂಲಕ ಮುಂದುವರಿಯಿರಿ', or: 'ಅಥವಾ' },
+      hi: { name: 'हिन्दी', cls: 'hi', title: 'अपनी यात्रा प्लान करने के लिए साइन इन करें', sub: 'आपके प्लान, बुकिंग और कथाएँ आपके फ़ोन और कंप्यूटर पर सहेजी रहती हैं।', phone: 'मोबाइल नंबर', otp: 'कोड भेजें', code: 'SMS से मिला कोड', verify: 'पुष्टि करें और आगे बढ़ें', google: 'Google से जारी रखें', or: 'या' },
+      ta: { name: 'தமிழ்', cls: 'ta', title: 'உங்கள் பயணத்தைத் திட்டமிட உள்நுழையுங்கள்', sub: 'உங்கள் திட்டங்கள், முன்பதிவுகள், கதைகள் அனைத்தும் உங்கள் ஃபோனிலும் கணினியிலும் சேமிக்கப்படும்.', phone: 'மொபைல் எண்', otp: 'குறியீட்டை அனுப்பு', code: 'SMS-இல் வந்த குறியீடு', verify: 'சரிபார்த்துத் தொடரவும்', google: 'Google மூலம் தொடரவும்', or: 'அல்லது' },
+      te: { name: 'తెలుగు', cls: 'te', title: 'మీ ప్రయాణాన్ని ప్లాన్ చేయడానికి సైన్ ఇన్ చేయండి', sub: 'మీ ప్లాన్‌లు, బుకింగ్‌లు, కథలు మీ ఫోన్‌లో, కంప్యూటర్‌లో సేవ్ అయి ఉంటాయి.', phone: 'మొబైల్ నంబర్', otp: 'కోడ్ పంపండి', code: 'SMSలో వచ్చిన కోడ్', verify: 'ధృవీకరించి కొనసాగండి', google: 'Googleతో కొనసాగించండి', or: 'లేదా' },
+      bn: { name: 'বাংলা', cls: 'bn', title: 'আপনার ভ্রমণের পরিকল্পনা করতে সাইন ইন করুন', sub: 'আপনার প্ল্যান, বুকিং আর কথা আপনার ফোন ও কম্পিউটারে সেভ থাকবে।', phone: 'মোবাইল নম্বর', otp: 'কোড পাঠান', code: 'SMS-এ আসা কোড', verify: 'যাচাই করে এগিয়ে যান', google: 'Google দিয়ে চালিয়ে যান', or: 'অথবা' }
+    };
+    const order = ['en', 'kn', 'hi', 'ta', 'te', 'bn'];
+    const langs = order.map((k) => ({
+      label: T[k].name,
+      cls: 'lang ' + T[k].cls + (k === lang ? ' on' : ''),
+      pick: () => this.setState({ lang: k })
+    }));
+    const t = T[lang];
+    return {
+      langs, t,
+      titleCls: 'si-title ' + t.cls,
+      subCls: 'page-sub ' + t.cls,
+      isPhone: step === 'phone',
+      isOtp: step === 'otp',
+      otpReady: step === 'otp' && agree,
+      otpBlocked: step === 'otp' && !agree,
+      agree, notAgree: !agree, wa,
+      showNeed: tried && !agree,
+      toggleAgree: () => this.setState({ agree: !agree }),
+      toggleWa: () => this.setState({ wa: !wa }),
+      needAgree: () => this.setState({ tried: true }),
+      sendCode: () => this.setState(agree ? { step: 'otp' } : { tried: true }),
+      back: () => this.setState({ step: 'phone' })
+    };
+  }
+}
+</script>
+</body>
+</html>

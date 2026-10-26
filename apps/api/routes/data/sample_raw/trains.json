@@ -1,0 +1,61 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "name": "Sample Bengaluru-Vasco Express",
+    "number": "90001"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "name": "Sample Bengaluru-Madgaon Passenger",
+    "number": "90002"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "name": "Sample Goa-Mumbai Express",
+    "number": "90003"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "name": "Sample Bengaluru-Chennai Express",
+    "number": "90004"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "name": "Sample Mumbai-Kochi Express",
+    "number": "90005"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "name": "Sample Kochi-Chennai Express",
+    "number": "90006"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "name": "Sample Delhi Express",
+    "number": "90007"
+   }
+  }
+ ]
+}

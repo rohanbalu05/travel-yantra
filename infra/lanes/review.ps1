@@ -20,6 +20,7 @@ $Dispatch = [int](@($all | Where-Object { $_.title -eq '[dispatch] Second review
 Write-Log $LogName "Second review runner started. Dispatch issue #$Dispatch. Model $Model, effort $Effort."
 $st = Get-State $LogName
 $attempts = @{}
+$errorRetries = @{}
 
 function Read-Commands {
     $comments = Get-GhList "repos/$Script:Repo/issues/$Dispatch/comments?per_page=100"
@@ -58,7 +59,7 @@ function Test-ReviewJson($J) {
     $blocking = 0
     foreach ($f in @($J.findings)) {
         if (@('P0', 'P1', 'P2') -notcontains [string]$f.severity) { return $false }
-        if (-not $f.file -or -not $f.title) { return $false }
+        if (-not $f.title) { return $false }
         if (@('P0', 'P1') -contains [string]$f.severity) { $blocking++ }
     }
     if (($J.verdict -eq 'fail') -ne ($blocking -gt 0)) { return $false }
@@ -129,7 +130,8 @@ function Invoke-Review($Pr) {
     $lines = @("<!-- second-review:v1 sha=$sha verdict=$verdict mode=$mode -->",
         "### Second review ($mode) - $verdict", '', [string]$j.summary, '')
     foreach ($f in $findings) {
-        $lines += "- **$($f.severity)** ``$($f.file):$($f.line)`` $($f.title)"
+        $where = if ($f.file) { "``$($f.file):$([int]$f.line)``" } else { '(general)' }
+        $lines += "- **$($f.severity)** $where $($f.title)"
         $lines += "  $($f.detail)"
     }
     if ($findings.Count -eq 0) { $lines += 'No findings.' }
@@ -178,7 +180,16 @@ while ($true) {
             foreach ($pr in @($prs)) {
                 if ($pr.draft -or $pr.base.ref -ne 'main' -or -not $pr.title.StartsWith('[')) { continue }
                 $status = Invoke-GhJson @('api', "repos/$Script:Repo/commits/$($pr.head.sha)/status")
-                if (@($status.statuses | Where-Object { $_.context -eq 'second-review' }).Count -gt 0) { continue }
+                $mine = @($status.statuses | Where-Object { $_.context -eq 'second-review' })
+                if ($mine.Count -gt 0) {
+                    # The combined status lists the latest state per context. Retry an
+                    # 'error' (a run that produced no usable review) up to two more times.
+                    $k = "$($pr.number)-$($pr.head.sha)"
+                    if ($mine[0].state -ne 'error' -or [int]$errorRetries[$k] -ge 2) { continue }
+                    $errorRetries[$k] = 1 + [int]$errorRetries[$k]
+                    $attempts[$k] = 0
+                    Write-Log $LogName "Retrying errored second review on PR #$($pr.number) (retry $($errorRetries[$k]))."
+                }
                 Invoke-Review $pr
                 break
             }

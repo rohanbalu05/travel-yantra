@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your Mysuru weekend, day by day · Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#1D6A84}a:hover{color:#13212B}
+.crumbs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;font-size:14px;color:#56646E}
+.crumbs a{font-weight:600}
+.kd-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}
+.kd-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.days{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:10px;margin-bottom:18px}
+.dbtn{display:flex;align-items:center;gap:14px;min-height:72px;padding:12px 16px;border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1;color:#13212B;text-align:left;cursor:pointer}
+.dbtn:hover{border-color:#2B3B47}
+.dbtn.on{background:#245A4B;border-color:#245A4B;color:#F4EFE6}
+.dbtn .num{font-family:"Bricolage Grotesque",sans-serif;font-size:34px;font-weight:700;line-height:1}
+.dbtn b{display:block;font-size:16.5px}
+.dbtn span{display:block;font-size:14px;opacity:.85}
+.note-day{margin-bottom:16px}
+.row{display:grid;grid-template-columns:76px 34px minmax(0,1fr);column-gap:14px;align-items:start;padding:14px 10px;margin:0 -10px;border-top:1px solid #E6DED0;border-radius:4px}
+.row:first-child{border-top:0}
+.row.sel{background:#FBF1DE}
+.row time{padding-top:7px;font-family:"JetBrains Mono",monospace;font-size:13px;color:#56646E}
+.mk{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;font-family:"JetBrains Mono",monospace;font-size:13.5px;font-weight:600}
+.mk .ic{width:17px;height:17px}
+.mk-stop{background:#13212B;color:#F4EFE6}
+.mk-meal{background:#B4452A;color:#FBF6EE}
+.mk-move{background:#EDE6D9;color:#13212B}
+.mk-stay{background:#245A4B;color:#F4EFE6}
+.mk-opt{background:#FAF7F1;color:#13212B;border:2px dashed #13212B}
+.rb{min-width:0;display:flex;flex-direction:column;gap:5px}
+.rb b{font-size:17px;line-height:1.3}
+.rb small{font-size:14.5px;line-height:1.5;color:#56646E}
+.kseg{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:4px}
+.kbtn{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 12px;border:1px solid #13212B;border-radius:4px;background:transparent;color:#13212B;font-size:14px;font-weight:700;cursor:pointer}
+.kbtn:hover{background:#13212B;color:#F4EFE6}
+.kbtn.on{background:#13212B;color:#F4EFE6}
+.kbtn .ic{width:14px;height:14px}
+.kx{display:flex;flex-direction:column;gap:12px;padding:18px 20px;border-radius:4px;background:#16293A}
+.kx-top{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.kx-top b{font-family:"Bricolage Grotesque",sans-serif;font-size:21px;letter-spacing:-0.01em}
+.kx p{margin:0;font-size:17px;line-height:1.65;color:#F4EFE6}
+.mmap{position:relative;aspect-ratio:460/510;border:1px solid #D8CFBF;border-radius:4px;overflow:hidden;background:#E8E1D2}
+.mmap svg{position:absolute;inset:0;width:100%;height:100%}
+.pin{position:absolute;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:2px solid #FFFDF9;font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:700;box-shadow:0 1px 3px #13212B55}
+.pin.stop{background:#13212B;color:#F4EFE6}
+.pin.meal{background:#B4452A;color:#FBF6EE}
+.pin.stay{background:#245A4B;color:#F4EFE6}
+.pin.opt{background:#FAF7F1;color:#13212B;border:2px dashed #13212B}
+.pin.sel{width:36px;height:36px;background:#E3A33B;color:#13212B}
+.deeper{display:grid;gap:10px}
+.deeper a{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:52px;padding:12px 14px;border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1;color:#13212B;text-decoration:none;font-weight:650}
+.deeper a:hover{border-color:#13212B;color:#13212B}
+@media (max-width:600px){.row{grid-template-columns:60px 30px minmax(0,1fr)}}
+</style>
+</helmet>
+
+<div class="app">
+  <header class="appbar">
+    <a class="brand" href="Home.dc.html">
+      <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#B4452A"></circle></svg>
+      <span>Travel Yantra</span>
+    </a>
+    <nav class="appnav" aria-label="Main">
+      <a href="Home.dc.html">Home</a>
+      <a href="PlanStart.dc.html">Plan a trip</a>
+      <a href="KathaHome.dc.html" class="on">Katha</a>
+      <a href="MyTrips.dc.html">My trips</a>
+    </nav>
+    <div class="appbar-end">
+      <a class="btn btn-quiet btn-sm" href="Settings.dc.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"></path></svg>English</a>
+      <a class="avatar" href="Settings.dc.html" aria-label="Account and settings">AR</a>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="You are here"><a href="MyTrips.dc.html">My trips</a><span>/</span><span>Mysuru weekend</span></nav>
+      <div class="kd-head">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <p class="eyebrow">Day plan and Day Katha</p>
+          <h1 class="page-title">Your Mysuru weekend</h1>
+          <div class="kd-meta"><span class="badge">Sat 31 Oct to Sun 1 Nov</span><span class="badge">You and your parents</span><span class="badge">By car from Bengaluru</span><span class="badge badge-ok">Saved for offline, English and Kannada</span></div>
+        </div>
+        <div class="row-wrap" style="gap: 8px">
+          <a class="btn btn-quiet btn-sm" href="KathaCity.dc.html">Mysuru City Katha</a>
+          <a class="btn btn-dark btn-sm" href="AskGuide.dc.html">Ask the guide</a>
+        </div>
+      </div>
+
+      <div class="days" role="tablist" aria-label="Days">
+        <sc-for list="{{ dayTabs }}" as="d" hint-placeholder-count="2">
+          <button type="button" role="tab" aria-selected="{{ d.sel }}" class="{{ d.cls }}" onClick="{{ d.pick }}"><span class="num">{{ d.num }}</span><span><b>{{ d.title }}</b><span>{{ d.sub }}</span></span></button>
+        </sc-for>
+      </div>
+      <div class="note note-info note-day"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 8h.01"></path><path d="M11 12h1v5h1"></path></svg><span>{{ dayNote }}</span></div>
+
+      <div class="split">
+        <section class="main" aria-label="The day, stop by stop">
+          <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
+            <div class="{{ r.cls }}">
+              <time>{{ r.t }}</time>
+              <span class="{{ r.mk }}">
+                <sc-if value="{{ r.isStop }}" hint-placeholder-val="{{ true }}">{{ r.n }}</sc-if>
+                <sc-if value="{{ r.isMeal }}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24"><path d="M7 3v8"></path><path d="M4 3v5a3 3 0 0 0 6 0V3"></path><path d="M7 11v10"></path><path d="M17 3c-2 2-3 5-3 8h3v10"></path></svg></sc-if>
+                <sc-if value="{{ r.isMove }}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24"><path d="M5 16V12l2-5h10l2 5v4"></path><path d="M3 16h18v2H3z"></path></svg></sc-if>
+                <sc-if value="{{ r.isStay }}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24"><path d="M3 18V7"></path><path d="M3 14h18v4"></path><path d="M3 11h7a2 2 0 0 1 2 2v1"></path><path d="M12 14v-2a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v2"></path></svg></sc-if>
+              </span>
+              <div class="rb">
+                <b>{{ r.name }}</b>
+                <small>{{ r.note }}</small>
+                <sc-if value="{{ r.hasK }}" hint-placeholder-val="{{ false }}">
+                  <span class="kseg">
+                    <button type="button" class="{{ r.kCls }}" onClick="{{ r.pick }}"><svg class="ic" viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z" fill="currentColor" stroke="none"></path></svg>Katha, {{ r.kt }}</button>
+                    <span class="{{ r.tagCls }}">{{ r.tag }}</span>
+                    <sc-if value="{{ r.hasLink }}" hint-placeholder-val="{{ false }}"><a href="KathaPlace.dc.html" style="font-size: 14px; font-weight: 700">Full Place Katha, 8 min</a></sc-if>
+                  </span>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </section>
+
+        <aside class="side" style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 16px">
+          <section class="kp" aria-labelledby="dk-h">
+            <div class="kp-top">
+              <button type="button" class="kp-play" onClick="{{ togglePlay }}" aria-label="{{ playLabel }}">
+                <sc-if value="{{ playing }}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24"><rect x="6.5" y="5" width="3.6" height="14" fill="currentColor" stroke="none"></rect><rect x="13.9" y="5" width="3.6" height="14" fill="currentColor" stroke="none"></rect></svg></sc-if>
+                <sc-if value="{{ paused }}" hint-placeholder-val="{{ true }}"><svg class="ic" viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z" fill="currentColor" stroke="none"></path></svg></sc-if>
+              </button>
+              <div class="kp-title"><b id="dk-h">{{ dkTitle }}</b><span>{{ dkMeta }}</span></div>
+            </div>
+            <div class="{{ waveCls }}">
+              <sc-for list="{{ bars }}" as="b" hint-placeholder-count="48"><i style="animation-delay: {{ b.d }}; height: {{ b.h }}"></i></sc-for>
+            </div>
+            <div class="kx">
+              <div class="kx-top"><span class="{{ cur.tagCls }}">{{ cur.tag }}</span><b>{{ cur.name }}</b></div>
+              <p>{{ cur.text }}</p>
+            </div>
+          </section>
+
+          <div class="mmap" role="img" aria-label="{{ mapLabel }}">
+            <svg viewBox="40 50 460 510" preserveAspectRatio="none" aria-hidden="true">
+              <rect x="40" y="50" width="460" height="510" fill="#E8E1D2"></rect>
+              <path d="M40 104 C100 92 160 70 240 80 C300 88 350 66 400 74 C440 80 470 98 500 94" fill="none" stroke="#BFD5DF" stroke-width="12" stroke-linecap="round"></path>
+              <path d="M368 76 C392 110 430 126 474 104" fill="none" stroke="#BFD5DF" stroke-width="7" stroke-linecap="round"></path>
+              <ellipse cx="74" cy="78" rx="34" ry="22" fill="#BFD5DF"></ellipse>
+              <ellipse cx="232" cy="420" rx="22" ry="14" fill="#BFD5DF"></ellipse>
+              <ellipse cx="368" cy="446" rx="16" ry="10" fill="#BFD5DF"></ellipse>
+              <path d="M300 560 C320 500 350 480 380 486 C410 492 432 520 446 560 Z" fill="#CDBF9F"></path>
+              <path d="M330 560 C344 520 362 506 382 510 C402 514 416 534 424 560 Z" fill="#BDAE8C"></path>
+              <circle cx="300" cy="420" r="74" fill="#DDD3BE"></circle>
+              <g font-family="Figtree, sans-serif" font-size="12" font-weight="600" fill="#56646E"><text x="190" y="66">Kaveri</text><text x="250" y="352">Mysuru</text><text x="398" y="152">Srirangapatna</text><text x="380" y="552">Chamundi Hill</text><text x="52" y="122">KRS dam</text></g>
+              <polyline points="{{ route }}" fill="none" stroke="#13212B" stroke-width="2" stroke-dasharray="4 4" stroke-linejoin="round"></polyline>
+            </svg>
+            <sc-for list="{{ pins }}" as="p" hint-placeholder-count="7"><span class="{{ p.cls }}" style="left: {{ p.lx }}; top: {{ p.ly }}">{{ p.label }}</span></sc-for>
+          </div>
+
+          <section class="deeper" aria-label="Go deeper">
+            <a href="KathaCity.dc.html"><span>Mysuru in 5 minutes, the City Katha</span><svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></a>
+            <a href="KathaPlace.dc.html"><span>Mysore Palace, the full Place Katha</span><svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></a>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-foot">
+    <div class="wrap"><span>Travel Yantra prototype. Timings, distances and story text are sample content; check visiting hours before you go.</span><span><a href="Legal.dc.html">Terms and privacy</a></span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const day = s.day || 1;
+    const playing = !!s.playing;
+    const HOTEL = [282, 428];
+    const D = {
+      1: {
+        title: 'Chamundi Hill and the palace', sub: 'Saturday 31 October', total: '10 min 30 s',
+        note: 'A full but gentle day: rest after lunch, everything flat or by car. Brindavan Gardens is optional, as it is busy on Saturday evenings.',
+        rows: [
+          { t: '6:30 am', kind: 'move', name: 'Leave Bengaluru by car', note: 'The expressway, about 2½ hours with a breakfast stop.' },
+          { t: '7:45 am', kind: 'meal', name: 'Breakfast near Maddur', note: 'Have the Maddur vade.', k: { tag: 'Food', t: '0:40', text: 'Maddur vade is named after this town on the old Bengaluru to Mysuru road. Flat and crisp, it is made with rice flour, semolina, onion and curry leaves.' } },
+          { t: '9:30 am', kind: 'stop', n: '1', name: 'Chamundeshwari Temple, Chamundi Hill', note: 'Drive to the top. Shoulders covered; the queue is shorter before 10.', pin: [368, 533], k: { tag: 'Legend', t: '2:30', text: 'As the story goes, the goddess Chamundeshwari killed the demon Mahishasura on this hill, and the city below took his name. The temple is old; its seven-storey tower was added by Krishnaraja Wadiyar III in 1827.' } },
+          { t: '10:45 am', kind: 'stop', n: '2', name: 'The Nandi on Chamundi Hill', note: 'Halfway down the old road, a short flat walk from the car.', pin: [361, 506], k: { tag: 'History', t: '1:20', text: "This Nandi, Shiva's bull, was carved from a single rock in 1659. It stands about 4.8 metres tall, among the largest in India, and people still garland it every day." } },
+          { t: '12:15 pm', kind: 'stay', name: 'Hotel near the palace', note: 'Check in and rest.', pin: HOTEL },
+          { t: '1:00 pm', kind: 'meal', name: 'Lunch: Mysore meals', note: 'Rice, saaru, palya and payasa on a banana leaf.', pin: [262, 396] },
+          { t: '3:00 pm', kind: 'stop', n: '3', name: 'Mysore Palace', note: 'About 90 minutes. Shoes at the counter.', pin: [318, 444], link: true, k: { tag: 'History', t: '2:00', text: "The old wooden palace burned down in 1897, and Henry Irwin's new palace was finished in 1912. Inside, look for the peacock glass of the wedding hall and the rosewood doors inlaid with ivory." } },
+          { t: '4:45 pm', kind: 'stop', n: '4', name: 'Devaraja Market', note: 'Jasmine, betel leaves, kumkum and sandalwood. Flat, but busy.', pin: [312, 406], k: { tag: 'History', t: '1:30', text: 'One of the oldest markets in the city, named after Dodda Devaraja Wadiyar. Look for Mysore mallige, a jasmine with a geographical indication tag of its own.' } },
+          { t: '5:45 pm', kind: 'stop', n: '5', name: "St Philomena's Church", note: 'The twin spires catch the last light.', pin: [328, 378], k: { tag: 'History', t: '1:20', text: 'Begun in 1933 and modelled on Cologne Cathedral, its twin spires rise about 53 metres. Below the altar is a crypt with a relic of St Philomena.' } },
+          { t: '7:00 pm', kind: 'stop', n: '6', opt: true, name: 'Brindavan Gardens fountain, optional', note: '40 minutes away and crowded on Saturdays. Skip it if your parents are tired.', pin: [86, 96], k: { tag: 'History', t: '1:10', text: 'The gardens lie below the Krishna Raja Sagara dam, built across the Kaveri between 1911 and 1931 under the engineer Sir M. Visvesvaraya.' } },
+          { t: '8:30 pm', kind: 'stay', name: 'Back at the hotel', note: 'Dinner nearby.', pin: HOTEL }
+        ]
+      },
+      2: {
+        title: 'Srirangapatna and the lights', sub: 'Sunday 1 November, Rajyotsava', total: '9 min',
+        note: 'Today is Kannada Rajyotsava, Karnataka\'s formation day. Expect flags, music and crowds in the evening. The palace lights are on from 7 to 7:45 pm.',
+        rows: [
+          { t: '8:00 am', kind: 'stay', name: 'Breakfast at the hotel', note: 'Check out; bags stay in the car.', pin: HOTEL },
+          { t: '8:45 am', kind: 'move', name: 'Drive to Srirangapatna', note: '16 km, about 30 minutes.' },
+          { t: '9:15 am', kind: 'stop', n: '1', name: 'Sri Ranganathaswamy Temple', note: 'Shoes at the stand. Mornings are calm.', pin: [390, 86], k: { tag: 'Legend', t: '2:20', text: 'As the story goes, the sage Gautama worshipped Vishnu here as Ranganatha, reclining on the serpent Adishesha. It is the first of three great Ranganatha temples on the Kaveri, so it is called Adi Ranga.' } },
+          { t: '10:30 am', kind: 'stop', n: '2', name: 'Daria Daulat Bagh', note: "Tipu Sultan's summer palace. Closed on Fridays; open today.", pin: [426, 110], k: { tag: 'History', t: '2:00', text: 'Tipu Sultan built this teak summer palace in 1784. Its walls are covered in paintings, among them the Battle of Pollilur of 1780, where the army of Hyder Ali and Tipu defeated the British.' } },
+          { t: '11:30 am', kind: 'stop', n: '3', name: 'Gumbaz', note: 'A short walk from the car park.', pin: [460, 118], k: { tag: 'History', t: '1:30', text: 'The domed tomb that Tipu Sultan built for his father Hyder Ali and his mother. Tipu was buried here too, after he fell defending Srirangapatna in 1799.' } },
+          { t: '12:45 pm', kind: 'meal', name: 'Lunch in Srirangapatna', note: 'Vegetarian, near the river.', pin: [404, 96] },
+          { t: '2:00 pm', kind: 'stay', name: 'Rest', note: 'A lounge near the palace, so nobody drives tired.', pin: HOTEL },
+          { t: '4:00 pm', kind: 'stop', n: '4', name: 'Jaganmohan Palace art gallery', note: 'There are stairs to the first floor.', pin: [256, 448], k: { tag: 'History', t: '1:40', text: 'Built in 1861, this palace became an art gallery in 1915. Look for the paintings of Raja Ravi Varma, and the Glow of Hope, the lady with the lamp.' } },
+          { t: '6:45 pm', kind: 'stop', n: '5', name: 'The palace lights on Rajyotsava', note: 'Find a spot on the main lawn by 6:45.', pin: [320, 458], k: { tag: 'Festival', t: '1:30', text: 'Kannada Rajyotsava marks the day in 1956 when the state was formed. Watch for the red and yellow flags. At 7, nearly 100,000 bulbs light up the palace for forty-five minutes.' } },
+          { t: '8:00 pm', kind: 'move', name: 'Drive home', note: 'Home by about 10:30 pm. If that is late for your parents, stay one more night; we are holding a room until Saturday 6 pm.' }
+        ]
+      }
+    };
+    const DD = D[day];
+    const kRows = DD.rows.filter((r) => r.k);
+    const selName = s.sel && kRows.some((r) => r.name === s.sel) ? s.sel : kRows[day === 1 ? 1 : 0].name;
+    const rows = DD.rows.map((r) => ({
+      t: r.t, n: r.n || '', name: r.name, note: r.note,
+      isStop: r.kind === 'stop', isMeal: r.kind === 'meal', isMove: r.kind === 'move', isStay: r.kind === 'stay',
+      mk: 'mk ' + (r.opt ? 'mk-opt' : 'mk-' + r.kind),
+      hasK: !!r.k, kt: r.k ? r.k.t : '', tag: r.k ? r.k.tag : '',
+      tagCls: r.k ? 'tag tag-' + r.k.tag.toLowerCase() : 'tag',
+      kCls: 'kbtn' + (r.name === selName ? ' on' : ''),
+      hasLink: !!r.link,
+      cls: 'row' + (r.name === selName ? ' sel' : ''),
+      pick: () => this.setState({ sel: r.name, playing: true })
+    }));
+    const C = kRows.filter((r) => r.name === selName)[0];
+    const pinRows = DD.rows.filter((r) => r.pin);
+    const seen = {};
+    const pins = [];
+    pinRows.forEach((r) => {
+      const key = r.pin.join(',');
+      if (seen[key]) return;
+      seen[key] = true;
+      const kind = r.opt ? 'opt' : r.kind;
+      pins.push({
+        lx: ((r.pin[0] - 40) / 460 * 100).toFixed(2) + '%',
+        ly: ((r.pin[1] - 50) / 510 * 100).toFixed(2) + '%',
+        label: r.kind === 'stay' ? 'H' : r.kind === 'meal' ? 'L' : r.n,
+        cls: 'pin ' + kind + (r.name === selName ? ' sel' : '')
+      });
+    });
+    const route = pinRows.filter((r) => !r.opt).map((r) => r.pin.join(',')).join(' ');
+    const dayTabs = [1, 2].map((k) => ({
+      num: String(k), title: D[k].title, sub: D[k].sub,
+      sel: k === day ? 'true' : 'false', cls: 'dbtn' + (k === day ? ' on' : ''),
+      pick: () => this.setState({ day: k, sel: null })
+    }));
+    const heights = [40, 70, 90, 55, 80, 62, 95, 48, 74, 58, 86, 44, 66, 92, 52, 78, 60, 84, 46, 72, 56, 88, 64, 50, 76, 58, 94, 62, 48, 80, 54, 70, 42, 86, 66, 52, 74, 60, 90, 46, 68, 82, 50, 72, 58, 88, 44, 76];
+    const bars = heights.map((h, i) => ({ h: h + '%', d: (-(i * 0.09) % 1).toFixed(2) + 's' }));
+    return {
+      dayTabs, rows, pins, route, bars,
+      dayNote: DD.note,
+      dkTitle: 'Day ' + day + ' Katha',
+      dkMeta: kRows.length + ' stories · ' + DD.total + ' · plays at each stop',
+      cur: { name: C.name, text: C.k.text, tag: C.k.tag, tagCls: 'tag tag-' + C.k.tag.toLowerCase() },
+      mapLabel: 'Map of day ' + day + ' around Mysuru',
+      playing, paused: !playing,
+      playLabel: playing ? 'Pause the Katha' : 'Play the Katha',
+      togglePlay: () => this.setState({ playing: !playing }),
+      waveCls: playing ? 'wave play' : 'wave'
+    };
+  }
+}
+</script>
+</body>
+</html>
