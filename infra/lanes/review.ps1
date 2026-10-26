@@ -59,7 +59,7 @@ function Test-ReviewJson($J) {
     $blocking = 0
     foreach ($f in @($J.findings)) {
         if (@('P0', 'P1', 'P2') -notcontains [string]$f.severity) { return $false }
-        if (-not $f.file -or -not $f.title) { return $false }
+        if (-not $f.title) { return $false }
         if (@('P0', 'P1') -contains [string]$f.severity) { $blocking++ }
     }
     if (($J.verdict -eq 'fail') -ne ($blocking -gt 0)) { return $false }
@@ -130,7 +130,8 @@ function Invoke-Review($Pr) {
     $lines = @("<!-- second-review:v1 sha=$sha verdict=$verdict mode=$mode -->",
         "### Second review ($mode) - $verdict", '', [string]$j.summary, '')
     foreach ($f in $findings) {
-        $lines += "- **$($f.severity)** ``$($f.file):$($f.line)`` $($f.title)"
+        $where = if ($f.file) { "``$($f.file):$([int]$f.line)``" } else { '(general)' }
+        $lines += "- **$($f.severity)** $where $($f.title)"
         $lines += "  $($f.detail)"
     }
     if ($findings.Count -eq 0) { $lines += 'No findings.' }
