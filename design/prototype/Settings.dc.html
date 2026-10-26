@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Settings and privacy · Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#1D6A84}a:hover{color:#13212B}
+.st-nav{display:flex;flex-direction:column;gap:2px}
+.st-nav a{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border-radius:4px;color:#2B3B47;font-weight:650;font-size:15px;text-decoration:none}
+.st-nav a:hover{background:#EDE6D9;color:#13212B}
+.st-nav .ic{width:18px;height:18px;color:#56646E}
+.sec{display:flex;flex-direction:column;gap:18px;padding:24px;border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1}
+.sec h2{margin:0;font-size:24px;letter-spacing:-0.02em}
+.sec>p{margin:-8px 0 0;font-size:15px;color:#56646E;line-height:1.5}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:16px}
+.setrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px 0;border-top:1px solid #E6DED0}
+.setrow:first-of-type{border-top:0}
+.setrow b{display:block;font-size:16px}
+.setrow small{display:block;margin-top:2px;font-size:14px;line-height:1.5;color:#56646E}
+.verified{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;color:#245A4B}
+.consent{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;padding:16px;border:1px solid #E6DED0;border-radius:4px;background:#FFFDF9}
+.consent b{display:block;font-size:16px;line-height:1.4}
+.consent small{display:block;margin-top:4px;font-size:13.5px;line-height:1.5;color:#56646E}
+.rights{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(230px,100%),1fr));gap:12px}
+.right{display:flex;flex-direction:column;gap:10px;padding:16px;border:1px solid #E6DED0;border-radius:4px;background:#FFFDF9}
+.right b{font-size:16px}
+.right span{font-size:14px;line-height:1.5;color:#56646E}
+.right .btn{align-self:flex-start;margin-top:auto}
+.danger{display:flex;flex-direction:column;gap:12px;padding:18px;border-radius:4px;border:1px solid #E3B5A6;background:#FBEDE8}
+.danger b{font-size:16px;color:#7C2A16}
+.danger p{margin:0;font-size:14.5px;line-height:1.55;color:#5A2414}
+.btn-danger{background:#9B2F17;color:#FBF6EE}
+.btn-danger:hover{background:#7C2A16;color:#FBF6EE}
+.hist{list-style:none;margin:0;padding:0}
+.hist li{display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;padding:10px 0;border-top:1px solid #E6DED0;font-size:14.5px}
+.hist li:first-child{border-top:0}
+.hist time{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:#56646E;padding-top:2px}
+</style>
+</helmet>
+
+<div class="app">
+  <header class="appbar">
+    <a class="brand" href="Home.dc.html">
+      <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#B4452A"></circle></svg>
+      <span>Travel Yantra</span>
+    </a>
+    <nav class="appnav" aria-label="Main">
+      <a href="Home.dc.html">Home</a>
+      <a href="PlanStart.dc.html">Plan a trip</a>
+      <a href="KathaHome.dc.html">Katha</a>
+      <a href="MyTrips.dc.html">My trips</a>
+    </nav>
+    <div class="appbar-end">
+      <a class="avatar" href="Settings.dc.html" aria-label="Account and settings" aria-current="page">AR</a>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="wrap">
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px">
+        <h1 class="page-title">Settings and privacy</h1>
+        <p class="page-sub">Your language, your preferences, and full control over your data.</p>
+      </div>
+
+      <div class="split">
+        <nav class="side st-nav" style="flex: 0 1 240px" aria-label="Settings sections">
+          <a href="#profile"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>Profile</a>
+          <a href="#language"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"></path></svg>Language and voice</a>
+          <a href="#travel"><svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21Z"></path><circle cx="12" cy="10" r="2.3"></circle></svg>How you travel</a>
+          <a href="#alerts"><svg class="ic" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"></path><path d="M10 20a2 2 0 0 0 4 0"></path></svg>Updates and channels</a>
+          <a href="#privacy"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path></svg>Privacy and your data</a>
+        </nav>
+
+        <div class="main" style="display: flex; flex-direction: column; gap: 20px">
+          <section class="sec" id="profile" aria-labelledby="p-h">
+            <h2 id="p-h">Profile</h2>
+            <div class="grid2">
+              <div class="field"><label for="nm">Name</label><input class="input" id="nm" placeholder="Arjun Rao"></div>
+              <div class="field"><label for="hc">Home city</label><input class="input" id="hc" placeholder="Bengaluru"></div>
+              <div class="field"><span class="label">Mobile number</span><div class="input" style="display: flex; align-items: center; justify-content: space-between">+91 98450 12345<span class="verified"><svg class="ic" viewBox="0 0 24 24" style="width: 16px; height: 16px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Verified</span></div></div>
+              <div class="field"><span class="label">Google account</span><div class="input" style="display: flex; align-items: center; justify-content: space-between">Connected<button type="button" class="btn btn-quiet btn-sm" style="min-height: 34px">Disconnect</button></div></div>
+            </div>
+          </section>
+
+          <section class="sec" id="language" aria-labelledby="l-h">
+            <h2 id="l-h">Language and voice</h2>
+            <div class="field"><span class="label">App language</span>
+              <div class="langs" role="group" aria-label="App language"><sc-for list="{{ appLangs }}" as="l" hint-placeholder-count="6"><button type="button" class="{{ l.cls }}" onClick="{{ l.pick }}">{{ l.label }}</button></sc-for></div>
+            </div>
+            <div class="field"><span class="label">Save Katha in</span>
+              <div class="langs" role="group" aria-label="Katha languages"><sc-for list="{{ kLangs }}" as="l" hint-placeholder-count="6"><button type="button" class="{{ l.cls }}" onClick="{{ l.pick }}" aria-pressed="{{ l.pressed }}">{{ l.label }}</button></sc-for></div>
+              <span class="hint">{{ kNote }}</span>
+            </div>
+            <div class="field"><span class="label">Speaking speed</span>
+              <div class="toggle" role="group" aria-label="Speaking speed"><sc-for list="{{ speeds }}" as="x" hint-placeholder-count="3"><button type="button" class="{{ x.cls }}" onClick="{{ x.pick }}">{{ x.label }}</button></sc-for></div>
+            </div>
+          </section>
+
+          <section class="sec" id="travel" aria-labelledby="t-h">
+            <h2 id="t-h">How you travel</h2>
+            <p>Used as a starting point for every plan. You can change them for any trip.</p>
+            <div class="grid2">
+              <div class="field"><span class="label">Food</span><div class="toggle" role="group" aria-label="Food"><sc-for list="{{ foods }}" as="x" hint-placeholder-count="3"><button type="button" class="{{ x.cls }}" onClick="{{ x.pick }}">{{ x.label }}</button></sc-for></div></div>
+              <div class="field"><span class="label">Pace</span><div class="toggle" role="group" aria-label="Pace"><sc-for list="{{ paces }}" as="x" hint-placeholder-count="3"><button type="button" class="{{ x.cls }}" onClick="{{ x.pick }}">{{ x.label }}</button></sc-for></div></div>
+            </div>
+            <label class="check"><input type="checkbox" checked="{{ stepFree }}" onChange="{{ toggleStep }}"><span>Prefer step-free places and lifts. We will warn you about stairs.</span></label>
+            <label class="check"><input type="checkbox" checked="{{ seniors }}" onChange="{{ toggleSeniors }}"><span>I often travel with parents over 60. Ask for lower berths and end days by 7 pm.</span></label>
+          </section>
+
+          <section class="sec" id="alerts" aria-labelledby="a-h">
+            <h2 id="a-h">Updates and channels</h2>
+            <div>
+              <sc-for list="{{ alerts }}" as="x" hint-placeholder-count="4">
+                <div class="setrow"><div><b>{{ x.label }}</b><small>{{ x.note }}</small></div><input class="switch" type="checkbox" checked="{{ x.on }}" onChange="{{ x.flip }}" aria-label="{{ x.label }}"></div>
+              </sc-for>
+            </div>
+            <div class="grid2">
+              <div class="right"><b>WhatsApp</b><span>Linked to +91 98450 12345. Plans, PDFs, Katha voice notes and booking alerts.</span><button type="button" class="btn btn-quiet btn-sm">Unlink</button></div>
+              <div class="right"><b>Voice</b><span>Talk to Travel Yantra hands free, in any of the six languages.</span><a class="btn btn-quiet btn-sm" href="Voice.dc.html">Try voice mode</a></div>
+            </div>
+          </section>
+
+          <section class="sec" id="privacy" aria-labelledby="pr-h">
+            <h2 id="pr-h">Privacy and your data</h2>
+            <p>Under India's Digital Personal Data Protection Act, 2023, you decide what we use. Your data is stored on Google Cloud in Mumbai, encrypted at rest and in transit.</p>
+            <div style="display: flex; flex-direction: column; gap: 10px">
+              <div class="consent"><div><b>Use my trip details to plan and track my trips</b><small>Needed for the service. Given 20 Oct 2026. To withdraw it, delete your account below.</small></div><span class="badge badge-ok">Needed</span></div>
+              <sc-for list="{{ consents }}" as="x" hint-placeholder-count="3">
+                <div class="consent"><div><b>{{ x.label }}</b><small>{{ x.note }}</small></div><input class="switch" type="checkbox" checked="{{ x.on }}" onChange="{{ x.flip }}" aria-label="{{ x.label }}"></div>
+              </sc-for>
+            </div>
+            <div class="rights">
+              <div class="right"><b>See and download your data</b><span>Every trip, booking reference and consent, as one file.</span><button type="button" class="btn btn-line btn-sm" onClick="{{ download }}">{{ dlText }}</button></div>
+              <div class="right"><b>Correct it</b><span>Edit your profile and preferences above, or any trip.</span><a class="btn btn-line btn-sm" href="#profile">Go to profile</a></div>
+              <div class="right"><b>Name someone to act for you</b><span>If you are ever unable to, they can manage or erase your data.</span><button type="button" class="btn btn-line btn-sm" onClick="{{ nominate }}">{{ nomText }}</button></div>
+              <div class="right"><b>Raise a concern</b><span>Grievance Officer: [NAME], [GRIEVANCE EMAIL]. We reply within 7 days.</span><a class="btn btn-line btn-sm" href="Legal.dc.html">Read the Privacy Policy</a></div>
+            </div>
+            <div class="panel panel-pad">
+              <h3 class="h3" style="margin-bottom: 8px">Consent history</h3>
+              <ul class="hist">
+                <li><time>26 Oct 2026</time><span>Katha near me turned off.</span></li>
+                <li><time>20 Oct 2026</time><span>WhatsApp updates turned on.</span></li>
+                <li><time>20 Oct 2026</time><span>Agreed to Terms of Service 0.3 and Privacy Policy 0.3.</span></li>
+              </ul>
+            </div>
+            <div class="danger">
+              <b>Delete my account</b>
+              <sc-if value="{{ del0 }}" hint-placeholder-val="{{ true }}">
+                <p>Erases your profile, trips, saved Katha and booking references. Bookings you made with IRCTC, airlines or hotels stay with them.</p>
+                <button type="button" class="btn btn-danger btn-sm" style="align-self: flex-start" onClick="{{ delAsk }}">Delete my account</button>
+              </sc-if>
+              <sc-if value="{{ del1 }}" hint-placeholder-val="{{ false }}">
+                <p>Are you sure? Everything is erased within 30 days. You can change your mind for the first 7 days.</p>
+                <div class="row-wrap" style="gap: 8px"><button type="button" class="btn btn-danger btn-sm" onClick="{{ delYes }}">Yes, delete everything</button><button type="button" class="btn btn-quiet btn-sm" onClick="{{ delNo }}">Cancel</button></div>
+              </sc-if>
+              <sc-if value="{{ del2 }}" hint-placeholder-val="{{ false }}">
+                <p>Deletion is scheduled. You can undo it until 2 November 2026; after that, everything is erased within 30 days.</p>
+                <button type="button" class="btn btn-quiet btn-sm" style="align-self: flex-start" onClick="{{ delNo }}">Undo</button>
+              </sc-if>
+            </div>
+          </section>
+
+          <a class="btn btn-quiet" href="Main.dc.html" style="align-self: flex-start">Sign out</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-foot">
+    <div class="wrap"><span>Travel Yantra prototype. Account details shown are sample data.</span><span><a href="Legal.dc.html">Terms and privacy</a></span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const LN = [['en', 'English', ''], ['kn', 'ಕನ್ನಡ', 'kn'], ['hi', 'हिन्दी', 'hi'], ['ta', 'தமிழ்', 'ta'], ['te', 'తెలుగు', 'te'], ['bn', 'বাংলা', 'bn']];
+    const app = s.app || 'en';
+    const kSel = s.kSel || { en: true, kn: true };
+    const appLangs = LN.map(([k, label, c]) => ({ label, cls: 'lang ' + c + (k === app ? ' on' : ''), pick: () => this.setState({ app: k }) }));
+    const kLangs = LN.map(([k, label, c]) => ({ label, pressed: kSel[k] ? 'true' : 'false', cls: 'lang ' + c + (kSel[k] ? ' on' : ''), pick: () => this.setState({ kSel: { ...kSel, [k]: !kSel[k] } }) }));
+    const nK = LN.filter(([k]) => kSel[k]).length;
+    const one = (labels, cur, key) => labels.map((label) => ({ label, cls: label === cur ? 'on' : '', pick: () => this.setState({ [key]: label }) }));
+    const sw = (key, def) => (s[key] === undefined ? def : s[key]);
+    const A = [
+      ['aWa', 'Trip updates on WhatsApp', 'The plan, reminders and Katha voice notes.', true],
+      ['aPnr', 'Train and flight changes', 'Waitlist moves, delays and platform changes for PNRs you added.', true],
+      ['aPrice', 'Price changes on saved backups', 'Only for options you chose to keep.', true],
+      ['aNear', 'Katha near me', 'A gentle nudge when you reach a place with a story.', false]
+    ];
+    const alerts = A.map(([k, label, note, def]) => ({ label, note, on: sw(k, def), flip: () => this.setState({ [k]: !sw(k, def) }) }));
+    const CS = [
+      ['cVoice', 'Keep my voice recordings for 30 days to improve recognition', 'Off: recordings are deleted within 24 hours.', false],
+      ['cLoc', 'Use my location for Katha near me', 'Only on this phone, only while trip mode is on.', false],
+      ['cImprove', 'Use my trips, without my name, to improve plans for others', 'Never sold, never used for advertising.', false]
+    ];
+    const consents = CS.map(([k, label, note, def]) => ({ label, note, on: sw(k, def), flip: () => this.setState({ [k]: !sw(k, def) }) }));
+    const del = s.del || 0;
+    return {
+      appLangs, kLangs,
+      kNote: nK === 0 ? 'Pick at least one language for your Katha.' : 'About 12 MB per language for a weekend trip.',
+      speeds: one(['Slower', 'Normal', 'Faster'], s.speed || 'Normal', 'speed'),
+      foods: one(['Vegetarian', 'Jain', 'Anything'], s.food || 'Vegetarian', 'food'),
+      paces: one(['Gentle', 'Balanced', 'Packed'], s.pace || 'Gentle', 'pace'),
+      stepFree: sw('stepFree', true), toggleStep: () => this.setState({ stepFree: !sw('stepFree', true) }),
+      seniors: sw('seniors', true), toggleSeniors: () => this.setState({ seniors: !sw('seniors', true) }),
+      alerts, consents,
+      dlText: s.dl ? 'Preparing your file' : 'Download my data',
+      download: () => this.setState({ dl: true }),
+      nomText: s.nom ? 'Invite sent' : 'Name someone',
+      nominate: () => this.setState({ nom: true }),
+      del0: del === 0, del1: del === 1, del2: del === 2,
+      delAsk: () => this.setState({ del: 1 }), delYes: () => this.setState({ del: 2 }), delNo: () => this.setState({ del: 0 })
+    };
+  }
+}
+</script>
+</body>
+</html>

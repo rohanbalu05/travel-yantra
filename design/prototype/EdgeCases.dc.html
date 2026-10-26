@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Edge cases and states · Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#1D6A84}a:hover{color:#13212B}
+.ec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr));gap:18px}
+.ec{display:flex;flex-direction:column;gap:12px}
+.ec-k{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px}
+.ec-k b{font-family:"Bricolage Grotesque",sans-serif;font-size:19px;letter-spacing:-0.01em}
+.ec-k span{font-family:"JetBrains Mono",monospace;font-size:12px;color:#56646E}
+.ec-why{margin:0;font-size:14.5px;line-height:1.5;color:#56646E}
+.mock{display:flex;flex-direction:column;gap:12px;flex:1;padding:16px;border:1px solid #D8CFBF;border-radius:6px;background:#FFFDF9}
+.mock .msg-ai,.mock .msg-user{max-width:100%;font-size:14.5px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opts button{justify-content:flex-start;text-align:left;white-space:normal;line-height:1.35;height:auto;min-height:44px;padding:10px 14px}
+.res{margin:0;font-size:14px;font-weight:650;color:#245A4B}
+.offline{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:4px;background:#13212B;color:#F4EFE6;font-size:14px}
+.offline.ok{background:#245A4B}
+.mini-row{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid #E6DED0;font-size:14px}
+.mini-row:first-child{border-top:0}
+.mini-row .n{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#13212B;color:#F4EFE6;font-family:"JetBrains Mono",monospace;font-size:12px}
+.toast{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:start;padding:12px;border-radius:12px;background:#13212B;color:#F4EFE6;box-shadow:0 6px 18px #13212B33}
+.toast .tico{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:#F4EFE6;color:#13212B}
+.toast b{display:block;font-size:14.5px}
+.toast span{font-size:13.5px;color:#C9D3D9}
+.toast .row-wrap{gap:8px;margin-top:8px}
+.sos{display:flex;flex-direction:column;gap:8px}
+.sos a,.sos button{justify-content:flex-start}
+.empty{display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px 8px;text-align:center}
+.empty svg{width:72px;height:72px;color:#A99E8B}
+.empty b{font-size:16px}
+.empty span{font-size:14px;color:#56646E;max-width:30ch}
+.unv{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:3px;border:1px dashed #8A5A12;color:#5F3D0B;font-size:12.5px;font-weight:700;align-self:flex-start}
+</style>
+</helmet>
+
+<div class="app">
+  <header class="appbar">
+    <a class="brand" href="Home.dc.html">
+      <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#B4452A"></circle></svg>
+      <span>Travel Yantra</span>
+    </a>
+    <nav class="appnav" aria-label="Main">
+      <a href="Home.dc.html">Home</a>
+      <a href="PlanStart.dc.html">Plan a trip</a>
+      <a href="KathaHome.dc.html">Katha</a>
+      <a href="MyTrips.dc.html">My trips</a>
+    </nav>
+    <div class="appbar-end">
+      <a class="avatar" href="Settings.dc.html" aria-label="Account and settings">AR</a>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="wrap">
+      <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px">
+        <p class="eyebrow">For the team</p>
+        <h1 class="page-title">When things do not go to plan</h1>
+        <p class="page-sub">Twelve moments the product has to handle well: plans that do not fit, closures, waitlists, places we do not know, no signal, and emergencies.</p>
+      </div>
+
+      <div class="ec-grid">
+        <section class="ec" aria-labelledby="e1">
+          <div class="ec-k"><b id="e1">The plan does not fit</b><span>01</span></div>
+          <p class="ec-why">Too much for one day. The AI explains why and offers ways out instead of cramming.</p>
+          <div class="mock">
+            <div class="msg-user">Hampi, Badami, Pattadakal and Aihole in one day, with my parents.</div>
+            <div class="msg-ai">That is about 7 hours of driving for four sites. It will not fit in one gentle day. Two ways to do it:</div>
+            <div class="opts"><sc-for list="{{ fitOpts }}" as="o" hint-placeholder-count="2"><button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}">{{ o.label }}</button></sc-for></div>
+            <sc-if value="{{ fitDone }}" hint-placeholder-val="{{ false }}"><p class="res" role="status">{{ fitText }}</p></sc-if>
+          </div>
+        </section>
+
+        <section class="ec" aria-labelledby="e2">
+          <div class="ec-k"><b id="e2">Closed for the season</b><span>02</span></div>
+          <p class="ec-why">The seasons table knows monsoon closures, so the plan never sends you to a shut gate.</p>
+          <div class="mock">
+            <div class="note note-warn"><svg class="ic" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 9a4 4 0 0 1-1 9Z"></path><path d="M9 20l-1 2M13 20l-1 2M17 20l-1 2"></path></svg><span>The jeep safari to Dudhsagar does not run in the monsoon, roughly June to September.</span></div>
+            <div class="msg-ai">For your July trip I kept the view from the train instead. The line passes right in front of the falls, and they are at their fullest then.</div>
+          </div>
+        </section>
+
+        <section class="ec" aria-labelledby="e3">
+          <div class="ec-k"><b id="e3">The waitlist does not clear</b><span>03</span></div>
+          <p class="ec-why">The return train is still waitlisted when the chart is prepared. The backup is ready.</p>
+          <div class="mock">
+            <div class="note note-alert"><svg class="ic" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="13" rx="2"></rect><path d="M6 10h12"></path><path d="M8 16l-2 4M16 16l2 4M7 19h10"></path></svg><span><b>Return train still WL 3 at chart time.</b> Waitlisted e-tickets are cancelled and refunded automatically.</span></div>
+            <div class="mini-row"><span class="n">1</span><span>Backup flight, Mon 4:40 pm, Mopa</span><b>₹19,800</b></div>
+            <sc-if value="{{ wlOpen }}" hint-placeholder-val="{{ true }}"><div class="row-wrap" style="gap: 8px"><button type="button" class="btn btn-primary btn-sm" onClick="{{ wlBook }}">Book the backup</button><button type="button" class="btn btn-quiet btn-sm" onClick="{{ wlBus }}">Show sleeper buses</button></div></sc-if>
+            <sc-if value="{{ wlDone }}" hint-placeholder-val="{{ false }}"><p class="res" role="status">{{ wlText }}</p></sc-if>
+          </div>
+        </section>
+
+        <section class="ec" aria-labelledby="e4">
+          <div class="ec-k"><b id="e4">The price went up</b><span>04</span></div>
+          <p class="ec-why">Saved options are watched. You hear about changes before you are surprised at checkout.</p>
+          <div class="mock">
+            <div class="toast"><span class="tico"><svg class="ic" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"></path><path d="M15 7h6v6"></path></svg></span><div><b>Backup flight is now ₹22,200</b><span>It was ₹19,800 when you saved it on 26 Oct. We will tell you if it comes back down.</span></div></div>
+            <div class="row-wrap" style="gap: 8px"><button type="button" class="btn btn-quiet btn-sm">Keep watching</button><button type="button" class="btn btn-quiet btn-sm">Drop the backup</button></div>
+          </div>
+        </section>
+
+        <section class="ec" aria-labelledby="e5">
+          <div class="ec-k"><b id="e5">A place we do not know yet</b><span>05</span></div>
+          <p class="ec-why">Coverage grows place by place. Until a place is checked, we say so and never invent its story.</p>
+          <div class="mock">
+            <span class="unv"><svg class="ic" viewBox="0 0 24 24" style="width: 14px; height: 14px"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5"></path><path d="M12 16h.01"></path></svg>Unverified</span>
+            <div class="msg-ai">I do not have checked sources for the old temple in Hosakote yet. I have drafted its opening hours and location from open sources, marked unverified, and added it to our research list. Its Katha will appear once it is checked.</div>
+          </div>
+        </section>
+
+        <section class="ec" aria-labelledby="e6">
+          <div class="ec-k"><b id="e6">No signal</b><span>06</span></div>
+          <p class="ec-why">Hill roads and old forts lose signal. Today's plan, maps and Katha are already on the phone.</p>
+          <div class="mock">
+            <div class="{{ offCls }}" role="status"><svg class="ic" viewBox="0 0 24 24"><path d="M2 8.5a15 15 0 0 1 20 0"></path><path d="M5.5 12a10 10 0 0 1 13 0"></path><path d="M9 15.5a5 5 0 0 1 6 0"></path><path d="M12 19h.01"></path></svg><span>{{ offText }}</span></div>
+            <div class="mini-row"><span class="n">1</span><span>Basilica of Bom Jesus</span><span class="st st-ok">Saved</span></div>
+            <div class="mini-row"><span class="n">2</span><span>Sé Cathedral</span><span class="st st-ok">Saved</span></div>
+            <button type="button" class="btn btn-quiet btn-sm" style="align-self: flex-start" onClick="{{ toggleOff }}">{{ offBtn }}</button>
+          </div>
+        </section>
+
+        <section class="ec" aria-labelledby="e7">
+          <div class="ec-k"><b id="e7">You have arrived somewhere with a story</b><span>07</span></div>
+          <p class="ec-why">With Katha near me on, a gentle prompt. Never autoplay without asking the first time.</p>
+          <div class="mock">
+            <div class="toast"><span class="tico"><svg class="ic" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"></path><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"></path></svg></span><div><b>You are at Shri Mangueshi Temple</b><span>Play its Katha? 2 minutes, with a legend about Shiva and Parvati.</span>
+              <sc-if value="{{ nearOpen }}" hint-placeholder-val="{{ true }}"><div class="row-wrap"><button type="button" class="btn btn-cream btn-sm" style="background: #F4EFE6; color: #13212B" onClick="{{ nearPlay }}">Play</button><button type="button" class="btn btn-on-dark btn-sm" onClick="{{ nearLater }}">Not now</button></div></sc-if>
+              <sc-if value="{{ nearDone }}" hint-placeholder-val="{{ false }}"><span style="display: block; margin-top: 8px; color: #E7B25C; font-weight: 700">{{ nearText }}</span></sc-if>
+            </div></div>
+          </div>
+        </section>
+
+        <section class="ec" aria-labelledby="e8">
+          <div class="ec-k"><b id="e8">Not a travel question</b><span>08</span></div>
+          <p class="ec-why">The guide stays a travel guide, as WhatsApp's rules for business accounts also require.</p>
+          <div class="mock">
+            <div class="msg-user">Write my college assignment on climate change.</div>
+            <div class="msg-ai">I am your travel guide, so I will stay with travel: places, stories, routes and bookings. Want help planning a trip after your exams?</div>
+          </div>
+        </section>
+
+        <section class="ec" aria-labelledby="e9">
+          <div class="ec-k"><b id="e9">Still loading</b><span>09</span></div>
+          <p class="ec-why">Shapes of the real content while the plan builds, never a bare spinner.</p>
+          <div class="mock" aria-busy="true">
+            <span class="skel" style="height: 22px; width: 60%"></span>
+            <span class="skel" style="height: 14px; width: 90%"></span>
+            <div class="mini-row"><span class="skel" style="width: 26px; height: 26px; border-radius: 50%"></span><span class="skel" style="height: 14px"></span><span class="skel" style="height: 14px; width: 48px"></span></div>
+            <div class="mini-row"><span class="skel" style="width: 26px; height: 26px; border-radius: 50%"></span><span class="skel" style="height: 14px"></span><span class="skel" style="height: 14px; width: 48px"></span></div>
+            <div class="mini-row"><span class="skel" style="width: 26px; height: 26px; border-radius: 50%"></span><span class="skel" style="height: 14px"></span><span class="skel" style="height: 14px; width: 48px"></span></div>
+          </div>
+        </section>
+
+        <section class="ec" aria-labelledby="e10">
+          <div class="ec-k"><b id="e10">Nothing here yet</b><span>10</span></div>
+          <p class="ec-why">A first-time traveller sees one clear next step.</p>
+          <div class="mock">
+            <div class="empty">
+              <svg viewBox="0 0 72 72" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="8" y="8" width="56" height="56"></rect><circle cx="36" cy="36" r="20"></circle><path d="M36 18L52 46H20Z"></path></svg>
+              <b>No trips yet</b>
+              <span>Tell us where you want to go, in a sentence, in any of six languages.</span>
+              <a class="btn btn-primary btn-sm" href="PlanStart.dc.html">Plan a trip</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="ec" aria-labelledby="e11">
+          <div class="ec-k"><b id="e11">Something failed</b><span>11</span></div>
+          <p class="ec-why">Say what failed, what still works, and what to do. Nothing the traveller entered is lost.</p>
+          <div class="mock">
+            <div class="note note-alert"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v6"></path><path d="M12 16.5h.01"></path></svg><span>{{ errText }}</span></div>
+            <button type="button" class="btn btn-quiet btn-sm" style="align-self: flex-start" onClick="{{ retry }}">{{ errBtn }}</button>
+          </div>
+        </section>
+
+        <section class="ec" aria-labelledby="e12">
+          <div class="ec-k"><b id="e12">An emergency</b><span>12</span></div>
+          <p class="ec-why">One tap from every screen in trip mode. Works offline.</p>
+          <div class="mock sos">
+            <a class="btn btn-primary" href="tel:112"><svg class="ic" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>Call 112, police, fire and ambulance</a>
+            <a class="btn btn-quiet" href="AskGuide.dc.html"><svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21Z"></path><circle cx="12" cy="10" r="2.3"></circle></svg>Nearest hospital, with directions</a>
+            <button type="button" class="btn btn-quiet"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></svg>Share live location with family</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-foot">
+    <div class="wrap"><span>Travel Yantra prototype. States shown with sample data.</span><span><a href="Legal.dc.html">Terms and privacy</a></span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const fit = s.fit || null;
+    const F = [
+      ['two', 'Make it two days: Hampi, then Badami and its neighbours. Our pick for your parents.'],
+      ['one', 'Keep it to one day: Hampi only, and save Badami for another trip.']
+    ];
+    const fitOpts = F.map(([k, label]) => ({ label, cls: 'btn ' + (fit === k ? 'btn-dark' : 'btn-quiet'), pick: () => this.setState({ fit: k }) }));
+    const wl = s.wl || null;
+    const near = s.near || null;
+    const off = s.off === undefined ? true : s.off;
+    const err = s.err || 0;
+    return {
+      fitOpts, fitDone: !!fit,
+      fitText: fit === 'two' ? 'Rebuilt as two days. Day 2 starts at Badami at 9 am.' : fit === 'one' ? 'Kept to Hampi. Badami is saved in your ideas.' : '',
+      wlOpen: !wl, wlDone: !!wl,
+      wlText: wl === 'book' ? 'Opening the airline with the date and number of travellers filled in.' : 'Three sleeper buses on Monday night, from ₹1,450 each.',
+      wlBook: () => this.setState({ wl: 'book' }), wlBus: () => this.setState({ wl: 'bus' }),
+      offCls: 'offline' + (off ? '' : ' ok'),
+      offText: off ? 'No signal. Your plan, maps and Katha still work. Changes sync when you are back.' : 'Back online. 2 changes synced.',
+      offBtn: off ? 'Pretend the signal came back' : 'Go offline again',
+      toggleOff: () => this.setState({ off: !off }),
+      nearOpen: !near, nearDone: !!near,
+      nearText: near === 'play' ? 'Playing in Hinglish, 0:12 of 2:00' : 'Okay. It stays in today\'s list.',
+      nearPlay: () => this.setState({ near: 'play' }), nearLater: () => this.setState({ near: 'later' }),
+      errText: err === 0 ? 'We could not reach the rail timetable just now. Your plan is safe, and road and air are still compared.' : 'Rail is back. Your three ways to go are up to date.',
+      errBtn: err === 0 ? 'Try rail again' : 'Done',
+      retry: () => this.setState({ err: 1 })
+    };
+  }
+}
+</script>
+</body>
+</html>

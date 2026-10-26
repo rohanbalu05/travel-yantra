@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mysuru, a City Katha · Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#1D6A84}a:hover{color:#13212B}
+.kc-hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);overflow:hidden;margin-bottom:22px;border-radius:4px;background:#13262F;color:#F4EFE6}
+.kc-text{display:flex;flex-direction:column;justify-content:flex-end;gap:12px;padding:clamp(22px,3vw,40px)}
+.kc-text .eyebrow{color:#E7B25C}
+.kc-text h1{margin:0;font-size:clamp(44px,5vw,76px);line-height:.95;letter-spacing:-0.04em}
+.kc-script{font-family:"Anek Kannada",sans-serif;font-size:clamp(28px,2.6vw,40px);font-weight:600;color:#E7B25C;line-height:1.1}
+.kc-text p{margin:0;font-size:16.5px;line-height:1.55;color:#C9D3D9;max-width:46ch}
+.kc-art{position:relative;min-height:340px;background:#2B4A5A}
+.kc-art svg{position:absolute;inset:0;width:100%;height:100%}
+.bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;margin-bottom:22px}
+.bar-group{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.bar-group .label{margin-right:4px}
+.now-title{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.now-title b{font-family:"Bricolage Grotesque",sans-serif;font-size:24px;letter-spacing:-0.01em}
+.tx{margin:0;padding:18px 20px;border-radius:4px;background:#16293A;font-size:19px;line-height:1.65;color:#F4EFE6}
+.tx.kn,.tx.hi,.tx.ta,.tx.te,.tx.bn{font-size:20px;line-height:1.7}
+.tx-note{margin:0;font-size:14px;color:#AFC0CA}
+.chapters{display:flex;flex-direction:column}
+.chap{display:grid;grid-template-columns:30px minmax(0,1fr) auto auto;gap:12px;align-items:center;width:100%;min-height:48px;padding:10px 12px;border:0;border-top:1px solid #FFFFFF1A;background:transparent;color:#E9EEF0;font-size:15.5px;text-align:left;cursor:pointer}
+.chap:hover{background:#16293A}
+.chap.on{background:#F4EFE6;color:#13212B;border-radius:4px}
+.chap .n{font-family:"JetBrains Mono",monospace;font-size:13px;opacity:.75}
+.chap .t{font-family:"JetBrains Mono",monospace;font-size:13px;opacity:.85}
+.key{display:grid;gap:10px}
+.key div{display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;align-items:start;font-size:14.5px;line-height:1.5;color:#2B3B47}
+.key .tag{justify-self:start}
+.src{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14.5px;line-height:1.5}
+.rel{display:grid;gap:10px}
+.rel a{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center;padding:12px;border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1;color:#13212B;text-decoration:none}
+.rel a:hover{border-color:#13212B;color:#13212B}
+.rel .ib{width:44px;height:44px;border-radius:4px;display:grid;place-items:center;background:#13212B;color:#F4EFE6}
+.rel b{display:block;font-size:15.5px}
+.rel span{font-size:13.5px;color:#56646E}
+@media (max-width:900px){.kc-hero{grid-template-columns:minmax(0,1fr)}.kc-art{min-height:220px}}
+</style>
+</helmet>
+
+<div class="app">
+  <header class="appbar">
+    <a class="brand" href="Home.dc.html">
+      <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#B4452A"></circle></svg>
+      <span>Travel Yantra</span>
+    </a>
+    <nav class="appnav" aria-label="Main">
+      <a href="Home.dc.html">Home</a>
+      <a href="PlanStart.dc.html">Plan a trip</a>
+      <a href="KathaHome.dc.html" class="on">Katha</a>
+      <a href="MyTrips.dc.html">My trips</a>
+    </nav>
+    <div class="appbar-end">
+      <a class="btn btn-quiet btn-sm" href="Settings.dc.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"></path></svg>English</a>
+      <a class="avatar" href="Settings.dc.html" aria-label="Account and settings">AR</a>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="wrap">
+      <section class="kc-hero" aria-labelledby="kc-h">
+        <div class="kc-text">
+          <p class="eyebrow">City Katha</p>
+          <h1 id="kc-h">Mysuru</h1>
+          <span class="kc-script" lang="kn">ಮೈಸೂರು</span>
+          <p>The city of the Wadiyar kings, the goddess on the hill, Dasara and Mysore pak. History and legend, told apart.</p>
+        </div>
+        <div class="kc-art">
+          <svg viewBox="0 0 640 360" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect width="640" height="360" fill="#2B4A5A"></rect>
+            <circle cx="540" cy="70" r="26" fill="#E9D8AE"></circle>
+            <path d="M0 250 C120 205 220 128 360 116 C470 108 560 150 640 192 L640 360 L0 360 Z" fill="#1E3540"></path>
+            <g fill="#24404D"><path d="M368 118 L374 84 L398 84 L404 118 Z"></path><rect x="382" y="72" width="8" height="12"></rect></g>
+            <path d="M0 300 C160 284 320 296 640 286 L640 360 L0 360 Z" fill="#13262F"></path>
+            <g fill="none" stroke="#F3CB7A" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="0.1 7">
+              <path d="M120 330 V250 H520 V330"></path>
+              <path d="M290 250 V168 H350 V250"></path>
+              <path d="M284 170 Q320 96 356 170"></path>
+              <path d="M320 98 V72"></path>
+              <path d="M150 250 V208 H190 V250"></path><path d="M146 210 Q170 168 194 210"></path>
+              <path d="M450 250 V208 H490 V250"></path><path d="M446 210 Q470 168 494 210"></path>
+              <path d="M140 330 V300 A12 12 0 0 1 164 300 V330"></path><path d="M188 330 V300 A12 12 0 0 1 212 300 V330"></path><path d="M236 330 V300 A12 12 0 0 1 260 300 V330"></path><path d="M300 330 V290 A20 20 0 0 1 340 290 V330"></path><path d="M380 330 V300 A12 12 0 0 1 404 300 V330"></path><path d="M428 330 V300 A12 12 0 0 1 452 300 V330"></path><path d="M476 330 V300 A12 12 0 0 1 500 300 V330"></path>
+            </g>
+          </svg>
+        </div>
+      </section>
+
+      <div class="bar">
+        <div class="bar-group"><span class="label">Length</span>
+          <div class="toggle" role="group" aria-label="Length"><sc-for list="{{ tiers }}" as="t" hint-placeholder-count="3"><button type="button" class="{{ t.cls }}" onClick="{{ t.pick }}">{{ t.label }}</button></sc-for></div>
+        </div>
+        <div class="bar-group"><span class="label">Language</span>
+          <div class="langs" role="group" aria-label="Language"><sc-for list="{{ langs }}" as="l" hint-placeholder-count="6"><button type="button" class="{{ l.cls }}" onClick="{{ l.pick }}">{{ l.label }}</button></sc-for></div>
+        </div>
+      </div>
+
+      <div class="split">
+        <section class="main kp" aria-labelledby="pl-h">
+          <div class="kp-top">
+            <button type="button" class="kp-play" onClick="{{ togglePlay }}" aria-label="{{ playLabel }}">
+              <sc-if value="{{ playing }}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24"><rect x="6.5" y="5" width="3.6" height="14" fill="currentColor" stroke="none"></rect><rect x="13.9" y="5" width="3.6" height="14" fill="currentColor" stroke="none"></rect></svg></sc-if>
+              <sc-if value="{{ paused }}" hint-placeholder-val="{{ true }}"><svg class="ic" viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z" fill="currentColor" stroke="none"></path></svg></sc-if>
+            </button>
+            <div class="kp-title"><b id="pl-h">{{ head }}</b><span>{{ meta }}</span></div>
+          </div>
+          <div class="{{ waveCls }}">
+            <sc-for list="{{ bars }}" as="b" hint-placeholder-count="64"><i style="animation-delay: {{ b.d }}; height: {{ b.h }}"></i></sc-for>
+          </div>
+          <div class="now-title"><span class="{{ cur.tagCls }}">{{ cur.tag }}</span><b class="{{ cur.titleCls }}">{{ cur.title }}</b><span class="mono" style="color: #AFC0CA">{{ cur.t }}</span></div>
+          <p class="{{ cur.txCls }}">{{ cur.text }}</p>
+          <sc-if value="{{ cur.fallback }}" hint-placeholder-val="{{ false }}"><p class="tx-note">This part plays in your language. In the prototype its transcript is shown in English.</p></sc-if>
+          <div class="chapters" role="group" aria-label="Parts of this Katha">
+            <sc-for list="{{ chaps }}" as="c" hint-placeholder-count="7">
+              <button type="button" class="{{ c.cls }}" onClick="{{ c.pick }}"><span class="n">{{ c.n }}</span><span class="{{ c.titleCls }}">{{ c.title }}</span><span class="{{ c.tagCls }}">{{ c.tag }}</span><span class="t">{{ c.t }}</span></button>
+            </sc-for>
+          </div>
+        </section>
+
+        <aside class="side" style="display: flex; flex-direction: column; gap: 16px">
+          <section class="panel panel-pad" aria-labelledby="src-h">
+            <h2 class="h3" id="src-h" style="margin-bottom: 10px">Sources for this part</h2>
+            <ul class="src"><sc-for list="{{ cur.src }}" as="x" hint-placeholder-count="2"><li>{{ x }}</li></sc-for></ul>
+            <div class="row-wrap" style="margin-top: 14px; gap: 8px">
+              <button type="button" class="btn btn-quiet btn-sm" onClick="{{ save }}">{{ saveText }}</button>
+              <button type="button" class="btn btn-quiet btn-sm" onClick="{{ report }}">{{ reportText }}</button>
+            </div>
+          </section>
+          <section class="panel panel-pad" aria-labelledby="key-h">
+            <h2 class="h3" id="key-h" style="margin-bottom: 12px">How we label stories</h2>
+            <div class="key">
+              <div><span class="tag tag-history">History</span><span>From records and scholarship, with the sources listed.</span></div>
+              <div><span class="tag tag-legend">Legend</span><span>Stories people tell. Always begins "As the story goes".</span></div>
+              <div><span class="tag tag-food">Food</span><span>What to eat here, and where it comes from.</span></div>
+              <div><span class="tag tag-festival">Festival</span><span>When the city celebrates, and how.</span></div>
+              <div><span class="tag tag-practical">Practical</span><span>Hours, dress, tickets. Checked before your visit.</span></div>
+            </div>
+          </section>
+          <section class="rel" aria-label="Go deeper">
+            <a href="KathaPlace.dc.html"><span class="ib"><svg class="ic" viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M5 21V11h14v10"></path><path d="M8 11V8a4 4 0 0 1 8 0v3"></path><path d="M12 4V2"></path></svg></span><span><b>Mysore Palace, in depth</b><span>Place Katha, 8 minutes</span></span></a>
+            <a href="KathaDay.dc.html"><span class="ib"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="1"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg></span><span><b>Your Mysuru weekend</b><span>Day Katha for both days</span></span></a>
+            <a href="AskGuide.dc.html"><span class="ib"><svg class="ic" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4V5Z"></path></svg></span><span><b>Ask about Mysuru</b><span>Answers with sources, in your language</span></span></a>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-foot">
+    <div class="wrap"><span>Travel Yantra prototype. Story text is sample content; sources shown are labels for the prototype.</span><span><a href="Legal.dc.html">Terms and privacy</a></span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const lang = s.lang || 'en';
+    const tier = s.tier || 'std';
+    const playing = !!s.playing;
+    const L = { en: 'English', kn: 'ಕನ್ನಡ', hi: 'हिन्दी', ta: 'தமிழ்', te: 'తెలుగు', bn: 'বাংলা' };
+    const TAGS = {
+      History: { en: 'History', kn: 'ಇತಿಹಾಸ', hi: 'इतिहास', ta: 'வரலாறு', te: 'చరిత్ర', bn: 'ইতিহাস' },
+      Legend: { en: 'Legend', kn: 'ಐತಿಹ್ಯ', hi: 'किंवदंती', ta: 'ஐதீகம்', te: 'ఐతిహ్యం', bn: 'কিংবদন্তি' },
+      Food: { en: 'Food', kn: 'ಆಹಾರ', hi: 'खाना', ta: 'உணவு', te: 'ఆహారం', bn: 'খাবার' },
+      Festival: { en: 'Festival', kn: 'ಹಬ್ಬ', hi: 'त्योहार', ta: 'திருவிழா', te: 'పండుగ', bn: 'উৎসব' },
+      Practical: { en: 'Practical', kn: 'ಉಪಯುಕ್ತ', hi: 'काम की बात', ta: 'பயனுள்ளவை', te: 'ఉపయోగకరం', bn: 'জরুরি তথ্য' }
+    };
+    const SEG = [
+      { id: 1, tag: 'History',
+        title: { en: 'What Mysuru is', kn: 'ಮೈಸೂರು ಎಂದರೆ', hi: 'मैसूरु क्या है', ta: 'மைசூரு என்றால்', te: 'మైసూరు అంటే', bn: 'মাইসুরু কী' },
+        text: {
+          en: 'Mysuru, about 145 kilometres from Bengaluru, was the seat of the Wadiyar kings for more than five centuries. It is still called the cultural capital of Karnataka.',
+          kn: 'ಬೆಂಗಳೂರಿನಿಂದ ಸುಮಾರು 145 ಕಿಲೋಮೀಟರ್ ದೂರದಲ್ಲಿರುವ ಮೈಸೂರು, ಐದು ಶತಮಾನಗಳಿಗೂ ಹೆಚ್ಚು ಕಾಲ ಒಡೆಯರ್ ಅರಸರ ರಾಜಧಾನಿಯಾಗಿತ್ತು. ಇಂದಿಗೂ ಇದನ್ನು ಕರ್ನಾಟಕದ ಸಾಂಸ್ಕೃತಿಕ ರಾಜಧಾನಿ ಎಂದು ಕರೆಯುತ್ತಾರೆ.',
+          hi: 'बेंगलुरु से लगभग 145 किलोमीटर दूर मैसूरु, पाँच सदियों से भी अधिक समय तक वाडियार राजाओं की राजधानी रहा। आज भी इसे कर्नाटक की सांस्कृतिक राजधानी कहा जाता है।',
+          ta: 'பெங்களூருவில் இருந்து சுமார் 145 கிலோமீட்டர் தொலைவில் உள்ள மைசூரு, ஐந்து நூற்றாண்டுகளுக்கும் மேலாக உடையார் மன்னர்களின் தலைநகராக இருந்தது. இன்றும் இது கர்நாடகத்தின் பண்பாட்டுத் தலைநகரம் என்று அழைக்கப்படுகிறது.',
+          te: 'బెంగళూరు నుంచి సుమారు 145 కిలోమీటర్ల దూరంలో ఉన్న మైసూరు, ఐదు శతాబ్దాలకు పైగా వడయార్ రాజుల రాజధానిగా ఉండేది. ఈ రోజుకీ దీనిని కర్ణాటక సాంస్కృతిక రాజధాని అని పిలుస్తారు.',
+          bn: 'বেঙ্গালুরু থেকে প্রায় ১৪৫ কিলোমিটার দূরের মাইসুরু পাঁচ শতাব্দীরও বেশি সময় ধরে ওয়াদিয়ার রাজাদের রাজধানী ছিল। আজও একে কর্ণাটকের সাংস্কৃতিক রাজধানী বলা হয়।'
+        },
+        src: ['Department of Tourism, Karnataka', 'Karnataka State Gazetteer, Mysore District'] },
+      { id: 2, tag: 'Legend',
+        title: { en: 'How it got its name', kn: 'ಹೆಸರು ಹೇಗೆ ಬಂತು', hi: 'नाम कैसे पड़ा', ta: 'பெயர் எப்படி வந்தது', te: 'పేరు ఎలా వచ్చింది', bn: 'নাম কীভাবে হলো' },
+        text: {
+          en: 'As the story goes, the buffalo-headed demon Mahishasura ruled this land until the goddess Chamundeshwari killed him on the hill above the city. The town was called Mahishuru, the town of Mahisha, and in time it became Mysuru.',
+          kn: 'ಕಥೆಯ ಪ್ರಕಾರ, ಎಮ್ಮೆಯ ತಲೆಯ ರಾಕ್ಷಸ ಮಹಿಷಾಸುರ ಈ ನಾಡನ್ನು ಆಳುತ್ತಿದ್ದ. ನಗರದ ಮೇಲಿನ ಬೆಟ್ಟದಲ್ಲಿ ಚಾಮುಂಡೇಶ್ವರಿ ದೇವಿ ಅವನನ್ನು ಸಂಹರಿಸಿದಳು. ಈ ಊರಿಗೆ ಮಹಿಷೂರು ಎಂಬ ಹೆಸರು ಬಂತು, ಕಾಲಕ್ರಮೇಣ ಅದು ಮೈಸೂರು ಆಯಿತು.',
+          hi: 'कहते हैं, भैंसे के सिर वाला असुर महिषासुर इस धरती पर राज करता था, जब तक देवी चामुंडेश्वरी ने शहर के ऊपर वाली पहाड़ी पर उसका वध नहीं किया। इस नगर का नाम महिषूरु पड़ा, यानी महिष का नगर, और समय के साथ यह मैसूरु बन गया।',
+          ta: 'கதையின்படி, எருமைத் தலை கொண்ட அசுரன் மகிஷாசுரன் இந்த நிலத்தை ஆண்டு வந்தான். நகரத்தின் மேலே உள்ள மலையில் சாமுண்டீஸ்வரி தேவி அவனை வதம் செய்தாள். இந்த ஊருக்கு மகிஷூரு என்று பெயர் வந்தது, காலப்போக்கில் அது மைசூரு ஆனது.',
+          te: 'కథ ప్రకారం, దున్నపోతు తల గల రాక్షసుడు మహిషాసురుడు ఈ నేలను పాలించేవాడు. నగరం పైన ఉన్న కొండపై చాముండేశ్వరి దేవి అతడిని సంహరించింది. ఈ ఊరికి మహిషూరు అనే పేరు వచ్చింది, కాలక్రమేణా అది మైసూరు అయింది.',
+          bn: 'কথিত আছে, মহিষের মাথাওয়ালা অসুর মহিষাসুর এই দেশ শাসন করত, যতদিন না দেবী চামুণ্ডেশ্বরী শহরের ওপরের পাহাড়ে তাকে বধ করলেন। শহরের নাম হলো মহিষূরু, অর্থাৎ মহিষের শহর, আর কালক্রমে তা হয়ে উঠল মাইসুরু।'
+        },
+        src: ["Retold from the Chamundeshwari temple's own account", 'Local tradition, as told in Mysuru'] },
+      { id: 3, tag: 'History',
+        title: { en: 'Who built the city you see', kn: 'ಈ ನಗರ ಕಟ್ಟಿದವರು', hi: 'यह शहर किसने बनाया', ta: 'இந்த நகரைக் கட்டியவர்கள்', te: 'ఈ నగరాన్ని కట్టినవారు', bn: 'এই শহর কারা গড়লেন' },
+        text: { en: 'Much of what you see was laid out under Krishnaraja Wadiyar IV, who reigned for 46 years until 1940: wide roads, lakes and parks, and in 1916 the University of Mysore, the first university in the state.' },
+        src: ['University of Mysore, history', 'Karnataka State Gazetteer, Mysore District'] },
+      { id: 4, tag: 'History',
+        title: { en: 'The palace', kn: 'ಅರಮನೆ', hi: 'महल', ta: 'அரண்மனை', te: 'రాజభవనం', bn: 'প্রাসাদ' },
+        text: {
+          en: 'The palace you see is not the first one. The old wooden palace burned down in 1897, during a royal wedding. The new palace, designed by the British architect Henry Irwin, was finished in 1912. On Sunday and festival evenings it is lit by nearly 100,000 bulbs.',
+          kn: 'ನೀವು ನೋಡುತ್ತಿರುವ ಅರಮನೆ ಮೊದಲನೆಯದಲ್ಲ. ಹಳೆಯ ಮರದ ಅರಮನೆ 1897ರಲ್ಲಿ ರಾಜಮನೆತನದ ಮದುವೆಯ ಸಮಯದಲ್ಲಿ ಸುಟ್ಟುಹೋಯಿತು. ಬ್ರಿಟಿಷ್ ವಾಸ್ತುಶಿಲ್ಪಿ ಹೆನ್ರಿ ಇರ್ವಿನ್ ವಿನ್ಯಾಸಗೊಳಿಸಿದ ಹೊಸ ಅರಮನೆ 1912ರಲ್ಲಿ ಪೂರ್ಣಗೊಂಡಿತು. ಭಾನುವಾರ ಮತ್ತು ಹಬ್ಬದ ಸಂಜೆಗಳಲ್ಲಿ ಸುಮಾರು ಒಂದು ಲಕ್ಷ ದೀಪಗಳಿಂದ ಅದು ಬೆಳಗುತ್ತದೆ.',
+          hi: 'आप जो महल देख रहे हैं, वह पहला नहीं है। पुराना लकड़ी का महल 1897 में एक शाही विवाह के दौरान जल गया था। ब्रिटिश वास्तुकार हेनरी इर्विन का बनाया नया महल 1912 में पूरा हुआ। रविवार और त्योहारों की शाम यह लगभग एक लाख बल्बों से जगमगाता है।',
+          ta: 'நீங்கள் பார்க்கும் அரண்மனை முதலாவது அல்ல. பழைய மர அரண்மனை 1897-இல் ஒரு அரச குடும்பத் திருமணத்தின்போது தீயில் எரிந்தது. பிரிட்டிஷ் கட்டடக் கலைஞர் ஹென்றி இர்வின் வடிவமைத்த புதிய அரண்மனை 1912-இல் கட்டி முடிக்கப்பட்டது. ஞாயிறு மற்றும் பண்டிகை மாலைகளில் சுமார் ஒரு லட்சம் விளக்குகளால் அது ஒளிர்கிறது.',
+          te: 'మీరు చూస్తున్న రాజభవనం మొదటిది కాదు. పాత చెక్క రాజభవనం 1897లో ఒక రాజ కుటుంబ వివాహం సమయంలో కాలిపోయింది. బ్రిటిష్ వాస్తుశిల్పి హెన్రీ ఇర్విన్ రూపొందించిన కొత్త రాజభవనం 1912లో పూర్తయింది. ఆదివారాలు, పండుగ సాయంత్రాల్లో ఇది దాదాపు లక్ష బల్బులతో వెలుగుతుంది.',
+          bn: 'আপনি যে প্রাসাদটি দেখছেন, সেটি প্রথম নয়। পুরনো কাঠের প্রাসাদটি ১৮৯৭ সালে এক রাজকীয় বিয়ের সময় পুড়ে যায়। ব্রিটিশ স্থপতি হেনরি আরউইনের নকশায় তৈরি নতুন প্রাসাদের কাজ শেষ হয় ১৯১২ সালে। রবিবার আর উৎসবের সন্ধ্যায় প্রায় এক লক্ষ বাল্বে এটি ঝলমল করে।'
+        },
+        src: ['Mysore Palace Board, history of the palace'] },
+      { id: 5, tag: 'Food',
+        title: { en: 'What it eats', kn: 'ಊಟ ತಿಂಡಿ', hi: 'यहाँ का खाना', ta: 'இங்கே உணவு', te: 'ఇక్కడి తిండి', bn: 'এখানকার খাবার' },
+        text: { en: 'Mysuru gave India Mysore pak. As the story goes, the palace cook Kakasura Madappa made it for Krishnaraja Wadiyar IV from gram flour, ghee and sugar, and when the king asked its name, he said "Mysore paka". Have it with filter coffee, and try a Mysore masala dosa, with a red chutney spread inside.' },
+        src: ['Local tradition, retold'] },
+      { id: 6, tag: 'Festival',
+        title: { en: 'Dasara', kn: 'ದಸರಾ', hi: 'दशहरा', ta: 'தசரா', te: 'దసరా', bn: 'দশেরা' },
+        text: { en: 'For ten days every autumn, Mysuru celebrates Dasara, the victory of the goddess over Mahishasura. On the last day, the Jamboo Savari procession carries the goddess through the city in a golden howdah on an elephant.' },
+        src: ['Mysore Palace Board, Dasara', 'Department of Tourism, Karnataka'] },
+      { id: 7, tag: 'History',
+        title: { en: 'Silk', kn: 'ರೇಷ್ಮೆ', hi: 'रेशम', ta: 'பட்டு', te: 'పట్టు', bn: 'রেশম' },
+        text: { en: 'Mysore silk has been woven in the city since the royal silk weaving factory opened in 1912. Look for the government emporium label if you want the real thing.' },
+        src: ['Karnataka Silk Industries Corporation, history'] },
+      { id: 8, tag: 'Practical',
+        title: { en: 'Before you come', kn: 'ಬರುವ ಮುನ್ನ', hi: 'आने से पहले', ta: 'வருவதற்கு முன்', te: 'రాకముందు', bn: 'আসার আগে' },
+        text: { en: 'The palace is open every day from 10 in the morning to 5:30 in the evening, and shoes are left at the counter. The lights are on Sundays and holidays from 7 to 7:45 pm.' },
+        src: ['Mysore Palace Board, visiting hours, checked 26 Oct 2026'] }
+    ];
+    const TIERS = {
+      short: { label: '2 min', ids: [1, 2, 4], t: { 1: '0:40', 2: '0:45', 4: '0:40' }, total: '2 min 05 s' },
+      std: { label: '5 min', ids: [1, 2, 3, 4, 5, 6, 8], t: { 1: '0:48', 2: '0:52', 3: '0:41', 4: '0:46', 5: '0:39', 6: '0:44', 8: '0:25' }, total: '4 min 55 s' },
+      long: { label: '10 min', ids: [1, 2, 3, 4, 5, 6, 7, 8], t: { 1: '1:30', 2: '1:40', 3: '1:20', 4: '1:35', 5: '1:10', 6: '1:25', 7: '0:55', 8: '0:40' }, total: '10 min 15 s' }
+    };
+    const T = TIERS[tier];
+    const segId = T.ids.indexOf(s.seg) >= 0 ? s.seg : 2;
+    const lc = lang === 'en' ? '' : ' ' + lang;
+    const tiers = [['short', '2 min'], ['std', '5 min'], ['long', '10 min']].map(([k, label]) => ({ label, cls: k === tier ? 'on' : '', pick: () => this.setState({ tier: k }) }));
+    const langs = Object.keys(L).map((k) => ({ label: L[k], cls: 'lang' + (k === 'en' ? '' : ' ' + k) + (k === lang ? ' on' : ''), pick: () => this.setState({ lang: k }) }));
+    const chaps = SEG.filter((x) => T.ids.indexOf(x.id) >= 0).map((x, i) => ({
+      n: String(i + 1),
+      title: x.title[lang] || x.title.en,
+      titleCls: lc.trim(),
+      tag: TAGS[x.tag][lang],
+      tagCls: 'tag tag-' + x.tag.toLowerCase() + lc,
+      t: T.t[x.id],
+      cls: 'chap' + (x.id === segId ? ' on' : ''),
+      pick: () => this.setState({ seg: x.id, playing: true })
+    }));
+    const C = SEG.filter((x) => x.id === segId)[0];
+    const has = !!C.text[lang];
+    const cur = {
+      title: C.title[lang] || C.title.en,
+      titleCls: lc.trim(),
+      tag: TAGS[C.tag][lang],
+      tagCls: 'tag tag-' + C.tag.toLowerCase() + lc,
+      t: T.t[C.id],
+      text: has ? C.text[lang] : C.text.en,
+      txCls: 'tx' + (has ? lc : ''),
+      fallback: !has,
+      src: C.src
+    };
+    const heights = [38, 62, 80, 54, 92, 70, 44, 66, 88, 58, 74, 40, 96, 64, 50, 82, 60, 72, 46, 90, 56, 68, 84, 42, 76, 52, 94, 62, 48, 78, 58, 70, 40, 86, 64, 52, 74, 60, 90, 48, 66, 80, 44, 70, 58, 92, 50, 76, 62, 84, 46, 68, 88, 54, 72, 60, 82, 50, 70, 44, 90, 62, 76, 54];
+    const bars = heights.map((h, i) => ({ h: h + '%', d: (-(i * 0.07) % 1).toFixed(2) + 's' }));
+    return {
+      tiers, langs, chaps, cur, bars,
+      head: 'Mysuru in ' + T.label.replace(' min', ' minutes'),
+      meta: 'City Katha · ' + T.ids.length + ' parts · ' + T.total + ' · ' + L[lang],
+      playing, paused: !playing,
+      playLabel: playing ? 'Pause the Katha' : 'Play the Katha',
+      togglePlay: () => this.setState({ playing: !playing }),
+      waveCls: playing ? 'wave play' : 'wave',
+      saveText: s.saved ? 'Saved for offline, 12 MB' : 'Save for offline',
+      save: () => this.setState({ saved: true }),
+      reportText: s.reported ? 'Thanks, we will check it' : 'Report a mistake',
+      report: () => this.setState({ reported: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

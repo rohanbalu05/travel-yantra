@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home · Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#1D6A84}a:hover{color:#13212B}
+.hm-greet{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:28px}
+.hm-greet h1{margin:0;font-family:"Bricolage Grotesque",sans-serif;font-weight:650;font-size:clamp(34px,3.6vw,54px);line-height:1;letter-spacing:-0.035em}
+.doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(520px,100%),1fr));gap:20px}
+.door{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:18px;min-height:470px;padding:clamp(22px,2.6vw,34px);border-radius:4px;color:#F4EFE6}
+.door-plan{background:#0E1B24}
+.door-katha{background:#173B31}
+.door-art{position:absolute;pointer-events:none}
+.door-plan .door-art{right:-40px;top:-30px;width:440px;height:440px;color:#1E3747}
+.door-katha .door-art{right:-10px;top:-46px;font-family:"Anek Kannada",sans-serif;font-weight:700;font-size:300px;line-height:1;color:#1F4A3E}
+.door-k{position:relative;display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:#E7B25C}
+.door h2{position:relative;margin:0;font-size:clamp(32px,3vw,46px);line-height:1;letter-spacing:-0.03em}
+.door p{position:relative;margin:0;max-width:44ch;font-size:17px;line-height:1.55;color:#C9D3D9}
+.door-katha p{color:#CFE0D8}
+.door-box{position:relative;margin-top:auto;display:flex;flex-direction:column;gap:12px}
+.hm-composer{display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:12px;background:#F4EFE6;color:#13212B}
+.hm-composer label{font-size:13.5px;font-weight:700;color:#56646E}
+.hm-composer textarea{min-height:72px;padding:0;border:0;outline:0;resize:none;background:transparent;font-size:17px;line-height:1.5}
+.hm-composer-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.hm-chips{display:flex;flex-wrap:wrap;gap:8px}
+.hm-chips a{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid #F4EFE64D;border-radius:4px;color:#F4EFE6;font-size:14.5px;font-weight:600;text-decoration:none}
+.hm-chips a:hover{border-color:#F4EFE6;color:#F4EFE6}
+.mini{display:flex;flex-direction:column;gap:14px;padding:16px;border-radius:8px;background:#0F2C24}
+.mini-top{display:flex;align-items:center;gap:14px}
+.mini-top b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:20px}
+.mini-top span{font-size:14px;color:#AFC8BD}
+.mini .wave{color:#E3A33B;height:30px}
+.mini-links{display:flex;flex-wrap:wrap;gap:8px}
+.trips{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px}
+.trip{display:flex;flex-direction:column;gap:12px;padding:18px;border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1;color:#13212B;text-decoration:none}
+.trip:hover{border-color:#13212B;color:#13212B}
+.trip-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.trip b{font-family:"Bricolage Grotesque",sans-serif;font-size:21px;letter-spacing:-0.01em;line-height:1.15}
+.trip small{font-size:14px;color:#56646E}
+.trip-route{display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;color:#2B3B47}
+.trip-route i{display:block;flex:1;height:0;border-top:2px dotted #A99E8B}
+.trip-foot{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+.needs{display:flex;flex-direction:column}
+.need{display:grid;grid-template-columns:40px minmax(0,1fr);gap:14px;padding:16px 0;border-top:1px solid #E6DED0}
+.need:first-child{border-top:0;padding-top:4px}
+.need .ic-wrap{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#F3E1C2;color:#714409}
+.need .ic-wrap.ok{background:#DDE9E2;color:#1C4A3D}
+.need b{display:block;font-size:16px}
+.need span{display:block;font-size:14.5px;color:#56646E;line-height:1.5}
+.need a{font-size:14.5px;font-weight:700}
+.stories{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:16px}
+.story{display:flex;flex-direction:column;border:1px solid #D8CFBF;border-radius:4px;overflow:hidden;background:#FAF7F1;color:#13212B;text-decoration:none}
+.story:hover{border-color:#13212B;color:#13212B}
+.story svg{display:block;width:100%;height:auto}
+.story-body{display:flex;flex-direction:column;gap:8px;padding:14px 16px 16px}
+.story-body b{font-family:"Bricolage Grotesque",sans-serif;font-size:19px;letter-spacing:-0.01em}
+.story-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13.5px;color:#56646E}
+.sec-title{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px;margin:0 0 16px}
+</style>
+</helmet>
+
+<div class="app">
+  <header class="appbar">
+    <a class="brand" href="Home.dc.html">
+      <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#B4452A"></circle></svg>
+      <span>Travel Yantra</span>
+    </a>
+    <nav class="appnav" aria-label="Main">
+      <a href="Home.dc.html" class="on">Home</a>
+      <a href="PlanStart.dc.html">Plan a trip</a>
+      <a href="KathaHome.dc.html">Katha</a>
+      <a href="MyTrips.dc.html">My trips</a>
+    </nav>
+    <div class="appbar-end">
+      <a class="btn btn-quiet btn-sm" href="Settings.dc.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"></path></svg>English</a>
+      <a class="avatar" href="Settings.dc.html" aria-label="Account and settings">AR</a>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="wrap" style="display: flex; flex-direction: column; gap: 44px">
+
+      <div>
+        <div class="hm-greet">
+          <h1>Good evening, Arjun.</h1>
+          <p class="page-sub" style="margin: 0">Plan something new, or hear the story of where you are going.</p>
+        </div>
+
+        <div class="doors">
+          <section class="door door-plan" aria-labelledby="plan-h">
+            <svg class="door-art" viewBox="0 0 440 440" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M70 40 C60 90 80 120 70 160 C64 190 90 220 100 260 C112 306 130 340 150 400"></path>
+              <path d="M380 330 C330 290 300 240 250 210 C200 180 150 130 96 104" stroke-dasharray="3 10" stroke-width="4" stroke-linecap="round"></path>
+              <circle cx="380" cy="330" r="9"></circle>
+              <circle cx="96" cy="104" r="9"></circle>
+              <path d="M300 60h80v80h-80z"></path>
+              <circle cx="340" cy="100" r="28"></circle>
+            </svg>
+            <span class="door-k"><svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21Z"></path><circle cx="12" cy="10" r="2.3"></circle></svg>Planning</span>
+            <h2 id="plan-h">Plan a trip</h2>
+            <p>Say where, when and who you are going with. Get road, rail and air compared, a plan checked stop by stop, and every booking lined up.</p>
+            <div class="door-box">
+              <div class="hm-composer">
+                <label for="hm-ask">Where to?</label>
+                <textarea id="hm-ask" placeholder="Bengaluru to Goa, 11 to 14 Dec, with my parents and sister. Churches, temples, a little beach."></textarea>
+                <div class="hm-composer-row">
+                  <button type="button" class="iconbtn round" aria-label="Speak instead"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0"></path><path d="M12 17.5V21"></path></svg></button>
+                  <a class="btn btn-primary" href="PlanStart.dc.html">Plan it</a>
+                </div>
+              </div>
+              <div class="hm-chips" aria-label="Ideas">
+                <a href="PlanStart.dc.html">Goa with family</a>
+                <a href="PlanStart.dc.html">A weekend in Mysuru</a>
+                <a href="PlanStart.dc.html">Temple trail: Udupi, Kollur, Sringeri</a>
+                <a href="PlanStart.dc.html">Hampi in 3 days</a>
+              </div>
+            </div>
+          </section>
+
+          <section class="door door-katha" aria-labelledby="katha-h">
+            <span class="door-art" aria-hidden="true">ಕಥೆ</span>
+            <span class="door-k"><svg class="ic" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"></path><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"></path></svg>Katha</span>
+            <h2 id="katha-h">Hear the story</h2>
+            <p>The history and the legends of a city, a place or your planned day, told in your language, with each legend labelled as one.</p>
+            <div class="door-box">
+              <div class="mini">
+                <div class="mini-top">
+                  <button type="button" class="kp-play" onClick="{{ togglePlay }}" aria-label="{{ playLabel }}">
+                    <sc-if value="{{ playing }}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24"><rect x="6.5" y="5" width="3.6" height="14" fill="currentColor" stroke="none"></rect><rect x="13.9" y="5" width="3.6" height="14" fill="currentColor" stroke="none"></rect></svg></sc-if>
+                    <sc-if value="{{ paused }}" hint-placeholder-val="{{ true }}"><svg class="ic" viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z" fill="currentColor" stroke="none"></path></svg></sc-if>
+                  </button>
+                  <div><b>Mysuru in 5 minutes</b><span>City Katha for your trip this weekend</span></div>
+                </div>
+                <div class="{{ waveCls }}">
+                  <sc-for list="{{ bars }}" as="b" hint-placeholder-count="40"><i style="animation-delay: {{ b.d }}; height: {{ b.h }}"></i></sc-for>
+                </div>
+              </div>
+              <div class="mini-links">
+                <a class="btn btn-cream" href="KathaCity.dc.html" style="background: #F4EFE6; color: #13212B">Open the City Katha</a>
+                <a class="btn btn-on-dark" href="KathaHome.dc.html">Browse the library</a>
+                <a class="btn btn-on-dark" href="AskGuide.dc.html">Ask the guide</a>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="split">
+        <section class="main" aria-labelledby="trips-h">
+          <div class="sec-title"><h2 class="h2" id="trips-h">Your trips</h2><a href="MyTrips.dc.html" style="font-weight: 700">See all trips</a></div>
+          <div class="trips">
+            <a class="trip" href="Itinerary.dc.html">
+              <div class="trip-top"><b>Goa with family</b><span class="badge badge-sea">In 6 weeks</span></div>
+              <small>Fri 11 to Mon 14 Dec · 4 travellers</small>
+              <div class="trip-route"><span>Bengaluru</span><i></i><span>Goa</span></div>
+              <div class="trip-foot"><span class="st st-ok">3 of 5 booked</span><span class="st st-wait">Return train waitlisted</span></div>
+            </a>
+            <a class="trip" href="KathaDay.dc.html">
+              <div class="trip-top"><b>Mysuru weekend</b><span class="badge badge-ok">This weekend</span></div>
+              <small>Sat 31 Oct to Sun 1 Nov · 3 travellers</small>
+              <div class="trip-route"><span>Bengaluru</span><i></i><span>Mysuru</span></div>
+              <div class="trip-foot"><span class="st st-ok">Plan and Day Katha ready</span></div>
+            </a>
+            <a class="trip" href="MyTrips.dc.html">
+              <div class="trip-top"><b>Temple trail</b><span class="badge">Draft</span></div>
+              <small>Udupi, Kollur and Sringeri · 3 days</small>
+              <div class="trip-route"><span>Bengaluru</span><i></i><span>Udupi</span></div>
+              <div class="trip-foot"><span class="st st-off">Dates not set</span></div>
+            </a>
+          </div>
+        </section>
+
+        <aside class="side panel panel-pad" aria-labelledby="needs-h">
+          <h2 class="h3" id="needs-h" style="margin-bottom: 12px">Needs you</h2>
+          <div class="needs">
+            <div class="need">
+              <span class="ic-wrap"><svg class="ic" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="13" rx="2"></rect><path d="M6 10h12"></path><path d="M8 16l-2 4M16 16l2 4M7 19h10"></path></svg></span>
+              <div><b>Return train is waitlisted</b><span>Moved from WL 12 to WL 7 this morning. We will tell you the moment it confirms.</span><a href="Book.dc.html">See booking</a></div>
+            </div>
+            <div class="need">
+              <span class="ic-wrap"><svg class="ic" viewBox="0 0 24 24"><path d="M5 16V12l2-5h10l2 5v4"></path><path d="M3 16h18v2H3z"></path><circle cx="7.5" cy="18.5" r="1.5"></circle><circle cx="16.5" cy="18.5" r="1.5"></circle></svg></span>
+              <div><b>Saturday's cab is not booked</b><span>A day cab for Old Goa and Ponda, about ₹2,600.</span><a href="Book.dc.html">Book it</a></div>
+            </div>
+            <div class="need">
+              <span class="ic-wrap ok"><svg class="ic" viewBox="0 0 24 24"><path d="M12 4v11"></path><path d="M7.5 10.5L12 15l4.5-4.5"></path><path d="M5 19h14"></path></svg></span>
+              <div><b>Mysuru Katha saved for offline</b><span>Both days, in English and Kannada, 38 MB.</span></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <section aria-labelledby="stories-h">
+        <div class="sec-title"><h2 class="h2" id="stories-h">Stories to start with</h2><a href="KathaHome.dc.html" style="font-weight: 700">Open the Katha library</a></div>
+        <div class="stories">
+          <a class="story" href="KathaPlace.dc.html">
+            <svg viewBox="0 0 320 180" aria-hidden="true">
+              <rect width="320" height="180" fill="#E3A33B"></rect>
+              <circle cx="250" cy="52" r="22" fill="#F3CB7A"></circle>
+              <g fill="#7A3A1E">
+                <rect x="36" y="112" width="248" height="68"></rect>
+                <rect x="132" y="76" width="56" height="36"></rect>
+                <path d="M128 78 Q160 22 192 78Z"></path>
+                <rect x="157" y="20" width="6" height="18"></rect>
+                <rect x="58" y="92" width="36" height="20"></rect><path d="M56 94 Q76 62 96 94Z"></path>
+                <rect x="226" y="92" width="36" height="20"></rect><path d="M224 94 Q244 62 264 94Z"></path>
+              </g>
+              <g fill="#E3A33B"><path d="M52 180V156a9 9 0 0 1 18 0V180Z"></path><path d="M84 180V156a9 9 0 0 1 18 0V180Z"></path><path d="M116 180V156a9 9 0 0 1 18 0V180Z"></path><path d="M148 180V150a12 12 0 0 1 24 0V180Z"></path><path d="M186 180V156a9 9 0 0 1 18 0V180Z"></path><path d="M218 180V156a9 9 0 0 1 18 0V180Z"></path><path d="M250 180V156a9 9 0 0 1 18 0V180Z"></path></g>
+            </svg>
+            <div class="story-body"><b>Mysore Palace</b><div class="story-meta"><span class="tag tag-history">History</span><span class="tag tag-legend">Legend</span><span>Place Katha · 8 min</span></div></div>
+          </a>
+          <a class="story" href="KathaCity.dc.html">
+            <svg viewBox="0 0 320 180" aria-hidden="true">
+              <rect width="320" height="180" fill="#245A4B"></rect>
+              <path d="M0 180 L0 120 C60 96 110 70 170 64 C230 58 280 88 320 110 L320 180 Z" fill="#1A4337"></path>
+              <g fill="#E7B25C"><rect x="150" y="40" width="22" height="26"></rect><path d="M146 42 L161 14 L176 42Z"></path><rect x="159" y="6" width="4" height="10"></rect></g>
+              <text x="24" y="160" font-family="Anek Kannada, sans-serif" font-size="46" font-weight="700" fill="#F4EFE6">ಮೈಸೂರು</text>
+            </svg>
+            <div class="story-body"><b>Mysuru in 5 minutes</b><div class="story-meta"><span class="tag tag-legend">Legend</span><span>City Katha · 2, 5 or 10 min</span></div></div>
+          </a>
+          <a class="story" href="TripLive.dc.html">
+            <svg viewBox="0 0 320 180" aria-hidden="true">
+              <rect width="320" height="180" fill="#DE9A58"></rect>
+              <rect y="140" width="320" height="40" fill="#3B7A91"></rect>
+              <g fill="#9E4529"><rect x="96" y="96" width="128" height="58"></rect><rect x="108" y="66" width="104" height="32"></rect><rect x="124" y="42" width="72" height="26"></rect><path d="M134 44 L134 30 Q160 10 186 30 L186 44Z"></path></g>
+              <g fill="#6D2E1B"><path d="M150 154 V130 A10 10 0 0 1 170 130 V154Z"></path><circle cx="160" cy="80" r="7"></circle><path d="M114 154 V136 A7 7 0 0 1 128 136 V154Z"></path><path d="M192 154 V136 A7 7 0 0 1 206 136 V154Z"></path></g>
+            </svg>
+            <div class="story-body"><b>Saturday in Old Goa</b><div class="story-meta"><span class="tag tag-history">History</span><span>Day Katha · 5 stops · 12 min</span></div></div>
+          </a>
+          <a class="story" href="KathaHome.dc.html">
+            <svg viewBox="0 0 320 180" aria-hidden="true">
+              <rect width="320" height="180" fill="#C9B48A"></rect>
+              <path d="M0 180 L0 128 C40 110 70 132 100 118 C130 104 150 120 180 112 L320 120 L320 180Z" fill="#A88A62"></path>
+              <g fill="#5E4630"><rect x="118" y="96" width="84" height="40"></rect><path d="M126 96 L160 50 L194 96Z"></path><rect x="134" y="80" width="52" height="16"></rect><circle cx="132" cy="140" r="14"></circle><circle cx="188" cy="140" r="14"></circle></g>
+              <g fill="#C9B48A"><circle cx="132" cy="140" r="5"></circle><circle cx="188" cy="140" r="5"></circle></g>
+            </svg>
+            <div class="story-body"><b>Hampi's stone chariot</b><div class="story-meta"><span class="tag tag-history">History</span><span>Place Katha · 6 min</span></div></div>
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="app-foot">
+    <div class="wrap"><span>Travel Yantra prototype. Trips, fares and timings shown are sample data.</span><span><a href="Legal.dc.html">Terms and privacy</a></span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1700}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const playing = !!s.playing;
+    const heights = [38, 62, 80, 54, 92, 70, 44, 66, 88, 58, 74, 40, 96, 64, 50, 82, 60, 72, 46, 90, 56, 68, 84, 42, 76, 52, 94, 62, 48, 78, 58, 70, 40, 86, 64, 52, 74, 60, 90, 48];
+    const bars = heights.map((h, i) => ({ h: h + '%', d: (-(i * 0.11) % 1).toFixed(2) + 's' }));
+    return {
+      playing, paused: !playing,
+      playLabel: playing ? 'Pause the Katha' : 'Play the Katha',
+      togglePlay: () => this.setState({ playing: !playing }),
+      waveCls: playing ? 'wave play' : 'wave',
+      bars
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ask the guide · Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#1D6A84}a:hover{color:#13212B}
+.ag-head{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.tries{display:flex;flex-direction:column;gap:8px}
+.try{display:flex;flex-direction:column;align-items:flex-start;gap:4px;width:100%;min-height:64px;padding:12px 14px;border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1;color:#13212B;text-align:left;cursor:pointer}
+.try:hover{border-color:#2B3B47}
+.try.on{background:#13212B;border-color:#13212B;color:#F4EFE6}
+.try b{font-size:15.5px;line-height:1.4;font-weight:650}
+.try span{font-size:12.5px;font-weight:700;opacity:.75}
+.conv{display:flex;flex-direction:column;gap:14px;min-height:520px;padding:clamp(18px,2.2vw,28px);border:1px solid #D8CFBF;border-radius:4px;background:#FFFDF9}
+.conv .msg-user{font-size:17px}
+.ans{align-self:flex-start;max-width:min(94%,760px);display:flex;flex-direction:column;gap:12px;padding:16px 18px;border-radius:16px 16px 16px 4px;background:#FAF7F1;border:1px solid #D8CFBF}
+.ans-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ans p{margin:0;font-size:17px;line-height:1.65}
+.ans p.kn{font-size:18.5px;line-height:1.7}
+.gloss{padding:12px 14px;border-radius:4px;background:#EDE6D9;font-size:15px;line-height:1.55;color:#2B3B47}
+.urgent{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:4px;background:#9B2F17;color:#FBF6EE}
+.urgent b{font-size:17px}
+.urgent .row-wrap{gap:8px}
+.btn-white{background:#FBF6EE;color:#9B2F17}
+.btn-white:hover{background:#FFFFFF;color:#7C2A16}
+.srcs{display:flex;flex-direction:column;gap:6px;padding-top:10px;border-top:1px solid #E6DED0}
+.srcs small{font-size:12.5px;font-weight:700;color:#56646E}
+.srcs span{display:flex;align-items:baseline;gap:8px;font-size:14.5px;color:#2B3B47}
+.srcs i{font-style:normal;font-family:"JetBrains Mono",monospace;font-size:12px;color:#56646E}
+.meta{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:#56646E}
+.meta span{display:inline-flex;align-items:center;gap:6px}
+.meta .ic{width:15px;height:15px}
+.follow{display:flex;flex-wrap:wrap;gap:8px}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:1px;margin-top:28px;border:1px solid #D8CFBF;border-radius:4px;overflow:hidden;background:#D8CFBF}
+.how div{display:flex;flex-direction:column;gap:6px;padding:18px;background:#FAF7F1}
+.how b{font-family:"Bricolage Grotesque",sans-serif;font-size:18px}
+.how span{font-size:15px;line-height:1.5;color:#2B3B47}
+</style>
+</helmet>
+
+<div class="app">
+  <header class="appbar">
+    <a class="brand" href="Home.dc.html">
+      <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#B4452A"></circle></svg>
+      <span>Travel Yantra</span>
+    </a>
+    <nav class="appnav" aria-label="Main">
+      <a href="Home.dc.html">Home</a>
+      <a href="PlanStart.dc.html">Plan a trip</a>
+      <a href="KathaHome.dc.html" class="on">Katha</a>
+      <a href="MyTrips.dc.html">My trips</a>
+    </nav>
+    <div class="appbar-end">
+      <a class="btn btn-quiet btn-sm" href="Settings.dc.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"></path></svg>English</a>
+      <a class="avatar" href="Settings.dc.html" aria-label="Account and settings">AR</a>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="wrap">
+      <div class="ag-head">
+        <p class="eyebrow">Ask the guide</p>
+        <h1 class="page-title">Ask anything about where you are going.</h1>
+        <p class="page-sub">History, legends, food, customs, or help in an emergency, in any of six languages. Every answer shows where it came from, and if we do not know, we say so.</p>
+      </div>
+
+      <div class="split">
+        <aside class="side" style="flex: 1 1 300px" aria-labelledby="try-h">
+          <h2 class="h3" id="try-h" style="margin-bottom: 12px">Try asking</h2>
+          <div class="tries">
+            <sc-for list="{{ tries }}" as="t" hint-placeholder-count="5">
+              <button type="button" class="{{ t.cls }}" onClick="{{ t.pick }}"><b class="{{ t.qCls }}">{{ t.q }}</b><span>{{ t.lang }}</span></button>
+            </sc-for>
+          </div>
+        </aside>
+
+        <section class="main" aria-label="Conversation">
+          <div class="conv">
+            <div class="{{ c.qWrap }}">{{ c.q }}</div>
+            <div class="ans">
+              <div class="ans-top"><sc-for list="{{ c.tags }}" as="g" hint-placeholder-count="2"><span class="{{ g.cls }}">{{ g.label }}</span></sc-for></div>
+              <sc-if value="{{ c.isUrgent }}" hint-placeholder-val="{{ false }}">
+                <div class="urgent" role="alert">
+                  <b>If he has chest pain, trouble breathing or has fainted, call 112 now.</b>
+                  <div class="row-wrap"><a class="btn btn-white btn-sm" href="tel:112">Call 112</a><button type="button" class="btn btn-on-dark btn-sm">Share my location</button></div>
+                </div>
+              </sc-if>
+              <sc-for list="{{ c.paras }}" as="p" hint-placeholder-count="2"><p class="{{ p.cls }}">{{ p.text }}</p></sc-for>
+              <sc-if value="{{ c.hasGloss }}" hint-placeholder-val="{{ false }}">
+                <sc-if value="{{ showGloss }}" hint-placeholder-val="{{ false }}"><div class="gloss">{{ c.gloss }}</div></sc-if>
+                <button type="button" class="btn btn-quiet btn-sm" style="align-self: flex-start" onClick="{{ toggleGloss }}">{{ glossBtn }}</button>
+              </sc-if>
+              <sc-if value="{{ c.hasSrc }}" hint-placeholder-val="{{ true }}">
+                <div class="srcs"><small>Sources</small><sc-for list="{{ c.src }}" as="x" hint-placeholder-count="2"><span><i>{{ x.n }}</i>{{ x.text }}</span></sc-for></div>
+              </sc-if>
+              <div class="meta">
+                <span><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>{{ c.time }}</span>
+                <span><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"></path></svg>{{ c.langNote }}</span>
+                <span><svg class="ic" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"></path><path d="M16.5 9a4 4 0 0 1 0 6"></path></svg>Read aloud on tap</span>
+              </div>
+            </div>
+            <div class="follow"><sc-for list="{{ c.follow }}" as="f" hint-placeholder-count="2"><button type="button" class="chip">{{ f }}</button></sc-for></div>
+            <div class="composer" style="margin-top: auto">
+              <label for="q" class="sr">Ask the guide</label>
+              <textarea id="q" placeholder="Ask in any language..." style="min-height: 44px"></textarea>
+              <button type="button" class="iconbtn round" aria-label="Ask by voice"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0"></path><path d="M12 17.5V21"></path></svg></button>
+              <button type="button" class="iconbtn round dark" aria-label="Send"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="how">
+        <div><b>From checked sources</b><span>Answers are written only from our place library and the sources listed under each answer.</span></div>
+        <div><b>Legends say so</b><span>A legend is labelled and told as one. History is kept apart from it.</span></div>
+        <div><b>"I don't know" is an answer</b><span>For a place we have not checked yet, we say so instead of guessing.</span></div>
+        <div><b>Fast, and works offline</b><span>Built to answer within 3 seconds. Emergency help is stored on your phone.</span></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-foot">
+    <div class="wrap"><span>Travel Yantra prototype. Questions and answers shown are samples.</span><span><a href="Legal.dc.html">Terms and privacy</a></span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const pick = s.pick || 'kn';
+    const tag = (label, kind) => ({ label, cls: 'tag tag-' + kind });
+    const Q = {
+      kn: {
+        q: 'ಮೈಸೂರು ಅರಮನೆಗೆ ಬೆಂಕಿ ಯಾವಾಗ ಬಿತ್ತು?', qCls: 'kn', lang: 'Kannada',
+        tags: [tag('ಇತಿಹಾಸ · History', 'history')],
+        paras: [{ text: '1897ರಲ್ಲಿ, ರಾಜಮನೆತನದ ಮದುವೆಯ ಸಮಯದಲ್ಲಿ ಹಳೆಯ ಮರದ ಅರಮನೆ ಸುಟ್ಟುಹೋಯಿತು. ಈಗ ನೀವು ನೋಡುವ ಅರಮನೆಯನ್ನು ಬ್ರಿಟಿಷ್ ವಾಸ್ತುಶಿಲ್ಪಿ ಹೆನ್ರಿ ಇರ್ವಿನ್ ವಿನ್ಯಾಸಗೊಳಿಸಿದರು; ಅದು 1912ರಲ್ಲಿ ಪೂರ್ಣಗೊಂಡಿತು.', cls: 'kn' }],
+        gloss: 'In English: The old wooden palace burned down in 1897, during a royal wedding. The palace you see today was designed by the British architect Henry Irwin and finished in 1912.',
+        src: [{ n: '1', text: 'Mysore Palace Board, history of the palace' }, { n: '2', text: 'Karnataka State Gazetteer, Mysore District' }],
+        time: 'Answered in 1.2 seconds', langNote: 'Asked and answered in Kannada',
+        follow: ['ಹೆನ್ರಿ ಇರ್ವಿನ್ ಯಾರು?', 'Play the Place Katha']
+      },
+      mix: {
+        q: 'Dudhsagar ka naam kaise pada?', qCls: '', lang: 'Hinglish',
+        tags: [tag('Legend', 'legend'), tag('History', 'history')],
+        paras: [
+          { text: 'Kehte hain, ek rajkumari pahaad ki jheel mein nahaati thi aur sone ke lote se meetha doodh peeti thi. Ek din ek rajkumar ne use dekh liya, to uski sakhiyon ne doodh neeche unda diya, taaki doodh ka parda use chhupa le. Wahi doodh aaj bhi jharne ki tarah behta hai, isliye naam pada Dudhsagar, yaani doodh ka saagar.', cls: '' },
+          { text: 'Yeh ek lok-katha hai. Asal mein jharna itna safed isliye dikhta hai kyunki paani lagbhag 310 metre ki oonchai se girkar jhaag ban jaata hai.', cls: '' }
+        ],
+        gloss: '',
+        src: [{ n: '1', text: 'Goa Tourism, Dudhsagar falls' }, { n: '2', text: 'Folk tradition of the Goa and Karnataka border, retold' }],
+        time: 'Answered in 1.6 seconds', langNote: 'Asked and answered in Hinglish',
+        follow: ['Train se kab dikhega?', 'Jeep safari kab khulti hai?']
+      },
+      sos: {
+        q: 'Nearest hospital to Old Goa? My father feels dizzy.', qCls: '', lang: 'English, emergency',
+        tags: [tag('Emergency', 'emergency')],
+        paras: [
+          { text: 'Sit him down in the shade, give him water, and stay with him. Do not let him drive.', cls: '' },
+          { text: 'The nearest large hospital is Goa Medical College in Bambolim, about 10 km and 20 minutes by car. Manipal Hospital in Dona Paula is about 14 km away.', cls: '' }
+        ],
+        gloss: '',
+        src: [{ n: '1', text: 'National emergency number 112, Government of India' }, { n: '2', text: 'Goa Medical College, Bambolim, address and casualty department' }],
+        time: 'Answered in 0.9 seconds, from your phone', langNote: 'Emergency answers work offline',
+        follow: ['Directions to Goa Medical College', 'Call a cab now']
+      },
+      unk: {
+        q: 'What is the story of the old temple in Hosakote?', qCls: '', lang: 'English, a place we do not know',
+        tags: [tag('Not checked yet', 'practical')],
+        paras: [
+          { text: 'I do not have checked sources for that temple yet, so I will not guess at its history or its legends.', cls: '' },
+          { text: 'I have added it to the list of places to research. Nearby, I can tell you about Bengaluru and the four towers of Kempegowda.', cls: '' }
+        ],
+        gloss: '', src: [],
+        time: 'Answered in 0.8 seconds', langNote: 'Asked and answered in English',
+        follow: ['Tell me about Bengaluru', 'Tell me when it is ready']
+      },
+      off: {
+        q: 'Can you write my college assignment?', qCls: '', lang: 'English, not about travel',
+        tags: [tag('Not a travel question', 'practical')],
+        paras: [{ text: 'I am your travel guide, so I will stay with travel: places, stories, routes and bookings. Want help with a trip after your exams instead?', cls: '' }],
+        gloss: '', src: [],
+        time: 'Answered in 0.6 seconds', langNote: 'Asked and answered in English',
+        follow: ['Plan a weekend trip', 'Hear a Katha']
+      }
+    };
+    const order = ['kn', 'mix', 'sos', 'unk', 'off'];
+    const tries = order.map((k) => ({ q: Q[k].q, qCls: Q[k].qCls, lang: Q[k].lang, cls: 'try' + (k === pick ? ' on' : ''), pick: () => this.setState({ pick: k, gloss: false }) }));
+    const C = Q[pick];
+    return {
+      tries,
+      c: {
+        q: C.q, qWrap: 'msg-user ' + C.qCls,
+        tags: C.tags, paras: C.paras,
+        isUrgent: pick === 'sos',
+        hasGloss: !!C.gloss, gloss: C.gloss,
+        hasSrc: C.src.length > 0, src: C.src,
+        time: C.time, langNote: C.langNote, follow: C.follow
+      },
+      showGloss: !!s.gloss,
+      glossBtn: s.gloss ? 'Hide English' : 'Show in English',
+      toggleGloss: () => this.setState({ gloss: !s.gloss })
+    };
+  }
+}
+</script>
+</body>
+</html>
