@@ -170,10 +170,18 @@ function Set-ReviewStatus([string]$Sha, [string]$State, [string]$Desc) {
 }
 
 # Auto-merge (rule v2): only when main's ruleset requires ci, guard and
-# evaluate (the review gate). GitHub then merges the PR by itself only after
-# those checks pass, so this never merges anything early.
-$RequiredChecks = @('ci', 'guard', 'evaluate')
+# review-gate (the status review_gate.py publishes with the review verdict;
+# the `evaluate` job itself always succeeds). GitHub then merges the PR by
+# itself only after those pass, so this never merges anything early.
+$RequiredChecks = @('ci', 'guard', 'review-gate')
+$Script:RuleCheckedAt = [datetime]::MinValue
+$Script:RuleReady = $false
+$EmptyBody = Join-Path $Script:State 'empty-body.txt'
+Write-Utf8 $EmptyBody ''
 function Test-MergeRuleReady {
+    if (((Get-Date) - $Script:RuleCheckedAt).TotalMinutes -lt 5) { return $Script:RuleReady }
+    $Script:RuleCheckedAt = Get-Date
+    $Script:RuleReady = $false
     $rules = Invoke-GhJson @('api', "repos/$Script:Repo/rules/branches/main")
     $ctx = @()
     foreach ($r in @($rules)) {
@@ -182,17 +190,36 @@ function Test-MergeRuleReady {
         }
     }
     foreach ($c in $RequiredChecks) { if ($ctx -notcontains $c) { return $false } }
+    $Script:RuleReady = $true
     return $true
 }
 
-function Enable-AutoMerge($Pr) {
+function Test-ManualOnly($Pr) {
     $labels = @($Pr.labels | ForEach-Object { $_.name })
-    if ($labels -contains 'no-auto-merge') { return }
-    if (($labels -contains 'needs-rohan') -and -not ($labels -contains 'rohan-ok')) { return }
+    if ($labels -contains 'no-auto-merge') { return $true }
+    return (($labels -contains 'needs-rohan') -and -not ($labels -contains 'rohan-ok'))
+}
+
+function Disable-AutoMerge($Pr) {
+    $n = [int]$Pr.number
+    $old = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    & gh pr merge $n --repo $Script:Repo --disable-auto 2>$null | Out-Null
+    $ok = ($LASTEXITCODE -eq 0)
+    $ErrorActionPreference = $old
+    if ($ok) {
+        Write-Log $LogName "Auto-merge turned off on PR #$n (manual-only label)."
+        Add-IssueComment $Dispatch "RUN review: auto-merge turned off on PR #$n because of a manual-only label."
+    }
+}
+
+function Enable-AutoMerge($Pr) {
+    if (Test-ManualOnly $Pr) { return }
     $n = [int]$Pr.number
     $subject = "$($Pr.title) (#$n)"
     $old = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
-    & gh pr merge $n --repo $Script:Repo --auto --squash --subject $subject --body '' 2>$null | Out-Null
+    # Windows PowerShell 5.1 drops empty-string arguments, so the empty
+    # commit body comes from an empty file.
+    & gh pr merge $n --repo $Script:Repo --auto --squash --subject $subject --body-file $EmptyBody 2>$null | Out-Null
     $ok = ($LASTEXITCODE -eq 0)
     $ErrorActionPreference = $old
     if ($ok) {
@@ -213,7 +240,11 @@ while ($true) {
             $prs = Invoke-GhJson @('api', "repos/$Script:Repo/pulls?state=open&per_page=50&sort=created&direction=asc")
             if (Test-MergeRuleReady) {
                 foreach ($pr in @($prs)) {
-                    if ($pr.draft -or $pr.base.ref -ne 'main' -or -not $pr.title.StartsWith('[') -or $pr.auto_merge) { continue }
+                    if ($pr.auto_merge) {
+                        if (Test-ManualOnly $pr) { Disable-AutoMerge $pr }
+                        continue
+                    }
+                    if ($pr.draft -or $pr.base.ref -ne 'main' -or -not $pr.title.StartsWith('[')) { continue }
                     if ($pr.user.login -ne $Script:Me) { continue }
                     $s = Invoke-GhJson @('api', "repos/$Script:Repo/commits/$($pr.head.sha)/status")
                     $sr = @($s.statuses | Where-Object { $_.context -eq 'second-review' })
