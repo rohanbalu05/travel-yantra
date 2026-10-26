@@ -5,6 +5,7 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",
     "pydantic>=2.7",
+    "ty-contracts",
     "uvicorn>=0.30",
 ]
 
@@ -18,3 +19,6 @@ testpaths = ["tests"]
 
 [tool.uv]
 package = false
+
+[tool.uv.sources]
+ty-contracts = { path = "../../packages/contracts" }
