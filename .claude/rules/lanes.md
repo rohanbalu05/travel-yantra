@@ -4,7 +4,7 @@ A lane edits only its own paths. Everything else is read-only to it.
 
 | Lane | Name | Owns |
 | --- | --- | --- |
-| TY1 | core | `packages/contracts/`, `apps/api/core/`, `apps/api/pyproject.toml`, `apps/api/main.py`, `apps/api/tests/core/` |
+| TY1 | core | `packages/contracts/`, `apps/api/core/`, `apps/api/pyproject.toml`, `apps/api/main.py`, `apps/api/Dockerfile`, `apps/api/tests/core/` |
 | TY2 | guide | `apps/api/guide/`, `apps/api/tests/guide/`, `data/` |
 | TY3 | routes | `apps/api/routes/`, `apps/api/tests/routes/` |
 | TY4 | web | `apps/web/` |
@@ -18,6 +18,7 @@ A lane edits only its own paths. Everything else is read-only to it.
 - `apps/api/main.py` (TY1) builds the FastAPI app and includes the routers
   `core.router`, `guide.router` and `routes.router`. TY2 and TY3 expose an
   `APIRouter` named `router` in their package `__init__.py`; TY1 mounts it.
+- Service images (api, mcp, translate) build from the repo root context with their own Dockerfile path, so they can copy `packages/contracts` (HQ decision, 27 Oct).
 - TY2 and TY3 add dependencies by asking TY1 (an ask card) or, if TY1's
   pyproject already lists them, simply using them. If a card needs a new
   dependency immediately, note it under Assumptions and file the ask.
