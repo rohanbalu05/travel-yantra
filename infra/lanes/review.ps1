@@ -87,6 +87,13 @@ function Invoke-Review($Pr) {
     New-Item -ItemType Directory -Path $in | Out-Null
     Write-Utf8 (Join-Path $in 'diff.patch') (($diff -join "`n"))
     Write-Utf8 (Join-Path $in 'pr.md') ("# $($Pr.title)`n`n$($Pr.body)")
+    $old = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    $log = & git -C $Wt log --format='commit %h%n%B%n---' "origin/main..$sha" 2>$null
+    $ErrorActionPreference = $old
+    Write-Utf8 (Join-Path $in 'commits.txt') (($log -join "`n"))
+    $runs = Invoke-GhJson @('api', "repos/$Script:Repo/commits/$sha/check-runs?per_page=100")
+    $checks = @($runs.check_runs | ForEach-Object { "$($_.name): $($_.status) / $($_.conclusion)" }) -join "`n"
+    Write-Utf8 (Join-Path $in 'checks.txt') $checks
 
     $codex = Invoke-GhJson @('api', "repos/$Script:Repo/pulls/$n/comments?per_page=100")
     $codexText = ($codex | Where-Object { $_.user.login -like 'chatgpt-codex-connector*' } |
@@ -101,7 +108,7 @@ function Invoke-Review($Pr) {
         Write-Utf8 (Join-Path $in 'previous.md') (($prior | ForEach-Object { $_.body }) -join "`n`n---`n`n")
     }
 
-    $prompt = "Mode: $mode. Review PR #$n ($($Pr.title)) at commit $sha. Inputs are in .review-input/: pr.md, diff.patch, codex.md" +
+    $prompt = "Mode: $mode. Review PR #$n ($($Pr.title)) at commit $sha. Inputs are in .review-input/: pr.md, diff.patch, commits.txt, checks.txt, codex.md" +
         $(if ($mode -eq 'verify') { ', previous.md' } else { '' }) + '. Reply with the JSON object only.'
     Add-IssueComment $Dispatch "RUN review started: PR #$n ($mode) at $($sha.Substring(0,7))"
     $res = Invoke-Claude -WorkDir $Wt -Prompt $prompt -Model $Model -Effort $Effort `
@@ -224,7 +231,7 @@ function Enable-AutoMerge($Pr) {
     $ErrorActionPreference = $old
     if ($ok) {
         Write-Log $LogName "Auto-merge enabled on PR #$n."
-        Add-IssueComment $Dispatch "RUN review: auto-merge enabled on PR #$n ($($Pr.title)); GitHub merges it when ci, guard and evaluate pass."
+        Add-IssueComment $Dispatch "RUN review: auto-merge enabled on PR #$n ($($Pr.title)); GitHub merges it when ci, guard and review-gate pass."
     } else {
         Write-Log $LogName "Could not enable auto-merge on PR #$n."
     }
