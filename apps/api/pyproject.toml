@@ -1,0 +1,20 @@
+[project]
+name = "travel-yantra-api"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "pydantic>=2.7",
+    "uvicorn>=0.30",
+]
+
+[dependency-groups]
+dev = ["httpx>=0.27", "pytest>=8", "ruff>=0.6"]
+
+[tool.pytest.ini_options]
+# apps/api on the path so `core`, `guide` and `routes` import as top-level packages.
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.uv]
+package = false
