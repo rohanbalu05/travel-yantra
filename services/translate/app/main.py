@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from contextlib import asynccontextmanager
-from typing import Literal
+from typing import Annotated, Literal
 
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
@@ -14,7 +14,8 @@ from .translator import FakeTranslator, IndicTrans2Translator, Lang, Translator
 
 
 class TranslateRequest(BaseModel):
-    texts: list[str] = Field(max_length=200)
+    # Each text is capped (about 256 output tokens); split long paragraphs into sentences first.
+    texts: list[Annotated[str, Field(max_length=1000)]] = Field(max_length=200)
     target: Lang
     source: Literal["en"] = "en"
 

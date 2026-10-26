@@ -12,6 +12,8 @@ class TranslationService:
     def __init__(self, translator: Translator, max_batch: int = 16, cache_size: int = 4096):
         if max_batch < 1:
             raise ValueError("max_batch must be >= 1")
+        if cache_size < 0:
+            raise ValueError("cache_size must be >= 0")
         self._translator = translator
         self._max_batch = max_batch
         self._cache_size = cache_size

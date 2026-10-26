@@ -55,3 +55,14 @@ def test_api_ok_health_and_422():
 def test_more_misses_than_cache_size_still_returns_all():
     _, svc = make(max_batch=10, cache_size=1)
     assert svc.translate(["a", "b", "c"], "hi") == ["[hi] a", "[hi] b", "[hi] c"]
+
+
+def test_negative_cache_size_rejected():
+    with pytest.raises(ValueError):
+        TranslationService(FakeTranslator(), cache_size=-1)
+
+
+def test_overlong_text_returns_422():
+    with TestClient(create_app()) as c:
+        r = c.post("/translate", json={"texts": ["x" * 1001], "target": "hi"})
+        assert r.status_code == 422
