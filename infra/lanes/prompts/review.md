@@ -15,5 +15,5 @@ Mode "verify": the lane has pushed fixes. Check that every P0 and P1 in previous
 Be precise and brief. Only P0 and P1 block a merge; do not inflate severity. Do not name any tool, model or vendor in your output.
 
 Reply with one JSON object and nothing else, in a ```json block:
-{"verdict": "pass" | "fail", "summary": "<2-4 sentences>", "findings": [{"severity": "P0" | "P1" | "P2", "file": "<path>", "line": <int>, "title": "<short>", "detail": "<what is wrong and how to fix it>"}]}
+{"verdict": "pass" | "fail", "summary": "<2-4 sentences>", "findings": [{"severity": "P0" | "P1" | "P2", "file": "<path, or empty for a general finding>", "line": <int, 0 if none>, "title": "<short>", "detail": "<what is wrong and how to fix it>"}]}
 The verdict is "fail" if and only if there is at least one P0 or P1.
