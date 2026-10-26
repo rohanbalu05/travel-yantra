@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import pytest
+
 from guide.places import DETAILS_MASK, HOURS_MASK, LIST_MASK, MemoryCache, PlacesClient
 
 FIX = Path(__file__).parent / "fixtures"
