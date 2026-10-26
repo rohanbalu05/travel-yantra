@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 SCRIPT_RANGES: dict[str, tuple[int, int]] = {
     "hi": (0x0900, 0x097F),
     "bn": (0x0980, 0x09FF),
@@ -25,9 +27,10 @@ def protect(text: str, entities: list[str]) -> tuple[str, dict[str, str]]:
     """
     slots: dict[str, str] = {}
     for i, name in enumerate(sorted(set(entities), key=len, reverse=True)):
-        if name and name in text:
+        pat = re.compile(r"(?<!\w)" + re.escape(name) + r"(?!\w)") if name else None
+        if pat and pat.search(text):
             ph = _placeholder(i)
-            text = text.replace(name, ph)
+            text = pat.sub(ph, text)
             slots[ph] = name
     return text, slots
 
@@ -62,9 +65,10 @@ def length_ok(src: str, out: str) -> bool:
     return MIN_LEN_RATIO <= len(out) / len(src) <= MAX_LEN_RATIO
 
 
-def check(src: str, out: str, target: str) -> list[str]:
+def check(src: str, out: str, target: str, script_text: str | None = None) -> list[str]:
+    """Length uses `out`; the script check uses `script_text` (default `out`)."""
     flags = []
-    if not script_ok(out, target):
+    if not script_ok(out if script_text is None else script_text, target):
         flags.append("wrong_script")
     if not length_ok(src, out):
         flags.append("length")

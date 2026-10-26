@@ -69,6 +69,23 @@ def test_length_flagged():
     assert "length" in r.flags
 
 
+def test_phrasebook_hits_are_checked():
+    svc = TranslationService(FakeTranslator(), book={"Tomorrow": {"hi": "कल"}})
+    [r] = svc.translate_checked(["Tomorrow"], "hi")
+    assert r.via == "phrasebook" and r.flags == ["length"]
+
+
+def test_length_counts_restored_entity():
+    svc = TranslationService(Echo(lambda t: t), entity_names=NAMES, book={})
+    [r] = svc.translate_checked(["Hampi"], "hi", entities=["Hampi"])
+    assert r.text == "हम्पी" and r.flags == []
+
+
+def test_entity_matches_whole_words_only():
+    text, slots = checks.protect("Try Goan food in Goa", ["Goa"])
+    assert text.startswith("Try Goan food in ") and list(slots.values()) == ["Goa"]
+
+
 def test_api_returns_via_and_flags():
     with TestClient(create_app()) as c:
         body = c.post("/translate", json={"texts": ["Hello", "Zebra"], "target": "ta"}).json()

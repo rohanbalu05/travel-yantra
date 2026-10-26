@@ -80,13 +80,13 @@ class TranslationService:
         for i, t in enumerate(texts):
             hit = phrasebook.lookup(t, target, self._book)
             if hit is not None:
-                results[i] = Result(hit, "phrasebook")
+                results[i] = Result(hit, "phrasebook", checks.check(t, hit, target))
             else:
                 prepared, slots = checks.protect(t, entities)
                 todo.append((i, prepared, slots))
         outs = self.translate([p for _, p, _ in todo], target, source)
         for (i, _, slots), out in zip(todo, outs):
-            flags = checks.check(texts[i], _PLACEHOLDER.sub("", out), target)
             final, lost = checks.restore(out, slots, self._names, target)
+            flags = checks.check(texts[i], final, target, _PLACEHOLDER.sub("", out))
             results[i] = Result(final, "model", flags + lost)
         return results  # type: ignore[return-value]
