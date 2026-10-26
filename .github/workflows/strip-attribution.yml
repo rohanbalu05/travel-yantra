@@ -1,0 +1,72 @@
+name: strip-attribution
+
+# Removes tool-generated attribution footers from issue, PR and comment
+# bodies. Edits made with GITHUB_TOKEN do not re-trigger workflows.
+
+on:
+  issues:
+    types: [opened, edited]
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize]
+  issue_comment:
+    types: [created, edited]
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: strip-attribution-${{ github.event.issue.number || github.event.pull_request.number || 'sweep' }}
+  cancel-in-progress: false
+
+jobs:
+  strip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            // Whole-line footer patterns only, so text that merely names
+            // the forbidden strings (rule files, guard docs) is kept.
+            const footer = [
+              /^\s*_?\s*(🤖\s*)?Generated (by|with) \[Claude Code\]\([^)]*\)\s*_?\s*$/i,
+              /^\s*<?https?:\/\/claude\.ai\/code\/\S*>?\s*$/i,
+              /^\s*(Co-Authored-By|Claude-Session):.*(anthropic|claude).*$/i,
+            ];
+            function clean(body) {
+              if (!body) return null;
+              const lines = body.split(/\r?\n/);
+              const kept = lines.filter(l => !footer.some(re => re.test(l)));
+              if (kept.length === lines.length) return null;
+              while (kept.length && /^\s*(-{3,}|\*{3,})?\s*$/.test(kept[kept.length - 1])) kept.pop();
+              return kept.join('\n') + '\n';
+            }
+            const { owner, repo } = context.repo;
+            async function fixIssue(number, body) {
+              const b = clean(body);
+              if (b !== null) {
+                await github.rest.issues.update({ owner, repo, issue_number: number, body: b });
+                core.info(`cleaned #${number}`);
+              }
+            }
+            async function fixComment(id, body) {
+              const b = clean(body);
+              if (b !== null) {
+                await github.rest.issues.updateComment({ owner, repo, comment_id: id, body: b });
+                core.info(`cleaned comment ${id}`);
+              }
+            }
+            const e = context.payload;
+            if (context.eventName === 'workflow_dispatch') {
+              const items = await github.paginate(github.rest.issues.listForRepo, { owner, repo, state: 'all', per_page: 100 });
+              for (const it of items) await fixIssue(it.number, it.body);
+              const comments = await github.paginate(github.rest.issues.listCommentsForRepo, { owner, repo, per_page: 100 });
+              for (const c of comments) await fixComment(c.id, c.body);
+            } else if (context.eventName === 'issue_comment') {
+              await fixComment(e.comment.id, e.comment.body);
+            } else if (e.pull_request) {
+              await fixIssue(e.pull_request.number, e.pull_request.body);
+            } else if (e.issue) {
+              await fixIssue(e.issue.number, e.issue.body);
+            }
