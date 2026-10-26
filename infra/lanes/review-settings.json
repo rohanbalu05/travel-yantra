@@ -1,0 +1,10 @@
+{
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "permissions": {
+    "allow": ["Read", "Glob", "Grep"],
+    "deny": ["Edit", "Write", "Bash", "WebFetch", "WebSearch", "Read(./.env)", "Read(./.env.*)"]
+  }
+}

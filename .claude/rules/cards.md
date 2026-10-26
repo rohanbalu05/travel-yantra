@@ -9,8 +9,9 @@ Repo: `rohanbalu05/travel-yantra`. `R=repos/rohanbalu05/travel-yantra`.
 
 ## 0. First, your open PRs
 
-Before any new card, check your lane's open PRs for review findings
-(Codex or the backup reviewer):
+Before any new card, check your lane's open PRs for review findings: the
+first review's inline comments, PR reviews marked "Second review", and the
+backup reviewer's review if Codex was unavailable:
 
 ```
 gh api "$R/pulls?state=open" --jq '.[] | select(.head.ref|startswith("ty/ty3-")) | .number'
@@ -21,7 +22,8 @@ gh api "$R/pulls/N/comments"           # inline findings
 Fix every P0 and P1 finding (and cheap P2s), push to the same branch, then
 add the label `fixes-pushed`:
 `gh api -X POST "$R/issues/N/labels" -f 'labels[]=fixes-pushed'`.
-Never reply to or resolve review comments. Never request a review yourself.
+Never reply to or resolve review comments. Never request a review yourself;
+the second review re-checks your fixes automatically.
 
 ## 1. Claim
 
