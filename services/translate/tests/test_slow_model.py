@@ -16,7 +16,7 @@ def test_real_model_translates_all_five_languages():
     model_dir = os.environ.get("TY_MODEL_DIR")
     if not model_dir:
         pytest.skip("TY_MODEL_DIR (pre-provisioned weights directory) not set")
-    from app.translator import IndicTrans2Translator, LANGS
+    from app.translator import LANGS, IndicTrans2Translator
 
     # Offline: weights are provisioned by the CI job; the test never touches the network.
     tr = IndicTrans2Translator(model_name=model_dir, local_files_only=True)
