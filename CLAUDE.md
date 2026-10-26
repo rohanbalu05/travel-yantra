@@ -16,7 +16,8 @@ git config user.email "117021386+rohanbalu05@users.noreply.github.com"
 git config commit.gpgsign false
 ```
 
-The session's default git identity and signing key must not be used.
+On the laptop the runner's setup already sets this; in any other environment
+set it yourself. The session's default git identity and signing key must not be used.
 
 ## Hard rules
 
@@ -55,5 +56,8 @@ The session's default git identity and signing key must not be used.
 - Run targeted tests locally; the full suite runs in CI.
 - Prefer boring, small, tested code. Note any reversible assumption under
   "Assumptions" in the PR body instead of stopping.
-- GitHub GraphQL is unavailable from cloud sessions: use `gh api` REST
-  calls (examples in `.claude/rules/cards.md`).
+- Prefer `gh api` REST calls (examples in `.claude/rules/cards.md`).
+- Every PR gets two reviews: the first review (automatic when the PR opens)
+  and the second review (posted as a PR review marked "Second review", with
+  the commit status `second-review`). Fix every P0 and P1 from both by
+  pushing commits; HQ merges.

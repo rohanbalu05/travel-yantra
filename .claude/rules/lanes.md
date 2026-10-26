@@ -8,10 +8,10 @@ A lane edits only its own paths. Everything else is read-only to it.
 | TY2 | guide | `apps/api/guide/`, `apps/api/tests/guide/`, `data/` |
 | TY3 | routes | `apps/api/routes/`, `apps/api/tests/routes/` |
 | TY4 | web | `apps/web/` |
-| TY5 | voice | `services/translate/`, `apps/bots/`, `apps/mcp/` |
-| TY6 | ops | `.github/` (except the PR template), `infra/`, `fixtures/recorded/` |
+| TY5 | channels | `services/translate/`, `apps/bots/` (WhatsApp, Telegram), `apps/mcp/` |
+| TY6 | ops | `.github/` (except the PR template), `infra/` (except `infra/lanes/`), `fixtures/recorded/` |
 | TY7 | docs | `report/`, `deck/`, `paper/`, `bench/` |
-| HQ | — | `CLAUDE.md`, `AGENTS.md`, `SECURITY.md`, `.claude/`, `.github/pull_request_template.md`, root files |
+| HQ | — | `CLAUDE.md`, `AGENTS.md`, `SECURITY.md`, `.claude/`, `.github/pull_request_template.md`, `infra/lanes/`, root files |
 
 ## How the API fits together
 

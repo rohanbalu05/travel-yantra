@@ -32,3 +32,6 @@ Thumbs.db
 
 # Local Claude state
 .claude/settings.local.json
+
+# Review runner scratch
+.review-input/
