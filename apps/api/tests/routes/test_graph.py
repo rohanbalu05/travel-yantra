@@ -1,10 +1,8 @@
 import json
-import logging
 
 from routes.graph import (KIND_PLACE, Edge, FakeAirProvider, HaversineRoadProvider, Node,
                           build_graph, haversine_km)
 
-log = logging.getLogger(__name__)
 CITIES = [
     Node("PL:blr", KIND_PLACE, "Bengaluru", 12.9716, 77.5946),
     Node("PL:goa", KIND_PLACE, "Madgaon", 15.2700, 73.9580),
@@ -38,7 +36,7 @@ def test_rail_edges_positive_and_costed():
     assert rail and all(e.minutes > 0 and e.cost_inr > 0 for e in rail)
 
 
-def test_full_graph_edge_counts(capsys):
+def test_full_graph_edge_counts():
     g = build_graph(places=CITIES, road=HaversineRoadProvider(), air=FakeAirProvider())
     counts = g.edge_counts()
     print("edge counts:", json.dumps(counts, sort_keys=True))

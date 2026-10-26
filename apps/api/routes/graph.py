@@ -16,6 +16,7 @@ DATA_DIR = Path(__file__).resolve().parent / "data"
 RAIL_INR_PER_KM = 0.6
 ROAD_KMH = 45.0
 ROAD_DETOUR = 1.3
+RAIL_DETOUR = 1.15
 ROAD_INR_PER_KM = 6.0
 WALK_KMH = 4.5
 AIR_CRUISE_KMH = 750.0
@@ -162,7 +163,7 @@ def load_rail(graph: Graph, data_dir: Path = DATA_DIR) -> None:
             na, nb = graph.nodes.get(f"ST:{a['code']}"), graph.nodes.get(f"ST:{b['code']}")
             if na is None or nb is None:
                 continue
-            km = haversine_km(na.lat, na.lon, nb.lat, nb.lon) * 1.15
+            km = haversine_km(na.lat, na.lon, nb.lat, nb.lon) * RAIL_DETOUR
             graph.add_edge(Edge(na.id, nb.id, "rail", float(minutes), km * RAIL_INR_PER_KM,
                                 COMFORT["rail"], ref=t["number"]))
 

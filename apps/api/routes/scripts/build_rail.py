@@ -49,7 +49,7 @@ def build(src: Path, out: Path) -> dict[str, int]:
 
     names = {f["properties"]["number"]: f["properties"]["name"] for f in trains_raw["features"]}
     by_train: dict[str, list[dict]] = {}
-    for row in schedules_raw:
+    for row in sorted(schedules_raw, key=lambda r: int(r.get("id") or 0)):
         by_train.setdefault(str(row["train_number"]), []).append(row)
 
     trains = []
