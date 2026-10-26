@@ -8,7 +8,7 @@ import httpx
 from mcp.server.fastmcp import FastMCP
 from ty_contracts import Itinerary, PlanEvent, PlanStage, TripRequest
 
-SAMPLE = Path(__file__).resolve().parents[2] / "packages/contracts/samples/goa_family.json"
+SAMPLE = Path(__file__).parent / "samples/goa_family.json"
 
 mcp = FastMCP("travel-yantra", host="0.0.0.0", port=int(os.environ.get("PORT", "8080")))
 
