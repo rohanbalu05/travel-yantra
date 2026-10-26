@@ -62,7 +62,8 @@ def test_the_loose_lexical_fallback_does_not_get_a_vote() -> None:
 
 
 def test_seed_loads_the_expected_counts(db) -> None:
-    n = lambda q: db.execute(q).fetchone()[0]    assert n("SELECT count(*) FROM poi") >= 112
+    n = lambda q: db.execute(q).fetchone()[0]
+    assert n("SELECT count(*) FROM poi") >= 112
     assert n("SELECT count(*) FROM doc_chunk WHERE NOT retired") >= 288
     assert n("SELECT count(*) FROM doc_chunk WHERE NOT retired AND is_legend") >= 22
     assert n("SELECT count(*) FROM doc_chunk WHERE NOT retired AND embedding IS NULL") == 0
