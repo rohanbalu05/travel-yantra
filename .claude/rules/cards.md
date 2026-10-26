@@ -40,9 +40,12 @@ Only take a card whose "Needs" are merged. Swap labels:
 
 ## 3. Open the PR (normal, not draft)
 
+Write bodies to a file and pass them with `-F body=@file`. Never use `$(...)`
+in a command: headless sessions deny commands with substitutions.
+
 ```
 gh api -X POST "$R/pulls" -f title='[TY3-04] title' -f head='ty/ty3-04-slug' \
-  -f base=main -f body="$(cat /tmp/pr_body.md)"
+  -f base=main -F body=@pr_body.md
 ```
 
 Body sections: `## What`, `## Why`, `## How tested`, `## Assumptions`,
@@ -52,7 +55,7 @@ names. Do not enable auto-merge. Do not merge.
 ## 4. STOP comment on the card
 
 ```
-gh api -X POST "$R/issues/N/comments" -f body="$(cat /tmp/stop.md)"
+gh api -X POST "$R/issues/N/comments" -F body=@stop.md
 ```
 
 ```

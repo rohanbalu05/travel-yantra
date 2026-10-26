@@ -87,6 +87,13 @@ function Invoke-Review($Pr) {
     New-Item -ItemType Directory -Path $in | Out-Null
     Write-Utf8 (Join-Path $in 'diff.patch') (($diff -join "`n"))
     Write-Utf8 (Join-Path $in 'pr.md') ("# $($Pr.title)`n`n$($Pr.body)")
+    $old = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    $log = & git -C $Wt log --format='commit %h%n%B%n---' "origin/main..$sha" 2>$null
+    $ErrorActionPreference = $old
+    Write-Utf8 (Join-Path $in 'commits.txt') (($log -join "`n"))
+    $runs = Invoke-GhJson @('api', "repos/$Script:Repo/commits/$sha/check-runs?per_page=100")
+    $checks = @($runs.check_runs | ForEach-Object { "$($_.name): $($_.status) / $($_.conclusion)" }) -join "`n"
+    Write-Utf8 (Join-Path $in 'checks.txt') $checks
 
     $codex = Invoke-GhJson @('api', "repos/$Script:Repo/pulls/$n/comments?per_page=100")
     $codexText = ($codex | Where-Object { $_.user.login -like 'chatgpt-codex-connector*' } |
@@ -101,7 +108,7 @@ function Invoke-Review($Pr) {
         Write-Utf8 (Join-Path $in 'previous.md') (($prior | ForEach-Object { $_.body }) -join "`n`n---`n`n")
     }
 
-    $prompt = "Mode: $mode. Review PR #$n ($($Pr.title)) at commit $sha. Inputs are in .review-input/: pr.md, diff.patch, codex.md" +
+    $prompt = "Mode: $mode. Review PR #$n ($($Pr.title)) at commit $sha. Inputs are in .review-input/: pr.md, diff.patch, commits.txt, checks.txt, codex.md" +
         $(if ($mode -eq 'verify') { ', previous.md' } else { '' }) + '. Reply with the JSON object only.'
     Add-IssueComment $Dispatch "RUN review started: PR #$n ($mode) at $($sha.Substring(0,7))"
     $res = Invoke-Claude -WorkDir $Wt -Prompt $prompt -Model $Model -Effort $Effort `
@@ -169,6 +176,67 @@ function Set-ReviewStatus([string]$Sha, [string]$State, [string]$Desc) {
     Remove-Item $tmp -ErrorAction SilentlyContinue
 }
 
+# Auto-merge (rule v2): only when main's ruleset requires ci, guard and
+# review-gate (the status review_gate.py publishes with the review verdict;
+# the `evaluate` job itself always succeeds). GitHub then merges the PR by
+# itself only after those pass, so this never merges anything early.
+$RequiredChecks = @('ci', 'guard', 'review-gate')
+$Script:RuleCheckedAt = [datetime]::MinValue
+$Script:RuleReady = $false
+$EmptyBody = Join-Path $Script:State 'empty-body.txt'
+Write-Utf8 $EmptyBody ''
+function Test-MergeRuleReady {
+    if (((Get-Date) - $Script:RuleCheckedAt).TotalMinutes -lt 5) { return $Script:RuleReady }
+    $Script:RuleCheckedAt = Get-Date
+    $Script:RuleReady = $false
+    $rules = Invoke-GhJson @('api', "repos/$Script:Repo/rules/branches/main")
+    $ctx = @()
+    foreach ($r in @($rules)) {
+        if ($r.type -eq 'required_status_checks') {
+            $ctx += @($r.parameters.required_status_checks | ForEach-Object { $_.context })
+        }
+    }
+    foreach ($c in $RequiredChecks) { if ($ctx -notcontains $c) { return $false } }
+    $Script:RuleReady = $true
+    return $true
+}
+
+function Test-ManualOnly($Pr) {
+    $labels = @($Pr.labels | ForEach-Object { $_.name })
+    if ($labels -contains 'no-auto-merge') { return $true }
+    return (($labels -contains 'needs-rohan') -and -not ($labels -contains 'rohan-ok'))
+}
+
+function Disable-AutoMerge($Pr) {
+    $n = [int]$Pr.number
+    $old = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    & gh pr merge $n --repo $Script:Repo --disable-auto 2>$null | Out-Null
+    $ok = ($LASTEXITCODE -eq 0)
+    $ErrorActionPreference = $old
+    if ($ok) {
+        Write-Log $LogName "Auto-merge turned off on PR #$n (manual-only label)."
+        Add-IssueComment $Dispatch "RUN review: auto-merge turned off on PR #$n because of a manual-only label."
+    }
+}
+
+function Enable-AutoMerge($Pr) {
+    if (Test-ManualOnly $Pr) { return }
+    $n = [int]$Pr.number
+    $subject = "$($Pr.title) (#$n)"
+    $old = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    # Windows PowerShell 5.1 drops empty-string arguments, so the empty
+    # commit body comes from an empty file.
+    & gh pr merge $n --repo $Script:Repo --auto --squash --subject $subject --body-file $EmptyBody 2>$null | Out-Null
+    $ok = ($LASTEXITCODE -eq 0)
+    $ErrorActionPreference = $old
+    if ($ok) {
+        Write-Log $LogName "Auto-merge enabled on PR #$n."
+        Add-IssueComment $Dispatch "RUN review: auto-merge enabled on PR #$n ($($Pr.title)); GitHub merges it when ci, guard and review-gate pass."
+    } else {
+        Write-Log $LogName "Could not enable auto-merge on PR #$n."
+    }
+}
+
 while ($true) {
     try {
         $old = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
@@ -177,6 +245,19 @@ while ($true) {
         Read-Commands
         if (-not $st.paused) {
             $prs = Invoke-GhJson @('api', "repos/$Script:Repo/pulls?state=open&per_page=50&sort=created&direction=asc")
+            if (Test-MergeRuleReady) {
+                foreach ($pr in @($prs)) {
+                    if ($pr.auto_merge) {
+                        if (Test-ManualOnly $pr) { Disable-AutoMerge $pr }
+                        continue
+                    }
+                    if ($pr.draft -or $pr.base.ref -ne 'main' -or -not $pr.title.StartsWith('[')) { continue }
+                    if ($pr.user.login -ne $Script:Me) { continue }
+                    $s = Invoke-GhJson @('api', "repos/$Script:Repo/commits/$($pr.head.sha)/status")
+                    $sr = @($s.statuses | Where-Object { $_.context -eq 'second-review' })
+                    if ($sr.Count -gt 0 -and $sr[0].state -eq 'success') { Enable-AutoMerge $pr }
+                }
+            }
             foreach ($pr in @($prs)) {
                 if ($pr.draft -or $pr.base.ref -ne 'main' -or -not $pr.title.StartsWith('[')) { continue }
                 $status = Invoke-GhJson @('api', "repos/$Script:Repo/commits/$($pr.head.sha)/status")
