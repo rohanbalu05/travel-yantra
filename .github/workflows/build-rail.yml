@@ -1,0 +1,33 @@
+name: build-rail
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch datameet/railways (CC0)
+        run: |
+          mkdir -p "$RUNNER_TEMP/src"
+          for f in stations trains schedules; do
+            curl -fsSL --retry 3 -o "$RUNNER_TEMP/src/$f.json" \
+              "https://raw.githubusercontent.com/datameet/railways/master/$f.json"
+          done
+      - name: Build rail subset
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          python apps/api/routes/scripts/build_rail.py --src "$RUNNER_TEMP/src" --out "$RUNNER_TEMP/out"
+          ls -l "$RUNNER_TEMP/out"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rail-data
+          path: ${{ runner.temp }}/out/rail_*.json*
+          if-no-files-found: error
