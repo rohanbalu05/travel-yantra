@@ -32,7 +32,8 @@ or P1 findings, say so plainly.
   `Generated with Claude Code`, `claude.ai/code`, `Claude-Session`.
   Exception: the files that define this rule and the check that enforces
   it (`AGENTS.md`, `CLAUDE.md`, `.claude/rules/no-attribution.md`,
-  `.github/workflows/guard.yml`, `.github/workflows/strip-attribution.yml`
+  `.github/workflows/guard.yml`, `.github/workflows/strip-attribution.yml`,
+  `.github/scripts/strip_attribution*.js`
   and their test fixtures) may list them.
 - PR and issue bodies: a footer appended by the hosting environment is
   removed automatically by `strip-attribution` on `main`; flag it only if
