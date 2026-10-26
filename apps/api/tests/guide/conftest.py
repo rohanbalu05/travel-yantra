@@ -17,6 +17,7 @@ def db():
     if not url:
         pytest.skip("DATABASE_URL is not set")
     import psycopg
+
     from guide.retrieval.seed import apply_migrations, load_seed
 
     with psycopg.connect(url, autocommit=True) as conn:
