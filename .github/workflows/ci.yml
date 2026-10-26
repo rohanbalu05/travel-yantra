@@ -108,6 +108,18 @@ jobs:
       - run: uv run ruff check .
       - run: uv run pytest -m "not slow"
 
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build every service image from the repo root
+        run: |
+          for d in apps/api apps/mcp apps/bots; do  # services/translate joins once its Dockerfile uses the root context
+            [ -f "$d/Dockerfile" ] || { echo "skip $d: no Dockerfile"; continue; }
+            docker build -f "$d/Dockerfile" -t "ci-$(basename "$d")" .
+          done
+
   web:
     needs: changes
     if: needs.changes.outputs.web == 'true'
@@ -130,7 +142,7 @@ jobs:
 
   ci:
     name: ci
-    needs: [changes, scripts, python, api, web]
+    needs: [changes, scripts, python, api, docker, web]
     if: always()
     runs-on: ubuntu-latest
     steps:
