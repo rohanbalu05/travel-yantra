@@ -1,5 +1,6 @@
 # Build from the repo root: docker build -f apps/api/Dockerfile .
-# (ty-contracts is a path dependency in packages/contracts, so the context must include it.)
+# (ty-contracts is a path dependency in packages/contracts, so the context must include it.
+# deploy.yml passes --source apps/api; the root-context build is asked in #84.)
 FROM python:3.12-slim
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 WORKDIR /app
