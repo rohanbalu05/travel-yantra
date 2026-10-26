@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { Brand } from "@/components/Brand";
+import type { Lang } from "@/lib/contracts";
 import "./signin.css";
 
 // Google only: no phone number or SMS code (SMS costs money).
@@ -13,8 +14,7 @@ const T = {
   ta: { name: "தமிழ்", cls: "ta", title: "உங்கள் பயணத்தைத் திட்டமிட உள்நுழையுங்கள்", sub: "உங்கள் திட்டங்கள், முன்பதிவுகள், கதைகள் அனைத்தும் உங்கள் ஃபோனிலும் கணினியிலும் சேமிக்கப்படும்.", google: "Google மூலம் தொடரவும்" },
   te: { name: "తెలుగు", cls: "te", title: "మీ ప్రయాణాన్ని ప్లాన్ చేయడానికి సైన్ ఇన్ చేయండి", sub: "మీ ప్లాన్‌లు, బుకింగ్‌లు, కథలు మీ ఫోన్‌లో, కంప్యూటర్‌లో సేవ్ అయి ఉంటాయి.", google: "Googleతో కొనసాగించండి" },
   bn: { name: "বাংলা", cls: "bn", title: "আপনার ভ্রমণের পরিকল্পনা করতে সাইন ইন করুন", sub: "আপনার প্ল্যান, বুকিং আর কথা আপনার ফোন ও কম্পিউটারে সেভ থাকবে।", google: "Google দিয়ে চালিয়ে যান" },
-} as const;
-type Lang = keyof typeof T;
+} as const satisfies Record<Lang, { name: string; cls: string; title: string; sub: string; google: string }>;
 
 const words: [string, string, string][] = [
   ["kn", "ಪ್ರಯಾಣ", "Kannada"],
