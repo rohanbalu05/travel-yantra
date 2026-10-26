@@ -1,0 +1,771 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "BudgetSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "transport_inr": {
+          "minimum": 0,
+          "title": "Transport Inr",
+          "type": "integer"
+        },
+        "stay_inr": {
+          "minimum": 0,
+          "title": "Stay Inr",
+          "type": "integer"
+        },
+        "activities_inr": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Activities Inr",
+          "type": "integer"
+        },
+        "food_inr": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Food Inr",
+          "type": "integer"
+        },
+        "total_inr": {
+          "minimum": 0,
+          "title": "Total Inr",
+          "type": "integer"
+        },
+        "within_budget": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Within Budget"
+        }
+      },
+      "required": [
+        "transport_inr",
+        "stay_inr",
+        "total_inr"
+      ],
+      "title": "BudgetSummary",
+      "type": "object"
+    },
+    "Citation": {
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Url"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "title": "Citation",
+      "type": "object"
+    },
+    "Constraints": {
+      "additionalProperties": false,
+      "properties": {
+        "budget_inr": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Budget Inr"
+        },
+        "pace": {
+          "$ref": "#/$defs/Pace",
+          "default": "balanced"
+        },
+        "mobility_needs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Mobility Needs",
+          "type": "array"
+        },
+        "dietary": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Dietary",
+          "type": "array"
+        },
+        "max_travel_hours_per_day": {
+          "default": 8,
+          "exclusiveMinimum": 0,
+          "maximum": 24,
+          "title": "Max Travel Hours Per Day",
+          "type": "number"
+        },
+        "travellers": {
+          "items": {
+            "$ref": "#/$defs/Traveller"
+          },
+          "title": "Travellers",
+          "type": "array"
+        }
+      },
+      "title": "Constraints",
+      "type": "object"
+    },
+    "DayPlan": {
+      "additionalProperties": false,
+      "properties": {
+        "date": {
+          "format": "date",
+          "title": "Date",
+          "type": "string"
+        },
+        "stops": {
+          "items": {
+            "$ref": "#/$defs/Place"
+          },
+          "title": "Stops",
+          "type": "array"
+        },
+        "legs": {
+          "items": {
+            "$ref": "#/$defs/Leg"
+          },
+          "title": "Legs",
+          "type": "array"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "date"
+      ],
+      "title": "DayPlan",
+      "type": "object"
+    },
+    "GuideAnswer": {
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "citations": {
+          "items": {
+            "$ref": "#/$defs/Citation"
+          },
+          "title": "Citations",
+          "type": "array"
+        },
+        "emergency_places": {
+          "items": {
+            "$ref": "#/$defs/Place"
+          },
+          "title": "Emergency Places",
+          "type": "array"
+        },
+        "lang": {
+          "$ref": "#/$defs/Lang",
+          "default": "en"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "GuideAnswer",
+      "type": "object"
+    },
+    "Itinerary": {
+      "additionalProperties": false,
+      "properties": {
+        "request": {
+          "$ref": "#/$defs/TripRequest"
+        },
+        "days": {
+          "items": {
+            "$ref": "#/$defs/DayPlan"
+          },
+          "title": "Days",
+          "type": "array"
+        },
+        "transport": {
+          "items": {
+            "$ref": "#/$defs/TransportOption"
+          },
+          "title": "Transport",
+          "type": "array"
+        },
+        "stays": {
+          "items": {
+            "$ref": "#/$defs/Stay"
+          },
+          "title": "Stays",
+          "type": "array"
+        },
+        "budget": {
+          "$ref": "#/$defs/BudgetSummary"
+        },
+        "warnings": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Warnings",
+          "type": "array"
+        },
+        "lang": {
+          "$ref": "#/$defs/Lang",
+          "default": "en"
+        }
+      },
+      "required": [
+        "request",
+        "days",
+        "budget"
+      ],
+      "title": "Itinerary",
+      "type": "object"
+    },
+    "KathaStory": {
+      "additionalProperties": false,
+      "properties": {
+        "subject_kind": {
+          "enum": [
+            "place",
+            "city",
+            "day"
+          ],
+          "title": "Subject Kind",
+          "type": "string"
+        },
+        "subject": {
+          "title": "Subject",
+          "type": "string"
+        },
+        "length_min": {
+          "enum": [
+            2,
+            5,
+            10
+          ],
+          "title": "Length Min",
+          "type": "integer"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "segments": {
+          "items": {
+            "$ref": "#/$defs/StorySegment"
+          },
+          "title": "Segments",
+          "type": "array"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "lang": {
+          "$ref": "#/$defs/Lang",
+          "default": "en"
+        }
+      },
+      "required": [
+        "subject_kind",
+        "subject",
+        "length_min",
+        "text"
+      ],
+      "title": "KathaStory",
+      "type": "object"
+    },
+    "Lang": {
+      "enum": [
+        "en",
+        "hi",
+        "kn",
+        "ta",
+        "te",
+        "bn"
+      ],
+      "title": "Lang",
+      "type": "string"
+    },
+    "Leg": {
+      "additionalProperties": false,
+      "properties": {
+        "from": {
+          "title": "From",
+          "type": "string"
+        },
+        "to": {
+          "title": "To",
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "#/$defs/Mode"
+        },
+        "depart": {
+          "format": "date-time",
+          "title": "Depart",
+          "type": "string"
+        },
+        "arrive": {
+          "format": "date-time",
+          "title": "Arrive",
+          "type": "string"
+        },
+        "minutes": {
+          "minimum": 0,
+          "title": "Minutes",
+          "type": "integer"
+        },
+        "cost_inr": {
+          "minimum": 0,
+          "title": "Cost Inr",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "from",
+        "to",
+        "mode",
+        "depart",
+        "arrive",
+        "minutes",
+        "cost_inr"
+      ],
+      "title": "Leg",
+      "type": "object"
+    },
+    "Mode": {
+      "enum": [
+        "road",
+        "rail",
+        "air"
+      ],
+      "title": "Mode",
+      "type": "string"
+    },
+    "OpeningHours": {
+      "additionalProperties": false,
+      "properties": {
+        "day": {
+          "enum": [
+            "mon",
+            "tue",
+            "wed",
+            "thu",
+            "fri",
+            "sat",
+            "sun"
+          ],
+          "title": "Day",
+          "type": "string"
+        },
+        "opens": {
+          "format": "time",
+          "title": "Opens",
+          "type": "string"
+        },
+        "closes": {
+          "format": "time",
+          "title": "Closes",
+          "type": "string"
+        }
+      },
+      "required": [
+        "day",
+        "opens",
+        "closes"
+      ],
+      "title": "OpeningHours",
+      "type": "object"
+    },
+    "Pace": {
+      "enum": [
+        "relaxed",
+        "balanced",
+        "packed"
+      ],
+      "title": "Pace",
+      "type": "string"
+    },
+    "Place": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "native_names": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "propertyNames": {
+            "$ref": "#/$defs/Lang"
+          },
+          "title": "Native Names",
+          "type": "object"
+        },
+        "lat": {
+          "maximum": 90,
+          "minimum": -90,
+          "title": "Lat",
+          "type": "number"
+        },
+        "lng": {
+          "maximum": 180,
+          "minimum": -180,
+          "title": "Lng",
+          "type": "number"
+        },
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "opening_hours": {
+          "items": {
+            "$ref": "#/$defs/OpeningHours"
+          },
+          "title": "Opening Hours",
+          "type": "array"
+        },
+        "typical_visit_minutes": {
+          "minimum": 0,
+          "title": "Typical Visit Minutes",
+          "type": "integer"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "lat",
+        "lng",
+        "category",
+        "typical_visit_minutes",
+        "source"
+      ],
+      "title": "Place",
+      "type": "object"
+    },
+    "PlanEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "stage": {
+          "$ref": "#/$defs/PlanStage"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "partial": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Itinerary"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "stage",
+        "message"
+      ],
+      "title": "PlanEvent",
+      "type": "object"
+    },
+    "PlanStage": {
+      "enum": [
+        "intake",
+        "planning",
+        "solving",
+        "checking",
+        "narrating",
+        "done",
+        "error"
+      ],
+      "title": "PlanStage",
+      "type": "string"
+    },
+    "SellerOffer": {
+      "additionalProperties": false,
+      "properties": {
+        "seller": {
+          "title": "Seller",
+          "type": "string"
+        },
+        "price_inr": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Price Inr"
+        },
+        "currency": {
+          "default": "INR",
+          "title": "Currency",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "deep_link",
+            "check_price"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "fetched_at": {
+          "format": "date-time",
+          "title": "Fetched At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "seller",
+        "url",
+        "kind",
+        "fetched_at"
+      ],
+      "title": "SellerOffer",
+      "type": "object"
+    },
+    "Stay": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "city": {
+          "title": "City",
+          "type": "string"
+        },
+        "check_in": {
+          "format": "date",
+          "title": "Check In",
+          "type": "string"
+        },
+        "check_out": {
+          "format": "date",
+          "title": "Check Out",
+          "type": "string"
+        },
+        "price_per_night_inr": {
+          "minimum": 0,
+          "title": "Price Per Night Inr",
+          "type": "integer"
+        },
+        "offers": {
+          "items": {
+            "$ref": "#/$defs/SellerOffer"
+          },
+          "title": "Offers",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "city",
+        "check_in",
+        "check_out",
+        "price_per_night_inr"
+      ],
+      "title": "Stay",
+      "type": "object"
+    },
+    "StorySegment": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "enum": [
+            "legend",
+            "history"
+          ],
+          "title": "Label",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "text"
+      ],
+      "title": "StorySegment",
+      "type": "object"
+    },
+    "TransportOption": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/Mode"
+        },
+        "legs": {
+          "items": {
+            "$ref": "#/$defs/Leg"
+          },
+          "minItems": 1,
+          "title": "Legs",
+          "type": "array"
+        },
+        "total_minutes": {
+          "minimum": 0,
+          "title": "Total Minutes",
+          "type": "integer"
+        },
+        "total_cost_inr": {
+          "minimum": 0,
+          "title": "Total Cost Inr",
+          "type": "integer"
+        },
+        "comfort": {
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Comfort",
+          "type": "integer"
+        },
+        "offers": {
+          "items": {
+            "$ref": "#/$defs/SellerOffer"
+          },
+          "title": "Offers",
+          "type": "array"
+        }
+      },
+      "required": [
+        "mode",
+        "legs",
+        "total_minutes",
+        "total_cost_inr",
+        "comfort"
+      ],
+      "title": "TransportOption",
+      "type": "object"
+    },
+    "Traveller": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "age": {
+          "maximum": 120,
+          "minimum": 0,
+          "title": "Age",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "name",
+        "age"
+      ],
+      "title": "Traveller",
+      "type": "object"
+    },
+    "TripRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "origin": {
+          "title": "Origin",
+          "type": "string"
+        },
+        "destinations": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Destinations",
+          "type": "array"
+        },
+        "start_date": {
+          "format": "date",
+          "title": "Start Date",
+          "type": "string"
+        },
+        "end_date": {
+          "format": "date",
+          "title": "End Date",
+          "type": "string"
+        },
+        "constraints": {
+          "$ref": "#/$defs/Constraints"
+        },
+        "lang": {
+          "$ref": "#/$defs/Lang",
+          "default": "en"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        }
+      },
+      "required": [
+        "origin",
+        "destinations",
+        "start_date",
+        "end_date"
+      ],
+      "title": "TripRequest",
+      "type": "object"
+    }
+  }
+}
