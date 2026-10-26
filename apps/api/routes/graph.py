@@ -192,6 +192,18 @@ def add_road(graph: Graph, provider: RoadEdgeProvider, nodes: Iterable[Node] | N
                     graph.add_edge(e)
 
 
+def add_airport_transfers(graph: Graph, provider: RoadEdgeProvider, max_km: float = 60.0) -> None:
+    """Road transfers between place points and airports within max_km (great-circle),
+    so flights are reachable from the ground network."""
+    for p in graph.nodes_of(KIND_PLACE):
+        for ap in graph.nodes_of(KIND_AIRPORT):
+            if haversine_km(p.lat, p.lon, ap.lat, ap.lon) <= max_km:
+                for a, b in ((p, ap), (ap, p)):
+                    e = provider.road_edge(a, b)
+                    if e:
+                        graph.add_edge(e)
+
+
 def add_air(graph: Graph, provider: AirEdgeProvider) -> None:
     aps = provider.airports()
     for ap in aps:
@@ -218,4 +230,5 @@ def build_graph(
     if road is not None:
         # road links between place points only, keeps the edge count small
         add_road(g, road, [n for n in g.nodes.values() if n.kind == KIND_PLACE])
+        add_airport_transfers(g, road)
     return g

@@ -58,3 +58,15 @@ def test_air_fake_skips_short_hops():
     n = {x.id: x for x in air.airports()}
     assert air.air_edge(n["AP:BLR"], n["AP:GOI"]).mode == "air"
     assert air.air_edge(n["AP:BOM"], n["AP:PNQ"]) is None
+
+
+def test_airports_reachable_from_places():
+    g = build_graph(places=CITIES, road=HaversineRoadProvider(), air=FakeAirProvider())
+    seen, stack = {"PL:blr"}, ["PL:blr"]
+    while stack:
+        for e in g.neighbors(stack.pop()):
+            if e.dst not in seen:
+                seen.add(e.dst)
+                stack.append(e.dst)
+    assert "AP:BLR" in seen and "AP:GOI" in seen
+    assert any(e.mode == "road" and e.src == "AP:GOI" and e.dst == "PL:goa" for e in g.edges())
