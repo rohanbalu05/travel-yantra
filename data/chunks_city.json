@@ -1,0 +1,611 @@
+{
+ "note": "City layer for the deterministic city Katha, written 2026-08-28. Each of the five hub cities has the same fourteen (theme, tier) slots: identity/2, origins/2, rulers/2/5/10, character/5/10, food/5/10, festivals/5, worth_seeing/2/5/10, practical/10. An entry with a body is a new paragraph; an entry without one retags an existing city-level paragraph from chunks.json or chunks_curated.json by (hub city, title) and changes nothing else about it. worth_seeing rows carry poi = the place they open with so Go deeper resolves. source_url only where a live page was found; never invented.",
+ "chunks": [
+  {
+   "city": "Mysuru",
+   "theme": "identity",
+   "tier": 2,
+   "title": "The palace city that kept its capital manners",
+   "chunk_type": "hook",
+   "is_legend": false,
+   "poi": null,
+   "source_name": "Karnataka Gazetteer, Mysore District",
+   "source_url": "https://en.wikipedia.org/wiki/Wadiyar_dynasty",
+   "body": "Mysuru is the city the old Mysore kingdom was named for, and it still carries itself like a capital. For most of five centuries the Wadiyar kings ruled from here or from Srirangapatna, sixteen kilometres north, and when the British handed the state back to them in 1799 they put the court in this city and kept it here until 1947. So what you get is a royal town built with a plan and a budget: a palace at the centre, wide straight roads leading off it, a hill with a temple watching over everything, and the Kaveri feeding the plain around. Bengaluru took the government. Mysuru kept the palace, the festival, the silk, the sandalwood and the pace."
+  },
+  {
+   "city": "Mysuru",
+   "theme": "origins",
+   "tier": 2,
+   "title": "A buffalo demon gave the city its name",
+   "chunk_type": "story",
+   "is_legend": true,
+   "poi": null,
+   "source_name": "Devi Purana tradition and Mysore historians, general reference",
+   "source_url": "https://indianexpress.com/article/india/india-news-india/mysore-name-connection-mahishasura-was-seen-as-demon-with-good-qualities-say-historians",
+   "body": "Ask anyone here how the city got its name and you will hear the same story. The story goes that a demon called Mahishasura, a buffalo with a man's cunning, ruled this land and terrorised everyone in it. The gods could not touch him, so the goddess Parvati took the form of Chamundeshwari, came down to the hill above the city and killed him there. The land was Mahisha's town, Mahishuru, and centuries of speech wore that down to Mysuru. Historians will tell you the region was called buffalo country long before any demon, and that the name probably comes from the animal, not the villain. The city does not mind. It kept the demon's name, put the goddess on the hill, and celebrates her winning every autumn."
+  },
+  {
+   "city": "Mysuru",
+   "theme": "rulers",
+   "tier": 2,
+   "title": "One family, six hundred years, two interruptions",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": null,
+   "source_name": "Karnataka Gazetteer, Mysore District",
+   "source_url": "https://en.wikipedia.org/wiki/Wadiyar_dynasty",
+   "body": "One family has been attached to this city since 1399, when a chieftain called Yaduraya took charge of Mysuru for the Vijayanagara empire. The Wadiyars stayed feudatories until that empire fell, then took Srirangapatna in 1610 and ruled as kings in their own right. Two interruptions matter. From about 1760 the general Hyder Ali, and then his son Tipu Sultan, held the real power with a Wadiyar kept on as a figurehead, until the British stormed Srirangapatna in 1799 and Tipu died in the fighting. The British then put a Wadiyar child of four on the throne and moved the court back to this city. The maharajas ruled, under British oversight, until independence in 1947, and the family still lives in the palace."
+  },
+  {
+   "city": "Mysuru",
+   "title": "An island with a short temper",
+   "theme": "rulers",
+   "tier": 5
+  },
+  {
+   "city": "Mysuru",
+   "title": "The city ran on electricity before most of Europe",
+   "theme": "rulers",
+   "tier": 10
+  },
+  {
+   "city": "Mysuru",
+   "title": "An entire city was designed as a stage",
+   "theme": "character",
+   "tier": 5
+  },
+  {
+   "city": "Mysuru",
+   "title": "Why this city smells of sandalwood",
+   "theme": "character",
+   "tier": 10
+  },
+  {
+   "city": "Mysuru",
+   "title": "Butter dosa, no menu required",
+   "theme": "food",
+   "tier": 5
+  },
+  {
+   "city": "Mysuru",
+   "theme": "food",
+   "tier": 10,
+   "title": "The sweet the palace cook had no name for",
+   "chunk_type": "taste",
+   "is_legend": false,
+   "poi": null,
+   "source_name": "Guru Sweet Mart, Mysuru",
+   "source_url": "https://www.karnataka.com/recipe-and-food/guru-sweets-mysore-the-history-of-mysore-pak",
+   "body": "Mysore pak is this city's sweet, and by tradition it was born in the palace kitchen. The story told at Guru Sweet Mart, at the edge of Devaraja Market, is that a royal cook called Kakasura Madappa put gram flour, ghee and sugar syrup together for a maharaja who wanted something new, and had no name ready when asked, so he called it after the city and the syrup, paka. His descendants still make it in that shop, and the ghee-heavy version that melts rather than crumbles is the one to buy. Eat it the same day. Around it the city eats well and early: a Mysore masala dosa with red chutney spread inside, a plate of idli at a tiffin room, and filter coffee poured from a height."
+  },
+  {
+   "city": "Mysuru",
+   "title": "Dasara is ten days, not one",
+   "theme": "festivals",
+   "tier": 5
+  },
+  {
+   "city": "Mysuru",
+   "theme": "worth_seeing",
+   "tier": 2,
+   "title": "Three places, and why they are the three",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": "Mysore Palace",
+   "source_name": "Mysore Palace Board",
+   "source_url": null,
+   "body": "Mysore Palace first, because everything else in the city is arranged around it. It is the fourth palace on the site, finished in 1912 after the old wooden one burned, and on Sunday nights it is lit by close to a lakh of bulbs for about an hour. Then Chamundeshwari Temple on the hill, because the hill is the reason the city is here: the goddess who killed the buffalo demon lives at the top, and the view back over the plain shows you the whole layout. Third, Brindavan Gardens at the KRS dam, twenty kilometres out, where the terraces and fountains come on after dark. Go at dusk, not in the afternoon; by day it is a hot walk past dry beds."
+  },
+  {
+   "city": "Mysuru",
+   "theme": "worth_seeing",
+   "tier": 5,
+   "title": "Further out, the day trips that earn their drive",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": "Somanathapura Chennakesava Temple",
+   "source_name": "Archaeological Survey of India, Somanathapura",
+   "source_url": null,
+   "body": "Somanathapura Chennakesava Temple is about thirty-five kilometres east, a Hoysala temple from the thirteenth century that was finished, never rebuilt, and is the easiest of the three great Hoysala buildings to read. Give it an hour and go in the morning light. Ranganathittu Bird Sanctuary, on the way to Srirangapatna, is a set of river islands where storks, pelicans and spoonbills nest by the hundred in the breeding months; a short boat ride gets you close, and there are crocodiles on the rocks. Then Srirangapatna itself: the island where Tipu Sultan ruled and died, with Daria Daulat Bagh, his summer palace, painted inside with the battles he won and the ones he lost."
+  },
+  {
+   "city": "Mysuru",
+   "theme": "worth_seeing",
+   "tier": 10,
+   "title": "The places for the second morning",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": "Devaraja Market",
+   "source_name": "Mysuru city heritage records, general reference",
+   "source_url": null,
+   "body": "Devaraja Market is where the city buys its flowers, fruit and kumkum, under a long roof from the maharajas' time: go early, when the jasmine is being strung and the banana sellers are stacking a dozen varieties. St. Philomena's Cathedral, a few streets east, is a neo-Gothic church with twin spires; the maharaja laid its first stone in 1933, and it is quiet on a weekday morning. The Sri Jayachamarajendra Art Gallery in Jaganmohan Palace holds Raja Ravi Varma paintings and the palace's older collections, in the building the kings lived in while the present palace was being built. And the zoo, one of the oldest in the country, is the right afternoon if you have children with you."
+  },
+  {
+   "city": "Mysuru",
+   "theme": "practical",
+   "tier": 10,
+   "title": "Two days, three with the island, and a Sunday",
+   "chunk_type": "practical",
+   "is_legend": false,
+   "poi": null,
+   "source_name": "travel-yantra field notes",
+   "source_url": null,
+   "body": "Give Mysuru two full days, and a third if you want Srirangapatna and the birds. October to February is the comfortable window; the Dasara festival falls in September or October and is worth planning around, either to be here for it or to avoid the crowds and the prices. Try to be in the city on a Sunday evening for the palace lights. Mornings are for the hill and the market, afternoons are hot and slow, and most sights close around five. Skip Brindavan Gardens by daylight, and the sand sculpture museum unless the children insist. The city is small enough that a cab or an auto covers it; the only real distances are the dam and Somanathapura."
+  },
+  {
+   "city": "Hampi",
+   "title": "Gems on the ground like grain",
+   "theme": "identity",
+   "tier": 2
+  },
+  {
+   "city": "Hampi",
+   "title": "The monkey kingdom across the river",
+   "theme": "origins",
+   "tier": 2
+  },
+  {
+   "city": "Hampi",
+   "title": "Two brothers and a river",
+   "theme": "rulers",
+   "tier": 2
+  },
+  {
+   "city": "Hampi",
+   "title": "Six months of burning",
+   "theme": "rulers",
+   "tier": 5
+  },
+  {
+   "city": "Hampi",
+   "title": "The poet on the throne",
+   "theme": "rulers",
+   "tier": 10
+  },
+  {
+   "city": "Hampi",
+   "title": "Cross the river in a basket",
+   "theme": "character",
+   "tier": 5
+  },
+  {
+   "city": "Hampi",
+   "title": "The stone that will not let go of the heat",
+   "theme": "character",
+   "tier": 10
+  },
+  {
+   "city": "Hampi",
+   "title": "Eat the banana, it grew across the road",
+   "theme": "food",
+   "tier": 5
+  },
+  {
+   "city": "Hampi",
+   "theme": "food",
+   "tier": 10,
+   "title": "North Karnataka on a plate",
+   "chunk_type": "taste",
+   "is_legend": false,
+   "poi": null,
+   "source_name": "North Karnataka culinary tradition, general reference",
+   "source_url": null,
+   "body": "Hampi sits in north Karnataka, and the food is different from the south. The staple is jolada rotti, a flat bread of white sorghum, dry and slightly sweet, eaten with ennegai, small brinjals stuffed with a peanut and sesame paste, and a spoon of shenga chutney, which is ground roasted peanut with chilli. A full plate, the north Karnataka oota, adds a lentil dish, curd, rice and a sweet, and it is served in Hospet and Kamalapura at lunch for very little money. On the Hampi side the cafes cook for travellers and the food is mild and international. Cross to the other bank or go into Hospet if you want the real plate, and go before two, when it runs out."
+  },
+  {
+   "city": "Hampi",
+   "theme": "festivals",
+   "tier": 5,
+   "title": "Three festivals, two of them older than the ruins",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": null,
+   "source_name": "Karnataka Tourism, Hampi festivals",
+   "source_url": "https://hampi.in/festivals",
+   "body": "The big one is the Virupaksha temple's chariot festival in March or April, when the god and goddess are married again and a wooden temple car is pulled along the bazaar street by hand, as it was when this was a capital. In January or February, musicians gather at the Purandara mantapa by the river, near the Vittala temple, for the Purandaradasa Aradhana, two or three days of classical music in memory of the poet-composer who lived here in the sixteenth century. And in early November the state runs the Hampi Utsav, three days of music, dance and lights on the monuments, free to enter and very crowded. If you want the ruins to yourself, avoid that week; if you want the town alive, come for it."
+  },
+  {
+   "city": "Hampi",
+   "theme": "worth_seeing",
+   "tier": 2,
+   "title": "The three you see first, and in what order",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": "Virupaksha Temple",
+   "source_name": "Archaeological Survey of India, Hampi site notes",
+   "source_url": null,
+   "body": "Virupaksha Temple is the one building here that never stopped working; it was a shrine before the empire and it is a temple today, with its tall gateway tower standing over the bazaar street. Go in the morning, when the temple elephant is there. Vittala Temple and Stone Chariot is the empire at full stretch, a walled complex by the river with the stone chariot in the yard and the pillared halls that the empire's best carvers made; give it two hours and the late afternoon light. Then Hemakuta Hill Temples, the low hill beside Virupaksha, scattered with small shrines older than the empire, where everybody goes for sunset and the whole valley of boulders turns copper."
+  },
+  {
+   "city": "Hampi",
+   "theme": "worth_seeing",
+   "tier": 5,
+   "title": "The royal centre, where the city governed itself",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": "Royal Enclosure and Mahanavami Dibba",
+   "source_name": "Archaeological Survey of India, Hampi site notes",
+   "source_url": null,
+   "body": "Royal Enclosure and Mahanavami Dibba is where the kings lived and reviewed their armies; the great stepped platform is what remains of the stand from which the festival of nine nights was watched, and the stepped tank beside it, built from numbered blocks, is one of the site's cleanest pieces of engineering. Hazara Rama Temple, inside the same enclosure, was the royal chapel, and its outer walls carry the Ramayana in bands you can read walking round. A short way north, the Lotus Mahal and the Elephant Stables are the best-preserved buildings in the zenana quarter. This half of Hampi is quieter than the temples, and it is the half that explains how the city worked."
+  },
+  {
+   "city": "Hampi",
+   "theme": "worth_seeing",
+   "tier": 10,
+   "title": "Across the river, when you have a third day",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": "Anjanadri Hill (Anjaneya Hill)",
+   "source_name": "Archaeological Survey of India, Hampi site notes",
+   "source_url": null,
+   "body": "Anjanadri Hill (Anjaneya Hill) is on the far bank, a whitewashed stair of a few hundred steps up to a small temple that believers hold to be the birthplace of Hanuman; go early, and expect monkeys the whole way. Anegundi Village below it is older than Hampi, a working village with a fort, banana fields and a few homestays, and it is where you see how people live inside this landscape rather than visit it. The Coracle Ride on the Tungabhadra is the way across and back, a round basket boat that spins as it goes. Lakshmi Narasimha Statue, back on the main side, is the largest single sculpture at Hampi, a seated god under a seven-headed serpent, worth a stop on the road to the royal centre."
+  },
+  {
+   "city": "Hampi",
+   "title": "When to come, and when not to",
+   "theme": "practical",
+   "tier": 10
+  },
+  {
+   "city": "Bengaluru",
+   "title": "The pensioners' town became the software capital",
+   "theme": "identity",
+   "tier": 2
+  },
+  {
+   "city": "Bengaluru",
+   "title": "The town of boiled beans",
+   "theme": "origins",
+   "tier": 2
+  },
+  {
+   "city": "Bengaluru",
+   "title": "Kempegowda laid out four roads and a mud fort",
+   "theme": "rulers",
+   "tier": 2
+  },
+  {
+   "city": "Bengaluru",
+   "title": "Two cities that were stitched together",
+   "theme": "rulers",
+   "tier": 5
+  },
+  {
+   "city": "Bengaluru",
+   "theme": "rulers",
+   "tier": 10,
+   "title": "Who held the fort between the founder and the software",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": null,
+   "source_name": "Karnataka Gazetteer, Bangalore District",
+   "source_url": null,
+   "body": "After Kempegowda's family lost it, the town changed hands more often than its size deserved. The sultans of Bijapur took it in the seventeenth century and gave it to the Maratha general Shahaji, father of Shivaji, as an estate. The Mughals seized it in 1687 and sold it the same year to the Wadiyar king of Mysore. Hyder Ali rebuilt the mud fort in stone in the 1760s, and Lord Cornwallis stormed it in March 1791 during the third war against Tipu. After Tipu's fall the British put their garrison here in 1809, and when they took the state's administration into their own hands in 1831 they ran it from this city. The state kept its capital here after independence, and never moved it back."
+  },
+  {
+   "city": "Bengaluru",
+   "title": "A tree survey, and a man who counted them",
+   "theme": "character",
+   "tier": 5
+  },
+  {
+   "city": "Bengaluru",
+   "title": "Why this city was cool, and why it is less so",
+   "theme": "character",
+   "tier": 10
+  },
+  {
+   "city": "Bengaluru",
+   "title": "Ask for a by-two coffee",
+   "theme": "food",
+   "tier": 5
+  },
+  {
+   "city": "Bengaluru",
+   "title": "Where to eat a military hotel meal",
+   "theme": "food",
+   "tier": 10
+  },
+  {
+   "city": "Bengaluru",
+   "theme": "festivals",
+   "tier": 5,
+   "title": "A pot on a priest's head, and a groundnut fair",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": null,
+   "source_name": "Karnataka Tourism, Bengaluru Karaga and Kadalekai Parishe",
+   "source_url": "https://en.wikipedia.org/wiki/Dharmaraya_Swamy_Temple",
+   "body": "Bengaluru's own festival is the Karaga, in March or April on a full-moon night. It starts at the Dharmaraya Swamy temple in the old town, and its centre is a priest of the Thigala community, dressed as a woman, who carries a tall decorated pot on his head through the streets until dawn without touching it with his hands. It is dedicated to Draupadi, and the crowds are enormous. In November or December, on the last Monday of the month of Karthika, the Kadalekai Parishe fills the streets around the Bull Temple in Basavanagudi with groundnut sellers, a fair the farmers have held for the bull since the temple's early days. Ganesha in September and Diwali in October are celebrated as they are everywhere."
+  },
+  {
+   "city": "Bengaluru",
+   "theme": "worth_seeing",
+   "tier": 2,
+   "title": "Green first, then stone",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": "Lalbagh Botanical Garden",
+   "source_name": "Horticulture Department, Government of Karnataka, general reference",
+   "source_url": null,
+   "body": "Lalbagh Botanical Garden is the city's oldest institution, begun by Hyder Ali in 1760 and extended by Tipu and the British, with a glasshouse modelled on London's Crystal Palace and a rock in the middle that is among the oldest on the planet. Go at seven in the morning, when half the city walks there. Cubbon Park is the cantonment's answer, three hundred acres of old trees and red colonial buildings, with the Vidhana Soudha, the state legislature, standing in granite at its edge. Then KR Market, the city's central market, at dawn: a flower market spread across the ground floor in colour, then vegetables, then everything else. Those three give you the three cities: the Mysore kings', the British one, and the one that works."
+  },
+  {
+   "city": "Bengaluru",
+   "theme": "worth_seeing",
+   "tier": 5,
+   "title": "The old town in one morning",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": "Bull Temple (Dodda Basavana Gudi)",
+   "source_name": "Karnataka Gazetteer, Bangalore District",
+   "source_url": null,
+   "body": "Bull Temple (Dodda Basavana Gudi) in Basavanagudi is a single granite bull, carved in place in Kempegowda's time and now too large for its shrine, with a neighbourhood of tree-lined streets around it that was laid out after the plague of 1898. Walk from there to Tipu Sultan's Summer Palace, Bengaluru, a two-storey teak building inside what is left of the fort, with a small display of Tipu's things; it is cool and dim and takes half an hour. Bangalore Palace, on the north side, was built by a Wadiyar in the style of an English castle, with a painted interior and a family still in residence. Do the first two together and the palace on a different day; they sit on opposite sides of the traffic."
+  },
+  {
+   "city": "Bengaluru",
+   "theme": "worth_seeing",
+   "tier": 10,
+   "title": "Two roads out, and two streets in",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": "Nandi Hills",
+   "source_name": "Karnataka Tourism, Nandi Hills, general reference",
+   "source_url": null,
+   "body": "Nandi Hills is sixty kilometres north and the reason people leave the city before dawn: a hill fort where Tipu had a summer house, above the clouds on a good morning, and back in time for a late breakfast. Visvesvaraya Industrial and Technological Museum, beside Cubbon Park, is the best museum for children in the city, with working engines and a flight gallery. Commercial Street is the cantonment's shopping street, narrow and loud, good for cloth and shoes and bargaining; Church Street and MG Road beside it are where the city goes out in the evening. None of these need a guide. Give Nandi a morning, the museum two hours, and the streets an evening."
+  },
+  {
+   "city": "Bengaluru",
+   "title": "The one-way system will beat you",
+   "theme": "practical",
+   "tier": 10
+  },
+  {
+   "city": "Chikmagalur",
+   "theme": "identity",
+   "tier": 2,
+   "title": "Coffee country, with two temples on its doorstep",
+   "chunk_type": "hook",
+   "is_legend": false,
+   "poi": null,
+   "source_name": "Coffee Board of India, general reference",
+   "source_url": null,
+   "body": "Chikmagalur is where Indian coffee began and where a lot of it is still grown. The town sits at the foot of the Baba Budan hills in the Western Ghats, and the slopes above it are estates, shade trees, pepper vines and, in season, the smell of drying beans. That is one half of why you come. The other half lies an hour east on the plains: Belur and Halebidu, the two Hoysala temples that are the finest stone carving in south India, and the reason a dynasty of hill chieftains is remembered nine hundred years on. So plan for both. Mornings in the hills for the air and the views, a day on the plain for the stone, and coffee at every stop between."
+  },
+  {
+   "city": "Chikmagalur",
+   "title": "Seven beans in a robe",
+   "theme": "origins",
+   "tier": 2
+  },
+  {
+   "city": "Chikmagalur",
+   "title": "Where the Hoysalas came from",
+   "theme": "rulers",
+   "tier": 2
+  },
+  {
+   "city": "Chikmagalur",
+   "title": "Talakad, 1116, and why Belur exists",
+   "theme": "rulers",
+   "tier": 5
+  },
+  {
+   "city": "Chikmagalur",
+   "title": "World Heritage, and only since 2023",
+   "theme": "rulers",
+   "tier": 10
+  },
+  {
+   "city": "Chikmagalur",
+   "theme": "character",
+   "tier": 5,
+   "title": "Mist first, then the smell of the drying yards",
+   "chunk_type": "sensory",
+   "is_legend": false,
+   "poi": null,
+   "source_name": "Coffee Board of India, general reference",
+   "source_url": null,
+   "body": "Mornings here start white. Mist sits in the valleys until the sun finds it, and the road up to Mullayanagiri climbs out of it into a wind that makes you glad of a jacket in December. The town itself is small and practical: a market street, a bus stand, a temple, and shops selling estate coffee by the kilo. Drive out on any road and within ten minutes you are between coffee bushes under tall shade trees, with pepper vines climbing them. In the harvest months, December to February, the estates rake beans across concrete yards to dry, and the smell carries. Jeeps go up the hill roads when cars cannot. Evenings are cold, early and quiet."
+  },
+  {
+   "city": "Chikmagalur",
+   "theme": "character",
+   "tier": 10,
+   "title": "The temple towns, sixteen kilometres apart",
+   "chunk_type": "sensory",
+   "is_legend": false,
+   "poi": null,
+   "source_name": "travel-yantra field notes",
+   "source_url": null,
+   "body": "Belur and Halebidu are small towns built around one building each. In Belur the temple is still working: bells at the morning and evening worship, a priest who will show you the god, and a lane of stalls selling coconuts and flowers to the people who came to pray rather than to look. Halebidu is quieter, a museum garden more than a town, with lawns, a caretaker and the sound of a guide's voice carrying across the stone. Between them is a road through fields and small villages, thirty minutes of ordinary Karnataka. Both fill up on weekends and holidays with school groups and pilgrims by the busload. On a weekday morning you can have a nine-hundred-year-old wall to yourself."
+  },
+  {
+   "city": "Chikmagalur",
+   "title": "Filter coffee is the drink between temples",
+   "theme": "food",
+   "tier": 5
+  },
+  {
+   "city": "Chikmagalur",
+   "title": "Akki rotti and the plate around it",
+   "theme": "food",
+   "tier": 10
+  },
+  {
+   "city": "Chikmagalur",
+   "theme": "festivals",
+   "tier": 5,
+   "title": "A chariot at Belur, and a shared hill",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": null,
+   "source_name": "Chikmagalur Tourism, Baba Budangiri",
+   "source_url": "https://chikmagalurtourism.org.in/baba-budangiri-datta-peeta-chikmagalur",
+   "body": "Belur's festival is the rathotsava, the chariot festival, in March or April, when the image of Chennakeshava is placed on a wooden temple car and pulled through the town by hand over two days, with the whole district turning out. In the hills, Baba Budangiri is a shrine that Hindus and Muslims have both come to for centuries, as the Dattatreya Peetha and as the resting place of the Sufi Baba Budan, and its gatherings in December are large and closely managed; go on an ordinary day if you want the cave and the view. The coffee harvest, from December, is the working season, and estate homestays are busiest then. Ugadi, the Kannada new year in March or April, closes the shops for a day."
+  },
+  {
+   "city": "Chikmagalur",
+   "theme": "worth_seeing",
+   "tier": 2,
+   "title": "The two temples and the highest hill",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": "Chennakeshava Temple, Belur",
+   "source_name": "Archaeological Survey of India, Hoysala site notes",
+   "source_url": null,
+   "body": "Chennakeshava Temple, Belur, is the building the Hoysalas started in 1117 to mark a victory and spent a century finishing, and it is still a working temple; its wall of bracket figures is the thing people cross the state to see. Hoysaleswara Temple, Halebidu, sixteen kilometres on, is the larger twin, roofless for nine hundred years, with the finest of the wall carving and a small museum beside it. Together they make one full day. Mullayanagiri Peak, on the other side of the district, is the highest point in Karnataka, a drive and then a short flight of steps to a small temple at the top, best at dawn before the cloud comes up. Those three are the reason to come."
+  },
+  {
+   "city": "Chikmagalur",
+   "theme": "worth_seeing",
+   "tier": 5,
+   "title": "Walk an estate, then climb to the cave",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": "Coffee Estate Walk, Chikmagalur",
+   "source_name": "Chikmagalur Tourism, Baba Budangiri",
+   "source_url": "https://chikmagalurtourism.org.in/baba-budangiri-datta-peeta-chikmagalur",
+   "body": "Coffee Estate Walk, Chikmagalur: most homestays and a few estates will walk you through the bushes and explain the plant, the two varieties, the shade trees, the pepper on them and the drying yard; an hour in the morning, and you will never look at a cup the same way. Baba Budangiri (Dattatreya Peetha) is the hill where, by tradition, the first coffee was planted, with a cave shrine shared by two faiths near the top and a road that jeeps take when the weather turns. Hebbe Falls, reached by a rough jeep track from Kemmangundi, is a two-stage waterfall in forest, at its best just after the monsoon; wear shoes you can get wet."
+  },
+  {
+   "city": "Chikmagalur",
+   "theme": "worth_seeing",
+   "tier": 10,
+   "title": "For the longer stay",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": "Halebidu Archaeological Museum",
+   "source_name": "Archaeological Survey of India, Halebidu museum information",
+   "source_url": null,
+   "body": "Halebidu Archaeological Museum, in the temple garden, holds the sculpture that came off the walls or out of the ground, close enough to see the chisel marks; it is the best half hour of the Halebidu visit and most people walk past it. Kemmangundi Hill Station is a hill garden the Mysore maharaja used as a summer retreat, an hour's drive up from the town, with viewpoints and the track to Hebbe Falls starting there. Bhadra Wildlife Sanctuary Safari (Muthodi) runs jeep safaris into forest that holds tiger, gaur and elephant; sightings are luck, birds are certain. Add these when you have three days rather than two, and keep the temples for the day you are freshest."
+  },
+  {
+   "city": "Chikmagalur",
+   "title": "Belur first or Halebidu first",
+   "theme": "practical",
+   "tier": 10
+  },
+  {
+   "city": "Coorg",
+   "title": "Coorg is a district, not a town",
+   "theme": "identity",
+   "tier": 2
+  },
+  {
+   "city": "Coorg",
+   "title": "A goddess who was a wife first",
+   "theme": "origins",
+   "tier": 2
+  },
+  {
+   "city": "Coorg",
+   "theme": "rulers",
+   "tier": 2,
+   "title": "A small kingdom that answered to nobody until 1834",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": null,
+   "source_name": "Kodagu district records, general reference",
+   "source_url": "https://en.wikipedia.org/wiki/Madikeri",
+   "body": "Kodagu was its own kingdom for more than two centuries. From about 1600 a dynasty called the Haleri rajas ruled it from the hills, first from Haleri and then, after 1681, from Madikeri, the town their king Muddu Raja laid out and fortified. They held off the Mysore sultans through decades of raids, and Tipu Sultan's wars in the 1780s left villages emptied and people carried away. The last raja fell out with the East India Company and was deposed in 1834, after which the British ran Coorg as a province of their own, separate from Mysore, for a hundred years. It stayed separate after independence, a small state called Coorg, until 1956, when it was merged into Mysore State and became the district you are in."
+  },
+  {
+   "city": "Coorg",
+   "title": "The British called it Coorg and took it in a fortnight",
+   "theme": "rulers",
+   "tier": 5
+  },
+  {
+   "city": "Coorg",
+   "theme": "rulers",
+   "tier": 10,
+   "title": "The capital on the ridge",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": null,
+   "source_name": "Kodagu district records, general reference",
+   "source_url": "https://en.wikipedia.org/wiki/Madikeri",
+   "body": "Madikeri was built to be a capital, and it still looks like one. Muddu Raja chose the ridge in 1681 and put a mud fort on it; Tipu Sultan, who held the town for a time and renamed it Jaffarabad, rebuilt the fort in stone, and the British, who called it Mercara, put a church and their offices inside the walls. Below the fort, Raja's Seat is the terrace where the kings watched the sun go down over the valleys, and it is still where the town goes in the evening. On the road out are the Gaddige, the domed tombs of the last rajas, in a style borrowed from the Muslim rulers they had fought. Everything the kingdom was is within a walk of the bus stand."
+  },
+  {
+   "city": "Coorg",
+   "title": "The Kodavas keep their guns and their ancestors",
+   "theme": "character",
+   "tier": 5
+  },
+  {
+   "city": "Coorg",
+   "title": "The rain here arrives as a wall",
+   "theme": "character",
+   "tier": 10
+  },
+  {
+   "city": "Coorg",
+   "title": "Pandi curry and the sour secret",
+   "theme": "food",
+   "tier": 5
+  },
+  {
+   "city": "Coorg",
+   "theme": "food",
+   "tier": 10,
+   "title": "Rice in every shape, and coffee from within sight of the kitchen",
+   "chunk_type": "taste",
+   "is_legend": false,
+   "poi": null,
+   "source_name": "Kodava culinary tradition",
+   "source_url": null,
+   "body": "The Kodava table is built on rice cooked a dozen ways. Kadambuttu are round steamed dumplings of broken rice, made to be eaten with pandi curry; noolputtu are string hoppers pressed by hand; paputtu is a steamed cake of rice and coconut, sweetened a little, for breakfast; akki otti is the flat rice bread, eaten with a spoon of honey or a chutney. Bamboo shoot, called baimbale, goes into a curry in the rain months, and wild mushrooms appear on the table after the first showers. The honey is from estate hives. The coffee will be made from beans grown within sight of the kitchen, and a homestay will usually let you take some home. Ask for what is in season. Nobody here cooks from a fixed menu."
+  },
+  {
+   "city": "Coorg",
+   "title": "Three festivals that run the Kodava year",
+   "theme": "festivals",
+   "tier": 5
+  },
+  {
+   "city": "Coorg",
+   "theme": "worth_seeing",
+   "tier": 2,
+   "title": "Water, a monastery and the source of a river",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": "Abbey Falls",
+   "source_name": "Karnataka Tourism, Kodagu, general reference",
+   "source_url": null,
+   "body": "Abbey Falls is the district's most visited spot, a waterfall in a coffee estate a few kilometres from Madikeri, loud after the monsoon and thin by April; there is a bridge that faces it and a walk down through the bushes. Namdroling Monastery (Golden Temple), Bylakuppe, is something else entirely: a Tibetan settlement near Kushalnagar, with a prayer hall of three great gilded statues and young monks in their hundreds, and you are welcome to sit through the chanting. Talakaveri is the source of the Kaveri, forty minutes west of the town, a tank on a hillside where the river is held to rise; climb the steps above it and the Western Ghats fall away on every side."
+  },
+  {
+   "city": "Coorg",
+   "theme": "worth_seeing",
+   "tier": 5,
+   "title": "Elephants, a ridge and the evening terrace",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": "Dubare Elephant Camp",
+   "source_name": "Karnataka Forest Department, general reference",
+   "source_url": null,
+   "body": "Dubare Elephant Camp is a forest department camp on the Kaveri where working elephants are bathed and fed in the mornings; you cross the river by boat, and the earlier you arrive the closer you get. Mandalpatti Viewpoint is a grassland ridge north of Madikeri that only a jeep will take you to, with the district laid out below and cloud moving through it; it is worth the rough road on a clear morning and a waste in the mist. Raja's Seat is the terrace in Madikeri where the kings watched the sunset, now a small garden, and where you will be with half the town at six in the evening. Do the first two in the morning and finish at the third."
+  },
+  {
+   "city": "Coorg",
+   "theme": "worth_seeing",
+   "tier": 10,
+   "title": "When you have a third day",
+   "chunk_type": "fact",
+   "is_legend": false,
+   "poi": "Madikeri Fort and Museum",
+   "source_name": "Kodagu district records, general reference",
+   "source_url": "https://en.wikipedia.org/wiki/Madikeri",
+   "body": "Madikeri Fort and Museum is the stone fort on the ridge, with a small museum in the old church inside it and the town's history in a few rooms; it takes an hour and it explains the place. Bhagandeshwara Temple, Bhagamandala, sits where three rivers meet on the road to Talakaveri, a Kerala-style temple with sloping roofs where pilgrims bathe before they climb to the source. Kaveri Nisargadhama is a river island near Kushalnagar reached by a hanging bridge, with bamboo groves and a deer park, an easy afternoon for children. Iruppu Falls and the Nagarhole forest are two hours south and need a day of their own. The district rewards slowness. Pick one direction each day and do not cross it twice."
+  },
+  {
+   "city": "Coorg",
+   "title": "When the rain here is the point, and when it is not",
+   "theme": "practical",
+   "tier": 10
+  }
+ ]
+}
