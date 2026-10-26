@@ -41,6 +41,8 @@ def evaluate(head, head_date, labels, reviews, comments, backup, second):
         return "failure", "needs-rohan is set; waiting for rohan-ok", False
     if second in ("failure", "error"):
         return "failure", "second review failed for this commit", False
+    if backup == "error":
+        return "failure", "backup review errored; rerun backup-review.yml", False
     if backup == "failure":
         return "failure", "backup review reported P0/P1 findings", False
     first = codex_posted(reviews, comments) or backup == "success"
