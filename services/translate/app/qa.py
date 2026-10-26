@@ -8,6 +8,7 @@ service decides which real models to wire in. A failing output falls back to the
 from __future__ import annotations
 
 import json
+import re
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from typing import Protocol
@@ -56,21 +57,32 @@ def chrf(ref: str, hyp: str, n: int = 6, beta: float = 2.0) -> float:
     scores = []
     for k in range(1, n + 1):
         r, h = grams(ref, k), grams(hyp, k)
+        if not r and not h:
+            continue  # order longer than both strings: nothing to score
         hit = sum((r & h).values())
         if not r or not h or not hit:
             scores.append(0.0)
             continue
         p, rc = hit / sum(h.values()), hit / sum(r.values())
         scores.append((1 + beta**2) * p * rc / (beta**2 * p + rc))
-    return sum(scores) / n
+    return sum(scores) / len(scores) if scores else 0.0
 
 
 def entity_flags(src: str, out: str, entities: list[str], names: dict, lang: str) -> list[str]:
     return [
         f"entity_lost:{e}"
         for e in entities
-        if e in src and e not in out and names.get(e, {}).get(lang, e) not in out
+        if re.search(r"(?<!\w)" + re.escape(e) + r"(?!\w)", src)
+        and e not in out
+        and names.get(e, {}).get(lang, e) not in out
     ]
+
+
+def _without(out: str, entities: list[str]) -> str:
+    """Output minus preserved entity spellings, so Latin place names do not fail the script check."""
+    for e in sorted(entities, key=len, reverse=True):
+        out = out.replace(e, "")
+    return out
 
 
 class Judged:
@@ -102,7 +114,9 @@ def run_qa(
     for (src, out), bt in zip(pairs, backs):
         score = chrf(src, bt)
         adequacy = judge.score(src, out, lang)
-        flags = checks.check(src, out, lang) + entity_flags(src, out, entities, names, lang)
+        flags = checks.check(src, out, lang, _without(out, entities)) + entity_flags(
+            src, out, entities, names, lang
+        )
         if score < th.min_chrf:
             flags.append("low_backtranslation")
         if adequacy < th.min_adequacy:

@@ -29,6 +29,26 @@ def test_chrf_identical_and_different():
     assert qa.chrf("a nice place", "zzzz") == 0.0
 
 
+def test_short_string_and_entity_edge_cases():
+    assert qa.chrf("Go", "Go") == 1.0
+    r = qa.run_qa([("Go", "जाओ")], "hi", Back({"जाओ": "Go"}), Judge({}))[0]
+    assert not r.fell_back
+    # unmapped place keeps its Latin spelling without failing the script check
+    r = qa.run_qa(
+        [("Visit Mysuru Palace", "Mysuru Palace जाएँ")],
+        "hi",
+        Back({"Mysuru Palace जाएँ": "Visit Mysuru Palace"}),
+        Judge({}),
+        entities=["Mysuru Palace"],
+    )[0]
+    assert not r.fell_back
+    # "Goa" must not match inside "Goan"
+    pairs = [("Try Goan food", "गोअन भोजन आज़माएँ"), ("Visit Goa", "गोवा जाएँ")]
+    back = Back({"गोअन भोजन आज़माएँ": "Try Goan food", "गोवा जाएँ": "Visit Goa"})
+    res = qa.run_qa(pairs, "hi", back, Judge({}), entities=["Goa"], names={"Goa": {"hi": "गोवा"}})
+    assert not any(r.fell_back for r in res)
+
+
 def test_good_output_passes_and_bad_ones_fall_back():
     pairs = [
         ("This is a beautiful place", HI),  # good
