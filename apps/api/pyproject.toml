@@ -23,3 +23,10 @@ package = false
 
 [tool.uv.sources]
 ty-contracts = { path = "../../packages/contracts", editable = true }
+
+[tool.ruff.lint]
+# Pin the rule set: newer ruff defaults add I, UP and RUF, which fail every lane.
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["F401", "E731"]
