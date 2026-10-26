@@ -50,6 +50,13 @@ def test_plan_rejects_bad_request():
     assert client.post("/plan", json={"origin": "x"}).status_code == 422
 
 
+def test_plan_error_is_single_generic_event(monkeypatch):
+    monkeypatch.delenv("TY_FAKE_LLM")
+    events = frames(client.post("/plan", json=GOA))
+    assert [e["stage"] for e in events] == ["error"]
+    assert "NotImplemented" not in json.dumps(events) and "TY_FAKE_LLM" not in json.dumps(events)
+
+
 def test_cors_allows_web_origin():
     r = client.options("/plan", headers={"Origin": "https://travel-yantra.web.app", "Access-Control-Request-Method": "POST"})
     assert r.headers["access-control-allow-origin"] == "https://travel-yantra.web.app"
