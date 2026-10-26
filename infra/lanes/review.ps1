@@ -169,6 +169,40 @@ function Set-ReviewStatus([string]$Sha, [string]$State, [string]$Desc) {
     Remove-Item $tmp -ErrorAction SilentlyContinue
 }
 
+# Auto-merge (rule v2): only when main's ruleset requires ci, guard and
+# evaluate (the review gate). GitHub then merges the PR by itself only after
+# those checks pass, so this never merges anything early.
+$RequiredChecks = @('ci', 'guard', 'evaluate')
+function Test-MergeRuleReady {
+    $rules = Invoke-GhJson @('api', "repos/$Script:Repo/rules/branches/main")
+    $ctx = @()
+    foreach ($r in @($rules)) {
+        if ($r.type -eq 'required_status_checks') {
+            $ctx += @($r.parameters.required_status_checks | ForEach-Object { $_.context })
+        }
+    }
+    foreach ($c in $RequiredChecks) { if ($ctx -notcontains $c) { return $false } }
+    return $true
+}
+
+function Enable-AutoMerge($Pr) {
+    $labels = @($Pr.labels | ForEach-Object { $_.name })
+    if ($labels -contains 'no-auto-merge') { return }
+    if (($labels -contains 'needs-rohan') -and -not ($labels -contains 'rohan-ok')) { return }
+    $n = [int]$Pr.number
+    $subject = "$($Pr.title) (#$n)"
+    $old = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    & gh pr merge $n --repo $Script:Repo --auto --squash --subject $subject --body '' 2>$null | Out-Null
+    $ok = ($LASTEXITCODE -eq 0)
+    $ErrorActionPreference = $old
+    if ($ok) {
+        Write-Log $LogName "Auto-merge enabled on PR #$n."
+        Add-IssueComment $Dispatch "RUN review: auto-merge enabled on PR #$n ($($Pr.title)); GitHub merges it when ci, guard and evaluate pass."
+    } else {
+        Write-Log $LogName "Could not enable auto-merge on PR #$n."
+    }
+}
+
 while ($true) {
     try {
         $old = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
@@ -177,6 +211,15 @@ while ($true) {
         Read-Commands
         if (-not $st.paused) {
             $prs = Invoke-GhJson @('api', "repos/$Script:Repo/pulls?state=open&per_page=50&sort=created&direction=asc")
+            if (Test-MergeRuleReady) {
+                foreach ($pr in @($prs)) {
+                    if ($pr.draft -or $pr.base.ref -ne 'main' -or -not $pr.title.StartsWith('[') -or $pr.auto_merge) { continue }
+                    if ($pr.user.login -ne $Script:Me) { continue }
+                    $s = Invoke-GhJson @('api', "repos/$Script:Repo/commits/$($pr.head.sha)/status")
+                    $sr = @($s.statuses | Where-Object { $_.context -eq 'second-review' })
+                    if ($sr.Count -gt 0 -and $sr[0].state -eq 'success') { Enable-AutoMerge $pr }
+                }
+            }
             foreach ($pr in @($prs)) {
                 if ($pr.draft -or $pr.base.ref -ne 'main' -or -not $pr.title.StartsWith('[')) { continue }
                 $status = Invoke-GhJson @('api', "repos/$Script:Repo/commits/$($pr.head.sha)/status")

@@ -60,4 +60,5 @@ set it yourself. The session's default git identity and signing key must not be 
 - Every PR gets two reviews: the first review (automatic when the PR opens)
   and the second review (posted as a PR review marked "Second review", with
   the commit status `second-review`). Fix every P0 and P1 from both by
-  pushing commits; HQ merges.
+  pushing commits. Once both pass and CI is green, GitHub merges the PR
+  automatically; never merge yourself.

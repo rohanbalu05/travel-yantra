@@ -15,6 +15,11 @@ command. HQ talks to them through GitHub only.
   (read-only), posts a PR review marked `second-review:v1` and sets the
   commit status `second-review`. After fixes it runs again in verify mode.
   A run that errors (no usable review) is retried up to two more times.
+- Auto-merge: once the `main` ruleset requires `ci`, `guard` and `evaluate`,
+  the second-review runner switches on squash auto-merge (title only) for
+  every PR whose head passed the second review. GitHub merges it only when
+  those checks pass. `no-auto-merge`, or `needs-rohan` without `rohan-ok`,
+  keeps a PR manual.
 - Lane sessions get no MCP servers (`--strict-mcp-config`), a permission
   allowlist (`lane-settings.json`) and denies for force-push, pushing to
   main, merging, gcloud and firebase.
