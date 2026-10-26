@@ -1,6 +1,6 @@
 # services/translate (TY5 voice)
 
-IndicTrans2 translation service. About 100 UI phrases per language (`app/phrasebook.tsv`) skip the model. Language QA comes later (TY5-03).
+IndicTrans2 translation service. About 100 UI phrases per language (`app/phrasebook.tsv`) skip the model. Language QA is in `app/qa.py` (TY5-03): `run_qa` checks back-translation chrF, entities, script, length and an injected adequacy judge (1-5), falls back to English with `fallback_en` on failure, and `report_json` / `report_markdown` give per-language accuracy. Thresholds: `Thresholds(min_chrf, min_adequacy)`.
 
 ## API
 
