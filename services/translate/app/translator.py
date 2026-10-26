@@ -41,16 +41,20 @@ class FakeTranslator:
 class IndicTrans2Translator:
     """Real model. Heavy imports and the model load happen once, in __init__."""
 
-    def __init__(self, model_name: str = MODEL_NAME, device: str = "cpu") -> None:
+    def __init__(
+        self, model_name: str = MODEL_NAME, device: str = "cpu", local_files_only: bool = False
+    ) -> None:
         import torch
         from IndicTransToolkit.processor import IndicProcessor
         from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
 
         self._torch = torch
         self._device = device
-        self._tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+        self._tokenizer = AutoTokenizer.from_pretrained(
+            model_name, trust_remote_code=True, local_files_only=local_files_only
+        )
         self._model = AutoModelForSeq2SeqLM.from_pretrained(
-            model_name, trust_remote_code=True
+            model_name, trust_remote_code=True, local_files_only=local_files_only
         ).to(device)
         self._model.eval()
         self._processor = IndicProcessor(inference=True)

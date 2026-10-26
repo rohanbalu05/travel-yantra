@@ -21,6 +21,6 @@ uv run --group dev pytest            # fast tests, fake translator
 uv run --group dev --extra model pytest -m slow   # real model, CI only
 ```
 
-The slow test loads `ai4bharat/indictrans2-en-indic-dist-200M` and translates one paragraph
+The slow test needs `TY_MODEL_DIR` (a directory with pre-provisioned weights, loaded with `local_files_only=True`, no network) and loads `ai4bharat/indictrans2-en-indic-dist-200M` and translates one paragraph
 into all five languages. The model is about 0.9 GB on disk; expect roughly 10 to 30 s cold
 start on Cloud Run CPU with weights baked into the image (assumption, not measured).

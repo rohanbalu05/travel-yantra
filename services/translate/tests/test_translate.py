@@ -50,3 +50,8 @@ def test_api_ok_health_and_422():
         assert r.json()["translations"] == ["[ta] hi"]
         assert c.post("/translate", json={"texts": ["hi"], "target": "xx"}).status_code == 422
         assert c.post("/translate", json={"texts": ["hi"], "target": "en"}).status_code == 422
+
+
+def test_more_misses_than_cache_size_still_returns_all():
+    _, svc = make(max_batch=10, cache_size=1)
+    assert svc.translate(["a", "b", "c"], "hi") == ["[hi] a", "[hi] b", "[hi] c"]

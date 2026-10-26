@@ -33,13 +33,16 @@ class TranslationService:
                 self._cache.popitem(last=False)
 
     def translate(self, texts: list[str], target: str, source: str = "en") -> list[str]:
-        results: list[str | None] = [self._get((t, target)) for t in texts]
+        local: dict[str, str] = {}
+        for t in texts:
+            hit = self._get((t, target))
+            if hit is not None:
+                local[t] = hit
         # Unique misses, in first-seen order.
-        missing = list(dict.fromkeys(t for t, r in zip(texts, results) if r is None))
+        missing = list(dict.fromkeys(t for t in texts if t not in local))
         for i in range(0, len(missing), self._max_batch):
             chunk = missing[i : i + self._max_batch]
             for text, out in zip(chunk, self._translator.translate(chunk, target, source)):
+                local[text] = out  # request-local, so LRU eviction cannot lose it
                 self._put((text, target), out)
-        # Re-read from the cache; a miss here means the entry was evicted mid-call.
-        final = dict(zip(missing, (self._get((t, target)) for t in missing)))
-        return [r if r is not None else (final.get(t) or "") for t, r in zip(texts, results)]
+        return [local[t] for t in texts]
