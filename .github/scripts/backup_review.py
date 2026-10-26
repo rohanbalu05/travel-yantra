@@ -39,8 +39,10 @@ def parse_findings(text):
     return [f for f in raw if f.get("severity") in SEVERITIES]
 
 
-def verdict(findings):
-    return "failure" if any(f["severity"] in ("P0", "P1") for f in findings) else "success"
+def verdict(findings, truncated=False):
+    """An incomplete review (truncated diff) never passes the gate."""
+    blocking = any(f["severity"] in ("P0", "P1") for f in findings)
+    return "failure" if blocking or truncated else "success"
 
 
 def render(findings, truncated):
@@ -87,8 +89,9 @@ def main(repo, pr):
         raise
     gh("-X", "POST", f"{r}/pulls/{pr}/reviews", "--input", "-", stdin=json.dumps(
         {"commit_id": head, "event": "COMMENT", "body": render(findings, cut)}))
-    state = verdict(findings)
-    status(state, "no P0/P1 findings" if state == "success" else "P0/P1 findings in backup review")
+    state = verdict(findings, cut)
+    status(state, "no P0/P1 findings" if state == "success" else
+           "diff too large, review incomplete" if cut else "P0/P1 findings in backup review")
     return 0
 
 

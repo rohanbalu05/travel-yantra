@@ -36,14 +36,13 @@ def codex_state(comments, head):
     return found
 
 
-def codex_verdict(head, head_date, reviews, inline, comments, reactions):
-    """'pass', 'fail' or None (no verdict yet for this head SHA)."""
+def codex_verdict(head, reviews, inline, comments):
+    """'pass', 'fail' or None (no verdict yet for this head SHA). Only evidence
+    bound to the head SHA counts; a thumbs-up reaction carries no SHA, so it is
+    not used (Codex's state comment says the same thing with the SHA)."""
     st = codex_state(comments, head)
     if st and st.get("status") == "completed":
         return "fail" if st.get("has_unresolved_findings") else "pass"
-    if any(r.get("content") == "+1" and r.get("created_at", "") >= head_date
-           for r in _codex(reactions)):
-        return "pass"
     mine = [r for r in _codex(reviews) if r.get("commit_id") == head]
     if not mine:
         return None
@@ -62,12 +61,12 @@ def usage_limited(head_date, comments):
     return False
 
 
-def evaluate(head, head_date, labels, reviews, inline, comments, reactions, backup):
+def evaluate(head, head_date, labels, reviews, inline, comments, backup):
     """Return (state, description, dispatch_backup). `backup` is the
     backup-review status state on head ('success', 'failure', 'pending') or None."""
     if "needs-rohan" in labels and "rohan-ok" not in labels:
         return "failure", "needs-rohan is set; waiting for rohan-ok", False
-    verdict = codex_verdict(head, head_date, reviews, inline, comments, reactions)
+    verdict = codex_verdict(head, reviews, inline, comments)
     if verdict == "pass":
         return "success", "Codex review clean for this commit", False
     if backup == "success":
@@ -91,7 +90,8 @@ def fetch(repo, n):
     pr = gh(f"{r}/pulls/{n}")
     head = pr["head"]["sha"]
     page = lambda p: gh("--paginate", p, "--jq", ".[]", lines=True)  # noqa: E731
-    statuses = gh(f"{r}/commits/{head}/statuses")
+    # Combined status = latest status per context (the plain list is paged, newest first).
+    statuses = gh(f"{r}/commits/{head}/status")["statuses"]
     backup = next((s["state"] for s in statuses if s["context"] == "backup-review"), None)
     return dict(
         head=head,
@@ -100,7 +100,6 @@ def fetch(repo, n):
         reviews=page(f"{r}/pulls/{n}/reviews"),
         inline=page(f"{r}/pulls/{n}/comments"),
         comments=page(f"{r}/issues/{n}/comments"),
-        reactions=page(f"{r}/issues/{n}/reactions"),
         backup=backup,
     )
 

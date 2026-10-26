@@ -17,7 +17,7 @@ def state(sha, status="completed", unresolved=False):
 
 
 def run(**kw):
-    base = dict(head=HEAD, head_date=T0, labels=[], reviews=[], inline=[], comments=[], reactions=[], backup=None)
+    base = dict(head=HEAD, head_date=T0, labels=[], reviews=[], inline=[], comments=[], backup=None)
     base.update(kw)
     return rg.evaluate(**base)
 
@@ -35,11 +35,9 @@ class Gate(unittest.TestCase):
     def test_state_running_is_pending(self):
         self.assertEqual(run(comments=[state(HEAD, status="running")])[0], "pending")
 
-    def test_thumbs_up_passes_only_if_newer_than_head(self):
-        up = {"user": BOT, "content": "+1", "created_at": T1}
-        stale = {"user": BOT, "content": "+1", "created_at": "2026-10-26T09:00:00Z"}
-        self.assertEqual(run(reactions=[up])[0], "success")
-        self.assertEqual(run(reactions=[stale])[0], "pending")
+    def test_thumbs_up_reaction_is_not_evidence(self):
+        # evaluate() takes no reactions: a reaction cannot be tied to a SHA.
+        self.assertEqual(run()[0], "pending")
 
     def test_inline_badge_fallback(self):
         review = {"id": 7, "user": BOT, "commit_id": HEAD, "submitted_at": T1}

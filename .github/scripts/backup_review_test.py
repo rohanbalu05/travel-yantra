@@ -17,6 +17,7 @@ class Backup(unittest.TestCase):
     def test_verdict(self):
         self.assertEqual(br.verdict([{"severity": "P2"}]), "success")
         self.assertEqual(br.verdict([{"severity": "P0"}]), "failure")
+        self.assertEqual(br.verdict([], truncated=True), "failure")
 
     def test_truncate_notes_cut(self):
         out, cut = br.truncate("x" * 30, limit=10)
