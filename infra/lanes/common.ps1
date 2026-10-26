@@ -33,6 +33,18 @@ function Invoke-GhJson([string[]]$GhArgs) {
     try { return ($raw -join "`n") | ConvertFrom-Json } catch { return $null }
 }
 
+# Fetch every item of a paginated list endpoint (one JSON object per line).
+function Get-GhList([string]$Path) {
+    $old = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+    $lines = & gh api --paginate $Path --jq '.[] | tojson' 2>$null
+    $ok = ($LASTEXITCODE -eq 0)
+    $ErrorActionPreference = $old
+    if (-not $ok) { return $null }
+    $items = @()
+    foreach ($l in @($lines)) { if ($l) { try { $items += ($l | ConvertFrom-Json) } catch {} } }
+    return ,$items
+}
+
 # Post a comment. The body goes through a UTF-8 file to avoid quoting problems.
 function Add-IssueComment([int]$Number, [string]$Body) {
     $tmp = Join-Path $env:TEMP ("ty-comment-{0}.json" -f [guid]::NewGuid())

@@ -22,7 +22,8 @@ $st = Get-State $LogName
 $attempts = @{}
 
 function Read-Commands {
-    $comments = Invoke-GhJson @('api', "repos/$Script:Repo/issues/$Dispatch/comments?per_page=100")
+    $comments = Get-GhList "repos/$Script:Repo/issues/$Dispatch/comments?per_page=100"
+    if ($null -eq $comments) { return }
     foreach ($c in @($comments | Sort-Object { [int64]$_.id })) {
         if ([int64]$c.id -le [int64]$st.lastCommentId) { continue }
         $st.lastCommentId = [int64]$c.id
@@ -47,13 +48,38 @@ function Get-Json([string]$Text) {
     try { return $s | ConvertFrom-Json } catch { return $null }
 }
 
+# A usable review has a pass/fail verdict, a summary, a findings array whose
+# items all carry a valid severity, and a verdict consistent with the findings.
+function Test-ReviewJson($J) {
+    if (-not $J) { return $false }
+    if (@('pass', 'fail') -notcontains [string]$J.verdict) { return $false }
+    if (-not ($J.PSObject.Properties.Name -contains 'summary')) { return $false }
+    if (-not ($J.PSObject.Properties.Name -contains 'findings')) { return $false }
+    $blocking = 0
+    foreach ($f in @($J.findings)) {
+        if (@('P0', 'P1', 'P2') -notcontains [string]$f.severity) { return $false }
+        if (-not $f.file -or -not $f.title) { return $false }
+        if (@('P0', 'P1') -contains [string]$f.severity) { $blocking++ }
+    }
+    if (($J.verdict -eq 'fail') -ne ($blocking -gt 0)) { return $false }
+    return $true
+}
+
 function Invoke-Review($Pr) {
     $n = [int]$Pr.number; $sha = $Pr.head.sha
     $old = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
     & git -C $Wt fetch origin "+refs/pull/$n/head:refs/remotes/pr/$n" '+refs/heads/main:refs/remotes/origin/main' 2>$null | Out-Null
-    & git -C $Wt checkout --detach -f -q "refs/remotes/pr/$n" 2>$null | Out-Null
-    $diff = & git -C $Wt diff "origin/main...refs/remotes/pr/$n" 2>$null
+    $fetchOk = ($LASTEXITCODE -eq 0)
+    $head = (& git -C $Wt rev-parse "refs/remotes/pr/$n" 2>$null)
+    & git -C $Wt checkout --detach -f -q $sha 2>$null | Out-Null
+    $coOk = ($LASTEXITCODE -eq 0)
+    $diff = & git -C $Wt diff "origin/main...$sha" 2>$null
+    $diffOk = ($LASTEXITCODE -eq 0)
     $ErrorActionPreference = $old
+    if (-not ($fetchOk -and $coOk -and $diffOk) -or ([string]$head).Trim() -ne $sha) {
+        Write-Log $LogName "PR #$n head moved or git failed (fetched $head, expected $sha); retry next poll."
+        return
+    }
 
     $in = Join-Path $Wt '.review-input'
     if (Test-Path $in) { Remove-Item $in -Recurse -Force }
@@ -82,6 +108,7 @@ function Invoke-Review($Pr) {
         -SettingsFile (Join-Path $Script:Lanes 'review-settings.json') -LogName "review-pr$n" -TimeoutMinutes $TimeoutMinutes
     $j = $null
     if ($res) { $j = Get-Json ([string]$res.result) }
+    if ($j -and -not (Test-ReviewJson $j)) { $j = $null }
     if (-not $j) {
         $k = "$n-$sha"; $attempts[$k] = 1 + [int]$attempts[$k]
         Write-Log $LogName "PR #$n review produced no usable JSON (attempt $($attempts[$k]))."
@@ -96,7 +123,7 @@ function Invoke-Review($Pr) {
     $p0 = @($findings | Where-Object { $_.severity -eq 'P0' }).Count
     $p1 = @($findings | Where-Object { $_.severity -eq 'P1' }).Count
     $p2 = @($findings | Where-Object { $_.severity -eq 'P2' }).Count
-    $pass = ($p0 + $p1) -eq 0
+    $pass = (($p0 + $p1) -eq 0) -and ($j.verdict -eq 'pass')
     $verdict = if ($pass) { 'PASS' } else { 'FAIL' }
 
     $lines = @("<!-- second-review:v1 sha=$sha verdict=$verdict mode=$mode -->",
@@ -110,10 +137,19 @@ function Invoke-Review($Pr) {
 
     $tmp = Join-Path $env:TEMP ("ty-review-{0}.json" -f [guid]::NewGuid())
     Write-Utf8 $tmp ((@{ body = $body; event = 'COMMENT'; commit_id = $sha } | ConvertTo-Json -Compress))
-    $old = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
-    & gh api -X POST "repos/$Script:Repo/pulls/$n/reviews" --input $tmp 2>$null | Out-Null
-    $ErrorActionPreference = $old
+    $posted = $false
+    for ($i = 0; $i -lt 3 -and -not $posted; $i++) {
+        $old = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+        & gh api -X POST "repos/$Script:Repo/pulls/$n/reviews" --input $tmp 2>$null | Out-Null
+        $posted = ($LASTEXITCODE -eq 0)
+        $ErrorActionPreference = $old
+        if (-not $posted) { Start-Sleep -Seconds 10 }
+    }
     Remove-Item $tmp -ErrorAction SilentlyContinue
+    if (-not $posted) {
+        Write-Log $LogName "PR #$n review could not be posted; status not set, will retry next poll."
+        return
+    }
 
     $state = if ($pass) { 'success' } else { 'failure' }
     Set-ReviewStatus $sha $state "P0 $p0, P1 $p1, P2 $p2 ($mode)"

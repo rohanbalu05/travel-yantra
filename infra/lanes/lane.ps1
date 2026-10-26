@@ -43,18 +43,19 @@ function Add-FixRun([int]$Pr) {
 }
 
 function Get-NewCommand {
-    $comments = Invoke-GhJson @('api', "repos/$Script:Repo/issues/$Dispatch/comments?per_page=100&sort=created&direction=desc")
-    if (-not $comments) { return $null }
+    # Consumes at most one work command per poll; the cursor never moves past
+    # an unprocessed command, so queued commands run one after another.
+    $comments = Get-GhList "repos/$Script:Repo/issues/$Dispatch/comments?per_page=100"
+    if ($null -eq $comments) { return $null }
     $cmd = $null
-    $sorted = $comments | Sort-Object { [int64]$_.id }
-    foreach ($c in $sorted) {
+    foreach ($c in @($comments | Sort-Object { [int64]$_.id })) {
         if ([int64]$c.id -le [int64]$st.lastCommentId) { continue }
         $st.lastCommentId = [int64]$c.id
         if ($c.user.login -ne $Script:Me) { continue }
         $first = (($c.body -split "`n")[0]).Trim()
         if ($first -match '^HQ:\s*pause') { $st.paused = $true; Add-IssueComment $Dispatch "RUN $Name paused." }
         elseif ($first -match '^HQ:\s*resume') { $st.paused = $false; Add-IssueComment $Dispatch "RUN $Name resumed." }
-        elseif ($first -match '^(Work your queue.*|Fix PR #\d+.*|HQ task:.*)$') { $cmd = $Matches[1] }
+        elseif ($first -match '^(Work your queue.*|Fix PR #\d+.*|HQ task:.*)$') { $cmd = $Matches[1]; break }
     }
     Save-State $LogName $st
     return $cmd
@@ -131,6 +132,7 @@ function Invoke-LaneRun([string]$Cmd) {
 while ($true) {
     try {
         $cmd = Get-NewCommand
+        if ($st.paused) { $cmd = $null }
         if (-not $st.paused) {
             if (-not $cmd -and -not $NoAuto) { $cmd = Get-AutoCommand }
             if ($cmd) { Invoke-LaneRun $cmd }
