@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """review-gate: set the `review-gate` commit status on a PR head SHA.
 
-All Codex-specific knowledge (bot login, state comment, P0/P1 badges, the
-usage-limit reply) lives here; HQ calibrates it at G1.
+Passes when Codex has posted its one round (or backup-review succeeded),
+second-review is success on the head SHA, and needs-rohan is absent or
+rohan-ok is present. Codex-specific knowledge (bot login, state comment,
+usage-limit reply) lives here.
 """
 import argparse
 import json
@@ -12,7 +14,6 @@ import sys
 
 CODEX_LOGIN = "chatgpt-codex-connector[bot]"
 STATE_RE = re.compile(r"<!--\s*codex-review-state:v1\s*(\{.*?\})\s*-->", re.S)
-BLOCKING_RE = re.compile(r"\bP[01]\b")
 LIMIT_RE = re.compile(r"usage limit|reached (your|the) .{0,40}limit|rate limit", re.I)
 
 
@@ -20,37 +21,9 @@ def _codex(items):
     return [i for i in items if (i.get("user") or {}).get("login") == CODEX_LOGIN]
 
 
-def codex_state(comments, head):
-    """The machine-readable code_review block for `head`, or None."""
-    found = None
-    for c in _codex(comments):
-        m = STATE_RE.search(c.get("body") or "")
-        if not m:
-            continue
-        try:
-            cr = json.loads(m.group(1))["code_review"]
-        except (ValueError, KeyError, TypeError):
-            continue
-        if cr.get("commit_sha") == head:
-            found = cr
-    return found
-
-
-def codex_verdict(head, reviews, inline, comments):
-    """'pass', 'fail' or None (no verdict yet for this head SHA). Only evidence
-    bound to the head SHA counts; a thumbs-up reaction carries no SHA, so it is
-    not used (Codex's state comment says the same thing with the SHA)."""
-    st = codex_state(comments, head)
-    if st and st.get("status") == "completed":
-        return "fail" if st.get("has_unresolved_findings") else "pass"
-    mine = [r for r in _codex(reviews) if r.get("commit_id") == head]
-    if not mine:
-        return None
-    latest = max(mine, key=lambda r: r.get("submitted_at") or "")
-    for c in _codex(inline):
-        if c.get("pull_request_review_id") == latest["id"] and BLOCKING_RE.search(c.get("body") or ""):
-            return "fail"
-    return "pass"
+def codex_posted(reviews, comments):
+    """True once Codex has posted its round-1 review on this PR (any commit)."""
+    return bool(_codex(reviews)) or any(STATE_RE.search(c.get("body") or "") for c in _codex(comments))
 
 
 def usage_limited(head_date, comments):
@@ -61,23 +34,21 @@ def usage_limited(head_date, comments):
     return False
 
 
-def evaluate(head, head_date, labels, reviews, inline, comments, backup):
-    """Return (state, description, dispatch_backup). `backup` is the
-    backup-review status state on head ('success', 'failure', 'pending') or None."""
+def evaluate(head, head_date, labels, reviews, comments, backup, second):
+    """Return (state, description, dispatch_backup). `backup` and `second` are
+    the backup-review / second-review status states on head, or None."""
     if "needs-rohan" in labels and "rohan-ok" not in labels:
         return "failure", "needs-rohan is set; waiting for rohan-ok", False
-    verdict = codex_verdict(head, reviews, inline, comments)
-    if verdict == "pass":
-        return "success", "Codex review clean for this commit", False
-    if backup == "success":
-        return "success", "backup review passed", False
-    if verdict == "fail":
-        return "failure", "Codex reported P0/P1 findings", False
-    if backup is None and usage_limited(head_date, comments):
-        return "pending", "Codex usage limit; backup review requested", True
+    if second in ("failure", "error"):
+        return "failure", "second review failed for this commit", False
     if backup == "failure":
         return "failure", "backup review reported P0/P1 findings", False
-    return "pending", "waiting for a review of this commit", False
+    first = codex_posted(reviews, comments) or backup == "success"
+    if first and second == "success":
+        return "success", "first and second review done for this commit", False
+    if not first and backup is None and usage_limited(head_date, comments):
+        return "pending", "Codex usage limit; backup review requested", True
+    return "pending", "waiting for " + ("second review" if first else "first review"), False
 
 
 def gh(*args, lines=False):
@@ -92,15 +63,15 @@ def fetch(repo, n):
     page = lambda p: gh("--paginate", p, "--jq", ".[]", lines=True)  # noqa: E731
     # Combined status = latest status per context (the plain list is paged, newest first).
     statuses = gh(f"{r}/commits/{head}/status")["statuses"]
-    backup = next((s["state"] for s in statuses if s["context"] == "backup-review"), None)
+    state = lambda c: next((s["state"] for s in statuses if s["context"] == c), None)  # noqa: E731
     return dict(
         head=head,
         head_date=gh(f"{r}/commits/{head}")["commit"]["committer"]["date"],
         labels=[l["name"] for l in pr["labels"]],
         reviews=page(f"{r}/pulls/{n}/reviews"),
-        inline=page(f"{r}/pulls/{n}/comments"),
         comments=page(f"{r}/issues/{n}/comments"),
-        backup=backup,
+        backup=state("backup-review"),
+        second=state("second-review"),
     )
 
 

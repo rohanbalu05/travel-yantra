@@ -15,7 +15,7 @@ EXEMPT = [
     "AGENTS.md", "CLAUDE.md", ".claude/rules/no-attribution.md",
     ".github/workflows/guard.yml", ".github/workflows/strip-attribution.yml",
     ".github/scripts/strip_attribution*.js", ".github/scripts/guard*.py",
-    ".github/scripts/fixtures/*",
+    ".github/scripts/fixtures/*", "infra/lanes/prompts/*.md",
 ]
 # Mirrors FOOTER in strip_attribution.js: the hosting environment's footer is
 # removed from PR bodies by that workflow, so the body is checked without it.

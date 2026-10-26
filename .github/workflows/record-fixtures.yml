@@ -28,7 +28,7 @@ jobs:
         run: python3 infra/fixtures/sanitise.py fixtures/recorded
       - uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.REVIEW_PAT }}
+          token: ${{ github.token }}
           branch: ty/ty6-fixtures-refresh
           base: main
           add-paths: fixtures/recorded/

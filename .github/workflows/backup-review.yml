@@ -1,7 +1,7 @@
 name: backup-review
 
-# Gemini review (AI Studio free key) used for round 3, or when Codex has
-# hit its usage limit. Posts one review and sets the `backup-review` status.
+# Gemini review (AI Studio free key) used when Codex has hit its usage
+# limit. Posts one review and sets the `backup-review` status.
 
 on:
   workflow_dispatch:

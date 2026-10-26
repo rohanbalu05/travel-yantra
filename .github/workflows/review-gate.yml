@@ -13,6 +13,7 @@ on:
     types: [submitted, edited, dismissed]
   issue_comment:
     types: [created, edited]
+  status:
   workflow_run:
     workflows: [backup-review]
     types: [completed]
@@ -32,7 +33,10 @@ concurrency:
 
 jobs:
   evaluate:
-    if: github.event_name != 'issue_comment' || github.event.issue.pull_request
+    # status events also fire for our own review-gate status; ignore those.
+    if: >-
+      (github.event_name != 'issue_comment' || github.event.issue.pull_request) &&
+      (github.event_name != 'status' || github.event.context == 'second-review' || github.event.context == 'backup-review')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
