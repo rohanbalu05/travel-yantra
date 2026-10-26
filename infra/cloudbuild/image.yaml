@@ -1,0 +1,7 @@
+# Builds one service image with the repo root as context.
+# gcloud builds submit . --config infra/cloudbuild/image.yaml \
+#   --substitutions=_DOCKERFILE=apps/api/Dockerfile,_IMAGE=asia-south1-docker.pkg.dev/PROJECT/ty/ty-api:SHA
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ['build', '-f', '${_DOCKERFILE}', '-t', '${_IMAGE}', '.']
+images: ['${_IMAGE}']
