@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Today in Goa · Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#1D6A84}a:hover{color:#13212B}
+.tl-top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}
+.now{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);overflow:hidden;margin-bottom:24px;border-radius:4px;background:#0E1B24;color:#F4EFE6}
+.now-art{position:relative;min-height:300px;background:#DE9A58}
+.now-art svg{position:absolute;inset:0;width:100%;height:100%}
+.now-body{display:flex;flex-direction:column;gap:14px;padding:clamp(20px,2.6vw,34px)}
+.now-k{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:#E7B25C}
+.live{width:9px;height:9px;border-radius:50%;background:#7FD3A8;box-shadow:0 0 0 4px #7FD3A833}
+.now-body h1{margin:0;font-size:clamp(32px,3vw,46px);line-height:1.02;letter-spacing:-0.03em}
+.now-body p{margin:0;font-size:16px;line-height:1.55;color:#C9D3D9}
+.next-up{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:center;margin-top:auto;padding:14px;border-radius:4px;background:#16293A}
+.next-up .ic-b{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#F4EFE6;color:#13212B}
+.next-up b{display:block;font-size:16px}
+.next-up span{font-size:14px;color:#AFC0CA}
+.kp-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px}
+.lines{display:flex;flex-direction:column;gap:2px}
+.line{display:grid;grid-template-columns:86px minmax(0,1fr);gap:14px;padding:12px 14px;border-radius:4px;font-size:17px;line-height:1.6;color:#AFC0CA}
+.line.cur{background:#16293A;color:#F4EFE6}
+.line.done{color:#D5DDE2}
+.line .tag{align-self:start;margin-top:4px;justify-self:start}
+.line.hi{font-family:"Anek Devanagari",Figtree,sans-serif;font-size:18px}
+.opts-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding-top:14px;border-top:1px solid #FFFFFF1F}
+.sw{display:flex;align-items:center;gap:10px;font-size:14.5px;color:#D5DDE2}
+.segs{display:flex;flex-direction:column}
+.segl{display:grid;grid-template-columns:28px minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:12px 0;border-top:1px solid #FFFFFF1A;font-size:15px}
+.segl .n{font-family:"JetBrains Mono",monospace;font-size:13px;color:#8FA3AF}
+.segl .t{font-family:"JetBrains Mono",monospace;font-size:13px;color:#AFC0CA}
+.segl.on{color:#E3A33B;font-weight:700}
+.today .it-row{display:grid;grid-template-columns:70px 30px minmax(0,1fr);column-gap:12px;align-items:start;padding:11px 0;border-top:1px solid #E6DED0}
+.today .it-row:first-child{border-top:0}
+.today time{padding-top:5px;font-family:"JetBrains Mono",monospace;font-size:12.5px;color:#56646E}
+.dot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:700;background:#EDE6D9;color:#13212B}
+.dot.done{background:#245A4B;color:#F4EFE6}
+.dot.now{background:#E3A33B;color:#13212B;box-shadow:0 0 0 4px #E3A33B40}
+.today b{display:block;font-size:15.5px;line-height:1.35}
+.today small{display:block;font-size:13.5px;color:#56646E;line-height:1.45}
+.today .past b{color:#56646E}
+.upd{display:flex;flex-direction:column}
+.upd div{display:grid;grid-template-columns:22px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid #E6DED0;font-size:14.5px;line-height:1.5}
+.upd div:first-child{border-top:0}
+.upd .ic{width:20px;height:20px}
+.help{display:flex;flex-direction:column;gap:10px}
+.help a.btn{justify-content:flex-start}
+@media (max-width:900px){.now{grid-template-columns:minmax(0,1fr)}.now-art{min-height:220px}}
+</style>
+</helmet>
+
+<div class="app">
+  <header class="appbar">
+    <a class="brand" href="Home.dc.html">
+      <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#B4452A"></circle></svg>
+      <span>Travel Yantra</span>
+    </a>
+    <nav class="appnav" aria-label="Main">
+      <a href="Home.dc.html">Home</a>
+      <a href="PlanStart.dc.html">Plan a trip</a>
+      <a href="KathaHome.dc.html">Katha</a>
+      <a href="MyTrips.dc.html" class="on">My trips</a>
+    </nav>
+    <div class="appbar-end">
+      <a class="btn btn-quiet btn-sm" href="Settings.dc.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"></path></svg>English</a>
+      <a class="avatar" href="Settings.dc.html" aria-label="Account and settings">AR</a>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="wrap">
+      <div class="tl-top">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <p class="eyebrow">Goa with family · Day 2 of 4</p>
+          <h2 class="page-title" style="font-size: clamp(28px, 2.6vw, 40px)">Saturday 12 December</h2>
+        </div>
+        <div class="row-wrap">
+          <span class="badge badge-ok">Katha saved for offline</span>
+          <a class="btn btn-quiet btn-sm" href="Itinerary.dc.html">Whole plan</a>
+          <a class="btn btn-quiet btn-sm" href="AskGuide.dc.html">Ask the guide</a>
+        </div>
+      </div>
+
+      <section class="now" aria-labelledby="now-h">
+        <div class="now-art">
+          <svg viewBox="0 0 640 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect width="640" height="400" fill="#E9A764"></rect>
+            <circle cx="520" cy="96" r="40" fill="#F8E3B2"></circle>
+            <rect y="330" width="640" height="70" fill="#C9B48A"></rect>
+            <g fill="#9E4529">
+              <rect x="150" y="236" width="340" height="100"></rect>
+              <rect x="176" y="156" width="288" height="82"></rect>
+              <rect x="216" y="88" width="208" height="70"></rect>
+              <path d="M244 90 L244 58 Q320 4 396 58 L396 90 Z"></path>
+              <rect x="315" y="2" width="10" height="34"></rect><rect x="304" y="12" width="32" height="8"></rect>
+            </g>
+            <g fill="#B85B37">
+              <rect x="164" y="236" width="8" height="100"></rect><rect x="468" y="236" width="8" height="100"></rect><rect x="262" y="236" width="6" height="100"></rect><rect x="372" y="236" width="6" height="100"></rect>
+              <rect x="150" y="230" width="340" height="8"></rect><rect x="176" y="150" width="288" height="8"></rect>
+            </g>
+            <g fill="#6D2E1B">
+              <path d="M298 336 V284 A22 22 0 0 1 342 284 V336 Z"></path>
+              <path d="M196 336 V294 A14 14 0 0 1 224 294 V336 Z"></path>
+              <path d="M416 336 V294 A14 14 0 0 1 444 294 V336 Z"></path>
+              <path d="M310 220 V192 A10 10 0 0 1 330 192 V220 Z"></path>
+              <path d="M226 220 V198 A9 9 0 0 1 244 198 V220 Z"></path>
+              <path d="M396 220 V198 A9 9 0 0 1 414 198 V220 Z"></path>
+              <circle cx="320" cy="124" r="15"></circle>
+            </g>
+            <g stroke="#2F4B36" stroke-width="9" stroke-linecap="round" fill="none">
+              <path d="M570 400 C574 330 590 270 616 222"></path><path d="M616 222 C584 200 552 204 528 222"></path><path d="M616 222 C600 184 576 168 548 166"></path><path d="M616 222 C640 186 660 176 690 182"></path>
+              <path d="M60 400 C58 334 46 282 24 236"></path><path d="M24 236 C52 210 84 212 106 230"></path><path d="M24 236 C34 196 58 180 88 176"></path>
+            </g>
+          </svg>
+        </div>
+        <div class="now-body">
+          <span class="now-k"><span class="live" aria-hidden="true"></span>You are here · 9:14 am</span>
+          <h1 id="now-h">Basilica of Bom Jesus</h1>
+          <p>Until about 9:45. Shoulders and knees covered inside; keep your voice low near the tomb. Benches by the side door if your father needs a rest.</p>
+          <div class="next-up">
+            <span class="ic-b"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+            <div><b>Next: Sé Cathedral at 9:50</b><span>Three minutes' walk across the lawn. Its Katha starts when you arrive.</span></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="split">
+        <section class="main kp" aria-labelledby="dk-h">
+          <div class="kp-head">
+            <div class="kp-top">
+              <button type="button" class="kp-play" onClick="{{ togglePlay }}" aria-label="{{ playLabel }}">
+                <sc-if value="{{ playing }}" hint-placeholder-val="{{ true }}"><svg class="ic" viewBox="0 0 24 24"><rect x="6.5" y="5" width="3.6" height="14" fill="currentColor" stroke="none"></rect><rect x="13.9" y="5" width="3.6" height="14" fill="currentColor" stroke="none"></rect></svg></sc-if>
+                <sc-if value="{{ paused }}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z" fill="currentColor" stroke="none"></path></svg></sc-if>
+              </button>
+              <div class="kp-title"><b id="dk-h">Day Katha: stop 1 of 5</b><span>The Basilica of Bom Jesus · 3 min 10 s</span></div>
+            </div>
+            <div class="langs" role="group" aria-label="Language">
+              <sc-for list="{{ langs }}" as="l" hint-placeholder-count="3"><button type="button" class="{{ l.cls }}" onClick="{{ l.pick }}">{{ l.label }}</button></sc-for>
+            </div>
+          </div>
+          <div class="{{ waveCls }}">
+            <sc-for list="{{ bars }}" as="b" hint-placeholder-count="56"><i style="animation-delay: {{ b.d }}; height: {{ b.h }}"></i></sc-for>
+          </div>
+          <div>
+            <div class="kp-bar"><i style="width: 44%"></i></div>
+            <div class="kp-time" style="margin-top: 6px"><span>1:24</span><span>3:10</span></div>
+          </div>
+          <div class="lines" aria-label="Transcript">
+            <sc-for list="{{ lines }}" as="x" hint-placeholder-count="6">
+              <div class="{{ x.cls }}"><span class="{{ x.tagCls }}">{{ x.tag }}</span><span>{{ x.text }}</span></div>
+            </sc-for>
+          </div>
+          <div class="opts-row">
+            <label class="sw"><input class="switch" type="checkbox" checked="{{ auto }}" onChange="{{ toggleAuto }}">Play each stop's Katha when we get there</label>
+            <div class="kp-ctrl">
+              <sc-for list="{{ speeds }}" as="sp" hint-placeholder-count="3"><button type="button" class="{{ sp.cls }}" onClick="{{ sp.pick }}">{{ sp.label }}</button></sc-for>
+            </div>
+          </div>
+          <div class="segs" aria-label="Today's stories">
+            <sc-for list="{{ segs }}" as="g" hint-placeholder-count="5">
+              <div class="{{ g.cls }}"><span class="n">{{ g.n }}</span><span>{{ g.title }}</span><span class="{{ g.tagCls }}">{{ g.tag }}</span><span class="t">{{ g.t }}</span></div>
+            </sc-for>
+          </div>
+        </section>
+
+        <aside class="side" style="display: flex; flex-direction: column; gap: 16px">
+          <section class="panel" aria-labelledby="today-h">
+            <div class="panel-head"><h2 class="h3" id="today-h">Today</h2><span class="hint">Back at the hotel by 4:00 pm</span></div>
+            <div class="panel-pad today" style="padding-top: 6px; padding-bottom: 6px">
+              <div class="it-row past"><time>8:30 am</time><span class="dot done"><svg class="ic" viewBox="0 0 24 24" style="width: 14px; height: 14px"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><div><b>Day cab from the hotel</b><small>On time.</small></div></div>
+              <div class="it-row"><time>9:00 am</time><span class="dot now">1</span><div><b>Basilica of Bom Jesus</b><small>Now. Katha playing.</small></div></div>
+              <div class="it-row"><time>9:50 am</time><span class="dot">2</span><div><b>Sé Cathedral</b><small>3 minutes' walk.</small></div></div>
+              <div class="it-row"><time>10:30 am</time><span class="dot">3</span><div><b>St Francis of Assisi and the museum</b><small>Museum open today.</small></div></div>
+              <div class="it-row"><time>12:00 pm</time><span class="dot">4</span><div><b>Shri Mangueshi Temple</b><small>Shoes off at the gate.</small></div></div>
+              <div class="it-row"><time>12:45 pm</time><span class="dot">5</span><div><b>Spice farm lunch</b><small>Vegetarian buffet, shaded walk.</small></div></div>
+              <div class="it-row"><time>4:00 pm</time><span class="dot"><svg class="ic" viewBox="0 0 24 24" style="width: 14px; height: 14px"><path d="M3 18V7"></path><path d="M3 14h18v4"></path><path d="M3 11h7a2 2 0 0 1 2 2v1"></path><path d="M12 14v-2a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v2"></path></svg></span><div><b>Back at the hotel</b><small>Rest before dinner.</small></div></div>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="upd-h">
+            <div class="panel-head"><h2 class="h3" id="upd-h">Updates</h2></div>
+            <div class="panel-pad upd" style="padding-top: 6px; padding-bottom: 6px">
+              <div><svg class="ic" viewBox="0 0 24 24" style="color: #245A4B"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span><b>Return train moved to RAC 2.</b> You will travel; berths are shared until it confirms. Checked 8:40 am.</span></div>
+              <div><svg class="ic" viewBox="0 0 24 24" style="color: #8A5A12"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg><span>Midday will be hot. The spice farm walk is shaded, and there is water at every stop.</span></div>
+            </div>
+          </section>
+
+          <section class="panel panel-pad help" aria-labelledby="help-h">
+            <h2 class="h3" id="help-h">If you need help</h2>
+            <a class="btn btn-primary btn-block" href="tel:112"><svg class="ic" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg>Emergency: call 112</a>
+            <a class="btn btn-quiet btn-block" href="AskGuide.dc.html"><svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21Z"></path><circle cx="12" cy="10" r="2.3"></circle></svg>Nearest hospital: Goa Medical College, Bambolim</a>
+            <span class="hint">Your location is used on this phone only while trip mode is on.</span>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-foot">
+    <div class="wrap"><span>Travel Yantra prototype. Times, statuses and updates shown are sample data.</span><span><a href="Legal.dc.html">Terms and privacy</a></span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1800}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const playing = s.playing === undefined ? true : s.playing;
+    const lang = s.lang || 'en';
+    const auto = s.auto === undefined ? true : s.auto;
+    const speed = s.speed || '1x';
+    const tags = ['History', 'History', 'History', 'History', 'Legend', 'Practical'];
+    const T = {
+      en: [
+        'You are standing in front of the Basilica of Bom Jesus, the church of the infant Jesus. Bom Jesus means "good Jesus".',
+        'Work began in 1594 and the church was consecrated in 1605. Unlike the white churches around it, its front shows the bare red laterite stone.',
+        'Inside, to the right of the altar, a silver casket holds the remains of St Francis Xavier, who died in 1552 on an island off the coast of China.',
+        'Every ten years the remains are brought out for people to see. The last exposition began in November 2024.',
+        'As the story goes, when his body reached Goa it had not decayed, and many took it as a miracle.',
+        'Please keep your voice low near the tomb.'
+      ],
+      mix: [
+        'Aap Basilica of Bom Jesus ke saamne khade hain, baby Jesus ka church. Bom Jesus ka matlab hai "good Jesus".',
+        'Iska kaam 1594 mein shuru hua aur 1605 mein church consecrate hua. Aas-paas ke safed churches se alag, iska front laal laterite patthar ka hai.',
+        'Andar, altar ke daayin taraf, chaandi ke ek taboot mein St Francis Xavier ke avshesh rakhe hain. Unki maut 1552 mein China ke paas ek dweep par hui thi.',
+        'Har das saal mein avshesh logon ke darshan ke liye bahar laaye jaate hain. Pichhli baar yeh November 2024 mein hua tha.',
+        'Kehte hain, jab unka shareer Goa pahuncha tab bhi woh sada nahi tha, aur bahut logon ne ise chamatkaar maana.',
+        'Kabr ke paas dheere boliye.'
+      ],
+      hi: [
+        'आप बेसिलिका ऑफ़ बॉम जीसस के सामने खड़े हैं, बालक यीशु का गिरजाघर। बॉम जीसस का अर्थ है "अच्छे यीशु"।',
+        'इसका निर्माण 1594 में शुरू हुआ और 1605 में यह पवित्र किया गया। आसपास के सफ़ेद गिरजाघरों से अलग, इसका अग्रभाग लाल लैटेराइट पत्थर का है।',
+        'भीतर, वेदी के दाईं ओर, चाँदी की एक पेटी में संत फ्रांसिस ज़ेवियर के अवशेष रखे हैं। उनका निधन 1552 में चीन के पास एक द्वीप पर हुआ था।',
+        'हर दस साल में उनके अवशेष लोगों के दर्शन के लिए बाहर लाए जाते हैं। पिछली बार यह नवंबर 2024 में हुआ था।',
+        'कहते हैं, जब उनका शरीर गोवा पहुँचा तब भी वह सड़ा नहीं था, और बहुत लोगों ने इसे चमत्कार माना।',
+        'समाधि के पास धीरे बोलिए।'
+      ]
+    };
+    const tagLabel = {
+      en: { History: 'History', Legend: 'Legend', Practical: 'Practical' },
+      mix: { History: 'History', Legend: 'Legend', Practical: 'Practical' },
+      hi: { History: 'इतिहास', Legend: 'किंवदंती', Practical: 'काम की बात' }
+    };
+    const cur = 2;
+    const lines = T[lang].map((text, i) => ({
+      text,
+      tag: tagLabel[lang][tags[i]],
+      tagCls: 'tag tag-' + tags[i].toLowerCase() + (lang === 'hi' ? ' hi' : ''),
+      cls: 'line' + (i === cur ? ' cur' : i < cur ? ' done' : '') + (lang === 'hi' ? ' hi' : '')
+    }));
+    const langs = [['en', 'English'], ['mix', 'Hinglish'], ['hi', 'हिन्दी']].map(([k, label]) => ({
+      label, cls: 'lang' + (k === 'hi' ? ' hi' : '') + (k === lang ? ' on' : ''), pick: () => this.setState({ lang: k })
+    }));
+    const speeds = ['1x', '1.25x', '1.5x'].map((label) => ({ label, cls: 'kp-btn' + (label === speed ? ' on' : ''), pick: () => this.setState({ speed: label }) }));
+    const segs = [
+      ['1', 'Basilica of Bom Jesus', 'History', '3:10'],
+      ['2', 'Sé Cathedral', 'History', '2:20'],
+      ['3', 'Church of St Francis of Assisi', 'History', '1:40'],
+      ['4', 'Shri Mangueshi Temple', 'Legend', '2:40'],
+      ['5', 'Spice farm lunch', 'Food', '1:50']
+    ].map(([n, title, tag, t], i) => ({ n, title, tag, t, tagCls: 'tag tag-' + tag.toLowerCase(), cls: 'segl' + (i === 0 ? ' on' : '') }));
+    const heights = [38, 62, 80, 54, 92, 70, 44, 66, 88, 58, 74, 40, 96, 64, 50, 82, 60, 72, 46, 90, 56, 68, 84, 42, 76, 52, 94, 62, 48, 78, 58, 70, 40, 86, 64, 52, 74, 60, 90, 48, 66, 80, 44, 70, 58, 92, 50, 76, 62, 84, 46, 68, 88, 54, 72, 60];
+    const bars = heights.map((h, i) => ({ h: h + '%', d: (-(i * 0.09) % 1).toFixed(2) + 's' }));
+    return {
+      playing, paused: !playing,
+      playLabel: playing ? 'Pause the Katha' : 'Play the Katha',
+      togglePlay: () => this.setState({ playing: !playing }),
+      waveCls: playing ? 'wave play' : 'wave',
+      bars, lines, langs, speeds, segs,
+      auto, toggleAuto: () => this.setState({ auto: !auto })
+    };
+  }
+}
+</script>
+</body>
+</html>

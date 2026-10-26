@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goa with family: the plan · Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#1D6A84}a:hover{color:#13212B}
+.it-top{display:flex;flex-direction:column;gap:18px;margin-bottom:26px}
+.it-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.it-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.it-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.shared{margin:0;font-size:14px;color:#245A4B;font-weight:600}
+.dtabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:8px;margin-bottom:16px}
+.dtab{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-height:66px;padding:10px 14px;border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1;color:#13212B;text-align:left;cursor:pointer}
+.dtab:hover{border-color:#2B3B47}
+.dtab b{font-family:"Bricolage Grotesque",sans-serif;font-size:18px;letter-spacing:-0.01em}
+.dtab span{font-size:13.5px;color:#56646E;line-height:1.35}
+.dtab.on{background:#13212B;border-color:#13212B;color:#F4EFE6}
+.dtab.on span{color:#C9D3D9}
+.dtab i{position:absolute;top:10px;right:10px;font-style:normal;font-size:11.5px;font-weight:700;padding:2px 6px;border-radius:3px;background:#E3A33B;color:#13212B}
+.day-sum{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+.day-sum span{display:inline-flex;gap:6px;align-items:baseline;padding:8px 12px;border-radius:4px;background:#EDE6D9;font-size:14px}
+.day-sum b{font-size:12.5px;color:#56646E}
+.day-sum .was{color:#8A5A12;font-weight:700}
+.it-row{display:grid;grid-template-columns:78px 34px minmax(0,1fr) auto;column-gap:14px;align-items:start;padding:14px 8px;margin:0 -8px;border-top:1px solid #E6DED0;border-radius:4px}
+.it-row:first-child{border-top:0}
+.it-time{padding-top:7px;font-family:"JetBrains Mono",monospace;font-size:13px;color:#56646E;font-variant-numeric:tabular-nums}
+.mk{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;font-family:"JetBrains Mono",monospace;font-size:13.5px;font-weight:600}
+.mk .ic{width:17px;height:17px}
+.mk-stop{background:#13212B;color:#F4EFE6}
+.mk-meal{background:#B4452A;color:#FBF6EE}
+.mk-move{background:#EDE6D9;color:#13212B}
+.mk-stay{background:#245A4B;color:#F4EFE6}
+.it-body{min-width:0;display:flex;flex-direction:column;gap:5px}
+.it-body b{font-size:17px;line-height:1.3}
+.it-body small{font-size:14.5px;line-height:1.5;color:#56646E}
+.it-tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:3px}
+.kchip{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 10px;border-radius:4px;background:#13212B;color:#F4EFE6;font-size:13px;font-weight:700;text-decoration:none}
+.kchip:hover{background:#0A141B;color:#F4EFE6}
+.kchip .ic{width:14px;height:14px}
+.it-row.gone .it-body b{text-decoration:line-through}
+.it-row.gone{opacity:.6}
+.it-row.chg{background:#FBF1DE;animation:flash 1.2s ease-out}
+@keyframes flash{from{background:#F3D79F}to{background:#FBF1DE}}
+.it-map{position:relative;aspect-ratio:320/210;border:1px solid #D8CFBF;border-radius:4px;overflow:hidden;background:#BFD5DF}
+.it-map svg{position:absolute;inset:0;width:100%;height:100%}
+.pin{position:absolute;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:2px solid #FFFDF9;font-family:"JetBrains Mono",monospace;font-size:12.5px;font-weight:700;box-shadow:0 1px 3px #13212B55}
+.pin.stop{background:#13212B;color:#F4EFE6}
+.pin.meal{background:#B4452A;color:#FBF6EE}
+.pin.stay{background:#245A4B;color:#F4EFE6}
+.map-cap{display:flex;justify-content:space-between;gap:10px;padding:10px 2px 0;font-size:13.5px;color:#56646E}
+.chatbox{display:flex;flex-direction:column;gap:12px}
+.chatbox .msg-ai,.chatbox .msg-user{max-width:94%;font-size:15px}
+.sugg{display:flex;flex-direction:column;gap:8px}
+.sugg button{text-align:left;justify-content:flex-start;height:auto;min-height:44px;padding:10px 14px;line-height:1.4;white-space:normal}
+.chg-list{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14.5px}
+.next{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-top:28px;padding:20px 22px;border-radius:4px;background:#13212B;color:#F4EFE6}
+.next b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:21px}
+.next span{font-size:15px;color:#C9D3D9}
+.next .row-wrap{gap:10px}
+@media (max-width:600px){.it-row{grid-template-columns:62px 30px minmax(0,1fr)}.it-row>div:last-child{grid-column:3}}
+</style>
+</helmet>
+
+<div class="app">
+  <header class="appbar">
+    <a class="brand" href="Home.dc.html">
+      <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#B4452A"></circle></svg>
+      <span>Travel Yantra</span>
+    </a>
+    <nav class="appnav" aria-label="Main">
+      <a href="Home.dc.html">Home</a>
+      <a href="PlanStart.dc.html">Plan a trip</a>
+      <a href="KathaHome.dc.html">Katha</a>
+      <a href="MyTrips.dc.html" class="on">My trips</a>
+    </nav>
+    <div class="appbar-end">
+      <a class="btn btn-quiet btn-sm" href="Settings.dc.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"></path></svg>English</a>
+      <a class="avatar" href="Settings.dc.html" aria-label="Account and settings">AR</a>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="wrap">
+      <div class="it-top">
+        <nav class="trail" aria-label="Planning steps">
+          <a class="done" href="PlanStart.dc.html"><i>1</i>Describe</a><span class="sep"></span>
+          <a class="done" href="PlanThinking.dc.html"><i>2</i>Plan</a><span class="sep"></span>
+          <a class="done" href="PlanOptions.dc.html"><i>3</i>Choose a way</a><span class="sep"></span>
+          <span class="on"><i>4</i>Itinerary</span><span class="sep"></span>
+          <a href="Book.dc.html"><i>5</i>Book</a><span class="sep"></span>
+          <a href="TripLive.dc.html"><i>6</i>Katha</a>
+        </nav>
+        <div class="it-head">
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <h1 class="page-title">Goa with family</h1>
+            <div class="it-meta">
+              <span class="badge">Fri 11 to Mon 14 Dec</span><span class="badge">4 travellers, gentle pace</span><span class="badge">By rail, base in Panaji</span><span class="badge badge-ok">{{ checksText }}</span><span class="badge badge-sea">₹57,400 of ₹60,000</span>
+            </div>
+          </div>
+          <div class="it-actions">
+            <button type="button" class="btn btn-quiet btn-sm" onClick="{{ share }}"><svg class="ic" viewBox="0 0 24 24"><path d="M9 15l6-6"></path><path d="M10.5 6.5l1.6-1.6a4 4 0 0 1 5.7 5.7l-1.6 1.6"></path><path d="M13.5 17.5l-1.6 1.6a4 4 0 0 1-5.7-5.7l1.6-1.6"></path></svg>Share with family</button>
+            <a class="btn btn-primary btn-sm" href="Book.dc.html">Book this plan</a>
+          </div>
+        </div>
+        <sc-if value="{{ shared }}" hint-placeholder-val="{{ false }}"><p class="shared" role="status">Link copied. Anyone with it can see the plan, not your bookings or your details.</p></sc-if>
+      </div>
+
+      <div class="split">
+        <section class="main" aria-label="Day by day">
+          <div class="dtabs" role="tablist" aria-label="Days">
+            <sc-for list="{{ tabs }}" as="d" hint-placeholder-count="4">
+              <button type="button" role="tab" aria-selected="{{ d.sel }}" class="{{ d.cls }}" onClick="{{ d.pick }}"><b>{{ d.label }}</b><span>{{ d.title }}</span><sc-if value="{{ d.mark }}" hint-placeholder-val="{{ false }}"><i>Changed</i></sc-if></button>
+            </sc-for>
+          </div>
+          <div class="day-sum">
+            <sc-for list="{{ sum }}" as="x" hint-placeholder-count="5"><span><b>{{ x.k }}</b><span class="{{ x.cls }}">{{ x.v }}</span></span></sc-for>
+          </div>
+          <div>
+            <sc-for list="{{ rows }}" as="r" hint-placeholder-count="9">
+              <div class="{{ r.cls }}">
+                <span class="it-time">{{ r.t }}</span>
+                <span class="{{ r.mk }}">
+                  <sc-if value="{{ r.isStop }}" hint-placeholder-val="{{ true }}">{{ r.n }}</sc-if>
+                  <sc-if value="{{ r.isMeal }}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24"><path d="M7 3v8"></path><path d="M4 3v5a3 3 0 0 0 6 0V3"></path><path d="M7 11v10"></path><path d="M17 3c-2 2-3 5-3 8h3v10"></path></svg></sc-if>
+                  <sc-if value="{{ r.isMove }}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></sc-if>
+                  <sc-if value="{{ r.isStay }}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24"><path d="M3 18V7"></path><path d="M3 14h18v4"></path><path d="M3 11h7a2 2 0 0 1 2 2v1"></path><path d="M12 14v-2a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v2"></path></svg></sc-if>
+                </span>
+                <div class="it-body">
+                  <b>{{ r.name }}</b>
+                  <small>{{ r.note }}</small>
+                  <sc-if value="{{ r.hasTags }}" hint-placeholder-val="{{ false }}">
+                    <span class="it-tags">
+                      <sc-if value="{{ r.hasTag }}" hint-placeholder-val="{{ false }}"><span class="{{ r.tagCls }}">{{ r.tag }}</span></sc-if>
+                      <sc-if value="{{ r.hasKatha }}" hint-placeholder-val="{{ false }}"><a class="kchip" href="TripLive.dc.html"><svg class="ic" viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z" fill="currentColor" stroke="none"></path></svg>Katha, {{ r.katha }}</a></sc-if>
+                    </span>
+                  </sc-if>
+                </div>
+                <div><sc-if value="{{ r.hasChange }}" hint-placeholder-val="{{ false }}"><span class="{{ r.chgCls }}">{{ r.change }}</span></sc-if></div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <aside class="side" style="flex: 1 1 440px; display: flex; flex-direction: column; gap: 16px">
+          <div>
+            <div class="it-map" role="img" aria-label="{{ mapLabel }}">
+              <svg viewBox="60 236 320 210" preserveAspectRatio="none" aria-hidden="true">
+                <rect x="60" y="236" width="320" height="210" fill="#BFD5DF"></rect>
+                <path d="M62 236 L380 236 L380 446 L150 446 L130 430 L108 420 L100 404 L110 392 L118 380 L114 364 L120 352 L126 340 L122 326 L104 322 L92 320 L78 316 L80 304 L74 296 L70 280 L66 258 Z" fill="#E8E1D2"></path>
+                <path d="M104 324 C118 318 128 312 150 296 C162 290 172 288 190 289 C215 291 238 296 262 296 C292 296 330 286 380 280" fill="none" stroke="#BFD5DF" stroke-width="8" stroke-linecap="round"></path>
+                <path d="M190 289 C200 280 212 270 236 265 C262 260 300 266 340 268 C356 269 370 270 380 271" fill="none" stroke="#BFD5DF" stroke-width="5" stroke-linecap="round"></path>
+                <path d="M118 386 C140 386 160 390 186 400 C212 410 236 428 262 446" fill="none" stroke="#BFD5DF" stroke-width="11" stroke-linecap="round"></path>
+                <g fill="#D7CDB9"><circle cx="300" cy="330" r="34"></circle><circle cx="350" cy="380" r="26"></circle><circle cx="230" cy="360" r="22"></circle></g>
+                <g font-family="Figtree, sans-serif" font-size="8.5" fill="#56646E" font-weight="600"><text x="196" y="262">Mandovi</text><text x="196" y="424">Zuari</text><text x="66" y="440">Arabian Sea</text><text x="236" y="282" font-size="7.5">Divar</text></g>
+                <polyline points="{{ route }}" fill="none" stroke="#13212B" stroke-width="1.6" stroke-dasharray="3 3" stroke-linejoin="round"></polyline>
+              </svg>
+              <sc-for list="{{ pins }}" as="p" hint-placeholder-count="6"><span class="{{ p.cls }}" style="left: {{ p.lx }}; top: {{ p.ly }}">{{ p.label }}</span></sc-for>
+            </div>
+            <div class="map-cap"><span>{{ mapCap }}</span><span>H is your hotel</span></div>
+          </div>
+
+          <section class="panel" aria-labelledby="ask-h">
+            <div class="panel-head"><h2 class="h3" id="ask-h">Change anything by asking</h2><span class="hint">Only the day you touch is rebuilt</span></div>
+            <div class="panel-pad chatbox">
+              <div class="msg-ai">Your plan is ready. Ask for a lighter day, a cheaper stay, more temples or anything else.</div>
+              <sc-if value="{{ notEdited }}" hint-placeholder-val="{{ true }}">
+                <div class="sugg">
+                  <button type="button" class="btn btn-quiet" onClick="{{ lighten }}">Make Saturday lighter, Papa gets tired by afternoon.</button>
+                </div>
+              </sc-if>
+              <sc-if value="{{ edited }}" hint-placeholder-val="{{ false }}">
+                <div class="msg-user">Make Saturday lighter, Papa gets tired by afternoon.</div>
+                <div class="msg-ai" style="display: flex; flex-direction: column; gap: 8px">
+                  <span>Done. Saturday now ends at 4 pm instead of 5:15.</span>
+                  <ul class="chg-list"><li>Took out the Shantadurga temple.</li><li>Lunch at the spice farm is half an hour earlier.</li><li>12 km less in the cab.</li></ul>
+                  <span>Friday, Sunday and Monday are exactly as before. All checks passed again.</span>
+                </div>
+                <div class="row-wrap"><button type="button" class="btn btn-quiet btn-sm" onClick="{{ undo }}">Undo</button><span class="hint">Shantadurga's Katha stays in your library.</span></div>
+              </sc-if>
+              <div class="composer">
+                <label for="ask" class="sr">Ask for a change</label>
+                <textarea id="ask" placeholder="Ask for a change..." style="min-height: 44px"></textarea>
+                <button type="button" class="iconbtn round" aria-label="Speak instead"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0"></path><path d="M12 17.5V21"></path></svg></button>
+              </div>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <div class="next">
+        <div><b>Happy with it? Book it.</b><span>Trains on IRCTC, the stay and the cabs. We line them up; you pay the seller directly.</span></div>
+        <div class="row-wrap">
+          <a class="btn btn-on-dark" href="TripLive.dc.html">Hear Saturday's Katha</a>
+          <a class="btn btn-primary btn-lg" href="Book.dc.html">Book this plan</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-foot">
+    <div class="wrap"><span>Travel Yantra prototype. Trips, fares and timings shown are sample data.</span><span><a href="Legal.dc.html">Terms and privacy</a></span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const day = s.day || 'sat';
+    const edited = !!s.edited;
+    const S = (t, n, name, note, tag, katha, pin, extra) => ({ t, kind: 'stop', n: String(n), name, note, tag, katha, pin, ...(extra || {}) });
+    const M = (t, name, note, tag, katha, pin, extra) => ({ t, kind: 'meal', name, note, tag, katha, pin, ...(extra || {}) });
+    const V = (t, name, note, extra) => ({ t, kind: 'move', name, note, ...(extra || {}) });
+    const H = (t, name, note, extra) => ({ t, kind: 'stay', name, note, pin: [150, 312], ...(extra || {}) });
+    const DAYS = {
+      fri: {
+        label: 'Fri 11', title: 'Panaji and the sunset',
+        sum: [['Starts', '9:40 am'], ['Back by', '6:45 pm'], ['By cab', '14 km'], ['On foot', '1.8 km'], ['Today', '₹4,100 est.']],
+        rows: [
+          V('9:40 am', 'Arrive at Madgaon by train', 'Cab to Panaji, 50 minutes, about ₹1,400.'),
+          H('11:00 am', 'Hotel in Panaji', 'Early check-in asked. Rest until the afternoon.'),
+          M('1:00 pm', 'Vegetarian thali near the market', 'Ten minutes by cab.', 'Food', null, [158, 318]),
+          S('4:30 pm', 1, 'Fontainhas walk', 'The old Latin quarter: painted houses and the Chapel of St Sebastian. Flat, about 45 minutes.', 'History', '3 min', [172, 312]),
+          S('5:20 pm', 2, 'Church of Our Lady of the Immaculate Conception', 'The white church above the zigzag steps. View from the square; no climb needed.', 'History', '2 min', [162, 306]),
+          S('5:45 pm', 3, 'Miramar beach', 'Sunset at about 6:05 pm. Benches near the entrance.', null, '1 min', [130, 330]),
+          H('6:45 pm', 'Back at the hotel', 'Dinner at the hotel.')
+        ]
+      },
+      sat: {
+        label: 'Sat 12', title: 'Old Goa and Ponda',
+        sum: [['Starts', '8:30 am'], ['Back by', '5:15 pm'], ['By cab', '58 km'], ['On foot', '2.4 km'], ['Today', '₹7,200 est.']],
+        sumEdited: [['Starts', '8:30 am'], ['Back by', '4:00 pm', 'was 5:15 pm'], ['By cab', '46 km', 'was 58'], ['On foot', '1.9 km'], ['Today', '₹6,500 est.']],
+        rows: [
+          V('8:30 am', 'Day cab from the hotel', 'Booked for the day, about ₹2,600.'),
+          S('9:00 am', 1, 'Basilica of Bom Jesus', 'Opens at 9. The remains of St Francis Xavier. Shoulders and knees covered.', 'History', '3 min', [253, 314]),
+          S('9:50 am', 2, 'Sé Cathedral', 'One of the largest churches in Asia, home of the Golden Bell.', 'History', '2 min', [266, 304]),
+          S('10:30 am', 3, 'Church of St Francis of Assisi and the museum', 'The museum is shut on Fridays, so it sits here on Saturday.', 'History', '2 min', [240, 304]),
+          V('11:40 am', 'Drive to Ponda', '35 minutes through the hills.', { ed: { t: '11:30 am' } }),
+          S('12:15 pm', 4, 'Shri Mangueshi Temple', 'The seven-storey lamp tower. Shoes off at the gate; no photos inside.', 'Legend', '3 min', [319, 367], { ed: { t: '12:00 pm' } }),
+          M('1:15 pm', 'Spice farm lunch', 'A short shaded walk, then a vegetarian buffet.', 'Food', '2 min', [336, 388], { ed: { t: '12:45 pm', change: '30 min earlier' } }),
+          S('3:15 pm', 5, 'Shri Shantadurga Temple', 'The goddess who made peace between Shiva and Vishnu.', 'Legend', '2 min', [356, 424], { ed: { gone: true, change: 'Removed' } }),
+          V('4:30 pm', 'Back to Panaji', '45 minutes.', { ed: { t: '3:15 pm' } }),
+          H('5:15 pm', 'Hotel', 'Rest. Dinner nearby.', { ed: { t: '4:00 pm', change: 'Ends 75 min earlier' } })
+        ]
+      },
+      sun: {
+        label: 'Sun 13', title: 'Forts and the beach',
+        sum: [['Starts', '9:00 am'], ['Back by', '6:40 pm'], ['By cab', '32 km'], ['On foot', '1.6 km'], ['Today', '₹5,600 est.']],
+        rows: [
+          V('9:00 am', 'Cab across the Mandovi', '20 minutes.'),
+          S('9:30 am', 1, 'Reis Magos Fort', 'A restored fort over the river, with a gentle ramp.', 'History', '2 min', [124, 300]),
+          S('10:45 am', 2, 'Fort Aguada and the lighthouse', 'By the lighthouse road, not the steep steps.', 'History', '3 min', [86, 310]),
+          M('12:30 pm', 'Lunch in Candolim', 'Vegetarian, with a sea view.', 'Food', null, [82, 270]),
+          H('1:30 pm', 'Rest at the hotel', 'The gentle-pace break.'),
+          S('4:45 pm', 3, 'Candolim beach', 'Quieter than Calangute. Sunset at about 6:05 pm.', null, '1 min', [72, 282]),
+          H('6:40 pm', 'Back at the hotel', 'Dinner nearby.')
+        ]
+      },
+      mon: {
+        label: 'Mon 14', title: 'Divar island, then home',
+        sum: [['Starts', '8:30 am'], ['Train', '7:05 pm'], ['By cab', '44 km'], ['On foot', '1.2 km'], ['Today', '₹3,900 est.']],
+        rows: [
+          H('8:30 am', 'Check out', 'Bags travel with you in the cab.'),
+          S('9:00 am', 1, 'Ferry to Divar island and Piedade church', 'Five minutes on the river, then the hilltop church and its view.', 'History', '2 min', [244, 276]),
+          S('11:30 am', 2, 'Panaji market', 'Cashews, kokum and spices to take home.', 'Food', '1 min', [160, 320]),
+          M('1:00 pm', 'Lunch', 'Vegetarian, near the market.', null, null, [176, 306]),
+          H('2:00 pm', 'Rest at the hotel', 'Late check-out asked until 4 pm.'),
+          V('5:30 pm', 'Cab to Madgaon station', '50 minutes.'),
+          V('7:05 pm', 'Night train home', 'Waitlisted for now. We are watching it for you.')
+        ]
+      }
+    };
+    const order = ['fri', 'sat', 'sun', 'mon'];
+    const tabs = order.map((k) => ({
+      label: DAYS[k].label, title: DAYS[k].title,
+      sel: k === day ? 'true' : 'false',
+      cls: 'dtab' + (k === day ? ' on' : ''),
+      mark: k === 'sat' && edited,
+      pick: () => this.setState({ day: k })
+    }));
+    const D = DAYS[day];
+    const useEd = day === 'sat' && edited;
+    const sumSrc = useEd ? D.sumEdited : D.sum;
+    const sum = sumSrc.map(([k, v, was]) => ({ k, v: was ? v + ' (' + was + ')' : v, cls: was ? 'was' : '' }));
+    const rows = D.rows.map((r) => {
+      const e = useEd && r.ed ? r.ed : {};
+      const gone = !!e.gone;
+      const change = e.change || '';
+      const tagCls = { History: 'tag tag-history', Legend: 'tag tag-legend', Food: 'tag tag-food' }[r.tag] || 'tag';
+      return {
+        t: e.t || r.t, n: r.n || '', name: r.name, note: r.note,
+        isStop: r.kind === 'stop', isMeal: r.kind === 'meal', isMove: r.kind === 'move', isStay: r.kind === 'stay',
+        mk: 'mk mk-' + r.kind,
+        hasTag: !!r.tag, tag: r.tag, tagCls,
+        hasKatha: !!r.katha && !gone, katha: r.katha,
+        hasTags: !!r.tag || (!!r.katha && !gone),
+        hasChange: !!change, change,
+        chgCls: gone ? 'badge badge-bad' : 'badge badge-warn',
+        cls: 'it-row' + (gone ? ' gone' : '') + (change && !gone ? ' chg' : ''),
+        gone, pin: r.pin, kind: r.kind
+      };
+    });
+    const pinRows = rows.filter((r) => r.pin && !r.gone);
+    const seen = {};
+    const pins = [];
+    pinRows.forEach((r) => {
+      const key = r.pin.join(',');
+      if (seen[key]) return;
+      seen[key] = true;
+      pins.push({
+        lx: ((r.pin[0] - 60) / 320 * 100).toFixed(2) + '%',
+        ly: ((r.pin[1] - 236) / 210 * 100).toFixed(2) + '%',
+        label: r.kind === 'stay' ? 'H' : r.kind === 'meal' ? 'L' : r.n,
+        cls: 'pin ' + r.kind
+      });
+    });
+    const route = pinRows.map((r) => r.pin.join(',')).join(' ');
+    const stopsToday = rows.filter((r) => r.isStop && !r.gone).length;
+    return {
+      tabs, sum, rows, pins, route,
+      mapLabel: 'Map of ' + D.label + ': ' + stopsToday + ' stops around ' + D.title,
+      mapCap: D.label + ': ' + stopsToday + ' stops, L is lunch',
+      edited, notEdited: !edited,
+      lighten: () => this.setState({ edited: true, day: 'sat' }),
+      undo: () => this.setState({ edited: false }),
+      checksText: edited ? 'All checks passed again' : '41 of 41 checks passed',
+      shared: !!s.shared,
+      share: () => this.setState({ shared: true })
+    };
+  }
+}
+</script>
+</body>
+</html>

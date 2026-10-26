@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Katha library · Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#1D6A84}a:hover{color:#13212B}
+.kh-hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:end;margin-bottom:28px;padding:clamp(24px,3vw,40px);border-radius:4px;background:#173B31;color:#F4EFE6}
+.kh-hero .bigword{position:absolute;right:-20px;bottom:-70px;font-family:"Anek Kannada",sans-serif;font-weight:700;font-size:280px;line-height:1;color:#1F4A3E;pointer-events:none}
+.kh-hero h1{position:relative;margin:0;font-size:clamp(36px,3.8vw,56px);line-height:1;letter-spacing:-0.035em}
+.kh-hero p{position:relative;margin:12px 0 0;font-size:17px;line-height:1.55;color:#CFE0D8;max-width:52ch}
+.kh-search{position:relative;display:flex;flex-direction:column;gap:12px}
+.kh-search .composer{border-color:#F4EFE6}
+.near{display:flex;align-items:center;gap:12px;font-size:15px;color:#E6EFEA}
+.near small{display:block;font-size:13px;color:#AFC8BD}
+.sec-title{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px;margin:0 0 14px}
+.mine{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr));gap:16px;margin-bottom:36px}
+.mine a{display:grid;grid-template-columns:120px minmax(0,1fr);overflow:hidden;border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1;color:#13212B;text-decoration:none}
+.mine a:hover{border-color:#13212B;color:#13212B}
+.mine .sw{display:grid;place-items:center;color:#F4EFE6;font-size:30px;font-weight:700}
+.mine .mb{display:flex;flex-direction:column;gap:6px;padding:16px 18px}
+.mine b{font-family:"Bricolage Grotesque",sans-serif;font-size:20px}
+.mine span{font-size:14.5px;color:#56646E}
+.feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(270px,100%),1fr));gap:16px;margin-bottom:36px}
+.card{display:flex;flex-direction:column;overflow:hidden;border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1;color:#13212B;text-decoration:none}
+.card:hover{border-color:#13212B;color:#13212B}
+.card svg{display:block;width:100%;height:auto}
+.card-b{display:flex;flex-direction:column;gap:8px;padding:14px 16px 16px}
+.card-b b{font-family:"Bricolage Grotesque",sans-serif;font-size:19px;letter-spacing:-0.01em}
+.card-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13.5px;color:#56646E}
+.more{border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1}
+.mrow{display:grid;grid-template-columns:48px minmax(0,1.6fr) minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px 18px;border-top:1px solid #E6DED0}
+.mrow:first-child{border-top:0}
+.mrow .kp-play{width:44px;height:44px}
+.mrow .kp-play .ic{width:18px;height:18px}
+.mrow b{display:block;font-size:16.5px}
+.mrow small{display:block;font-size:14px;color:#56646E;line-height:1.45}
+.mrow .wave{height:26px;color:#B4452A}
+.mrow .lng{display:flex;gap:4px;flex-wrap:wrap}
+.mrow .lng span{font-size:12px;font-weight:700;padding:2px 6px;border-radius:3px;background:#EDE6D9;color:#2B3B47}
+.mrow.on{background:#FBF1DE}
+.cover{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:1px;margin-top:36px;border:1px solid #D8CFBF;border-radius:4px;overflow:hidden;background:#D8CFBF}
+.cover div{display:flex;flex-direction:column;gap:6px;padding:18px;background:#FAF7F1}
+.cover b{font-size:14px}
+.cover span{font-size:15px;color:#2B3B47;line-height:1.5}
+@media (max-width:900px){.kh-hero{grid-template-columns:minmax(0,1fr)}.mrow{grid-template-columns:44px minmax(0,1fr)}.mrow>*:nth-child(n+3){grid-column:2}}
+</style>
+</helmet>
+
+<div class="app">
+  <header class="appbar">
+    <a class="brand" href="Home.dc.html">
+      <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#B4452A"></circle></svg>
+      <span>Travel Yantra</span>
+    </a>
+    <nav class="appnav" aria-label="Main">
+      <a href="Home.dc.html">Home</a>
+      <a href="PlanStart.dc.html">Plan a trip</a>
+      <a href="KathaHome.dc.html" class="on">Katha</a>
+      <a href="MyTrips.dc.html">My trips</a>
+    </nav>
+    <div class="appbar-end">
+      <a class="btn btn-quiet btn-sm" href="Settings.dc.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"></path></svg>English</a>
+      <a class="avatar" href="Settings.dc.html" aria-label="Account and settings">AR</a>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="wrap">
+      <section class="kh-hero" aria-labelledby="kh-h">
+        <span class="bigword" aria-hidden="true">ಕಥೆ</span>
+        <div>
+          <h1 id="kh-h">Katha</h1>
+          <p>The story of a city, a place or your planned day, told in your language. History is labelled history. Every legend begins "As the story goes", so you always know which is which.</p>
+        </div>
+        <div class="kh-search">
+          <div class="composer" role="search">
+            <label for="ks" class="sr">Search Katha</label>
+            <textarea id="ks" placeholder="A place, a legend, a dish..." style="min-height: 44px"></textarea>
+            <button type="button" class="iconbtn round" aria-label="Search by voice"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0"></path><path d="M12 17.5V21"></path></svg></button>
+          </div>
+          <label class="near"><input class="switch" type="checkbox" checked="{{ near }}" onChange="{{ toggleNear }}"><span>Katha near me<small>{{ nearText }}</small></span></label>
+        </div>
+      </section>
+
+      <div class="sec-title"><h2 class="h2">For your trips</h2><a href="MyTrips.dc.html" style="font-weight: 700">My trips</a></div>
+      <div class="mine">
+        <a href="KathaDay.dc.html"><span class="sw kn" style="background: #245A4B">ಮೈ</span><span class="mb"><b>Mysuru weekend</b><span>City Katha and two Day Kathas, saved for offline in English and Kannada.</span><span class="st st-ok">This weekend</span></span></a>
+        <a href="TripLive.dc.html"><span class="sw hi" style="background: #9E4529">गो</span><span class="mb"><b>Goa with family</b><span>Four Day Kathas and fourteen place stories, in English and Hinglish.</span><span class="st st-ok">Ready, saved on your phone</span></span></a>
+      </div>
+
+      <div class="sec-title"><h2 class="h2">Start with these</h2></div>
+      <div class="feat">
+        <a class="card" href="KathaCity.dc.html">
+          <svg viewBox="0 0 320 170" aria-hidden="true"><rect width="320" height="170" fill="#245A4B"></rect><path d="M0 170 L0 112 C60 90 110 64 170 58 C230 52 280 82 320 104 L320 170 Z" fill="#1A4337"></path><g fill="#E7B25C"><rect x="150" y="36" width="22" height="24"></rect><path d="M146 38 L161 10 L176 38Z"></path></g><text x="22" y="150" font-family="Anek Kannada, sans-serif" font-size="44" font-weight="700" fill="#F4EFE6">ಮೈಸೂರು</text></svg>
+          <span class="card-b"><b>Mysuru in 5 minutes</b><span class="card-meta"><span class="badge">City</span><span class="tag tag-legend">Legend</span><span>2, 5 or 10 min</span></span></span>
+        </a>
+        <a class="card" href="KathaPlace.dc.html">
+          <svg viewBox="0 0 320 170" aria-hidden="true"><rect width="320" height="170" fill="#E3A33B"></rect><circle cx="252" cy="46" r="20" fill="#F3CB7A"></circle><g fill="#7A3A1E"><rect x="36" y="106" width="248" height="64"></rect><rect x="132" y="72" width="56" height="34"></rect><path d="M128 74 Q160 20 192 74Z"></path><rect x="157" y="18" width="6" height="18"></rect><rect x="58" y="88" width="36" height="18"></rect><path d="M56 90 Q76 60 96 90Z"></path><rect x="226" y="88" width="36" height="18"></rect><path d="M224 90 Q244 60 264 90Z"></path></g><g fill="#E3A33B"><path d="M52 170V148a9 9 0 0 1 18 0V170Z"></path><path d="M84 170V148a9 9 0 0 1 18 0V170Z"></path><path d="M116 170V148a9 9 0 0 1 18 0V170Z"></path><path d="M148 170V142a12 12 0 0 1 24 0V170Z"></path><path d="M186 170V148a9 9 0 0 1 18 0V170Z"></path><path d="M218 170V148a9 9 0 0 1 18 0V170Z"></path><path d="M250 170V148a9 9 0 0 1 18 0V170Z"></path></g></svg>
+          <span class="card-b"><b>Mysore Palace</b><span class="card-meta"><span class="badge">Place</span><span class="tag tag-history">History</span><span>8 min</span></span></span>
+        </a>
+        <a class="card" href="KathaDay.dc.html">
+          <svg viewBox="0 0 320 170" aria-hidden="true"><rect width="320" height="170" fill="#13212B"></rect><path d="M40 130 C90 80 130 120 170 90 C210 60 240 70 280 40" fill="none" stroke="#E3A33B" stroke-width="3" stroke-dasharray="4 7" stroke-linecap="round"></path><g fill="#F4EFE6"><circle cx="40" cy="130" r="9"></circle><circle cx="170" cy="90" r="9"></circle><circle cx="280" cy="40" r="9"></circle></g><g font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#13212B"><text x="36.5" y="134">1</text><text x="166.5" y="94">2</text><text x="276.5" y="44">3</text></g></svg>
+          <span class="card-b"><b>Your Mysuru weekend, day by day</b><span class="card-meta"><span class="badge">Day</span><span>11 stops, 2 days</span></span></span>
+        </a>
+        <a class="card" href="AskGuide.dc.html">
+          <svg viewBox="0 0 320 170" aria-hidden="true"><rect width="320" height="170" fill="#1D6A84"></rect><rect x="40" y="38" width="170" height="44" rx="12" fill="#F4EFE6"></rect><rect x="110" y="96" width="170" height="44" rx="12" fill="#0E1B24"></rect><g fill="#1D6A84"><rect x="56" y="54" width="120" height="6" rx="3"></rect><rect x="56" y="66" width="80" height="6" rx="3"></rect></g><g fill="#F4EFE6"><rect x="126" y="112" width="130" height="6" rx="3"></rect><rect x="126" y="124" width="90" height="6" rx="3"></rect></g></svg>
+          <span class="card-b"><b>Ask the guide anything</b><span class="card-meta"><span class="badge">Questions</span><span>Answers with sources, in your language</span></span></span>
+        </a>
+      </div>
+
+      <div class="sec-title">
+        <h2 class="h2">More stories</h2>
+        <div class="toggle" role="group" aria-label="Filter stories">
+          <sc-for list="{{ filters }}" as="f" hint-placeholder-count="5"><button type="button" class="{{ f.cls }}" onClick="{{ f.pick }}">{{ f.label }}</button></sc-for>
+        </div>
+      </div>
+      <div class="more">
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="7">
+          <div class="{{ r.cls }}">
+            <button type="button" class="kp-play" onClick="{{ r.toggle }}" aria-label="{{ r.aria }}">
+              <sc-if value="{{ r.on }}" hint-placeholder-val="{{ false }}"><svg class="ic" viewBox="0 0 24 24"><rect x="6.5" y="5" width="3.6" height="14" fill="currentColor" stroke="none"></rect><rect x="13.9" y="5" width="3.6" height="14" fill="currentColor" stroke="none"></rect></svg></sc-if>
+              <sc-if value="{{ r.off }}" hint-placeholder-val="{{ true }}"><svg class="ic" viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5Z" fill="currentColor" stroke="none"></path></svg></sc-if>
+            </button>
+            <div><b>{{ r.title }}</b><small>{{ r.line }}</small></div>
+            <div>
+              <sc-if value="{{ r.on }}" hint-placeholder-val="{{ false }}"><div class="wave play"><sc-for list="{{ bars }}" as="b" hint-placeholder-count="24"><i style="animation-delay: {{ b.d }}; height: {{ b.h }}"></i></sc-for></div></sc-if>
+              <sc-if value="{{ r.off }}" hint-placeholder-val="{{ true }}"><div class="lng"><sc-for list="{{ r.langs }}" as="l" hint-placeholder-count="3"><span>{{ l }}</span></sc-for></div></sc-if>
+            </div>
+            <span class="row-wrap" style="gap: 8px; justify-content: flex-end"><span class="{{ r.tagCls }}">{{ r.tag }}</span><span class="mono" style="color: #56646E">{{ r.t }}</span></span>
+          </div>
+        </sc-for>
+      </div>
+
+      <div class="cover">
+        <div><b>Deepest today</b><span>Karnataka: Bengaluru, Mysuru, Hampi, Kodagu, Chikkamagaluru and Mangaluru.</span></div>
+        <div><b>Ready</b><span>Goa, around Panaji, Old Goa, Ponda and the north coast.</span></div>
+        <div><b>Being added</b><span>Kerala, Tamil Nadu, Kolkata and Varanasi, place by place, each checked before it goes live.</span></div>
+        <div><b>A place we do not know yet?</b><span>We say so plainly, then draft it from open sources and mark it unverified until it is checked.</span></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-foot">
+    <div class="wrap"><span>Travel Yantra prototype. Stories shown are samples from the Katha library.</span><span><a href="Legal.dc.html">Terms and privacy</a></span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1850}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const filter = s.filter || 'all';
+    const playing = s.playing || null;
+    const near = !!s.near;
+    const R = [
+      { id: 'hampi', kind: 'place', title: "Hampi's stone chariot", line: 'A shrine to Garuda shaped as a chariot, now on the 50-rupee note.', tag: 'History', t: '6 min', langs: ['EN', 'ಕ', 'हि'] },
+      { id: 'dudh', kind: 'legend', title: 'Dudhsagar, the sea of milk', line: 'As the story goes, a princess bathing in the lake was hidden behind a curtain of poured milk.', tag: 'Legend', t: '2 min', langs: ['EN', 'हि', 'Hinglish'] },
+      { id: 'chamundi', kind: 'legend', title: 'Chamundi Hill and the goddess', line: 'The goddess who gave Mysuru its name, and the great Nandi carved in 1659.', tag: 'Legend', t: '4 min', langs: ['EN', 'ಕ', 'தமிழ்'] },
+      { id: 'udupi', kind: 'legend', title: "Udupi and Kanakadasa's window", line: 'As the story goes, Krishna turned to face a devotee kept outside, through a crack in the wall.', tag: 'Legend', t: '3 min', langs: ['EN', 'ಕ', 'తెలుగు'] },
+      { id: 'sravana', kind: 'place', title: 'Shravanabelagola', line: 'A single granite statue of Bahubali, 57 feet tall, carved more than a thousand years ago.', tag: 'History', t: '7 min', langs: ['EN', 'ಕ', 'हि'] },
+      { id: 'blr', kind: 'city', title: 'Bengaluru in 5 minutes', line: "Kempegowda's mud fort, the four towers, and how a garden city grew.", tag: 'History', t: '5 min', langs: ['EN', 'ಕ', 'தமிழ்'] },
+      { id: 'puja', kind: 'festival', title: 'Kolkata at Durga Puja', line: 'Pandals, the drums and the immersion, told in Bengali and English.', tag: 'Festival', t: '5 min', langs: ['EN', 'বাংলা'] }
+    ];
+    const F = [['all', 'All'], ['city', 'Cities'], ['place', 'Places'], ['legend', 'Legends'], ['festival', 'Festivals']];
+    const filters = F.map(([k, label]) => ({ label, cls: k === filter ? 'on' : '', pick: () => this.setState({ filter: k }) }));
+    const rows = R.filter((r) => filter === 'all' || r.kind === filter).map((r) => ({
+      ...r,
+      on: playing === r.id, off: playing !== r.id,
+      aria: (playing === r.id ? 'Pause ' : 'Play ') + r.title,
+      cls: 'mrow' + (playing === r.id ? ' on' : ''),
+      tagCls: 'tag tag-' + r.tag.toLowerCase(),
+      toggle: () => this.setState({ playing: playing === r.id ? null : r.id })
+    }));
+    const heights = [40, 70, 90, 55, 80, 62, 95, 48, 74, 58, 86, 44, 66, 92, 52, 78, 60, 84, 46, 72, 56, 88, 64, 50];
+    const bars = heights.map((h, i) => ({ h: h + '%', d: (-(i * 0.13) % 1).toFixed(2) + 's' }));
+    return {
+      filters, rows, bars, near,
+      nearText: near ? 'On. Stories start when you reach a place we know.' : 'Off. Uses your location on this phone only.',
+      toggleNear: () => this.setState({ near: !near })
+    };
+  }
+}
+</script>
+</body>
+</html>

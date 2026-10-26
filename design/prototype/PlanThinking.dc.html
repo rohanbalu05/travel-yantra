@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planning your trip · Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#1D6A84}a:hover{color:#13212B}
+.pt-head{display:flex;flex-direction:column;gap:18px;margin-bottom:28px}
+.pt-titlebar{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.agents{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(330px,100%),1fr));gap:16px}
+.agent{display:flex;flex-direction:column;gap:14px;padding:18px;border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1}
+.agent-top{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center}
+.agent-ic{width:44px;height:44px;border-radius:4px;display:grid;place-items:center;background:#13212B;color:#F4EFE6}
+.agent-top b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:19px;letter-spacing:-0.01em}
+.agent-sub{display:block;font-size:14px;color:#56646E}
+.swap{display:grid}
+.swap>*{grid-area:1/1}
+.bar{height:4px;border-radius:2px;background:#E6DED0;overflow:hidden}
+.bar i{display:block;height:100%;background:#245A4B;transform-origin:0 50%}
+.finds{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.finds li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:10px;font-size:15px;line-height:1.45}
+.finds li::before{content:"";width:8px;height:8px;margin:7px 0 0 4px;border-radius:50%;background:#B4452A}
+.log{display:flex;flex-direction:column}
+.log li{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;padding:9px 0;border-top:1px solid #E6DED0;font-size:14.5px}
+.log li:first-child{border-top:0}
+.log time{font-family:"JetBrains Mono",monospace;font-size:13px;color:#56646E;padding-top:1px}
+.checks{list-style:none;margin:0;padding:0}
+.checks li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 0;border-top:1px solid #E6DED0;font-size:15px}
+.checks li:first-child{border-top:0}
+.checks .ic{width:20px;height:20px;color:#245A4B}
+.checks small{font-size:13px;font-weight:700;color:#245A4B}
+.checks small.fx{color:#8A5A12}
+.fix{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:4px;background:#F6EAD2;color:#5F3D0B;font-size:14.5px;line-height:1.5}
+.fix b{font-size:13px}
+.ready{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-top:20px;padding:20px 22px;border-radius:4px;background:#13212B;color:#F4EFE6}
+.ready b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:22px;letter-spacing:-0.01em}
+.ready span{font-size:15px;color:#C9D3D9}
+.why{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:12px;margin-top:4px}
+.why div{padding:14px;border-radius:4px;background:#EDE6D9;font-size:14.5px;line-height:1.5}
+.why b{display:block;margin-bottom:4px;font-size:14px}
+
+/* timing: everything runs once on load; Watch again restarts it */
+.ra .fill{animation:fillA linear both}
+.rb .fill{animation:fillB linear both}
+.ra .show{animation:showA .45s ease-out both}
+.rb .show{animation:showB .45s ease-out both}
+.ra .hide{animation:hideA .2s linear forwards}
+.rb .hide{animation:hideB .2s linear forwards}
+@keyframes fillA{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes fillB{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes showA{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@keyframes showB{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@keyframes hideA{to{opacity:0;visibility:hidden}}
+@keyframes hideB{to{opacity:0;visibility:hidden}}
+@media (prefers-reduced-motion:reduce){
+  .ra *,.rb *{animation-duration:1ms !important;animation-delay:0s !important}
+}
+</style>
+</helmet>
+
+<div class="app">
+  <header class="appbar">
+    <a class="brand" href="Home.dc.html">
+      <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#B4452A"></circle></svg>
+      <span>Travel Yantra</span>
+    </a>
+    <nav class="appnav" aria-label="Main">
+      <a href="Home.dc.html">Home</a>
+      <a href="PlanStart.dc.html" class="on">Plan a trip</a>
+      <a href="KathaHome.dc.html">Katha</a>
+      <a href="MyTrips.dc.html">My trips</a>
+    </nav>
+    <div class="appbar-end">
+      <a class="btn btn-quiet btn-sm" href="Settings.dc.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"></path></svg>English</a>
+      <a class="avatar" href="Settings.dc.html" aria-label="Account and settings">AR</a>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="{{ runCls }}">
+      <div class="pt-head">
+        <nav class="trail" aria-label="Planning steps">
+          <a class="done" href="PlanStart.dc.html"><i>1</i>Describe</a><span class="sep"></span>
+          <span class="on"><i>2</i>Plan</span><span class="sep"></span>
+          <span><i>3</i>Choose a way</span><span class="sep"></span>
+          <span><i>4</i>Itinerary</span><span class="sep"></span>
+          <span><i>5</i>Book</span><span class="sep"></span>
+          <span><i>6</i>Katha</span>
+        </nav>
+        <div class="pt-titlebar">
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <h1 class="page-title">Planning your Goa trip</h1>
+            <p class="page-sub">Four AI specialists work at once. Then a checker tests every stop on every day, and fixes what fails, before you see a thing.</p>
+          </div>
+          <button type="button" class="btn btn-quiet btn-sm" onClick="{{ replay }}"><svg class="ic" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6"></path><path d="M4 4v4h4"></path></svg>Watch it again</button>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="main" style="display: flex; flex-direction: column; gap: 20px">
+          <div class="agents">
+            <article class="agent" aria-label="Transport specialist">
+              <div class="agent-top">
+                <span class="agent-ic"><svg class="ic" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="13" rx="2"></rect><path d="M6 10h12"></path><path d="M8 16l-2 4M16 16l2 4M7 19h10"></path></svg></span>
+                <div><b>Transport</b><span class="agent-sub">Road, rail and air, door to door</span></div>
+                <span class="swap"><span class="st st-wait hide" style="animation-delay: 3.4s">Working</span><span class="st st-ok show" style="animation-delay: 3.4s">Done</span></span>
+              </div>
+              <div class="bar"><i class="fill" style="animation-duration: 3.4s"></i></div>
+              <ul class="finds">
+                <li class="show" style="animation-delay: 0.9s">Rail: overnight via Londa, passes Dudhsagar falls around breakfast.</li>
+                <li class="show" style="animation-delay: 1.9s">Air: 1 h 10 m to Mopa, then 50 minutes by cab to Panaji.</li>
+                <li class="show" style="animation-delay: 2.9s">Road: about 560 km via Hubballi and Anmod Ghat, 10 to 11 hours.</li>
+              </ul>
+            </article>
+
+            <article class="agent" aria-label="Places specialist">
+              <div class="agent-top">
+                <span class="agent-ic"><svg class="ic" viewBox="0 0 24 24"><path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21Z"></path><circle cx="12" cy="10" r="2.3"></circle></svg></span>
+                <div><b>Places</b><span class="agent-sub">Churches, temples and some beach</span></div>
+                <span class="swap"><span class="st st-wait hide" style="animation-delay: 4.6s">Working</span><span class="st st-ok show" style="animation-delay: 4.6s">Done</span></span>
+              </div>
+              <div class="bar"><i class="fill" style="animation-duration: 4.6s"></i></div>
+              <ul class="finds">
+                <li class="show" style="animation-delay: 1.4s">14 places chosen from 142 in our Goa list.</li>
+                <li class="show" style="animation-delay: 2.8s">Grouped by area: Panaji, Old Goa and Ponda, the Bardez coast, Divar island.</li>
+                <li class="show" style="animation-delay: 4.0s">Steep Aguada steps swapped for the lighthouse road.</li>
+              </ul>
+            </article>
+
+            <article class="agent" aria-label="Stays specialist">
+              <div class="agent-top">
+                <span class="agent-ic"><svg class="ic" viewBox="0 0 24 24"><path d="M3 18V7"></path><path d="M3 14h18v4"></path><path d="M3 11h7a2 2 0 0 1 2 2v1"></path><path d="M12 14v-2a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v2"></path></svg></span>
+                <div><b>Stays</b><span class="agent-sub">One base for all four days</span></div>
+                <span class="swap"><span class="st st-wait hide" style="animation-delay: 3.0s">Working</span><span class="st st-ok show" style="animation-delay: 3.0s">Done</span></span>
+              </div>
+              <div class="bar"><i class="fill" style="animation-duration: 3.0s"></i></div>
+              <ul class="finds">
+                <li class="show" style="animation-delay: 1.6s">Panaji: 25 minutes to Old Goa, 35 to Candolim, 10 to the Divar ferry.</li>
+                <li class="show" style="animation-delay: 2.6s">Two rooms, ground floor or a lift, pure-veg breakfast nearby.</li>
+              </ul>
+            </article>
+
+            <article class="agent" aria-label="Katha specialist">
+              <div class="agent-top">
+                <span class="agent-ic"><svg class="ic" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5Z"></path><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5"></path></svg></span>
+                <div><b>Katha</b><span class="agent-sub">A story for every stop</span></div>
+                <span class="swap"><span class="st st-wait hide" style="animation-delay: 6.2s">Writing</span><span class="st st-ok show" style="animation-delay: 6.2s">Done</span></span>
+              </div>
+              <div class="bar"><i class="fill" style="animation-duration: 6.2s"></i></div>
+              <ul class="finds">
+                <li class="show" style="animation-delay: 2.2s">14 stories drafted from our sources, in English and Hinglish.</li>
+                <li class="show" style="animation-delay: 4.4s">4 legends, each told as "As the story goes" and labelled.</li>
+                <li class="show" style="animation-delay: 5.8s">Every history line traced to a source; 2 unsupported lines dropped.</li>
+              </ul>
+            </article>
+          </div>
+
+        </div>
+
+        <aside class="side" style="display: flex; flex-direction: column; gap: 16px">
+          <section class="panel" aria-labelledby="chk-h">
+            <div class="panel-head"><h2 class="h3" id="chk-h">The checker</h2><span class="swap"><span class="badge badge-warn hide" style="animation-delay: 7.9s">Checking</span><span class="badge badge-ok show" style="animation-delay: 7.9s">41 of 41 passed</span></span></div>
+            <div class="panel-pad" style="display: flex; flex-direction: column; gap: 14px; padding-top: 6px">
+              <ul class="checks">
+                <li class="show" style="animation-delay: 4.8s"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>Opening hours</span><small>14 of 14</small></li>
+                <li class="show" style="animation-delay: 5.15s"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>Closing days</span><small class="fx">1 fixed</small></li>
+                <li class="show" style="animation-delay: 5.5s"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>Travel time between stops</span><small>Passed</small></li>
+                <li class="show" style="animation-delay: 5.85s"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>A veg meal on time, every day</span><small>Passed</small></li>
+                <li class="show" style="animation-delay: 6.2s"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>Heat and day's end for your father</span><small class="fx">1 fixed</small></li>
+                <li class="show" style="animation-delay: 6.55s"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>Walking and steps</span><small>Passed</small></li>
+                <li class="show" style="animation-delay: 6.9s"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>Season and crowds</span><small>Passed</small></li>
+                <li class="show" style="animation-delay: 7.25s"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg><span>Budget</span><small>₹57,400 of ₹60,000</small></li>
+              </ul>
+              <div class="fix show" style="animation-delay: 6.0s"><b>Fixed: closing day</b>The Archaeological Museum in Old Goa is shut on Fridays. Moved from Friday to Saturday, next to the churches.</div>
+              <div class="fix show" style="animation-delay: 6.6s"><b>Fixed: the afternoon heat</b>The Fontainhas walk was at 1 pm. Moved to 4:30 pm, so it ends at Miramar for the sunset.</div>
+            </div>
+          </section>
+          <div class="why">
+            <div><b>The AI</b>Understands what you asked, compares the options and writes the plan.</div>
+            <div><b>The checker</b>Plain rules that never guess: hours, distances, meals, budget.</div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="ready">
+        <div class="swap">
+          <div class="hide" style="animation-delay: 8.0s"><b>Still planning</b><span>About 12 seconds. You can leave this page; we will keep going.</span></div>
+          <div class="show" style="animation-delay: 8.0s"><b>Your plan is ready</b><span>Three ways to get there, compared for all four of you.</span></div>
+        </div>
+        <a class="btn btn-primary btn-lg" href="PlanOptions.dc.html">See the three ways to go</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-foot">
+    <div class="wrap"><span>Travel Yantra prototype. Trips, fares and timings shown are sample data.</span><span><a href="Legal.dc.html">Terms and privacy</a></span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const run = s.run || 0;
+    return {
+      runCls: 'wrap ' + (run % 2 === 0 ? 'ra' : 'rb'),
+      replay: () => this.setState({ run: run + 1 })
+    };
+  }
+}
+</script>
+</body>
+</html>

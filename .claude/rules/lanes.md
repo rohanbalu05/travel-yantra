@@ -11,7 +11,7 @@ A lane edits only its own paths. Everything else is read-only to it.
 | TY5 | channels | `services/translate/`, `apps/bots/` (WhatsApp, Telegram), `apps/mcp/` |
 | TY6 | ops | `.github/` (except the PR template), `infra/` (except `infra/lanes/`), `fixtures/recorded/` |
 | TY7 | docs | `report/`, `deck/`, `paper/`, `bench/` |
-| HQ | — | `CLAUDE.md`, `AGENTS.md`, `SECURITY.md`, `.claude/`, `.github/pull_request_template.md`, `infra/lanes/`, root files |
+| HQ | — | `CLAUDE.md`, `AGENTS.md`, `SECURITY.md`, `.claude/`, `.github/pull_request_template.md`, `infra/lanes/`, `design/`, root files |
 
 ## How the API fits together
 

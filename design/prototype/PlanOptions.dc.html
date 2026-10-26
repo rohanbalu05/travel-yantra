@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three ways to Goa · Travel Yantra</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ty.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400..700&amp;family=Anek+Devanagari:wght@400..700&amp;family=Anek+Kannada:wght@400..700&amp;family=Anek+Tamil:wght@400..700&amp;family=Anek+Telugu:wght@400..700&amp;family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Figtree:wght@400..800&amp;family=JetBrains+Mono:wght@400..600&amp;display=swap">
+<style>
+body{margin:0;background:#F4EFE6}
+a{color:#1D6A84}a:hover{color:#13212B}
+.po-head{display:flex;flex-direction:column;gap:18px;margin-bottom:24px}
+.pick-note{display:grid;grid-template-columns:40px minmax(0,1fr);gap:14px;align-items:start;padding:18px 20px;border-radius:4px;background:#173B31;color:#F4EFE6;margin-bottom:20px}
+.pick-note .ic{width:28px;height:28px;color:#E3A33B;margin-top:2px}
+.pick-note b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:21px;letter-spacing:-0.01em;margin-bottom:4px}
+.pick-note span{font-size:16px;line-height:1.55;color:#CFE0D8}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:14px;margin-bottom:28px}
+.opt{position:relative;display:flex;flex-direction:column;gap:12px;padding:20px;border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1;color:#13212B;text-align:left;font:inherit;cursor:pointer}
+.opt:hover{border-color:#2B3B47}
+.opt.on{border:2px solid #13212B;padding:19px;background:#FFFDF9}
+.opt-top{display:flex;align-items:center;gap:12px}
+.opt-ic{width:44px;height:44px;flex:none;border-radius:4px;display:grid;place-items:center;background:#EDE6D9;color:#13212B}
+.opt.on .opt-ic{background:#13212B;color:#F4EFE6}
+.opt-top b{font-family:"Bricolage Grotesque",sans-serif;font-size:21px;letter-spacing:-0.01em;line-height:1.15}
+.opt-figs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt-figs>span{display:flex;flex-direction:column;gap:4px}
+.opt-figs small{display:block;font-size:12.5px;font-weight:700;color:#56646E}
+.opt-figs span{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums}
+.opt-line{display:block;font-size:14.5px;line-height:1.5;color:#2B3B47}
+.opt .badges{display:flex;flex-wrap:wrap;gap:6px}
+.detail-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:6px}
+.legs{display:flex;flex-direction:column}
+.leg-row{display:grid;grid-template-columns:132px 34px minmax(0,1fr);column-gap:14px;padding:14px 0;border-top:1px solid #E6DED0}
+.leg-row:first-child{border-top:0}
+.leg-when{font-family:"JetBrains Mono",monospace;font-size:13px;color:#56646E;padding-top:6px;line-height:1.5}
+.leg-ic{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#EDE6D9;color:#13212B}
+.leg-ic.hl{background:#E3A33B;color:#13212B}
+.leg-ic .ic{width:18px;height:18px}
+.leg-row b{display:block;font-size:16.5px;line-height:1.35}
+.leg-row small{display:block;margin-top:3px;font-size:14px;line-height:1.5;color:#56646E}
+.leg-label{margin:22px 0 4px;font-size:13px;font-weight:700;color:#56646E}
+.pc{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:12px;margin-top:20px}
+.pc div{padding:14px 16px;border-radius:4px;font-size:15px;line-height:1.5}
+.pc b{display:block;margin-bottom:6px;font-size:13px}
+.pc ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.pc .good{background:#E5EEE9;color:#1B4539}
+.pc .bad{background:#F6EAD2;color:#5F3D0B}
+.rmap{background:#112634;border:1px solid #22404F;border-radius:4px;overflow:hidden}
+.rmap svg{display:block;width:100%;height:auto}
+.rmap .legend{display:flex;flex-wrap:wrap;gap:14px;padding:12px 14px;border-top:1px solid #22404F;font-size:13px;color:#C9D3D9}
+.rmap .legend span{display:flex;align-items:center;gap:8px}
+.rmap .legend i{display:block;width:24px;border-top:3px solid #E3A33B}
+.rmap .legend i.r{border-top:3px dashed #F4EFE6}
+.rmap .legend i.a{border-top:3px dotted #8FC0DA}
+.cost{padding-top:4px}
+.cost .tot{padding-top:12px;border-top:1px solid #D8CFBF;font-size:16px;color:#13212B}
+.cmp th:first-child{width:22%}
+.cmp td b{font-weight:700}
+.go{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-top:28px;padding:20px 22px;border-radius:4px;background:#13212B;color:#F4EFE6}
+.go b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:21px}
+.go span{font-size:15px;color:#C9D3D9}
+@media (max-width:600px){.leg-row{grid-template-columns:84px 30px minmax(0,1fr)}}
+</style>
+</helmet>
+
+<div class="app">
+  <header class="appbar">
+    <a class="brand" href="Home.dc.html">
+      <svg class="logo" width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="1.5" y="1.5" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6"></rect><circle cx="14" cy="14" r="9" fill="none" stroke="currentColor" stroke-width="1.6"></circle><path d="M14 6.5L21 18.5H7Z" fill="none" stroke="currentColor" stroke-width="1.6"></path><path d="M14 21.5L7 9.5H21Z" fill="none" stroke="#B4452A" stroke-width="1.6"></path><circle cx="14" cy="14" r="1.8" fill="#B4452A"></circle></svg>
+      <span>Travel Yantra</span>
+    </a>
+    <nav class="appnav" aria-label="Main">
+      <a href="Home.dc.html">Home</a>
+      <a href="PlanStart.dc.html" class="on">Plan a trip</a>
+      <a href="KathaHome.dc.html">Katha</a>
+      <a href="MyTrips.dc.html">My trips</a>
+    </nav>
+    <div class="appbar-end">
+      <a class="btn btn-quiet btn-sm" href="Settings.dc.html"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18"></path><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z"></path></svg>English</a>
+      <a class="avatar" href="Settings.dc.html" aria-label="Account and settings">AR</a>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <div class="wrap">
+      <div class="po-head">
+        <nav class="trail" aria-label="Planning steps">
+          <a class="done" href="PlanStart.dc.html"><i>1</i>Describe</a><span class="sep"></span>
+          <a class="done" href="PlanThinking.dc.html"><i>2</i>Plan</a><span class="sep"></span>
+          <span class="on"><i>3</i>Choose a way</span><span class="sep"></span>
+          <span><i>4</i>Itinerary</span><span class="sep"></span>
+          <span><i>5</i>Book</span><span class="sep"></span>
+          <span><i>6</i>Katha</span>
+        </nav>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <h1 class="page-title">Three ways to Goa</h1>
+          <p class="page-sub">Compared door to door for all four of you, with your father's comfort first. Costs are for the whole trip: travel, three nights' stay, food, local cabs and tickets.</p>
+        </div>
+      </div>
+
+      <div class="pick-note">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7Z"></path></svg>
+        <div><b>Our pick: rail past Dudhsagar</b><span>It fits the budget with ₹2,600 to spare, your father sleeps in a lower berth, and the line passes Dudhsagar falls around breakfast. Flying saves a night but costs ₹29,300 more.</span></div>
+      </div>
+
+      <div class="opts" role="radiogroup" aria-label="Way to travel">
+        <sc-for list="{{ opts }}" as="o" hint-placeholder-count="3">
+          <button type="button" class="{{ o.cls }}" onClick="{{ o.pick }}" role="radio" aria-checked="{{ o.on }}">
+            <span class="opt-top"><span class="opt-ic"><svg class="ic" viewBox="0 0 24 24"><path d="{{ o.icon }}"></path></svg></span><b>{{ o.name }}</b></span>
+            <span class="opt-figs"><span><small>Door to door</small><span>{{ o.time }}</span></span><span><small>Whole trip (est.)</small><span>{{ o.cost }}</span></span></span>
+            <span class="badges"><span class="{{ o.budgetCls }}">{{ o.budget }}</span><span class="badge">{{ o.papa }}</span></span>
+            <span class="opt-line">{{ o.line }}</span>
+          </button>
+        </sc-for>
+      </div>
+
+      <div class="split">
+        <section class="main panel panel-pad" aria-labelledby="d-h">
+          <div class="detail-head"><h2 class="h2" id="d-h">{{ d.title }}</h2><span class="hint">{{ d.sub }}</span></div>
+          <p class="leg-label">Going, {{ d.outDay }}</p>
+          <div class="legs">
+            <sc-for list="{{ d.out }}" as="l" hint-placeholder-count="5">
+              <div class="leg-row">
+                <span class="leg-when">{{ l.when }}</span>
+                <span class="{{ l.icCls }}"><svg class="ic" viewBox="0 0 24 24"><path d="{{ l.icon }}"></path></svg></span>
+                <div><b>{{ l.what }}</b><small>{{ l.note }}</small></div>
+              </div>
+            </sc-for>
+          </div>
+          <p class="leg-label">Coming back, {{ d.backDay }}</p>
+          <div class="legs">
+            <sc-for list="{{ d.back }}" as="l" hint-placeholder-count="2">
+              <div class="leg-row">
+                <span class="leg-when">{{ l.when }}</span>
+                <span class="{{ l.icCls }}"><svg class="ic" viewBox="0 0 24 24"><path d="{{ l.icon }}"></path></svg></span>
+                <div><b>{{ l.what }}</b><small>{{ l.note }}</small></div>
+              </div>
+            </sc-for>
+          </div>
+          <div class="pc">
+            <div class="good"><b>Good for you</b><ul><sc-for list="{{ d.good }}" as="g" hint-placeholder-count="3"><li>{{ g }}</li></sc-for></ul></div>
+            <div class="bad"><b>Watch out for</b><ul><sc-for list="{{ d.bad }}" as="g" hint-placeholder-count="2"><li>{{ g }}</li></sc-for></ul></div>
+          </div>
+        </section>
+
+        <aside class="side" style="display: flex; flex-direction: column; gap: 16px">
+          <div class="rmap">
+            <svg viewBox="0 0 880 760" role="img" aria-label="{{ mapLabel }}">
+              <rect width="880" height="760" fill="#1B3A4C"></rect>
+              <path d="M120 0 L46 28 L60 62 L82 104 L76 118 L102 144 L124 198 L144 238 L180 268 L184 290 L202 314 L208 344 L230 402 L258 476 L268 532 L288 626 L318 700 L340 760 L880 760 L880 0 Z" fill="#203545"></path>
+              <path d="M150 0 L120 60 L150 120 L190 200 L224 280 L250 360 L282 450 L300 540 L326 640 L352 760 L410 760 L384 640 L356 540 L334 450 L306 360 L280 280 L246 200 L214 120 L190 50 L200 0 Z" fill="#244836" opacity=".9"></path>
+              <path d="M838 606 L740 532 L600 354 L504 308 L344 128 L322 108 L282 112 L218 112 L197 115 L150 112 L111 120 L87 100" fill="none" stroke="#E3A33B" stroke-width="{{ roadW }}" opacity="{{ roadOp }}" stroke-linejoin="round" stroke-linecap="round"></path>
+              <path d="M838 606 L760 520 L690 430 L600 354 L504 308 L344 128 L322 108 L222 108 L183 137 L111 145" fill="none" stroke="#F4EFE6" stroke-width="{{ railW }}" opacity="{{ railOp }}" stroke-dasharray="12 9" stroke-linecap="round"></path>
+              <path d="M838 606 Q520 160 93 54" fill="none" stroke="#8FC0DA" stroke-width="{{ airW }}" opacity="{{ airOp }}" stroke-dasharray="2 10" stroke-linecap="round"></path>
+              <g fill="#F4EFE6"><circle cx="838" cy="606" r="9"></circle><circle cx="87" cy="100" r="9"></circle><circle cx="93" cy="54" r="6"></circle><circle cx="111" cy="145" r="6"></circle><circle cx="344" cy="128" r="6"></circle><circle cx="183" cy="137" r="7" fill="#E3A33B"></circle></g>
+              <g font-family="Figtree, sans-serif" font-size="24" fill="#E9EEF0" font-weight="600">
+                <text x="730" y="652">Bengaluru</text><text x="102" y="94">Panaji</text><text x="104" y="46">Mopa</text><text x="124" y="180">Madgaon</text><text x="356" y="122">Hubballi</text><text x="200" y="168" fill="#E3A33B">Dudhsagar</text>
+              </g>
+            </svg>
+            <div class="legend"><span><i></i>Road</span><span><i class="r"></i>Rail</span><span><i class="a"></i>Air</span></div>
+          </div>
+          <section class="panel panel-pad" aria-labelledby="c-h">
+            <h2 class="h3" id="c-h" style="margin-bottom: 14px">Where the money goes</h2>
+            <dl class="kv cost">
+              <sc-for list="{{ d.cost }}" as="c" hint-placeholder-count="6"><dt>{{ c.k }}</dt><dd>{{ c.v }}</dd></sc-for>
+              <dt class="tot">Whole trip, estimated</dt><dd class="tot">{{ d.total }}</dd>
+            </dl>
+          </section>
+        </aside>
+      </div>
+
+      <section style="margin-top: 32px" aria-labelledby="cmp-h">
+        <h2 class="h2" id="cmp-h" style="margin-bottom: 14px">Side by side</h2>
+        <div class="panel table-box">
+          <table class="table cmp">
+            <thead><tr><th>For your trip</th><th>Fly to Mopa</th><th>Rail past Dudhsagar</th><th>Road via Hubballi</th></tr></thead>
+            <tbody>
+              <tr><td><b>Door to door</b></td><td>About 4½ hours</td><td>12½ hours, overnight</td><td>10 to 11 hours of driving</td></tr>
+              <tr><td><b>Whole trip, estimated</b></td><td>₹86,700</td><td>₹57,400</td><td>₹55,800</td></tr>
+              <tr><td><b>Against ₹60,000</b></td><td>Over by ₹26,700</td><td>₹2,600 to spare</td><td>₹4,200 to spare</td></tr>
+              <tr><td><b>For your father</b></td><td>Easiest, short and seated</td><td>Lower berth, sleeps through it</td><td>Two long days in the car</td></tr>
+              <tr><td><b>Days in Goa</b></td><td>Friday noon to Monday night</td><td>Friday morning to Monday evening</td><td>Friday evening to Monday morning</td></tr>
+              <tr><td><b>What you see</b></td><td>The coast from above</td><td>Dudhsagar falls and the ghats</td><td>The Deccan, Anmod Ghat</td></tr>
+              <tr><td><b>Carbon per person, one way (est.)</b></td><td>About 75 kg</td><td>About 12 kg</td><td>About 26 kg</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="hint" style="margin: 10px 0 0">Sample data for the prototype. In the product, fares come from live searches and train times from the rail timetable when you plan.</p>
+      </section>
+
+      <div class="go">
+        <div><b>{{ goTitle }}</b><span>Next, the day-by-day plan. You can still switch later.</span></div>
+        <a class="btn btn-primary btn-lg" href="Itinerary.dc.html">{{ goBtn }}</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-foot">
+    <div class="wrap"><span>Travel Yantra prototype. Trips, fares and timings shown are sample data.</span><span><a href="Legal.dc.html">Terms and privacy</a></span></div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const s = this.state || {};
+    const pick = s.pick || 'rail';
+    const I = {
+      air: 'M3 13h13.5a3.5 3.5 0 0 0 0-3H13L10 5H8l1.5 5H5L3.5 8H2l1 5Z M9 13l-1.5 5h2L13 13',
+      rail: 'M8 3h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z M6 10h12 M8 16l-2 4 M16 16l2 4 M7 19h10',
+      road: 'M5 16V12l2-5h10l2 5v4 M3 16h18v2H3z M6.5 12h11',
+      cab: 'M5 16V12l2-5h10l2 5v4 M3 16h18v2H3z',
+      bed: 'M3 18V7 M3 14h18v4 M3 11h7a2 2 0 0 1 2 2v1 M12 14v-2a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v2',
+      eye: 'M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12Z M12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z',
+      food: 'M7 3v8 M4 3v5a3 3 0 0 0 6 0V3 M7 11v10 M17 3c-2 2-3 5-3 8h3v10',
+      pin: 'M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21Z'
+    };
+    const leg = (when, icon, what, note, hl) => ({ when, icon: I[icon], what, note, icCls: 'leg-ic' + (hl ? ' hl' : '') });
+    const D = {
+      rail: {
+        title: 'Rail past Dudhsagar', sub: 'Overnight both ways, 3A, four berths',
+        outDay: 'Thursday 10 December', backDay: 'Monday 14 December',
+        out: [
+          leg('Thu 8:15 pm', 'cab', 'Cab to Yesvantpur Junction', '35 minutes, about ₹450.'),
+          leg('Thu 9:10 pm', 'rail', 'Night train to Madgaon', '3A, four berths together. Lower berth asked for your father.'),
+          leg('Fri 7:40 am', 'eye', 'Dudhsagar falls, left side', 'We remind you ten minutes before, with the Katha on why it is called the sea of milk.', true),
+          leg('Fri 9:40 am', 'cab', 'Madgaon to Panaji by cab', '50 minutes, about ₹1,400.'),
+          leg('Fri 11:00 am', 'bed', 'Hotel in Panaji', 'Early check-in asked. Rest until the 4:30 pm Fontainhas walk.')
+        ],
+        back: [
+          leg('Mon 7:05 pm', 'rail', 'Night train from Madgaon', 'After Divar island and Piedade church in the morning.'),
+          leg('Tue 7:30 am', 'pin', 'Yesvantpur, home by 8:15 am', 'Cab home, about ₹450.')
+        ],
+        good: ['Fits the budget with ₹2,600 to spare.', 'Your father sleeps in a lower berth both nights.', 'Booking is open now: 10 December went on sale on 11 October.'],
+        bad: ['The Monday return is waitlisted on most trains. We will watch it and line up a backup.', 'Twelve and a half hours each way, though mostly asleep.'],
+        cost: [{ k: 'Trains, 3A, both ways', v: '₹11,200' }, { k: 'Cabs to and from stations', v: '₹2,800' }, { k: 'Stay, 3 nights, 2 rooms', v: '₹25,200' }, { k: 'Food, vegetarian', v: '₹9,600' }, { k: 'Local cabs in Goa', v: '₹6,000' }, { k: 'Tickets and entry', v: '₹2,600' }],
+        total: '₹57,400'
+      },
+      air: {
+        title: 'Fly to Mopa', sub: 'Morning flight out, evening flight back',
+        outDay: 'Friday 11 December', backDay: 'Monday 14 December',
+        out: [
+          leg('Fri 6:30 am', 'cab', 'Cab to Kempegowda airport', '1 hour 15 minutes, about ₹1,000.'),
+          leg('Fri 9:45 am', 'air', 'Flight to Goa (Mopa)', '1 hour 10 minutes. Three airlines fly it; fares compared live.'),
+          leg('Fri 10:55 am', 'cab', 'Mopa to Panaji by cab', '50 minutes, about ₹1,450.'),
+          leg('Fri 12:30 pm', 'bed', 'Hotel in Panaji', 'A free afternoon, then the Fontainhas walk at 4:30 pm.')
+        ],
+        back: [
+          leg('Mon 8:30 pm', 'air', 'Flight from Mopa', 'Leave Panaji by 6 pm.'),
+          leg('Mon 9:40 pm', 'pin', 'Bengaluru, home by 11 pm', 'Cab home, about ₹1,000.')
+        ],
+        good: ['Shortest and easiest for your father.', 'Adds Friday morning and Monday evening in Goa.'],
+        bad: ['Over the budget by ₹26,700.', 'Mopa is 50 minutes from Panaji, each way.'],
+        cost: [{ k: 'Flights, both ways', v: '₹38,400' }, { k: 'Airport cabs', v: '₹4,900' }, { k: 'Stay, 3 nights, 2 rooms', v: '₹25,200' }, { k: 'Food, vegetarian', v: '₹9,600' }, { k: 'Local cabs in Goa', v: '₹6,000' }, { k: 'Tickets and entry', v: '₹2,600' }],
+        total: '₹86,700'
+      },
+      road: {
+        title: 'Road via Hubballi', sub: 'Your own car, about 560 km each way',
+        outDay: 'Friday 11 December', backDay: 'Monday 14 December',
+        out: [
+          leg('Fri 6:00 am', 'road', 'Leave Bengaluru on NH48', 'A short stop every two hours for your father.'),
+          leg('Fri 9:30 am', 'food', 'Breakfast near Chitradurga', 'Veg breakfast, 30 minutes.'),
+          leg('Fri 12:40 pm', 'food', 'Lunch in Hubballi', 'Then Dharwad and the forest road to Anmod Ghat.'),
+          leg('Fri 5:00 pm', 'bed', 'Hotel in Panaji', 'Before dark on the ghat. Friday evening at Miramar only.')
+        ],
+        back: [
+          leg('Mon 7:00 am', 'road', 'Drive home after breakfast', 'Divar island moves out of the plan.'),
+          leg('Mon 6:30 pm', 'pin', 'Home in Bengaluru', 'About 11 hours with stops.')
+        ],
+        good: ['The cheapest way, ₹4,200 under budget.', 'Your own car for the days in Goa.'],
+        bad: ['Two long days in the car for your father.', 'Anmod Ghat is narrow and slow; we avoid it after dark.'],
+        cost: [{ k: 'Fuel and tolls, both ways', v: '₹12,400' }, { k: 'Fuel and parking in Goa', v: '₹4,400' }, { k: 'Stay, 3 nights, 2 rooms', v: '₹25,200' }, { k: 'Food, including the road', v: '₹11,200' }, { k: 'Tickets and entry', v: '₹2,600' }],
+        total: '₹55,800'
+      }
+    };
+    const O = [
+      { id: 'air', name: 'Fly to Mopa', time: '4½ h', cost: '₹86,700', budget: 'Over by ₹26,700', budgetCls: 'badge badge-bad', papa: 'Easiest for your father', line: 'Seventy minutes in the air, but most of the cost of the trip.' },
+      { id: 'rail', name: 'Rail past Dudhsagar', time: '12½ h, overnight', cost: '₹57,400', budget: 'Fits, ₹2,600 spare', budgetCls: 'badge badge-ok', papa: 'Lower berth', line: 'Sleep through the journey and wake up to the falls.' },
+      { id: 'road', name: 'Road via Hubballi', time: '10 to 11 h', cost: '₹55,800', budget: 'Fits, ₹4,200 spare', budgetCls: 'badge badge-ok', papa: 'Long day in the car', line: 'Cheapest, with your own car in Goa, but two long days.' }
+    ];
+    const opts = O.map((o) => ({ ...o, icon: I[o.id], on: o.id === pick ? 'true' : 'false', cls: 'opt' + (o.id === pick ? ' on' : ''), pick: () => this.setState({ pick: o.id }) }));
+    const w = (id) => (id === pick ? 7 : 3);
+    const op = (id) => (id === pick ? 1 : 0.28);
+    const go = { rail: ['Going by rail', 'Build the days by rail'], air: ['Flying to Mopa', 'Build the days with the flight'], road: ['Driving down', 'Build the days by road'] }[pick];
+    return {
+      opts, d: D[pick],
+      roadW: w('road'), railW: w('rail'), airW: w('air'),
+      roadOp: op('road'), railOp: op('rail'), airOp: op('air'),
+      mapLabel: 'Map of the ' + pick + ' route from Bengaluru to Goa',
+      goTitle: go[0], goBtn: go[1]
+    };
+  }
+}
+</script>
+</body>
+</html>
