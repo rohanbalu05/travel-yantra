@@ -54,7 +54,7 @@ function Get-NewCommand {
         $first = (($c.body -split "`n")[0]).Trim()
         if ($first -match '^HQ:\s*pause') { $st.paused = $true; Add-IssueComment $Dispatch "RUN $Name paused." }
         elseif ($first -match '^HQ:\s*resume') { $st.paused = $false; Add-IssueComment $Dispatch "RUN $Name resumed." }
-        elseif ($first -match '^(Work your queue.*|Fix PR #\d+.*)$') { $cmd = $Matches[1] }
+        elseif ($first -match '^(Work your queue.*|Fix PR #\d+.*|HQ task:.*)$') { $cmd = $Matches[1] }
     }
     Save-State $LogName $st
     return $cmd

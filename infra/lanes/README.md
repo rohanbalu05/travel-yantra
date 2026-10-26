@@ -5,7 +5,7 @@ command. HQ talks to them through GitHub only.
 
 - Each lane has a worktree `C:\TravelYantra\tyN` and a dispatch issue
   titled `[dispatch] TYN ...`. HQ posts a command there
-  (`Work your queue: #a, #b`, `Fix PR #n`, `HQ: pause`, `HQ: resume`;
+  (`Work your queue: #a, #b`, `Fix PR #n`, `HQ task: <instruction>`, `HQ: pause`, `HQ: resume`;
   add `effort:high` for contract or planner cards). The runner posts
   `RUN ... started` and `RUN ... done` with the session's final line.
 - When idle, a lane runner also acts by itself: it fixes its own PRs whose
