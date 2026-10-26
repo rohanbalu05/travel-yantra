@@ -1,7 +1,13 @@
 import json
 
-from routes.graph import (KIND_PLACE, Edge, FakeAirProvider, HaversineRoadProvider, Node,
-                          build_graph, haversine_km)
+from routes.graph import (
+    KIND_PLACE,
+    FakeAirProvider,
+    HaversineRoadProvider,
+    Node,
+    build_graph,
+    haversine_km,
+)
 
 CITIES = [
     Node("PL:blr", KIND_PLACE, "Bengaluru", 12.9716, 77.5946),

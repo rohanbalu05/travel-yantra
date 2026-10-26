@@ -1,7 +1,14 @@
+import itertools
 import random
 
 import pytest
-from routes.graph import KIND_PLACE, FakeAirProvider, HaversineRoadProvider, Node, build_graph
+from routes.graph import (
+    KIND_PLACE,
+    FakeAirProvider,
+    HaversineRoadProvider,
+    Node,
+    build_graph,
+)
 from routes.search import Weights, astar, dijkstra
 
 PLACES = [
@@ -36,7 +43,7 @@ def test_mixed_objective_matches_edges(g):
     w = MIXES[2]
     r = astar(g, "PL:mys", "PL:hyd", w)
     es = r.edges
-    transfers = sum(1 for a, b in zip(es, es[1:]) if (a.mode, a.ref) != (b.mode, b.ref))
+    transfers = sum(1 for a, b in itertools.pairwise(es) if (a.mode, a.ref) != (b.mode, b.ref))
     expected = sum(w.alpha * e.minutes + w.beta * e.cost_inr for e in es) + w.gamma * transfers
     assert r.objective == pytest.approx(expected)
 

@@ -113,9 +113,9 @@ def _result(edges: tuple[Edge, ...], objective: float, expansions: int) -> Searc
     return SearchResult(opt, objective, expansions, edges)
 
 
-def dijkstra(g: Graph, src: str, dst: str, w: Weights = Weights()) -> SearchResult | None:
-    return _search(g, src, dst, w, use_heuristic=False)
+def dijkstra(g: Graph, src: str, dst: str, w: Weights | None = None) -> SearchResult | None:
+    return _search(g, src, dst, w or Weights(), use_heuristic=False)
 
 
-def astar(g: Graph, src: str, dst: str, w: Weights = Weights()) -> SearchResult | None:
-    return _search(g, src, dst, w, use_heuristic=True)
+def astar(g: Graph, src: str, dst: str, w: Weights | None = None) -> SearchResult | None:
+    return _search(g, src, dst, w or Weights(), use_heuristic=True)
