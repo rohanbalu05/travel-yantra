@@ -45,6 +45,11 @@ def test_unknown_node(g):
     assert astar(g, "PL:blr", "nope") is None
 
 
+def test_same_node_has_no_option(g):
+    assert dijkstra(g, "PL:blr", "PL:blr") is None
+    assert astar(g, "PL:blr", "PL:blr") is None
+
+
 def test_astar_matches_dijkstra_and_expands_less(g):
     rng = random.Random(7)
     ids = [p.id for p in PLACES]

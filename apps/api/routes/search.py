@@ -47,7 +47,7 @@ def _max_speed_km_per_min(g: Graph) -> float:
 
 
 def _search(g: Graph, src: str, dst: str, w: Weights, use_heuristic: bool) -> SearchResult | None:
-    if src not in g.nodes or dst not in g.nodes:
+    if src == dst or src not in g.nodes or dst not in g.nodes:  # same node: no legs, no option
         return None
     goal = g.nodes[dst]
     vmax = _max_speed_km_per_min(g) if use_heuristic and w.alpha > 0 else 0.0
