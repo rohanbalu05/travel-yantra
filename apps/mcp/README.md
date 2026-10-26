@@ -17,7 +17,7 @@ cd apps/mcp && uv run python server.py   # http://localhost:8080/mcp
 { "mcpServers": { "travel-yantra": { "url": "http://localhost:8080/mcp" } } }
 ```
 
-Claude Code: `claude mcp add --transport http travel-yantra http://localhost:8080/mcp`
+Clients with an add command, for example: `<client> mcp add --transport http travel-yantra http://localhost:8080/mcp`
 
 ## Test
 
