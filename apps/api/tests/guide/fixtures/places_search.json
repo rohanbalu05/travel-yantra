@@ -1,0 +1,16 @@
+{
+  "places": [
+    {
+      "id": "ChIJsampleMysorePalace0001",
+      "types": ["tourist_attraction", "point_of_interest", "establishment"],
+      "location": {"latitude": 12.3052, "longitude": 76.6552},
+      "displayName": {"text": "Mysore Palace", "languageCode": "en"}
+    },
+    {
+      "id": "ChIJsampleChamundi00000002",
+      "types": ["hindu_temple", "place_of_worship"],
+      "location": {"latitude": 12.2724, "longitude": 76.6701},
+      "displayName": {"text": "Chamundeshwari Temple", "languageCode": "en"}
+    }
+  ]
+}

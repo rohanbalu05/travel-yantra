@@ -1,0 +1,10 @@
+{
+  "places": [
+    {
+      "id": "ChIJsampleHospital000001",
+      "types": ["hospital", "health", "point_of_interest"],
+      "location": {"latitude": 12.3101, "longitude": 76.6490},
+      "displayName": {"text": "Sample District Hospital", "languageCode": "en"}
+    }
+  ]
+}
