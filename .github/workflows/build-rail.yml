@@ -18,7 +18,7 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/src"
           for f in stations trains schedules; do
-            curl -fsSL --retry 3 -o "$RUNNER_TEMP/src/$f.json" \
+            curl -fsSL --retry 3 --connect-timeout 20 --max-time 300 -o "$RUNNER_TEMP/src/$f.json" \
               "https://raw.githubusercontent.com/datameet/railways/master/$f.json"
           done
       - name: Build rail subset
