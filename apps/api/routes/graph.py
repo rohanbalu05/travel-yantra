@@ -3,12 +3,14 @@ rail, road, air and walk edges. Stdlib only; offline fakes for road and air."""
 from __future__ import annotations
 
 import gzip
+import itertools
 import json
 import math
 from collections import Counter
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable, Protocol
+from typing import Protocol
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 
@@ -152,7 +154,7 @@ def load_rail(graph: Graph, data_dir: Path = DATA_DIR) -> None:
         graph.add_node(Node(f"ST:{s['code']}", KIND_STATION, s["name"], s["lat"], s["lon"]))
     for t in trains:
         stops = t["stops"]
-        for a, b in zip(stops, stops[1:]):
+        for a, b in itertools.pairwise(stops):
             dep = a["dep"] if a["dep"] is not None else a["arr"]
             arr = b["arr"] if b["arr"] is not None else b["dep"]
             if dep is None or arr is None:
