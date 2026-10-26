@@ -1,0 +1,142 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      py: ${{ steps.scope.outputs.py }}
+      api: ${{ steps.scope.outputs.api }}
+      web: ${{ steps.scope.outputs.web }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: scope
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          # Which folders changed, and do they have a project file yet?
+          if [ -n "$BASE" ] && git cat-file -e "$BASE" 2>/dev/null; then
+            changed=$(git diff --name-only "$BASE" HEAD)
+          else
+            changed=$(git ls-files)
+          fi
+          echo "$changed" | grep -q '^.github/workflows/ci.yml$' && changed=$(git ls-files)
+          hit() { echo "$changed" | grep -q "^$1/" && [ -f "$1/$2" ]; }
+          out=()
+          for pair in contracts:packages/contracts translate:services/translate bots:apps/bots mcp:apps/mcp; do
+            name=${pair%%:*}; dir=${pair#*:}
+            hit "$dir" pyproject.toml && out+=("{\"name\":\"$name\",\"dir\":\"$dir\"}")
+          done
+          echo "py=[$(IFS=,; echo "${out[*]}")]" >> "$GITHUB_OUTPUT"
+          if (hit apps/api pyproject.toml || hit packages/contracts pyproject.toml) && [ -f apps/api/pyproject.toml ]; then
+            echo "api=true" >> "$GITHUB_OUTPUT"; else echo "api=false" >> "$GITHUB_OUTPUT"; fi
+          hit apps/web package.json && echo "web=true" >> "$GITHUB_OUTPUT" || echo "web=false" >> "$GITHUB_OUTPUT"
+
+  scripts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test .github/scripts/strip_attribution.test.js
+      - run: python3 -m unittest discover -s .github/scripts -p '*_test.py'
+      - run: python3 -m unittest discover -s infra/fixtures -p '*_test.py'
+      - name: actionlint
+        run: |
+          bash <(curl -sSfL --max-time 60 https://raw.githubusercontent.com/rhysd/actionlint/v1.7.7/scripts/download-actionlint.bash) 1.7.7
+          ./actionlint -color
+
+  python:
+    needs: changes
+    if: needs.changes.outputs.py != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJSON(needs.changes.outputs.py) }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.project.dir }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --all-extras
+      - run: uv run ruff check .
+      - run: uv run pytest -m "not slow"
+
+  api:
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: ty
+          POSTGRES_PASSWORD: ty_ci_only
+          POSTGRES_DB: ty_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U ty" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://ty:ty_ci_only@localhost:5432/ty_test
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --all-extras
+      - run: uv run ruff check .
+      - run: uv run pytest -m "not slow"
+
+  web:
+    needs: changes
+    if: needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: apps/web/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm build
+
+  ci:
+    name: ci
+    needs: [changes, scripts, python, api, web]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Every job passed or was skipped
+        env:
+          RESULTS: ${{ join(needs.*.result, ' ') }}
+        run: |
+          echo "results: $RESULTS"
+          case " $RESULTS " in *" failure "*|*" cancelled "*) exit 1;; esac

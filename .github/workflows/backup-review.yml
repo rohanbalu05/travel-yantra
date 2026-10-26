@@ -1,0 +1,42 @@
+name: backup-review
+
+# Gemini review (AI Studio free key) used for round 3, or when Codex has
+# hit its usage limit. Posts one review and sets the `backup-review` status.
+
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      pr:
+        required: true
+        type: string
+    secrets:
+      GEMINI_API_KEY:
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
+
+concurrency:
+  group: backup-review-${{ inputs.pr }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Review
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PR: ${{ inputs.pr }}
+        run: python3 .github/scripts/backup_review.py "$GITHUB_REPOSITORY" "$PR"

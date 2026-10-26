@@ -1,0 +1,50 @@
+name: record-fixtures
+
+# Runs infra/fixtures/record.py with API secrets in env (live calls happen
+# only here), sanitises the output and opens a PR with fixtures/recorded/.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  record:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Record
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+          SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
+        run: python3 infra/fixtures/record.py --out fixtures/recorded
+      - name: Sanitise
+        run: python3 infra/fixtures/sanitise.py fixtures/recorded
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.REVIEW_PAT }}
+          branch: ty/ty6-fixtures-refresh
+          base: main
+          add-paths: fixtures/recorded/
+          author: Rohan Balu <117021386+rohanbalu05@users.noreply.github.com>
+          committer: Rohan Balu <117021386+rohanbalu05@users.noreply.github.com>
+          commit-message: '[TY6-05] refresh recorded fixtures'
+          title: '[TY6-05] Refresh recorded fixtures'
+          body: |
+            ## What
+            Re-recorded API fixtures under fixtures/recorded/.
+
+            ## Why
+            Lanes build and test against recorded fixtures, never live APIs.
+
+            ## How tested
+            infra/fixtures/sanitise.py passed on every file.
+
+            ## Assumptions
+            None.

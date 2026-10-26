@@ -1,0 +1,44 @@
+name: review-gate
+
+# Sets the required `review-gate` commit status on each PR head SHA.
+# Always runs main's copy of the script (never PR code). A commit status,
+# not this job's own check, is the required check: runs triggered by
+# comments and the schedule belong to main's SHA, so only a status can
+# update the PR.
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+  issue_comment:
+    types: [created, edited]
+  workflow_run:
+    workflows: [backup-review]
+    types: [completed]
+  schedule:
+    - cron: '*/10 * * * *'
+
+permissions:
+  contents: read
+  statuses: write
+  pull-requests: read
+  issues: read
+  actions: write
+
+concurrency:
+  group: review-gate-${{ github.event.pull_request.number || github.event.issue.number || 'all' }}
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    if: github.event_name != 'issue_comment' || github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Evaluate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number || github.event.issue.number }}
+        run: python3 .github/scripts/review_gate.py --repo "$GITHUB_REPOSITORY" ${PR:+--pr "$PR"}
