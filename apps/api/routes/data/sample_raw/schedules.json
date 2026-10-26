@@ -1,0 +1,252 @@
+[
+ {
+  "train_number": "90001",
+  "train_name": "V",
+  "station_code": "SBC",
+  "station_name": "SBC",
+  "arrival": "None",
+  "departure": "23:30:00",
+  "day": 1,
+  "id": 1
+ },
+ {
+  "train_number": "90001",
+  "train_name": "V",
+  "station_code": "TK",
+  "station_name": "TK",
+  "arrival": "00:35:00",
+  "departure": "00:37:00",
+  "day": 2,
+  "id": 2
+ },
+ {
+  "train_number": "90001",
+  "train_name": "V",
+  "station_code": "ASK",
+  "station_name": "ASK",
+  "arrival": "02:30:00",
+  "departure": "02:35:00",
+  "day": 2,
+  "id": 3
+ },
+ {
+  "train_number": "90001",
+  "train_name": "V",
+  "station_code": "UBL",
+  "station_name": "UBL",
+  "arrival": "06:15:00",
+  "departure": "06:25:00",
+  "day": 2,
+  "id": 4
+ },
+ {
+  "train_number": "90001",
+  "train_name": "V",
+  "station_code": "LD",
+  "station_name": "LD",
+  "arrival": "08:10:00",
+  "departure": "08:15:00",
+  "day": 2,
+  "id": 5
+ },
+ {
+  "train_number": "90001",
+  "train_name": "V",
+  "station_code": "MAO",
+  "station_name": "MAO",
+  "arrival": "10:40:00",
+  "departure": "None",
+  "day": 2,
+  "id": 6
+ },
+ {
+  "train_number": "90002",
+  "train_name": "P",
+  "station_code": "SBC",
+  "station_name": "SBC",
+  "arrival": "None",
+  "departure": "08:00:00",
+  "day": 1,
+  "id": 7
+ },
+ {
+  "train_number": "90002",
+  "train_name": "P",
+  "station_code": "UBL",
+  "station_name": "UBL",
+  "arrival": "17:30:00",
+  "departure": "17:40:00",
+  "day": 1,
+  "id": 8
+ },
+ {
+  "train_number": "90002",
+  "train_name": "P",
+  "station_code": "LD",
+  "station_name": "LD",
+  "arrival": "19:50:00",
+  "departure": "19:55:00",
+  "day": 1,
+  "id": 9
+ },
+ {
+  "train_number": "90002",
+  "train_name": "P",
+  "station_code": "MAO",
+  "station_name": "MAO",
+  "arrival": "23:10:00",
+  "departure": "None",
+  "day": 1,
+  "id": 10
+ },
+ {
+  "train_number": "90003",
+  "train_name": "G",
+  "station_code": "MAO",
+  "station_name": "MAO",
+  "arrival": "None",
+  "departure": "14:00:00",
+  "day": 1,
+  "id": 11
+ },
+ {
+  "train_number": "90003",
+  "train_name": "G",
+  "station_code": "KRMI",
+  "station_name": "KRMI",
+  "arrival": "14:20:00",
+  "departure": "14:22:00",
+  "day": 1,
+  "id": 12
+ },
+ {
+  "train_number": "90003",
+  "train_name": "G",
+  "station_code": "PUNE",
+  "station_name": "PUNE",
+  "arrival": "23:30:00",
+  "departure": "23:40:00",
+  "day": 1,
+  "id": 13
+ },
+ {
+  "train_number": "90003",
+  "train_name": "G",
+  "station_code": "CSMT",
+  "station_name": "CSMT",
+  "arrival": "03:40:00",
+  "departure": "None",
+  "day": 2,
+  "id": 14
+ },
+ {
+  "train_number": "90004",
+  "train_name": "C",
+  "station_code": "SBC",
+  "station_name": "SBC",
+  "arrival": "None",
+  "departure": "06:00:00",
+  "day": 1,
+  "id": 15
+ },
+ {
+  "train_number": "90004",
+  "train_name": "C",
+  "station_code": "MAS",
+  "station_name": "MAS",
+  "arrival": "11:30:00",
+  "departure": "None",
+  "day": 1,
+  "id": 16
+ },
+ {
+  "train_number": "90005",
+  "train_name": "K",
+  "station_code": "CSMT",
+  "station_name": "CSMT",
+  "arrival": "None",
+  "departure": "11:00:00",
+  "day": 1,
+  "id": 17
+ },
+ {
+  "train_number": "90005",
+  "train_name": "K",
+  "station_code": "MAO",
+  "station_name": "MAO",
+  "arrival": "22:30:00",
+  "departure": "22:40:00",
+  "day": 1,
+  "id": 18
+ },
+ {
+  "train_number": "90005",
+  "train_name": "K",
+  "station_code": "ERS",
+  "station_name": "ERS",
+  "arrival": "12:30:00",
+  "departure": "12:40:00",
+  "day": 2,
+  "id": 19
+ },
+ {
+  "train_number": "90005",
+  "train_name": "K",
+  "station_code": "TVC",
+  "station_name": "TVC",
+  "arrival": "16:30:00",
+  "departure": "None",
+  "day": 2,
+  "id": 20
+ },
+ {
+  "train_number": "90006",
+  "train_name": "M",
+  "station_code": "ERS",
+  "station_name": "ERS",
+  "arrival": "None",
+  "departure": "07:00:00",
+  "day": 1,
+  "id": 21
+ },
+ {
+  "train_number": "90006",
+  "train_name": "M",
+  "station_code": "MAS",
+  "station_name": "MAS",
+  "arrival": "19:30:00",
+  "departure": "None",
+  "day": 1,
+  "id": 22
+ },
+ {
+  "train_number": "90007",
+  "train_name": "D",
+  "station_code": "DEL",
+  "station_name": "DEL",
+  "arrival": "None",
+  "departure": "16:00:00",
+  "day": 1,
+  "id": 23
+ },
+ {
+  "train_number": "90007",
+  "train_name": "D",
+  "station_code": "BZA",
+  "station_name": "BZA",
+  "arrival": "22:00:00",
+  "departure": "22:10:00",
+  "day": 2,
+  "id": 24
+ },
+ {
+  "train_number": "90007",
+  "train_name": "D",
+  "station_code": "MAS",
+  "station_name": "MAS",
+  "arrival": "04:00:00",
+  "departure": "None",
+  "day": 3,
+  "id": 25
+ }
+]
