@@ -4,9 +4,15 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",
+    "numpy>=1.26",
+    "psycopg[binary]>=3.2",
     "pydantic>=2.7",
     "uvicorn>=0.30",
 ]
+
+[project.optional-dependencies]
+# local multilingual-e5-small embeddings; tests set EMBEDDER=fake and skip this
+embeddings = ["sentence-transformers>=3"]
 
 [dependency-groups]
 dev = ["httpx>=0.27", "pytest>=8", "ruff>=0.6"]
