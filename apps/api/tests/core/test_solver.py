@@ -66,12 +66,23 @@ def test_no_stop_is_scheduled_outside_its_opening_hours():
     assert "late" in {p.id for p in left}  # a 2-hour visit cannot fit a 1-hour window
 
 
+# Planners return more candidates than a trip can hold; four more sample Goa stops make pace the limit.
+GOA_MORE = [*GOA_PLACES, place("goa-aguada", 15.4920, 73.7735, 60), place("goa-reis", 15.4985, 73.8090, 45),
+            place("goa-dona-paula", 15.4553, 73.8044, 45), place("goa-panjim-church", 15.4989, 73.8278, 30)]
+
+
 def test_relaxed_pace_has_fewer_stops_per_day_than_balanced_on_goa():
-    relaxed, _ = solve(GOA.request, GOA_PLACES)
-    balanced, _ = solve(with_pace(GOA.request, Pace.balanced), GOA_PLACES)
+    relaxed, _ = solve(GOA.request, GOA_MORE)
+    balanced, _ = solve(with_pace(GOA.request, Pace.balanced), GOA_MORE)
     assert GOA.request.constraints.pace is Pace.relaxed
     assert max(len(d.stops) for d in relaxed) < max(len(d.stops) for d in balanced)
     assert all(len(d.stops) <= 2 for d in relaxed)
+
+
+def test_a_short_list_spreads_over_the_trip():
+    mysuru = fakes.sample("mysuru_weekend.json")
+    days, left = solve(mysuru.request, [p for d in mysuru.days for p in d.stops])
+    assert [len(d.stops) for d in days] == [2, 1] and not left
 
 
 def test_every_goa_place_is_planned_once_with_legs_between_stops():

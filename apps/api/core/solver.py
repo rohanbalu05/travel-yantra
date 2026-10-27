@@ -5,6 +5,7 @@ No model calls. Travel times come from TY3's RoadEdgeProvider (HaversineRoadProv
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 
@@ -179,26 +180,25 @@ def trip_days(request: TripRequest) -> list[date]:
 
 
 def solve(request: TripRequest, places: list[Place], travel: Travel | None = None) -> tuple[list[DayPlan], list[Place]]:
-    """Greedy clustering by distance: each day seeds with the first unplaced place, then adds the
-    nearest places that still fit. Returns the day plans and the places that did not fit."""
+    """Greedy clustering by distance: each day seeds with the first unplaced place that fits, then adds
+    the nearest places that still fit. A day takes its share of what is left (never more than the pace
+    allows), so a short list spreads over the trip instead of piling onto day one.
+    Returns the day plans and the places that did not fit."""
     travel = travel or Travel()
     lim = limits(request)
     left = list({p.id: p for p in places}.values())  # planner order, one entry per id
+    dates = trip_days(request)
     days: list[DayPlan] = []
-    for d in trip_days(request):
-        chosen: list[Place] = []
-        for p in list(left):
-            if chosen:
-                break
-            if fits(d, [p], travel, lim):
-                chosen.append(p)
-                left.remove(p)
-        while chosen and len(chosen) < lim.max_stops:
+    for n, d in enumerate(dates):
+        share = min(lim.max_stops, math.ceil(len(left) / (len(dates) - n)))
+        seed = next((p for p in left if fits(d, [p], travel, lim)), None)
+        chosen = [seed] if seed and share else []
+        while chosen and len(chosen) < share:
             near = sorted(left, key=lambda p: (min(travel.minutes(c, p) for c in chosen), p.id))
-            added = next((p for p in near if fits(d, [*chosen, p], travel, lim)), None)
+            added = next((p for p in near if p not in chosen and fits(d, [*chosen, p], travel, lim)), None)
             if added is None:
                 break
             chosen.append(added)
-            left.remove(added)
+        left = [p for p in left if p not in chosen]
         days.append(build_day(d, chosen, travel, lim)[0])
     return days, left
