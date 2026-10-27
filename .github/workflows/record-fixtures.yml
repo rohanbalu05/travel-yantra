@@ -1,14 +1,24 @@
 name: record-fixtures
 
 # Runs infra/fixtures/record.py with API secrets in env (live calls happen
-# only here), sanitises the output and opens a PR with fixtures/recorded/.
+# only here), checks the output with sanitise.py and uploads it as an
+# artifact. TY6 downloads it, reviews it and commits fixtures/recorded/ (no PRs
+# in v3, and Rohan stays the author). Budget: 8 SerpApi searches per run.
 
 on:
   workflow_dispatch:
+    inputs:
+      only:
+        description: "Providers to record (space-separated: places routes wikimedia serpapi; empty = all)"
+        required: false
+        type: string
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
+
+concurrency:
+  group: record-fixtures
+  cancel-in-progress: false
 
 jobs:
   record:
@@ -23,28 +33,16 @@ jobs:
         env:
           GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
           SERPAPI_API_KEY: ${{ secrets.SERPAPI_API_KEY }}
-        run: python3 infra/fixtures/record.py --out fixtures/recorded
+          ONLY: ${{ inputs.only }}
+        run: |
+          args=()
+          for p in $ONLY; do args+=(--only "$p"); done
+          python3 infra/fixtures/record.py --out fixtures/recorded "${args[@]}"
       - name: Sanitise
         run: python3 infra/fixtures/sanitise.py fixtures/recorded
-      - uses: peter-evans/create-pull-request@v7
+      - uses: actions/upload-artifact@v4
         with:
-          token: ${{ github.token }}
-          branch: ty/ty6-fixtures-refresh
-          base: main
-          add-paths: fixtures/recorded/
-          author: Rohan Balu <117021386+rohanbalu05@users.noreply.github.com>
-          committer: Rohan Balu <117021386+rohanbalu05@users.noreply.github.com>
-          commit-message: '[TY6-05] refresh recorded fixtures'
-          title: '[TY6-05] Refresh recorded fixtures'
-          body: |
-            ## What
-            Re-recorded API fixtures under fixtures/recorded/.
-
-            ## Why
-            Lanes build and test against recorded fixtures, never live APIs.
-
-            ## How tested
-            infra/fixtures/sanitise.py passed on every file.
-
-            ## Assumptions
-            None.
+          name: recorded-fixtures
+          path: fixtures/recorded/
+          if-no-files-found: error
+          retention-days: 7
