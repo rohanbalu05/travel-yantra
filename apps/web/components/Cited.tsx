@@ -25,7 +25,7 @@ export function Sources({ id, items }: { id: string; items: Citation[] }) {
       <ol>
         {items.map((c, i) => (
           <li key={i} id={`${id}-${i + 1}`}>
-            {c.url ? <a href={c.url} target="_blank" rel="noopener noreferrer">{c.title}</a> : c.title}
+            {c.url && /^https?:\/\//i.test(c.url) ? <a href={c.url} target="_blank" rel="noopener noreferrer">{c.title}</a> : c.title}
           </li>
         ))}
       </ol>

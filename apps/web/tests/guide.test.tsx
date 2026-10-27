@@ -34,6 +34,12 @@ describe("cited text", () => {
     expect(document.getElementById("t-1")?.textContent).toBe("Basilica (Wikipedia)");
   });
 
+  it("links only http(s) sources", () => {
+    render(<Sources id="u" items={[{ title: "Bad", url: "javascript:alert(1)" }, { title: "Good", url: "https://example.org/a" }]} />);
+    expect(screen.queryByRole("link", { name: "Bad" })).toBeNull();
+    expect(screen.getByRole("link", { name: "Good" }).getAttribute("href")).toBe("https://example.org/a");
+  });
+
   it("turns a Katha source URL into a readable title", () => {
     expect(citationFrom("https://en.wikipedia.org/wiki/Basilica_of_Bom_Jesus")).toEqual({ title: "Basilica of Bom Jesus (en.wikipedia.org)", url: "https://en.wikipedia.org/wiki/Basilica_of_Bom_Jesus" });
     expect(citationFrom("Gazetteer of Goa (State archive)")).toEqual({ title: "Gazetteer of Goa (State archive)", url: null });
