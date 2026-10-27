@@ -59,6 +59,14 @@ def _offline(key: str) -> Any:
 async def _request(method: str, path: str, **kw: Any) -> Any:
     async with httpx.AsyncClient(timeout=60) as client:
         resp = await client.request(method, f"{_base()}{path}", **kw)
+        if 400 <= resp.status_code < 500:
+            # The API's own words (for example "unknown sample PNR") help the client more.
+            try:
+                detail = resp.json().get("detail")
+            except ValueError:
+                detail = None
+            if isinstance(detail, str):
+                raise RuntimeError(detail)
         resp.raise_for_status()
         return resp.json()
 

@@ -230,3 +230,11 @@ async def test_get_katha_translates_text_and_segments(monkeypatch):
     assert story.lang == "kn" and story.text.startswith("<kn>")
     assert all(s.text.startswith("<kn>") for s in story.segments)
     assert story.sources == OFFLINE["katha"]["sources"]
+
+
+async def test_api_4xx_detail_is_the_tool_error(monkeypatch):
+    _fake_api(monkeypatch, lambda req: httpx.Response(404, json={"detail": "unknown sample PNR"}))
+    async with connect(server.mcp._mcp_server) as client:
+        res = await client.call_tool("track_booking", CALLS["track_booking"])
+    assert res.isError
+    assert "unknown sample PNR" in res.content[0].text
