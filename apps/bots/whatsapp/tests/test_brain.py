@@ -1,56 +1,97 @@
 import json
-from datetime import date
 
 import httpx
 import pytest
 from ty_contracts import Lang
 
 from app import brain as brain_mod
-from app.brain import HELP, MAX_REPLY, SAMPLE, Brain, detect_lang, parse_trip
+from app import translate as translate_mod
+from app.brain import ASKING, HELP, MAX_REPLY, SAMPLE, Brain, User, detect_lang, is_trip
+from app.translate import Translator
 
-TODAY = date(2026, 10, 27)
 ITINERARY = json.loads(SAMPLE.read_text(encoding="utf-8"))["itinerary"]
+API = "http://api.test"
+TRANSLATE = "http://translate.test"
+
+
+class Clock:
+    def __init__(self) -> None:
+        self.now = 1000.0
+
+    def __call__(self) -> float:
+        return self.now
+
+
+def text(body: str, user: str = "15550001111") -> dict:
+    return {"from": user, "id": "wamid.x", "type": "text", "text": {"body": body}}
+
+
+def sse(*events: dict) -> str:
+    return "".join(f": ping\n\ndata: {json.dumps(e)}\n\n" for e in events)
+
+
+def done(itinerary=ITINERARY) -> dict:
+    return {"stage": "done", "message": "done", "partial": itinerary, "plan_id": "p1"}
+
+
+def fake_http(monkeypatch, handler):
+    """One fake transport for every httpx client in the bot (API and translate)."""
+    seen = []
+
+    def record(req: httpx.Request) -> httpx.Response:
+        seen.append(req)
+        return handler(req)
+
+    real = httpx.AsyncClient
+    fake = lambda **kw: real(transport=httpx.MockTransport(record), **kw)
+    monkeypatch.setattr(brain_mod.httpx, "AsyncClient", fake)
+    monkeypatch.setattr(translate_mod.httpx, "AsyncClient", fake)
+    return seen
+
+
+def tagging_translate(req: httpx.Request) -> httpx.Response:
+    """Fake translate service: tags each text, keeps protected entities, flags nothing."""
+    body = json.loads(req.content)
+    outs = [f"<{body['target']}>{t}" for t in body["texts"]]
+    return httpx.Response(
+        200,
+        json={"translations": outs, "target": body["target"], "via": [], "flags": [[] for _ in outs]},
+    )
 
 
 @pytest.mark.parametrize(
-    "text, origin, dest, start, end",
+    "msg",
     [
-        ("Plan Bengaluru to Goa, 11-14 Dec", "Bengaluru", "Goa", (2026, 12, 11), (2026, 12, 14)),
-        ("from mysuru to ooty 3 to 5 nov", "Mysuru", "Ooty", (2026, 11, 3), (2026, 11, 5)),
-        (
-            "Mujhe Bengaluru se Goa jaana hai 11 Dec se 14 Dec tak",
-            "Bengaluru",
-            "Goa",
-            (2026, 12, 11),
-            (2026, 12, 14),
-        ),
-        (
-            "Chennai to Pondicherry 30 dec - 2 jan",
-            "Chennai",
-            "Pondicherry",
-            (2026, 12, 30),
-            (2027, 1, 2),
-        ),
-        ("Pune to Goa 5-8 March", "Pune", "Goa", (2027, 3, 5), (2027, 3, 8)),
+        "Plan Bengaluru to Goa, 11-14 Dec",
+        "Mujhe Bengaluru se Goa jaana hai 11 Dec se 14 Dec tak",
+        "a weekend trip to Hampi",
+        "Mysuru to Ooty 3 Nov",
+        "मुझे गोवा की यात्रा करनी है",
+        "ಮೈಸೂರು ಪ್ರವಾಸ ಯೋಜಿಸಿ",
+        "மதுரை பயணம் திட்டமிடு",
+        "హైదరాబాద్ ప్రయాణం",
+        "দার্জিলিং ভ্রমণ",
     ],
 )
-def test_parse_trip(text, origin, dest, start, end):
-    trip = parse_trip(text, TODAY)
-    assert trip is not None
-    assert (trip.origin, trip.destinations) == (origin, [dest])
-    assert (trip.start_date, trip.end_date) == (date(*start), date(*end))
+def test_is_trip(msg):
+    assert is_trip(msg)
 
 
 @pytest.mark.parametrize(
-    "text",
-    ["What should we eat in Goa?", "Bengaluru to Goa", "11-14 Dec", "Goa to Pune 31-32 Dec"],
+    "msg",
+    [
+        "What should we eat in Goa?",
+        "How do I get from Panaji to Old Goa?",
+        "nearest hospital",
+        "गोवा में शाकाहारी खाना कहाँ मिलेगा?",
+    ],
 )
-def test_not_a_trip(text):
-    assert parse_trip(text, TODAY) is None
+def test_is_not_trip(msg):
+    assert not is_trip(msg)
 
 
 @pytest.mark.parametrize(
-    "text, lang",
+    "msg, lang",
     [
         ("Goa jaana hai", Lang.en),
         ("गोवा में क्या खाएं?", Lang.hi),
@@ -60,71 +101,216 @@ def test_not_a_trip(text):
         ("কলকাতায় কী খাব?", Lang.bn),
     ],
 )
-def test_detect_lang(text, lang):
-    assert detect_lang(text) == lang
+def test_detect_lang(msg, lang):
+    assert detect_lang(msg) == lang
 
 
 async def test_greeting_gets_help():
-    assert await Brain(base="").reply("Hi") == HELP
+    assert await Brain(base="").handle(text("Hi")) == HELP
 
 
-def _fake_api(monkeypatch, handler):
-    seen = []
-
-    def record(req: httpx.Request) -> httpx.Response:
-        seen.append(req)
-        return handler(req)
-
-    real = httpx.AsyncClient
-    monkeypatch.setattr(
-        brain_mod.httpx,
-        "AsyncClient",
-        lambda **kw: real(transport=httpx.MockTransport(record), **kw),
-    )
-    return seen
-
-
-async def test_trip_calls_api_plan(monkeypatch):
-    done = {"stage": "done", "message": "done", "partial": ITINERARY}
-    sse = "data: " + json.dumps({"stage": "planning", "message": "p"}) + "\n\n"
-    sse += "data: " + json.dumps(done) + "\n\n"
-    seen = _fake_api(monkeypatch, lambda req: httpx.Response(200, text=sse))
-    reply = await Brain(base="http://api.test", today=TODAY).reply("Bengaluru to Goa 11-14 Dec")
+async def test_trip_sends_plantext_and_summarises(monkeypatch):
+    seen = fake_http(monkeypatch, lambda req: httpx.Response(200, text=sse(done())))
+    reply = await Brain(base=API).handle(text("Plan Bengaluru to Goa 11-14 Dec, 4 of us"))
     assert seen[0].url.path == "/plan"
-    sent = json.loads(seen[0].content)
-    assert (sent["origin"], sent["destinations"], sent["start_date"]) == (
-        "Bengaluru",
-        ["Goa"],
-        "2026-12-11",
+    assert json.loads(seen[0].content) == {
+        "text": "Plan Bengaluru to Goa 11-14 Dec, 4 of us",
+        "lang": "en",
+    }
+    assert "Goa from Bengaluru" in reply and "Day 1" in reply and "offline" not in reply
+
+
+async def test_needs_input_then_answers_are_resent_with_the_original(monkeypatch):
+    replies = iter(
+        [
+            sse({"stage": "needs_input", "message": "q", "questions": ["Which dates?"]}),
+            sse(done()),
+        ]
     )
-    assert "Day 1" in reply and "offline" not in reply
+    seen = fake_http(monkeypatch, lambda req: httpx.Response(200, text=next(replies)))
+    brain = Brain(base=API)
+    first = await brain.handle(text("Plan a trip to Goa"))
+    assert first == f"{ASKING}\n- Which dates?"
+    second = await brain.handle(text("11-14 Dec"))
+    assert json.loads(seen[1].content)["text"] == "Plan a trip to Goa\n11-14 Dec"
+    assert "Day 1" in second
 
 
-async def test_question_calls_guide_ask_in_users_language(monkeypatch):
-    answer = {"text": "उत्तर", "citations": [{"title": "Sample source", "url": None}], "lang": "hi"}
-    seen = _fake_api(monkeypatch, lambda req: httpx.Response(200, json=answer))
-    reply = await Brain(base="http://api.test").reply("गोवा में क्या खाएं?")
-    assert seen[0].url.path == "/guide/ask"
+async def test_pending_questions_expire(monkeypatch):
+    clock = Clock()
+    seen = fake_http(
+        monkeypatch,
+        lambda req: httpx.Response(
+            200, text=sse({"stage": "needs_input", "message": "q", "questions": ["When?"]})
+        )
+        if req.url.path == "/plan"
+        else httpx.Response(200, json={"text": "Fish curry [1].", "citations": [{"title": "S"}]}),
+    )
+    brain = Brain(base=API, clock=clock)
+    await brain.handle(text("Plan a trip to Goa"))
+    clock.now += 31 * 60
+    await brain.handle(text("What should we eat?"))
+    assert seen[1].url.path == "/guide/ask"
+
+
+async def test_cancel_clears_pending(monkeypatch):
+    fake_http(
+        monkeypatch,
+        lambda req: httpx.Response(
+            200, text=sse({"stage": "needs_input", "message": "q", "questions": ["When?"]})
+        ),
+    )
+    brain = Brain(base=API)
+    await brain.handle(text("Plan a trip to Goa"))
+    assert await brain.handle(text("cancel")) == HELP
+    assert brain.users["15550001111"].pending is None
+
+
+async def test_question_goes_to_guide_with_numbered_sources(monkeypatch):
+    answer = {
+        "text": "Try fish curry [1] and bebinca [2].",
+        "citations": [{"title": "Goan food", "url": "https://example.org/a"}, {"title": "Sweets"}],
+        "lang": "en",
+    }
+    seen = fake_http(monkeypatch, lambda req: httpx.Response(200, json=answer))
+    reply = await Brain(base=API).handle(text("What should we eat in Goa?"))
+    assert json.loads(seen[0].content) == {
+        "question": "What should we eat in Goa?",
+        "lang": "en",
+        "has_elderly": False,
+    }
+    assert reply == (
+        "Try fish curry [1] and bebinca [2].\n\n[1] Goan food https://example.org/a\n[2] Sweets"
+    )
+
+
+async def test_hindi_question_is_answered_in_hindi_with_markers_kept(monkeypatch):
+    answer = {"text": "Try fish curry at Fontainhas [1].", "citations": [{"title": "S"}]}
+
+    def handler(req):
+        if req.url.host == "translate.test":
+            return tagging_translate(req)
+        return httpx.Response(200, json=answer)
+
+    seen = fake_http(monkeypatch, handler)
+    brain = Brain(base=API, translator=Translator(TRANSLATE))
+    reply = await brain.handle(text("गोवा में क्या खाएं?"))
     assert json.loads(seen[0].content)["lang"] == "hi"
-    assert reply.startswith("उत्तर") and "Sample source" in reply
+    sent = json.loads(seen[1].content)
+    assert sent["target"] == "hi" and "[1]" in sent["entities"]
+    assert reply == "<hi>Try fish curry at Fontainhas [1].\n\n[1] S"
+
+
+async def test_plan_summary_is_translated_with_place_names_kept(monkeypatch):
+    def handler(req):
+        if req.url.host == "translate.test":
+            return tagging_translate(req)
+        return httpx.Response(200, text=sse(done()))
+
+    seen = fake_http(monkeypatch, handler)
+    brain = Brain(base=API, translator=Translator(TRANSLATE))
+    reply = await brain.handle(text("मुझे गोवा की यात्रा करनी है"))
+    assert json.loads(seen[0].content)["lang"] == "hi"
+    sent = json.loads(seen[1].content)
+    assert "Basilica of Bom Jesus" in sent["entities"] and "Bengaluru" in sent["entities"]
+    assert all(line.startswith("<hi>") for line in reply.split("\n"))
+
+
+async def test_flagged_translation_stays_english(monkeypatch):
+    def handler(req):
+        if req.url.host == "translate.test":
+            n = len(json.loads(req.content)["texts"])
+            return httpx.Response(
+                200,
+                json={"translations": ["x"] * n, "target": "hi", "via": [], "flags": [["length"]] * n},
+            )
+        return httpx.Response(200, json={"text": "Fish curry.", "lang": "en"})
+
+    fake_http(monkeypatch, handler)
+    brain = Brain(base=API, translator=Translator(TRANSLATE))
+    assert await brain.handle(text("गोवा में क्या खाएं?")) == "Fish curry."
+
+
+async def test_location_is_sent_with_emergency_questions(monkeypatch):
+    clock = Clock()
+    answer = {
+        "text": "The nearest hospital is close by.",
+        "emergency_places": [
+            {
+                "id": "h1",
+                "name": "Sample Hospital",
+                "lat": 15.5,
+                "lng": 73.8,
+                "category": "hospital",
+                "typical_visit_minutes": 0,
+                "source": "places",
+            }
+        ],
+    }
+    seen = fake_http(monkeypatch, lambda req: httpx.Response(200, json=answer))
+    brain = Brain(base=API, clock=clock)
+    loc = {"from": "15550001111", "type": "location", "location": {"latitude": 15.5, "longitude": 73.8}}
+    assert (await brain.handle(loc)).startswith("Got your location")
+    reply = await brain.handle(text("nearest hospital"))
+    body = json.loads(seen[0].content)
+    assert (body["lat"], body["lng"]) == (15.5, 73.8)
+    assert "Sample Hospital https://maps.google.com/?q=15.5,73.8" in reply
+    clock.now += 61 * 60
+    await brain.handle(text("nearest hospital"))
+    assert "lat" not in json.loads(seen[1].content)
+
+
+async def test_voice_reply_uses_the_users_last_language(monkeypatch):
+    fake_http(monkeypatch, tagging_translate)
+    brain = Brain(base="", translator=Translator(TRANSLATE))
+    brain.users["15550001111"] = User(lang=Lang.ta)
+    reply = await brain.handle({"from": "15550001111", "type": "audio"})
+    assert reply.startswith("<ta>Sorry")
+
+
+async def test_translate_down_means_english(monkeypatch):
+    fake_http(monkeypatch, lambda req: httpx.Response(503))
+    out = await Translator(TRANSLATE).text("Hello [1].", Lang.hi)
+    assert out == "Hello [1]."
+
+
+async def test_dropped_marker_keeps_english(monkeypatch):
+    def handler(req):
+        n = len(json.loads(req.content)["texts"])
+        return httpx.Response(
+            200, json={"translations": ["नमस्ते"] * n, "target": "hi", "via": [], "flags": [[]] * n}
+        )
+
+    fake_http(monkeypatch, handler)
+    assert await Translator(TRANSLATE).text("Hello [1].", Lang.hi) == "Hello [1]."
+
+
+async def test_long_lines_are_split_for_translate(monkeypatch):
+    seen = fake_http(monkeypatch, tagging_translate)
+    line = " ".join(["This is a sentence."] * 80)
+    out = await Translator(TRANSLATE).text(line, Lang.hi)
+    assert all(len(t) <= 1000 for t in json.loads(seen[0].content)["texts"])
+    assert out.count("<hi>") == 80
 
 
 async def test_long_answers_are_capped(monkeypatch):
-    answer = {"text": "x" * 5000, "lang": "en"}
-    _fake_api(monkeypatch, lambda req: httpx.Response(200, json=answer))
-    reply = await Brain(base="http://api.test").reply("Tell me everything about Hampi")
+    fake_http(monkeypatch, lambda req: httpx.Response(200, json={"text": "x" * 5000}))
+    reply = await Brain(base=API).handle(text("Tell me everything about Hampi"))
     assert len(reply) == MAX_REPLY
 
 
 async def test_plan_error_event_raises(monkeypatch):
-    sse = "data: " + json.dumps({"stage": "error", "message": "no route"}) + "\n\n"
-    _fake_api(monkeypatch, lambda req: httpx.Response(200, text=sse))
+    fake_http(
+        monkeypatch,
+        lambda req: httpx.Response(200, text=sse({"stage": "error", "message": "no route"})),
+    )
     with pytest.raises(RuntimeError, match="no route"):
-        await Brain(base="http://api.test", today=TODAY).reply("Bengaluru to Goa 11-14 Dec")
+        await Brain(base=API).handle(text("Plan Bengaluru to Goa 11-14 Dec"))
 
 
-async def test_plan_needs_input_replies_with_questions(monkeypatch):
-    ask = {"stage": "needs_input", "message": "q", "questions": ["How many travellers?"]}
-    _fake_api(monkeypatch, lambda req: httpx.Response(200, text="data: " + json.dumps(ask) + "\n\n"))
-    reply = await Brain(base="http://api.test", today=TODAY).reply("Bengaluru to Goa 11-14 Dec")
-    assert reply == "To plan this I need a little more:\n- How many travellers?"
+async def test_overlong_sentence_stays_english_and_whole(monkeypatch):
+    seen = fake_http(monkeypatch, tagging_translate)
+    line = "y" * 1500 + ". Short one."
+    out = await Translator(TRANSLATE).text(line, Lang.hi)
+    assert json.loads(seen[0].content)["texts"] == ["Short one."]
+    assert out == "y" * 1500 + ". <hi>Short one."

@@ -78,6 +78,153 @@
       "title": "Citation",
       "type": "object"
     },
+    "CityRef": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "lat": {
+          "title": "Lat",
+          "type": "number"
+        },
+        "lng": {
+          "title": "Lng",
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "lat",
+        "lng"
+      ],
+      "title": "CityRef",
+      "type": "object"
+    },
+    "CompareRequest": {
+      "additionalProperties": false,
+      "description": "Body of POST /routes/compare (TY3).",
+      "properties": {
+        "origin": {
+          "minLength": 1,
+          "title": "Origin",
+          "type": "string"
+        },
+        "destination": {
+          "minLength": 1,
+          "title": "Destination",
+          "type": "string"
+        },
+        "date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Date"
+        },
+        "depart_time": {
+          "default": "08:00:00",
+          "format": "time",
+          "title": "Depart Time",
+          "type": "string"
+        },
+        "rank_by": {
+          "default": "balanced",
+          "enum": [
+            "balanced",
+            "time",
+            "cost",
+            "changes"
+          ],
+          "title": "Rank By",
+          "type": "string"
+        },
+        "modes": {
+          "items": {
+            "$ref": "#/$defs/Mode"
+          },
+          "minItems": 1,
+          "title": "Modes",
+          "type": "array"
+        },
+        "travellers": {
+          "default": 1,
+          "maximum": 20,
+          "minimum": 1,
+          "title": "Travellers",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "origin",
+        "destination"
+      ],
+      "title": "CompareRequest",
+      "type": "object"
+    },
+    "CompareResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "origin": {
+          "$ref": "#/$defs/CityRef"
+        },
+        "destination": {
+          "$ref": "#/$defs/CityRef"
+        },
+        "date": {
+          "format": "date",
+          "title": "Date",
+          "type": "string"
+        },
+        "rank_by": {
+          "enum": [
+            "balanced",
+            "time",
+            "cost",
+            "changes"
+          ],
+          "title": "Rank By",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "$ref": "#/$defs/RankedOption"
+          },
+          "title": "Options",
+          "type": "array"
+        },
+        "unavailable": {
+          "items": {
+            "$ref": "#/$defs/Unavailable"
+          },
+          "title": "Unavailable",
+          "type": "array"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Notes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "origin",
+        "destination",
+        "date",
+        "rank_by",
+        "options"
+      ],
+      "title": "CompareResponse",
+      "type": "object"
+    },
     "Constraints": {
       "additionalProperties": false,
       "properties": {
@@ -712,6 +859,50 @@
       "title": "PlanText",
       "type": "object"
     },
+    "RankedOption": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "rank": {
+          "minimum": 1,
+          "title": "Rank",
+          "type": "integer"
+        },
+        "changes": {
+          "minimum": 0,
+          "title": "Changes",
+          "type": "integer"
+        },
+        "score": {
+          "minimum": 0,
+          "title": "Score",
+          "type": "number"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "option": {
+          "$ref": "#/$defs/TransportOption"
+        }
+      },
+      "required": [
+        "id",
+        "rank",
+        "changes",
+        "score",
+        "sources",
+        "option"
+      ],
+      "title": "RankedOption",
+      "type": "object"
+    },
     "SellerOffer": {
       "additionalProperties": false,
       "properties": {
@@ -952,6 +1143,24 @@
         "end_date"
       ],
       "title": "TripRequest",
+      "type": "object"
+    },
+    "Unavailable": {
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/Mode"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "reason"
+      ],
+      "title": "Unavailable",
       "type": "object"
     },
     "Violation": {

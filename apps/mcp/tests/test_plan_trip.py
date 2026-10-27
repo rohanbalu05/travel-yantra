@@ -15,7 +15,7 @@ async def _call():
         assert "plan_trip" in [t.name for t in tools.tools]
         res = await client.call_tool("plan_trip", {"request": SAMPLE["request"]})
         assert not res.isError
-        return Itinerary.model_validate(res.structuredContent)
+        return Itinerary.model_validate(res.structuredContent["itinerary"])
 
 
 async def test_sample_without_api(monkeypatch):

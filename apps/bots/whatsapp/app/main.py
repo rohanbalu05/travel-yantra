@@ -12,7 +12,7 @@ from collections import OrderedDict
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Request
 from fastapi.responses import PlainTextResponse
 
-from .brain import NOT_TEXT, VOICE, Brain
+from .brain import Brain
 from .sender import CloudApiSender, Sender
 
 log = logging.getLogger(__name__)
@@ -58,18 +58,12 @@ def create_app(brain: Brain | None = None, sender: Sender | None = None) -> Fast
     seen = Seen()
 
     async def handle(msg: dict) -> None:
-        to, kind = msg.get("from", ""), msg.get("type")
         try:
-            if kind == "text":
-                reply = await brain.reply(msg.get("text", {}).get("body", ""))
-            elif kind == "audio":
-                reply = VOICE
-            else:
-                reply = NOT_TEXT
+            reply = await brain.handle(msg)
         except Exception:
-            log.exception("reply failed for a %s message", kind)
+            log.exception("reply failed for a %s message", msg.get("type"))
             reply = SORRY
-        await sender.send_text(to, reply)
+        await sender.send_text(msg.get("from", ""), reply)
 
     @app.get("/health")
     def health() -> dict:

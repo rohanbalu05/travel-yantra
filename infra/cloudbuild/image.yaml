@@ -1,7 +1,23 @@
-# Builds one service image with the repo root as context.
-# gcloud builds submit . --config infra/cloudbuild/image.yaml \
+# Builds one service image with the repo root as context, running as the
+# deploy service account (logs go to Cloud Logging only, so no logs bucket).
+# gcloud builds submit . --config infra/cloudbuild/image.yaml --region asia-south1 \
+#   --service-account projects/PROJECT/serviceAccounts/ty-deploy@PROJECT.iam.gserviceaccount.com \
 #   --substitutions=_DOCKERFILE=apps/api/Dockerfile,_IMAGE=asia-south1-docker.pkg.dev/PROJECT/ty/ty-api:SHA
+# _API_BASE_URL is only read by infra/web/Dockerfile; other images ignore it.
 steps:
   - name: gcr.io/cloud-builders/docker
-    args: ['build', '-f', '${_DOCKERFILE}', '-t', '${_IMAGE}', '.']
+    args:
+      - build
+      - -f
+      - ${_DOCKERFILE}
+      - --build-arg
+      - NEXT_PUBLIC_API_BASE_URL=${_API_BASE_URL}
+      - -t
+      - ${_IMAGE}
+      - .
 images: ['${_IMAGE}']
+substitutions:
+  _API_BASE_URL: ''
+options:
+  logging: CLOUD_LOGGING_ONLY
+  dynamicSubstitutions: true
