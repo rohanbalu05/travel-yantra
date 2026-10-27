@@ -709,6 +709,23 @@
           "minimum": 0,
           "title": "Cost Inr",
           "type": "integer"
+        },
+        "role": {
+          "anyOf": [
+            {
+              "enum": [
+                "outbound",
+                "between",
+                "home"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Role"
         }
       },
       "required": [

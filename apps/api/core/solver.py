@@ -173,18 +173,20 @@ def schedule(day: date, stops: list[Place], travel_min: list[int], lim: Limits) 
 
 def hop_of(day: DayPlan) -> Leg | None:
     """The journey that opens a day (the outbound trip on day 1, or a move to the next city), if any."""
-    names = {p.name for p in day.stops}
-    if day.legs and any(n.startswith(HOP_NOTE) for n in day.notes) and day.legs[0].from_ not in names:
-        return day.legs[0]
-    return None
+    return day.legs[0] if day.legs and day.legs[0].role in ("outbound", "between") else None
 
 
 def out_of(day: DayPlan) -> Leg | None:
     """The journey home that closes the last day, if any."""
-    names = {p.name for p in day.stops}
-    if day.legs and any(n.startswith(RETURN_NOTE) for n in day.notes) and day.legs[-1].to not in names:
-        return day.legs[-1]
-    return None
+    return day.legs[-1] if day.legs and day.legs[-1].role == "home" else None
+
+
+def hop_note(hop: Leg) -> str:
+    return f"{HOP_NOTE}{hop.from_} → {hop.to} by {hop.mode.value}, {_duration(hop)}"
+
+
+def home_note(out: Leg) -> str:
+    return f"{RETURN_NOTE}{out.from_} → {out.to} by {out.mode.value}, leaves {out.depart:%H:%M}, {_duration(out)}"
 
 
 def local_legs(day: DayPlan) -> list[Leg]:
@@ -232,10 +234,10 @@ def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorde
     notes = [REST_NOTE] if rested else []
     if hop:
         legs.insert(0, hop)
-        notes.insert(0, f"{HOP_NOTE}{hop.from_} → {hop.to} by {hop.mode.value}, {_duration(hop)}")
+        notes.insert(0, hop_note(hop))
     if out:
         legs.append(out)
-        notes.append(f"{RETURN_NOTE}{out.from_} → {out.to} by {out.mode.value}, leaves {out.depart:%H:%M}, {_duration(out)}")
+        notes.append(home_note(out))
     return DayPlan(date=day, stops=stops, legs=legs, notes=notes), problem
 
 
@@ -248,16 +250,18 @@ def rebuild_day(it: Itinerary, d: date, stops: list[Place], travel: Travel, lim:
     i = next(i for i, x in enumerate(it.days) if x.date == d)
     old = it.days[i]
     plan, _ = build_day(d, stops, travel, lim, hop=hop_of(old) if hop is _KEEP else hop, out=out_of(old))
-    keep = [n for n in old.notes if n != REST_NOTE and not n.startswith((HOP_NOTE, RETURN_NOTE))]
+    # Drop only the notes this module wrote for the old day; anything else on the day stays.
+    generated = {REST_NOTE} | {hop_note(h) for h in [hop_of(old)] if h} | {home_note(o) for o in [out_of(old)] if o}
+    keep = [n for n in old.notes if n not in generated]
     it.days[i] = plan.model_copy(update={"notes": keep + plan.notes})
 
 
-def journey(a: str, b: str, option: TransportOption) -> Leg:
+def journey(a: str, b: str, option: TransportOption, role: str = "between") -> Leg:
     """One leg for a whole transport option, labelled with the two cities (its own legs may be stations)."""
     depart = option.legs[0].depart
     return Leg(**{"from": a}, to=b, mode=option.mode, depart=depart,
                arrive=depart + timedelta(minutes=option.total_minutes), minutes=option.total_minutes,
-               cost_inr=option.total_cost_inr)
+               cost_inr=option.total_cost_inr, role=role)
 
 
 def _duration(leg: Leg) -> str:

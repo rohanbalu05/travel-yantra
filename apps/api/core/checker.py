@@ -41,7 +41,7 @@ def budget(itinerary: Itinerary) -> BudgetSummary:
     journeys = [leg for d in itinerary.days for leg in (hop_of(d), out_of(d)) if leg]
     transport = sum(leg.cost_inr for leg in journeys) * people
     first = itinerary.days[0] if itinerary.days else None
-    outbound = first is not None and (hop := hop_of(first)) is not None and hop.from_ == itinerary.request.origin
+    outbound = first is not None and (hop := hop_of(first)) is not None and hop.role == "outbound"
     if not outbound and itinerary.transport:
         transport += itinerary.transport[0].total_cost_inr * people
     stay = sum(s.price_per_night_inr * max((s.check_out - s.check_in).days, 1) for s in chosen_stays(itinerary))

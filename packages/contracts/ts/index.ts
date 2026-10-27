@@ -125,6 +125,7 @@ export interface Leg {
   arrive: string;
   minutes: number;
   cost_inr: number;
+  role?: "outbound" | "between" | "home" | null;
 }
 
 export interface Me {

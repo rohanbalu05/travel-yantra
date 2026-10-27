@@ -53,8 +53,8 @@ def _cheaper(it: Itinerary, travel: Travel, lim: Limits) -> list[str]:
             it.transport.insert(0, cheapest)
             first = it.days[0] if it.days else None
             hop = hop_of(first) if first else None
-            if hop and hop.from_ == it.request.origin:  # day 1 travels on the chosen option: switch it too
-                rebuild_day(it, first.date, list(first.stops), travel, lim, hop=journey(hop.from_, hop.to, cheapest))
+            if hop and hop.role == "outbound":  # day 1 travels on the chosen option: switch it too
+                rebuild_day(it, first.date, list(first.stops), travel, lim, hop=journey(hop.from_, hop.to, cheapest, "outbound"))
             return [f"Switched to {cheapest.mode.value} to save money"]
     for chosen in chosen_stays(it):
         same = [s for s in it.stays if s.check_in == chosen.check_in]

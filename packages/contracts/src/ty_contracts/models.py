@@ -99,6 +99,9 @@ class Leg(_Model):
     arrive: datetime
     minutes: int = Field(ge=0)
     cost_inr: int = Field(ge=0)
+    # Set on a DayPlan's journeys: "outbound" (origin to the first city, opens day 1), "between" (city to
+    # city, opens that city's first day), "home" (closes the last day). None for stop-to-stop legs.
+    role: Literal["outbound", "between", "home"] | None = None
 
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 

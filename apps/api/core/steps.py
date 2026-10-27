@@ -127,19 +127,19 @@ async def places(state: dict, model: Model):
     return {"pools": {c: _dump(v) for c, v in pools.items()}}, f"Found {found} places to see"
 
 
-def hop(request: TripRequest, a: str, b: str, day: date, depart: time = HOP_DEPART) -> Leg | None:
+def hop(request: TripRequest, a: str, b: str, day: date, depart: time = HOP_DEPART, role: str = "between") -> Leg | None:
     """The journey from a to b on `day`, leaving around `depart`: TY3's best-ranked option, or a road
     estimate between the two cities' top places when routes does not know a city."""
     found = _compared(a, b, day, depart)
     if found:
-        return journey(a, b, found[0])
+        return journey(a, b, found[0], role)
     pa, pb = city_places(request, a), city_places(request, b)
     if not pa or not pb:
         return None
     minutes, cost = Travel().edge(pa[0], pb[0])
     leave = datetime.combine(day, depart)
     return Leg(**{"from": a}, to=b, mode=Mode.road, depart=leave, arrive=leave + timedelta(minutes=minutes),
-               minutes=minutes, cost_inr=cost)
+               minutes=minutes, cost_inr=cost, role=role)
 
 
 def hops(request: TripRequest, options: list[TransportOption]) -> dict[str, Leg]:
@@ -149,7 +149,8 @@ def hops(request: TripRequest, options: list[TransportOption]) -> dict[str, Leg]
     out = {}
     if split:
         first, dates = split[0]
-        leg = journey(request.origin, first, options[0]) if options else hop(request, request.origin, first, dates[0])
+        leg = (journey(request.origin, first, options[0], "outbound") if options
+               else hop(request, request.origin, first, dates[0], role="outbound"))
         if leg is not None:
             out[first] = leg
     for (prev, _), (city, dates) in zip(split, split[1:]):
@@ -164,7 +165,7 @@ def home(request: TripRequest) -> Leg | None:
     if not split:
         return None
     last, dates = split[-1]
-    return hop(request, last, request.origin, dates[-1], RETURN_DEPART)
+    return hop(request, last, request.origin, dates[-1], RETURN_DEPART, role="home")
 
 
 def city_stays(request: TripRequest, city: str, check_in: date, nights: int) -> list[Stay]:
