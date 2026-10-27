@@ -126,3 +126,15 @@ def test_intake_fake_reads_the_goa_message():
 def test_cors_allows_web_origin():
     r = client.options("/plan", headers={"Origin": "https://travel-yantra.web.app", "Access-Control-Request-Method": "POST"})
     assert r.headers["access-control-allow-origin"] == "https://travel-yantra.web.app"
+
+
+def test_gemini_thinking_level_maps_to_the_genai_config():
+    from google.genai import types
+
+    from core.llm import GeminiModel
+
+    m = object.__new__(GeminiModel)  # no client, no network
+    m._types = types
+    assert m._thinking(None) is None
+    assert m._thinking("low").thinking_level == types.ThinkingLevel.LOW
+    assert m._thinking("minimal").thinking_level == types.ThinkingLevel.MINIMAL

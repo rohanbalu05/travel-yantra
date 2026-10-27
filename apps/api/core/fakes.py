@@ -55,7 +55,7 @@ def stays(request: TripRequest) -> list[Stay]:
 class FakeModel:
     """Deterministic stand-in for Gemini. Intake reads the city, origin and dates of the two samples."""
 
-    async def json(self, prompt: str, schema: type[BaseModel], tier: str = "lite") -> BaseModel:
+    async def json(self, prompt: str, schema: type[BaseModel], tier: str = "lite", **_: object) -> BaseModel:
         from .intake import IntakeDraft
 
         if schema is not IntakeDraft:
@@ -75,6 +75,6 @@ class FakeModel:
             travellers=[{"name": t.name, "age": t.age} for t in req.constraints.travellers] if req else [],
         )
 
-    async def text(self, prompt: str, tier: str = "flash") -> str:
+    async def text(self, prompt: str, tier: str = "flash", **_: object) -> str:
         first = prompt.strip().splitlines()[0]
         return f"(sample) {first[:120]}"

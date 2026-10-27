@@ -97,6 +97,6 @@ async def intake(body: TripRequest | PlanText, model: Model, today: date | None 
     """A form (TripRequest) passes straight through; free text goes to the model (Flash-Lite)."""
     if isinstance(body, TripRequest):
         return IntakeResult(request=body)
-    draft = await model.json(prompt(body.text, today or datetime.now(IST).date()), IntakeDraft, tier="lite")
+    draft = await model.json(prompt(body.text, today or datetime.now(IST).date()), IntakeDraft, tier="lite", thinking="minimal")
     # Model questions are dropped here unless something is missing; they never reach a complete request.
     return to_request(draft, body.lang, notes=body.text[:500])

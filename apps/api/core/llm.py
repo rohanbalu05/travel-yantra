@@ -11,6 +11,8 @@ from typing import Literal, Protocol, TypeVar
 from pydantic import BaseModel
 
 Tier = Literal["flash", "lite"]
+# Gemini 3.x thinks by default and thinking tokens count toward max_output_tokens; pick a level per call.
+Thinking = Literal["minimal", "low", "medium", "high"]
 M = TypeVar("M", bound=BaseModel)
 TIMEOUT_MS = 20_000
 
@@ -38,8 +40,10 @@ def backend() -> Literal["vertex", "ai_studio"]:
 
 
 class Model(Protocol):
-    async def json(self, prompt: str, schema: type[M], tier: Tier = "lite") -> M: ...
-    async def text(self, prompt: str, tier: Tier = "flash") -> str: ...
+    async def json(self, prompt: str, schema: type[M], tier: Tier = "lite", *, thinking: Thinking | None = None) -> M: ...
+
+    async def text(self, prompt: str, tier: Tier = "flash", *, thinking: Thinking | None = None,
+                   max_output_tokens: int = 600, temperature: float = 0.6) -> str: ...
 
 
 class GeminiModel:
@@ -53,15 +57,22 @@ class GeminiModel:
         self._types = types
         self._client = genai.Client(http_options=types.HttpOptions(timeout=TIMEOUT_MS))
 
-    async def json(self, prompt: str, schema: type[M], tier: Tier = "lite") -> M:
+    def _thinking(self, level: Thinking | None):
+        return self._types.ThinkingConfig(thinking_level=level.upper()) if level else None
+
+    async def json(self, prompt: str, schema: type[M], tier: Tier = "lite", *, thinking: Thinking | None = None) -> M:
         config = self._types.GenerateContentConfig(
-            response_mime_type="application/json", response_schema=schema, temperature=0
+            response_mime_type="application/json", response_schema=schema, temperature=0,
+            thinking_config=self._thinking(thinking),
         )
         r = await self._client.aio.models.generate_content(model=model_name(tier), contents=prompt, config=config)
         return schema.model_validate_json(r.text)
 
-    async def text(self, prompt: str, tier: Tier = "flash") -> str:
-        config = self._types.GenerateContentConfig(temperature=0.6, max_output_tokens=600)
+    async def text(self, prompt: str, tier: Tier = "flash", *, thinking: Thinking | None = None,
+                   max_output_tokens: int = 600, temperature: float = 0.6) -> str:
+        config = self._types.GenerateContentConfig(
+            temperature=temperature, max_output_tokens=max_output_tokens, thinking_config=self._thinking(thinking)
+        )
         r = await self._client.aio.models.generate_content(model=model_name(tier), contents=prompt, config=config)
         return (r.text or "").strip()
 
