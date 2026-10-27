@@ -248,6 +248,7 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
               <ul className="note-list">
                 {it.season_notes!.map((n) => (
                   <li key={`${n.city}-${n.kind}-${n.text.slice(0, 24)}`}>
+                    {n.kind === "event" && <span className="badge badge-sea" style={{ marginRight: 6 }}>{t("Festival")}</span>}
                     <b>{n.city}:</b> {n.text}{" "}
                     {/^https?:\/\//i.test(n.source_url) && (
                       <a href={n.source_url} target="_blank" rel="noopener noreferrer">{new URL(n.source_url).hostname.replace(/^www\./, "")}</a>
