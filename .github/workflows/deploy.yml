@@ -22,7 +22,8 @@ permissions:
   contents: read
 
 # A newer push supersedes an older deploy; Cloud Run swaps revisions
-# atomically, so a cancelled run leaves the previous revision serving.
+# atomically, so a cancelled run leaves the previous revision serving, and the
+# plan diffs from the last green deploy so nothing the cancelled run held is lost.
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
@@ -31,6 +32,9 @@ jobs:
   plan:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
     steps:
@@ -40,12 +44,20 @@ jobs:
       - id: plan
         env:
           HAVE_GCP: ${{ vars.GCP_PROJECT_ID != '' && vars.GCP_WIF_PROVIDER != '' && vars.GCP_DEPLOY_SA != '' }}
+          GH_TOKEN: ${{ github.token }}
+          BEFORE: ${{ github.event.before }}
         run: |
           if [ "$HAVE_GCP" != "true" ]; then
             echo "deploy deferred: no Google Cloud project yet"
             echo 'matrix=[]' >> "$GITHUB_OUTPUT"; exit 0
           fi
-          base=${{ github.event.before }}; git cat-file -e "$base" 2>/dev/null || base=HEAD~1
+          # Diff from the last green deploy, not just this push's parent: a run
+          # cancelled by a newer push must not drop the services it would have shipped.
+          base=$(gh run list -R "$GITHUB_REPOSITORY" --workflow deploy --branch main --status success \
+            --limit 1 --json headSha --jq '.[0].headSha // empty' 2>/dev/null || true)
+          git cat-file -e "$base" 2>/dev/null || base=$BEFORE
+          git cat-file -e "$base" 2>/dev/null || base=HEAD~1
+          echo "diff base: $base"
           changed=$(git diff --name-only "$base" HEAD)
           # A manual run or a change to the deploy plumbing redeploys everything.
           all=false

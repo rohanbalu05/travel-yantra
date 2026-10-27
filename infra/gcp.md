@@ -69,6 +69,8 @@ once it has an enabled version.
 ## Cloud Run
 
 Set up, and later reconfigured, by `infra/gcp/run-services.sh <service>`.
+First-time order: ty-api, then ty-web (it inlines the API URL), then ty-api
+again so `TY_CORS_ORIGINS` gets the web URL.
 `deploy.yml` then changes only the image and `GIT_SHA`.
 
 Every service runs with min instances 0, max instances 2, 1 CPU, CPU

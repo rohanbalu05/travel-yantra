@@ -132,6 +132,10 @@ jobs:
             [ -f "$d/Dockerfile" ] || { echo "skip $d: no Dockerfile"; continue; }
             docker build -f "$d/Dockerfile" -t "ci-$(basename "$d")" .
           done
+          # The web image's Dockerfile lives in infra/ (TY6); its source is apps/web.
+          if [ -f apps/web/package.json ]; then
+            docker build -f infra/web/Dockerfile -t ci-web .
+          fi
 
   web:
     needs: changes
