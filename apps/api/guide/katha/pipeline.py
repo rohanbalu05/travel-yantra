@@ -42,6 +42,14 @@ CHAPTERS = {2: 1, 5: 2, 10: 4}
 CONTRACT_LABELS = set(typing.get_args(StorySegment.model_fields["label"].annotation))
 LABEL_LINE = re.compile(r"^\s*\[(HISTORY|LEGEND|DISPUTED)\]\s*$", re.M)
 MARKER_RUN = re.compile(rf"{checks.MARKER.pattern}(?:\s*{checks.MARKER.pattern})*")
+#: A paragraph that talks to the user instead of telling the story (seen live, 10 min:
+#: "Would you like a summary of the next segment..."). Only openings a storyteller never
+#: uses: "Here's the strange part" and "Should I stay?" are story and stay.
+CHAT = re.compile(
+    r"\s*(would you like|shall i (continue|write|go on|tell)|do you want me|let me know"
+    r"|i hope (this|that|you)|if you'd like|i can also|feel free|here is (the|a) (summary|next|rest|revised))\b",
+    re.I,
+)
 SEPARATOR = re.compile(r"^\s*={3,}\s*$", re.M)
 #: A rewrite much shorter than its draft was cut off, not edited; keep the draft.
 MIN_REWRITE_RATIO = 0.85
@@ -199,8 +207,8 @@ def parse(text: str) -> list[tuple[str, str]]:
     out = []
     for label, body in zip(parts[1::2], parts[2::2], strict=True):
         for para in re.split(r"\n\s*\n", body.strip()):
-            # Lists, headings and separators are notes the model left, not story.
-            if para.strip() and not re.match(r"\s*([-*#•]|={3,}|\d+\.\s)", para):
+            # Lists, headings, separators and chat to the user are notes the model left, not story.
+            if para.strip() and not re.match(r"\s*([-*#•]|={3,}|\d+\.\s)", para) and not CHAT.match(para):
                 out.append((label.lower(), " ".join(para.split())))
     return out
 

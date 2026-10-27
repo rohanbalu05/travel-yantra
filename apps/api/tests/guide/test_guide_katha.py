@@ -421,3 +421,26 @@ def test_lang_sample_facts_come_from_the_seed_in_story_order() -> None:
 def test_a_bracketed_year_range_is_prose_not_a_citation() -> None:
     assert checks.citations("Built between [1990-1995] by the city [2].") == [2]
     assert checks.problems([("history", " ".join(["word"] * 250) + " in [1897] [1].")], 1, 2) == []
+
+
+def test_chat_to_the_user_is_not_story() -> None:
+    # Seen live in a 10-minute draft (TY6's pre-generation run, Oct 2026).
+    text = ("[HISTORY]\nThe palace burned in 1897 [1].\n\n"
+            "Would you like a summary of the next segment of the city's history?\n\n"
+            "[HISTORY]\nHere's the strange part: Irwin drew a new plan [2].\n\n"
+            "Here is the rest of the story, told plainly [2].\n\nShall I continue with chapter 3?")  # fmt: skip
+    assert parse(text) == [("history", "The palace burned in 1897 [1]."),
+                           ("history", "Here's the strange part: Irwin drew a new plan [2].")]  # fmt: skip
+    assert parse("[LEGEND]\nShould I stay, the queen asked [1].")[0][1].startswith("Should I stay")
+    assert parse("[HISTORY]\nHerein lies the old gate [1].") == [("history", "Herein lies the old gate [1].")]
+
+
+def test_pregenerate_logs_model_calls_at_info(monkeypatch) -> None:
+    import logging
+
+    from guide.scripts.katha_pregenerate import log_calls
+
+    monkeypatch.delenv("TY_LOG_LEVEL", raising=False)
+    log_calls()
+    assert logging.getLogger("guide.katha").isEnabledFor(logging.INFO)
+    assert logging.getLogger("core.llm").isEnabledFor(logging.INFO)

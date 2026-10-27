@@ -12,6 +12,7 @@ the corpus does not cover are reported and skipped, never invented.
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
 import sys
 import time
@@ -50,5 +51,15 @@ async def main(subjects: list[str]) -> int:
     return 1 if failed else 0
 
 
+def log_calls() -> None:
+    """Every model call's step, time and tokens in the job's logs: guide.katha and core.llm
+    log at INFO, which an unconfigured script drops. TY_LOG_LEVEL overrides."""
+    level = os.environ.get("TY_LOG_LEVEL", "INFO").upper()
+    logging.basicConfig(level=logging.WARNING, format="%(levelname)s %(name)s: %(message)s")
+    for name in ("guide.katha", "core.llm", "guide.places"):
+        logging.getLogger(name).setLevel(level)
+
+
 if __name__ == "__main__":
+    log_calls()
     sys.exit(asyncio.run(main(sys.argv[1:] or DEMO)))
