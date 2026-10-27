@@ -130,8 +130,11 @@ def test_day_one_starts_after_arrival_and_the_last_day_ends_before_the_journey_h
     # Journeys leave at or after the time asked for (real trains wait for their departure).
     from datetime import datetime, time
 
-    assert out_of(last).depart >= datetime.combine(last.date, time(18, 0))
-    assert hop_of(first).depart >= datetime.combine(first.date, time(8, 0))
+    # Rail journeys are real trains (first after 06:00 out; home after the visits); road keeps 08:00 / 18:00.
+    out_floor = time(6, 0) if hop_of(first).mode.value == "rail" else time(8, 0)
+    assert hop_of(first).depart >= datetime.combine(first.date, out_floor)
+    if out_of(last).mode.value != "rail":
+        assert out_of(last).depart >= datetime.combine(last.date, time(18, 0))
     assert any(n.startswith("Return: Coorg → Bengaluru") for n in last.notes)
 
 

@@ -29,10 +29,22 @@ from .checker import budget, check
 from .intake import intake as run_intake
 from .llm import Model
 from .repair import finish, repair
-from .solver import ELDERLY_AGE, RETURN_DEPART, Travel, journey, solve_trip, split_days
+from .solver import (
+    ELDERLY_AGE,
+    RETURN_BUFFER_MIN,
+    RETURN_DEPART,
+    Travel,
+    journey,
+    limits,
+    solve_trip,
+    split_days,
+)
 
 # Inter-city road hops leave at this time when routes has no timetable for them.
 HOP_DEPART = time(8, 0)
+# Real trains: the earliest a morning journey may leave, and where the search for a late-day train starts.
+TRAIN_EARLIEST = time(6, 0)
+TRAIN_AFTERNOON = time(12, 0)
 LANG_NAME = {Lang.en: "English", Lang.hi: "Hindi", Lang.kn: "Kannada", Lang.ta: "Tamil", Lang.te: "Telugu", Lang.bn: "Bengali"}
 
 
@@ -97,6 +109,9 @@ def transport_options(request: TripRequest) -> list[TransportOption]:
 async def transport(state: dict, model: Model):
     r = _request(state)
     options = transport_options(r)
+    if options:  # the chosen option becomes the real train the outbound journey takes, when it is rail
+        first = next(c for c, d in split_days(r) if d)
+        options = [timed(r, r.origin, first, r.start_date, options[0], "outbound"), *options[1:]]
     journeys = hops(r, options)
     back = home(r)
     more = f" and {len(journeys) - 1} between cities" if len(journeys) > 1 else ""
@@ -127,12 +142,54 @@ async def places(state: dict, model: Model):
     return {"pools": {c: _dump(v) for c, v in pools.items()}}, f"Found {found} places to see"
 
 
+@lru_cache(maxsize=256)
+def _trains(a: str, b: str, day: date, earliest: time) -> tuple[TransportOption, ...]:
+    """TY3's real rail journeys from a to b leaving at or after `earliest`, in departure order."""
+    from routes.compare import UnknownPlace
+
+    try:
+        return tuple(_compare().rail_departures(a, b, day, earliest=earliest))
+    except (UnknownPlace, ValueError):
+        return ()
+
+
+def morning_train(request: TripRequest, a: str, b: str, day: date) -> TransportOption | None:
+    """The first train after 06:00 that arrives before the day's visits start; else the first after 06:00."""
+    trains = _trains(a, b, day, TRAIN_EARLIEST)
+    start = datetime.combine(day, limits(request).start)
+    return next((t for t in trains if t.legs[-1].arrive <= start), trains[0] if trains else None)
+
+
+def evening_train(request: TripRequest, a: str, b: str, day: date) -> TransportOption | None:
+    """The latest train that leaves after the day's visits and still arrives that day; else the first after
+    the visits; and when none leaves that late, the day's last train (the visits then end earlier)."""
+    after = (datetime.combine(day, limits(request).end) + timedelta(minutes=RETURN_BUFFER_MIN)).time()
+    later = _trains(a, b, day, after)
+    same_day = [t for t in later if t.legs[-1].arrive.date() == day]
+    if same_day:
+        return same_day[-1]
+    if later:
+        return later[0]
+    afternoon = _trains(a, b, day, TRAIN_AFTERNOON)
+    return afternoon[-1] if afternoon else None
+
+
+def timed(request: TripRequest, a: str, b: str, day: date, option: TransportOption, role: str) -> TransportOption:
+    """A rail option swapped for a real timetabled train (morning for outbound and between, evening for
+    home); road and air keep their fixed departure."""
+    if option.mode is not Mode.rail:
+        return option
+    train = (evening_train if role == "home" else morning_train)(request, a, b, day)
+    return train or option
+
+
 def hop(request: TripRequest, a: str, b: str, day: date, depart: time = HOP_DEPART, role: str = "between") -> Leg | None:
-    """The journey from a to b on `day`, leaving around `depart`: TY3's best-ranked option, or a road
-    estimate between the two cities' top places when routes does not know a city."""
+    """The journey from a to b on `day`: TY3's best-ranked option (a real train when that is rail, else
+    leaving at `depart`), or a road estimate between the two cities' top places when routes does not know
+    a city."""
     found = _compared(a, b, day, depart)
     if found:
-        return journey(a, b, found[0], role)
+        return journey(a, b, timed(request, a, b, day, found[0], role), role)
     pa, pb = city_places(request, a), city_places(request, b)
     if not pa or not pb:
         return None
