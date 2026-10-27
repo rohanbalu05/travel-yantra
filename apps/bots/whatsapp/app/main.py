@@ -79,12 +79,15 @@ def create_app(brain: Brain | None = None, sender: Sender | None = None) -> Fast
         async def notify(text: str) -> None:
             await sender.send_text(to, text)
 
+        audio: list[str] = []
         try:
-            reply = await brain.handle(msg, notify=notify)
+            reply = await brain.handle(msg, notify=notify, audio=audio)
         except Exception:
             log.exception("reply failed for a %s message", msg.get("type"))
-            reply = SORRY
+            reply, audio = SORRY, []
         await sender.send_text(to, reply)
+        for url in audio:  # Katha chapters, in order, after their text
+            await sender.send_audio(to, url)
 
     @app.get("/health")
     def health() -> dict:

@@ -17,6 +17,8 @@ from ty_contracts import (
     GuideAnswer,
     GuideQuestion,
     Itinerary,
+    KathaRequest,
+    KathaStory,
     Lang,
     PlanEvent,
     PlanStage,
@@ -37,6 +39,7 @@ HELP = (
     "Namaste! Tell me about your trip, for example:\n"
     "Plan Bengaluru to Goa, 11-14 Dec, 4 of us\n"
     "or ask me anything about a place, its food or its history. "
+    "For a place's story, send: story Mysore Palace. "
     "Share your location for help nearby. "
     "Send delete my data to make me forget you."
 )
@@ -60,8 +63,51 @@ FORGET = re.compile(
     r"|डेटा\s*(?:हटा|मिटा|डिलीट)",
     re.IGNORECASE,
 )
+NO_STORY = "I have no story for {what} yet. Try another place, for example: story Mysore Palace"
+STORY_BUSY = "The storyteller is busy just now. Please try again in a minute."
+LANG_WORDS = {
+    "english": Lang.en,
+    "hindi": Lang.hi,
+    "हिंदी": Lang.hi,
+    "हिन्दी": Lang.hi,
+    "kannada": Lang.kn,
+    "ಕನ್ನಡ": Lang.kn,
+    "tamil": Lang.ta,
+    "தமிழ்": Lang.ta,
+    "telugu": Lang.te,
+    "తెలుగు": Lang.te,
+    "bengali": Lang.bn,
+    "bangla": Lang.bn,
+    "বাংলা": Lang.bn,
+}
+_LANG = "|".join(LANG_WORDS)
+# "story Mysore Palace", "katha of Hampi 5 min in Hindi", "कथा मैसूर पैलेस", "मैसूर पैलेस की कहानी"
+STORY = re.compile(
+    r"^\s*(?:(?:tell\s+(?:me\s+)?)?(?:the\s+|a\s+)?(?:story|katha|kahani)(?:\s+of|\s+about)?"
+    r"|कथा|कहानी)\s+(?P<what>.+?)"
+    rf"(?:\s+(?P<min>2|5|10)\s*(?:min(?:ute)?s?|मिनट))?(?:\s+(?:in\s+)?(?P<lang>{_LANG})(?:\s+में)?)?"
+    r"\s*[.!?।]?\s*$"
+    r"|^\s*(?P<what2>.+?)\s+(?:की|का)\s+(?:कथा|कहानी)\s*[.!?।]?\s*$",
+    re.IGNORECASE,
+)
 # Set per message by the webhook: sends an early note ("working on your plan") before a slow reply.
 NOTIFY: ContextVar[Callable[[str], Awaitable[None]] | None] = ContextVar("notify", default=None)
+# Set per message by the webhook: audio URLs to send after the text reply (Katha chapters).
+AUDIO: ContextVar[list[str] | None] = ContextVar("audio", default=None)
+
+
+def parse_story(text: str) -> tuple[str, int, Lang | None] | None:
+    """(subject, minutes, language asked for) for a story request; None for anything else."""
+    m = STORY.match(text)
+    if not m:
+        return None
+    what = (m["what"] or m["what2"] or "").strip(" .,")
+    if not what:
+        return None
+    lang = LANG_WORDS.get((m["lang"] or "").lower()) if m["lang"] else None
+    return what, int(m["min"] or 2), lang
+
+
 GREETINGS = {
     "hi",
     "hello",
@@ -282,14 +328,19 @@ class Brain:
         self.users: dict[str, User] = {}
 
     async def handle(
-        self, msg: dict, notify: Callable[[str], Awaitable[None]] | None = None
+        self,
+        msg: dict,
+        notify: Callable[[str], Awaitable[None]] | None = None,
+        audio: list[str] | None = None,
     ) -> str:
-        """The reply to one message; `notify` sends an early note while a plan is being made."""
-        token = NOTIFY.set(notify)
+        """The reply to one message. `notify` sends an early note while a plan is being made;
+        `audio` collects audio URLs (Katha chapters) to send after the reply."""
+        tokens = NOTIFY.set(notify), AUDIO.set(audio)
         try:
             return await self._handle(msg)
         finally:
-            NOTIFY.reset(token)
+            NOTIFY.reset(tokens[0])
+            AUDIO.reset(tokens[1])
 
     async def _handle(self, msg: dict) -> str:
         who, kind = msg.get("from", ""), msg.get("type")
@@ -356,6 +407,8 @@ class Brain:
         if text.lower() in CANCEL:
             user.pending = None
             return await self.say(user, HELP)
+        if story := parse_story(text):
+            return await self.story(user, *story)
         follow = parse_followup(text) if user.itinerary is not None else None
         if follow and follow[0] == "swap_stop" and not text.lower().lstrip().startswith("swap"):
             # "change my dates", "replace the hotel": a swap only if it names a stop in the plan
@@ -497,6 +550,56 @@ class Brain:
                         break
                     return final, event.plan_id, event.share_token
         raise RuntimeError("plan finished without an itinerary")
+
+    async def story(self, user: User, what: str, minutes: int, lang: Lang | None) -> str:
+        """Katha of a place (or else a city): text in the user's language, audio when it matches.
+
+        Hindi and Kannada are written natively by the guide; other languages are translated
+        from its English story.
+        """
+        if lang is not None:
+            user.lang = lang
+        await self.working(user)
+        try:
+            told = await self.katha(what, minutes, user.lang)
+        except ApiError as e:
+            if e.status == 404:
+                return await self.say(user, NO_STORY.format(what=what), keep=[what])
+            return await self.say(user, STORY_BUSY)
+        tail = "\n".join(f"[{i}] {src}" for i, src in enumerate(told.sources, 1))
+        if told.lang == user.lang:
+            body = told.text
+            text = (
+                _cap(_cap(body, MAX_REPLY - len(tail) - 2) + "\n\n" + tail) if tail else _cap(body)
+            )
+        else:
+            text = await self.say(user, told.text, keep=[told.subject], tail=tail)
+        if (urls := AUDIO.get()) is not None and told.lang == user.lang:
+            urls.extend(a.url for a in sorted(told.audio, key=lambda a: a.chapter))
+        return text
+
+    async def katha(self, what: str, minutes: int, lang: Lang) -> KathaStory:
+        """POST /guide/katha as a place, then as a city; ApiError(404) when neither is known."""
+        if not self.base:
+            return KathaStory(
+                subject_kind="place",
+                subject=what,
+                length_min=minutes,
+                text=f"(offline sample) I would tell the story of {what}.",
+            )
+        err = ApiError(404, "no story")
+        async with httpx.AsyncClient(timeout=120) as client:
+            for kind in ("place", "city"):
+                req = KathaRequest(
+                    subject_kind=kind, subject=what[:200], length_min=minutes, lang=lang
+                )
+                r = await client.post(f"{self.base}/guide/katha", json=req.model_dump(mode="json"))
+                if r.is_success:
+                    return KathaStory.model_validate(r.json())
+                err = ApiError(r.status_code, _detail(r))
+                if r.status_code != 404:
+                    break
+        raise err
 
     async def ask(self, user: User, question: str) -> GuideAnswer:
         located = user.lat is not None and self.clock() - user.located_at < LOCATION_SECONDS

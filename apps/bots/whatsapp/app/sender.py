@@ -17,6 +17,8 @@ NOT_DIGIT = re.compile(r"\D")
 class Sender(Protocol):
     async def send_text(self, to: str, body: str) -> None: ...
 
+    async def send_audio(self, to: str, url: str) -> None: ...
+
 
 def digits(number: str) -> str:
     """'+91 98450-12345' -> '919845012345'; WhatsApp's wa_id is digits only."""
@@ -63,6 +65,15 @@ class CloudApiSender:
         )
 
     async def send_text(self, to: str, body: str) -> None:
+        await self._send(
+            to, "text", {"body": body, "preview_url": False}, f"{len(body)} characters"
+        )
+
+    async def send_audio(self, to: str, url: str) -> None:
+        """An audio message WhatsApp fetches from `url` (a public MP3: Katha chapters)."""
+        await self._send(to, "audio", {"link": url}, "audio")
+
+    async def _send(self, to: str, kind: str, content: dict, what: str) -> None:
         if not is_allowed(to, self.allowed):
             log.warning(
                 "not sending: recipient (%d digits) is not in WHATSAPP_ALLOWED_RECIPIENTS (%d entries)",
@@ -76,8 +87,8 @@ class CloudApiSender:
         payload = {
             "messaging_product": "whatsapp",
             "to": digits(to),
-            "type": "text",
-            "text": {"body": body, "preview_url": False},
+            "type": kind,
+            kind: content,
         }
         async with httpx.AsyncClient(timeout=20) as client:
             r = await client.post(
@@ -88,12 +99,16 @@ class CloudApiSender:
         if r.is_error:
             log.error("send failed: %s", graph_error(r))
         else:
-            log.info("sent a reply of %d characters", len(body))
+            log.info("sent a reply (%s)", what)
 
 
 class FakeSender:
     def __init__(self) -> None:
         self.sent: list[tuple[str, str]] = []
+        self.audio: list[tuple[str, str]] = []
 
     async def send_text(self, to: str, body: str) -> None:
         self.sent.append((to, body))
+
+    async def send_audio(self, to: str, url: str) -> None:
+        self.audio.append((to, url))

@@ -10,6 +10,7 @@ or Indic script:
 - `delete my data` (or `forget me`, `मेरा डेटा हटाओ`): forgets the sender's plans, language and location and calls `DELETE /plan/{id}` (TY1) for every plan they made; plans the API could not delete point to the contact email.
 - A shared location is sent with guide questions for an hour (emergencies).
 - Voice notes and other media → a polite text-only reply.
+- `story Mysore Palace` (`katha … 5 min in Hindi`, `मैसूर पैलेस की कहानी`) → `POST /guide/katha` (place, then city): the story in the user's language, its sources, then its narrated chapters as audio messages when TY2's `audio` URLs match that language. Hindi and Kannada are written by the guide natively; other languages are translated from English.
 
 Endpoints: `GET /webhook` (Meta verification), `POST /webhook` (messages; `X-Hub-Signature-256`
 checked against the app secret; replies are sent inside the request, because Cloud Run throttles CPU
@@ -31,6 +32,7 @@ query string.
 | `WHATSAPP_ALLOWED_RECIPIENTS` | Comma-separated test recipient numbers; nobody else is ever messaged (unset = send nothing) |
 | `API_BASE_URL` | Travel Yantra API; unset = offline Goa sample answers |
 | `TRANSLATE_URL` | ty-translate; replies in the user's script language. Unset = English. On Cloud Run an ID token is sent |
+| `WHATSAPP_WABA_ID` | Only for `python -m app.webhook_check` (read-only: which apps the WhatsApp account's webhooks go to) |
 | `SHARE_BASE_URL` | ty-web URL; share links are `{SHARE_BASE_URL}/t/{token}/`. Unset = the API's JSON |
 
 ## Run and test

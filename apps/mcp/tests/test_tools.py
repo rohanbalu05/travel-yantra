@@ -314,3 +314,31 @@ async def test_revise_share_url_falls_back_to_api_json(monkeypatch):
 
 async def test_offline_plan_has_no_share_url(monkeypatch):
     assert (await _call("plan_trip"))["share_url"] is None
+
+
+async def test_get_katha_in_hindi_is_written_natively(monkeypatch):
+    monkeypatch.setenv("TRANSLATE_URL", "http://translate.test")
+    hindi = {**OFFLINE["katha"], "text": "कहा जाता है...", "lang": "hi"}
+    seen = _fake_api(monkeypatch, lambda req: httpx.Response(200, json=hindi))
+    async with connect(server.mcp._mcp_server) as client:
+        res = await client.call_tool("get_katha", {"subject": "mysore-palace", "lang": "hi"})
+    [req] = seen  # no translate call
+    assert json.loads(req.content)["lang"] == "hi"
+    story = KathaStory.model_validate(res.structuredContent)
+    assert story.lang == "hi" and story.text == "कहा जाता है..."
+
+
+async def test_get_katha_in_tamil_translates_the_english_story(monkeypatch):
+    monkeypatch.setenv("TRANSLATE_URL", "http://translate.test")
+
+    def handler(req):
+        if req.url.host == "translate.test":
+            return _tagging(req)
+        return httpx.Response(200, json=OFFLINE["katha"])  # the guide answers in English
+
+    seen = _fake_api(monkeypatch, handler)
+    async with connect(server.mcp._mcp_server) as client:
+        res = await client.call_tool("get_katha", {"subject": "goa-basilica", "lang": "ta"})
+    assert json.loads(seen[0].content)["lang"] == "ta"
+    story = KathaStory.model_validate(res.structuredContent)
+    assert story.lang == "ta" and story.text.startswith("<ta>")

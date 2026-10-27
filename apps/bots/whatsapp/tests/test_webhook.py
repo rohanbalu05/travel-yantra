@@ -153,7 +153,7 @@ def test_brain_failure_sends_sorry(monkeypatch):
     monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
 
     class Broken(Brain):
-        async def handle(self, msg, notify=None):
+        async def handle(self, msg, notify=None, audio=None):
             raise RuntimeError("api down")
 
     fake = FakeSender()
@@ -288,3 +288,33 @@ def test_verify_token_is_never_logged(bot, caplog):
     client.get("/webhook", params=params)
     client.get("/webhook", params={**params, "hub.verify_token": "guess-token"})
     assert "test-verify-token" not in caplog.text and "guess-token" not in caplog.text
+
+
+def test_story_audio_follows_its_text(monkeypatch):
+    monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
+
+    class Teller(Brain):
+        async def _handle(self, msg):
+            from app.brain import AUDIO
+
+            AUDIO.get().extend(["https://audio.example/1.mp3", "https://audio.example/2.mp3"])
+            return "the story"
+
+    fake = FakeSender()
+    with TestClient(create_app(brain=Teller(base=""), sender=fake)) as client:
+        post(client, load("text_en.json"))
+    assert fake.sent == [(USER, "the story")]
+    assert fake.audio == [
+        (USER, "https://audio.example/1.mp3"),
+        (USER, "https://audio.example/2.mp3"),
+    ]
+
+
+async def test_cloud_sender_sends_audio_by_link(monkeypatch):
+    monkeypatch.setenv("WHATSAPP_TOKEN", "fake-token")
+    monkeypatch.setenv("WHATSAPP_PHONE_NUMBER_ID", "100000000000001")
+    monkeypatch.setenv("WHATSAPP_ALLOWED_RECIPIENTS", USER)
+    seen = _fake_graph(monkeypatch)
+    await CloudApiSender().send_audio(USER, "https://audio.example/1.mp3")
+    body = json.loads(seen[0].content)
+    assert body["type"] == "audio" and body["audio"] == {"link": "https://audio.example/1.mp3"}

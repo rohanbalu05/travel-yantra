@@ -208,12 +208,14 @@ async def get_katha(
             subject_kind=subject_kind,
             subject=subject,
             length_min=length_min,
-            lang=Lang.en,  # the guide writes English; translation happens here
+            lang=lang,  # the guide writes Hindi and Kannada natively; others come back English
             places=places or [],
         )
         body = req.model_dump(mode="json", exclude={"places"} if subject_kind != "day" else None)
         data = await _request("POST", "/guide/katha", timeout=90, json=body)
         story = KathaStory.model_validate(data)
+    if story.lang == lang:
+        return story  # written in the asked language (or English asked)
     # One translate call for the text and every segment; Translator.text keeps the line count.
     items = [story.text, *(s.text for s in story.segments)]
     lines = (await Translator().text("\n".join(items), lang)).split("\n")
