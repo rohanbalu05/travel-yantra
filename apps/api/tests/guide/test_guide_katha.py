@@ -174,3 +174,24 @@ def test_katha_over_http(api) -> None:
     assert r.status_code == 404 and r.json() == {"detail": "No story for that place yet."}
     assert api.post("/guide/katha", json={"subject_kind": "place", "subject": "x",
                                           "length_min": 3}).status_code == 422  # fmt: skip
+
+
+def test_a_rewrite_that_was_cut_short_keeps_the_draft() -> None:
+    from guide.katha.pipeline import _chapter
+
+    class Truncating(FakeKathaModel):
+        async def text(self, prompt, *a, **k):
+            if prompt.startswith("Here is a draft"):
+                return "scores\n=== \n[HISTORY]\nOnly this [1]."
+            return "[HISTORY]\n" + " ".join(["word"] * 200) + " [1].\n\n- Peak at 2/3: a note"
+
+    from guide.katha.facts import Subject
+    from guide.katha.pipeline import Beat, Chapter, Outline
+
+    outline = Outline(theme="t", hook="h", gap="g", people=[], bridge="b", peak="p", ending="e",
+                      chapters=[Chapter(title="c", hook="h", gap="g",
+                                        beats=[Beat(text="x", facts=[1], label="history")])])  # fmt: skip
+    text, critique = asyncio.run(_chapter(Truncating(), Subject(kind="place", name="X"), 2,
+                                          outline, 0, [fact(1)], 230))  # fmt: skip
+    assert "Only this" not in text and "rewrite not used" in critique
+    assert parse(text) == [("history", " ".join(["word"] * 200) + " [1].")]  # the note is dropped

@@ -32,14 +32,18 @@ CHAPTERS = {2: 1, 5: 1, 10: 4}
 #: both versions of a disputed claim either way).
 CONTRACT_LABELS = set(typing.get_args(StorySegment.model_fields["label"].annotation))
 LABEL_LINE = re.compile(r"^\s*\[(HISTORY|LEGEND|DISPUTED)\]\s*$", re.M)
+SEPARATOR = re.compile(r"^\s*={3,}\s*$", re.M)
+#: A rewrite much shorter than its draft was cut off, not edited; keep the draft.
+MIN_REWRITE_RATIO = 0.85
 
 
 class KathaFailed(RuntimeError):
     """The story could not pass its checks; problems lists why."""
 
-    def __init__(self, problems: list[str]):
+    def __init__(self, problems: list[str], drafts: list[str] = ()):
         super().__init__("; ".join(problems[:5]))
         self.problems = problems
+        self.drafts = list(drafts)  # the last attempt's text, for diagnosis
 
 
 class Beat(BaseModel):
@@ -90,7 +94,9 @@ FORMAT = """Output format, exactly:
 Before every paragraph, a line with its label alone: [HISTORY], [LEGEND] or [DISPUTED].
 Cite facts by number in square brackets right after the claim, like [3]. Use only the
 numbered facts; cite at least one in every HISTORY and DISPUTED paragraph.
-No title, no headings, no lists, nothing before the first label."""
+Every LEGEND paragraph says in its own words that it is a legend: "People here say...",
+"The story goes...", "Legend has it...". Never tell a legend as plain fact.
+No title, no headings, no lists, no notes to the editor, nothing before the first label."""
 
 
 def facts_block(facts: list[Fact]) -> str:
@@ -115,13 +121,13 @@ def outline_prompt(subject: Subject, length: int, facts: list[Fact]) -> str:
 def draft_prompt(subject: Subject, length: int, outline: Outline, chapter: int, facts: list[Fact]) -> str:
     n = len(outline.chapters)
     low, high = checks.BANDS[length]
-    target = (low + high) // 2 // n
+    lo, hi = low * 11 // 10 // n, high * 9 // 10 // n  # aim inside the band, not at its edge
     place = "the whole story" if n == 1 else f"chapter {chapter + 1} of {n}"
     if n > 1 and chapter == n - 1:
         place += " (the last: close the story's gap and land the ending)"
     return (
-        f"Write {place} of a {length}-minute spoken story about {subject.name}: about "
-        f"{target} words.\n\n{RULES}\n\n{FORMAT}\n\nOutline:\n{outline.model_dump_json(indent=1)}\n\n"
+        f"Write {place} of a {length}-minute spoken story about {subject.name}: between "
+        f"{lo} and {hi} words. Shorter is a failure.\n\n{RULES}\n\n{FORMAT}\n\nOutline:\n{outline.model_dump_json(indent=1)}\n\n"
         f"Write only: {outline.chapters[chapter].model_dump_json()}\n\nFacts:\n\n{facts_block(facts)}"
     )
 
@@ -132,7 +138,7 @@ def critique_prompt(subject: Subject, outline: Outline, draft: str, words: int, 
         f"{outline.theme!r}.\n\nScore it 1-5 on: hook (would a tired traveller read the third "
         "sentence?), theme, specifics, peak, ending, honesty (labels and citations). Name the three "
         "biggest problems. Then rewrite it once to fix them, keeping the facts, the citations and "
-        f"about {words} words.\n\n{RULES}\n\nReply as: the scores and problems, then a line with "
+        f"the length: at least {words} words, never shorter than the draft.\n\n{RULES}\n\nReply as: the scores and problems, then a line with "
         f"=== alone, then the rewrite.\n\n{FORMAT}\n\nDraft:\n\n{draft}\n\nFacts:\n\n{facts_block(facts)}"
     )
 
@@ -143,7 +149,8 @@ def parse(text: str) -> list[tuple[str, str]]:
     out = []
     for label, body in zip(parts[1::2], parts[2::2], strict=True):
         for para in re.split(r"\n\s*\n", body.strip()):
-            if para.strip():
+            # Lists, headings and separators are notes the model left, not story.
+            if para.strip() and not re.match(r"\s*([-*#•]|={3,}|\d+\.\s)", para):
                 out.append((label.lower(), " ".join(para.split())))
     return out
 
@@ -176,9 +183,16 @@ async def _chapter(model: Any, subject, length, outline, i, facts, words) -> tup
     reply = await model.text(critique_prompt(subject, outline, draft, words, facts), tier="flash",
                              thinking="low", max_output_tokens=3500, temperature=0.4,
                              timeout_s=TIMEOUT_S)  # fmt: skip
-    critique, _, revised = reply.partition("\n===")
-    # A critique that forgot the separator or the labels: keep the draft rather than lose it.
-    return (revised if parse(revised) else draft), critique.strip()
+    parts = SEPARATOR.split(reply)
+    critique, revised = (parts[0], parts[-1]) if len(parts) > 1 else (reply, "")
+    # No separator, no labels, or a rewrite that was cut short: keep the draft.
+    if parse(revised) and _words(revised) >= MIN_REWRITE_RATIO * _words(draft):
+        return revised, critique.strip()
+    return draft, critique.strip() + "\n(rewrite not used: missing or shorter than the draft)"
+
+
+def _words(text: str) -> int:
+    return checks.words(" ".join(p for _, p in parse(text)))
 
 
 async def write(model: Any, subject: Subject, length_min: int, facts: list[Fact], lang: str = "en"):
@@ -192,7 +206,7 @@ async def write(model: Any, subject: Subject, length_min: int, facts: list[Fact]
         outline = await model.json(outline_prompt(subject, length, facts), Outline,
                                    tier="flash", thinking="low", timeout_s=TIMEOUT_S)  # fmt: skip
         low, high = checks.BANDS[length]
-        words = (low + high) // 2 // max(len(outline.chapters), 1)
+        words = low * 11 // 10 // max(len(outline.chapters), 1)
         texts, critiques = [], []
         for i in range(len(outline.chapters)):
             text, critique = await _chapter(model, subject, length, outline, i, facts, words)
@@ -209,7 +223,7 @@ async def write(model: Any, subject: Subject, length_min: int, facts: list[Fact]
             )  # fmt: skip
             return story, {"outline": outline.model_dump(), "critiques": critiques, "attempts": attempt}
         log.warning("katha attempt %d failed checks: %s", attempt, problems)
-    raise KathaFailed(problems)
+    raise KathaFailed(problems, texts)
 
 
 def plain_prompt(subject: Subject, length_min: int) -> str:

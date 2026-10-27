@@ -105,7 +105,9 @@ async def main() -> None:
             try:
                 story, notes = await write(model, subject, length, facts)
             except KathaFailed as e:
-                (folder / "failed.json").write_text(json.dumps(e.problems, indent=1), encoding="utf-8")
+                (folder / "failed.json").write_text(
+                    json.dumps({"problems": e.problems, "last_drafts": e.drafts}, indent=1,
+                               ensure_ascii=False), encoding="utf-8")  # fmt: skip
                 print(f"FAILED {folder.name}: {e}")
                 continue
             plain = await model.text(plain_prompt(subject, length), tier="flash", thinking="low",

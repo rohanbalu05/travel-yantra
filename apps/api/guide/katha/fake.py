@@ -44,7 +44,7 @@ class FakeKathaModel:
             return "hook 4, theme 4, specifics 4, peak 3, ending 3, honesty 5\n===\n" + draft
         if "\n" not in prompt:  # the taste gate's plain prompt
             return f"(sample) A plain story. {prompt}"
-        target = int(re.search(r"about (\d+) words", prompt).group(1))
+        target = int(re.search(r"between (\d+) and \d+ words", prompt).group(1))
         facts = _facts(prompt)
         paras, words, i = [], 0, 0
         while words < target and facts:
