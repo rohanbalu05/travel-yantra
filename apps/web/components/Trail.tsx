@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { Fragment } from "react";
+import { useI18n } from "@/lib/i18n";
 
 const STEPS: [string, string | null][] = [
   ["Describe", "/plan/start/"],
@@ -12,14 +15,15 @@ const STEPS: [string, string | null][] = [
 
 /** The six planning steps; `at` is the current one (1-based). Earlier steps link back. */
 export function Trail({ at }: { at: number }) {
+  const { t } = useI18n();
   return (
-    <nav className="trail" aria-label="Planning steps">
+    <nav className="trail" aria-label={t("Planning steps")}>
       {STEPS.map(([label, href], i) => {
         const n = i + 1;
         const inner = (
           <>
             <i>{n}</i>
-            {label}
+            {t(label)}
           </>
         );
         return (

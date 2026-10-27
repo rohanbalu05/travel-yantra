@@ -2,7 +2,7 @@
 
 import { useMemo, useSyncExternalStore } from "react";
 import { API_BASE_URL } from "@/lib/api";
-import type { Consents, Itinerary, Lang, RatingIn, TripSummary } from "@/lib/contracts";
+import type { Consents, Itinerary, Lang, Me, RatingIn, TripSummary } from "@/lib/contracts";
 import { ApiError, apiJSON } from "@/lib/http";
 
 // Google sign-in through Firebase Auth when these are set (Rohan creates the Firebase project).
@@ -131,14 +131,45 @@ async function tryApi<T>(call: (token: string | null) => Promise<T>): Promise<{ 
   }
 }
 
-const bearer = (token: string | null) => (token ? { Authorization: `Bearer ${token}` } : undefined);
+// TY1 keys account data by an anonymous id per browser (X-Client-Id); a Firebase token can be added later.
+const CLIENT_KEY = "ty.client";
+let clientMemory: string | null = null;
+
+/** This browser's anonymous id: a random UUID, made once. Not linked to a name, email or phone. */
+export function clientId(): string {
+  try {
+    let id = localStorage.getItem(CLIENT_KEY);
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(CLIENT_KEY, id);
+    }
+    return id;
+  } catch {
+    return (clientMemory ??= crypto.randomUUID());
+  }
+}
+
+/** Headers for /plan, revise and ratings: the anonymous id only. */
+export const clientHeaders = (): Record<string, string> => ({ "X-Client-Id": clientId() });
+
+const bearer = (token: string | null): Record<string, string> => ({ ...clientHeaders(), ...(token ? { Authorization: `Bearer ${token}` } : {}) });
 
 export async function saveConsents(next: Consents) {
-  await tryApi((token) => apiJSON<unknown>("/me/consents", { method: "PUT", body: next, headers: bearer(token) }));
+  const r = await tryApi((token) => apiJSON<Me>("/me/consents", { method: "PUT", body: next, headers: bearer(token) }));
   const a = load();
   // Withdrawing "Keep my trips" also removes the trips kept under it (DPDP: stop using it, and erase it).
   const trips = next.plan_history ? a.trips : [];
-  store({ ...a, trips, consents: next, consents_updated_at: new Date().toISOString() });
+  const saved = r.ok ? { ...NO_CONSENTS, ...r.value.consents } : next;
+  store({ ...a, trips, consents: saved, consents_updated_at: (r.ok && r.value.consents_updated_at) || new Date().toISOString() });
+}
+
+/** Takes the server's consents (GET /me) as the truth when the API has them; no-op until then. */
+export async function syncMe(): Promise<boolean> {
+  const r = await tryApi((token) => apiJSON<Me>("/me", { headers: bearer(token) }));
+  if (!r.ok) return false;
+  const a = load();
+  store({ ...a, consents: { ...NO_CONSENTS, ...r.value.consents }, consents_updated_at: r.value.consents_updated_at ?? a.consents_updated_at });
+  return true;
 }
 
 /** Saves a finished plan to My Trips, only with the plan_history consent. */
@@ -181,6 +212,7 @@ export async function deleteMyData(): Promise<{ server: number | null }> {
   store(null);
   try {
     localStorage.removeItem(RATINGS_KEY);
+    localStorage.removeItem(CLIENT_KEY); // a fresh anonymous id from now on, so nothing links back
   } catch {
     // Nothing stored.
   }
@@ -197,7 +229,7 @@ const RATINGS_KEY = "ty.ratings";
 
 /** POST /ratings (anonymous, for the O1 study). Kept in this browser until the endpoint exists. */
 export async function rate(r: RatingIn): Promise<"api" | "browser"> {
-  const sent = await tryApi(() => apiJSON<unknown>("/ratings", { body: r }));
+  const sent = await tryApi(() => apiJSON<unknown>("/ratings", { body: r, headers: clientHeaders() }));
   if (sent.ok) return "api";
   try {
     const list = JSON.parse(localStorage.getItem(RATINGS_KEY) ?? "[]") as RatingIn[];

@@ -2,6 +2,7 @@ export type {
   BudgetSummary,
   Citation,
   Consents,
+  Me,
   RatingIn,
   TripSummary,
   CompareRequest,

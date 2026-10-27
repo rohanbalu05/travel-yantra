@@ -1,5 +1,6 @@
 import { useMemo, useSyncExternalStore } from "react";
 import { API_BASE_URL } from "@/lib/api";
+import { clientHeaders } from "@/lib/account";
 import { detailText } from "@/lib/http";
 import type { Itinerary, PlanEvent, PlanStage, PlanText, ReviseRequest, TripRequest } from "@/lib/contracts";
 import { mockPlanBody, mockReviseBody } from "@/lib/mockPlan";
@@ -38,7 +39,7 @@ async function* streamEvents(
   } else {
     const res = await fetch(`${base}${path}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
+      headers: { "Content-Type": "application/json", Accept: "text/event-stream", ...clientHeaders() },
       body: JSON.stringify(body),
       signal,
     });

@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LangPicker } from "@/components/AppShell";
-import { LANGS, LangProvider, saveLang, translate, useI18n } from "@/lib/i18n";
+import { DICTIONARY_KEYS, LANGS, LangProvider, dictionaryEntry, saveLang, translate, useI18n } from "@/lib/i18n";
 import phrasebook from "@/lib/i18n/phrasebook.json";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/home/" }));
@@ -26,6 +26,18 @@ describe("translate", () => {
     expect(translate("Try again", "hi")).toBe((phrasebook as Record<string, Record<string, string>>)["Try again"].hi);
     expect(translate("Not in any dictionary", "ta")).toBe("Not in any dictionary");
     expect(translate("Try again", "en")).toBe("Try again");
+  });
+
+  it("has every screen string in all five Indian languages, keeping its {slots}", () => {
+    const slots = (s: string) => [...s.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort().join(",");
+    const bad = DICTIONARY_KEYS().flatMap((en) =>
+      LANGS.filter((l) => l.code !== "en")
+        .filter((l) => { const tr = dictionaryEntry(en)?.[l.code]; return !tr || slots(tr) !== slots(en); })
+        .map((l) => `${en}:${l.code}`),
+    );
+    expect(bad).toEqual([]);
+    expect(DICTIONARY_KEYS().length).toBeGreaterThan(450);
+    expect(translate("{n} of {total} days", "en", { n: 3, total: 5 })).toBe("3 of 5 days");
   });
 
   it("has every phrase in all five Indian languages", () => {

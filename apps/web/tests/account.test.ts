@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { deleteMyData, listTrips, rate, rememberTrip, saveConsents, signIn } from "@/lib/account";
+import { clientHeaders, clientId, deleteMyData, listTrips, rate, rememberTrip, saveConsents, signIn } from "@/lib/account";
 import { GOA_ITINERARY } from "@/lib/mockPlan";
 
 // Node's global storage objects hide jsdom's here; plain ones for the tests.
@@ -61,6 +61,15 @@ describe("account without an API (this browser)", () => {
     expect(session.m.has("ty.plan.result")).toBe(false);
     expect(session.m.has("ty.metrics.session")).toBe(false);
     expect(local.m.get("ty.lang")).toBe("kn");
+  });
+
+  it("keeps one anonymous client id per browser, and a new one after delete my data", async () => {
+    const id = clientId();
+    expect(id).toMatch(/^[A-Za-z0-9_-]{16,128}$/);
+    expect(clientId()).toBe(id);
+    expect(clientHeaders()).toEqual({ "X-Client-Id": id });
+    await deleteMyData();
+    expect(clientId()).not.toBe(id);
   });
 
   it("keeps a rating in the browser while there is no API", async () => {

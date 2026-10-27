@@ -3,21 +3,29 @@ import { daysBetween } from "@/lib/format";
 
 export type DayRow = { kind: "stop"; n: number; place: Place } | { kind: "move"; leg: Leg } | { kind: "stay"; name: string };
 
+/** A journey between cities (TY1's Leg.role), as opposed to a hop between two stops. */
+export const isJourney = (leg: Leg) => leg.role === "outbound" || leg.role === "between" || leg.role === "home";
+
 /**
  * Stops in order, each followed by the leg that leaves it; the night's stay last.
- * A leg that leaves no stop (multi-city: TY1 puts the city-to-city leg first) opens the day.
+ * The journey there (role outbound or between) opens the day and the journey home closes it.
+ * Plans from before Leg.role: a leg that leaves no stop opens the day.
  */
 export function dayRows(day: DayPlan, it: Itinerary): DayRow[] {
   const rows: DayRow[] = [];
   const names = new Set((day.stops ?? []).map((s) => s.name));
   const legs = [...(day.legs ?? [])];
-  while (legs.length && !names.has(legs[0].from)) rows.push({ kind: "move", leg: legs.shift()! });
+  const home = legs.filter((l) => l.role === "home");
+  const rest = legs.filter((l) => l.role !== "home");
+  while (rest.length && (rest[0].role === "outbound" || rest[0].role === "between" || (rest[0].role == null && !names.has(rest[0].from)))) {
+    rows.push({ kind: "move", leg: rest.shift()! });
+  }
   (day.stops ?? []).forEach((place, i) => {
     rows.push({ kind: "stop", n: i + 1, place });
-    const j = legs.findIndex((l) => l.from === place.name);
-    if (j >= 0) rows.push({ kind: "move", leg: legs.splice(j, 1)[0] });
+    const j = rest.findIndex((l) => l.from === place.name);
+    if (j >= 0) rows.push({ kind: "move", leg: rest.splice(j, 1)[0] });
   });
-  legs.forEach((leg) => rows.push({ kind: "move", leg }));
+  [...rest, ...home].forEach((leg) => rows.push({ kind: "move", leg }));
   const stay = (it.stays ?? []).find((s) => s.check_in <= day.date && day.date < s.check_out);
   if (stay) rows.push({ kind: "stay", name: stay.name });
   return rows;

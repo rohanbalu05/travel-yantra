@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PlanEvent } from "@/lib/contracts";
+import { translate } from "@/lib/i18n";
 import { GOA_ITINERARY, goaEvents, revisedItinerary } from "@/lib/mockPlan";
 import { PlanHttpError, streamPlan, streamRevise } from "@/lib/plan";
 import { initialPlanState, planReducer } from "@/lib/planState";
@@ -154,7 +155,9 @@ describe("days per destination", () => {
   });
 
   it("says when the days do not add up", () => {
-    expect(formProblems({ ...two, split: [2, 2] })).toEqual(["The days in each city should add up to 5."]);
+    const problems = formProblems({ ...two, split: [2, 2] });
+    expect(problems).toEqual(["The days in each city should add up to {days}."]);
+    expect(translate(problems[0], "en", { days: tripDays(two) })).toBe("The days in each city should add up to 5.");
   });
 
   it("ignores an old split once the cities change", () => {

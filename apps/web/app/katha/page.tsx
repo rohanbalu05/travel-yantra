@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
+import { useI18n } from "@/lib/i18n";
 import { GOA_ITINERARY } from "@/lib/mockPlan";
 import { usePlanResult } from "@/lib/plan";
 import "../guide.css";
@@ -16,6 +17,7 @@ const href = (kind: "place" | "city", subject: string) => `/katha/${kind}/?subje
 
 export default function KathaHome() {
   const plan = usePlanResult();
+  const { t } = useI18n();
   const it = plan?.itinerary ?? GOA_ITINERARY;
   const mine = !!plan;
   const stops = it.days.flatMap((d) => d.stops ?? []);
@@ -23,30 +25,30 @@ export default function KathaHome() {
   return (
     <AppShell>
       <div className="k-head">
-        <h1 className="page-title">Katha</h1>
-        <p className="page-sub">The history and legends of a city, a place or a planned day, in 2, 5 or 10 minutes. Every legend is labelled as one, and every history line names its source.</p>
+        <h1 className="page-title">{t("Katha")}</h1>
+        <p className="page-sub">{t("The history and legends of a city, a place or a planned day, in 2, 5 or 10 minutes. Every legend is labelled as one, and every history line names its source.")}</p>
       </div>
 
       <section aria-labelledby="trip-h">
         <div className="sec-title">
-          <h2 className="h2" id="trip-h">{mine ? "For your trip" : "For the Goa sample trip"}</h2>
-          <Link href="/katha/day/" style={{ fontWeight: 700 }}>Stories for each day</Link>
+          <h2 className="h2" id="trip-h">{mine ? t("For your trip") : t("For the Goa sample trip")}</h2>
+          <Link href="/katha/day/" style={{ fontWeight: 700 }}>{t("Stories for each day")}</Link>
         </div>
         <div className="kh-grid">
           {it.request.destinations.map((c) => (
-            <Link key={c} className="kh-card" href={href("city", c)}><b>{c}</b><span>City Katha</span></Link>
+            <Link key={c} className="kh-card" href={href("city", c)}><b>{c}</b><span>{t("City Katha")}</span></Link>
           ))}
           {stops.map((p) => (
-            <Link key={p.id} className="kh-card" href={href("place", p.name)}><b>{p.name}</b><span>Place Katha · {p.category}</span></Link>
+            <Link key={p.id} className="kh-card" href={href("place", p.name)}><b>{p.name}</b><span>{t("Place Katha · {category}", { category: p.category })}</span></Link>
           ))}
         </div>
       </section>
 
       <section aria-labelledby="lib-h">
-        <div className="sec-title"><h2 className="h2" id="lib-h">Library</h2></div>
+        <div className="sec-title"><h2 className="h2" id="lib-h">{t("Library")}</h2></div>
         <div className="kh-grid">
           {LIBRARY.map((x) => (
-            <Link key={x.subject} className="kh-card" href={href(x.kind, x.subject)}><b>{x.subject}</b><span>{x.note}</span></Link>
+            <Link key={x.subject} className="kh-card" href={href(x.kind, x.subject)}><b>{x.subject}</b><span>{t(x.note)}</span></Link>
           ))}
         </div>
       </section>

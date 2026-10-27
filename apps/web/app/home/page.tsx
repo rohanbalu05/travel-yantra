@@ -45,8 +45,8 @@ export default function HomePage() {
     <AppShell>
       <div>
         <div className="hm-greet">
-          <h1>Good evening, Arjun.</h1>
-          <p className="page-sub">Plan something new, or hear the story of where you are going.</p>
+          <h1>{t("Good evening, {name}.", { name: "Arjun" })}</h1>
+          <p className="page-sub">{t("Plan something new, or hear the story of where you are going.")}</p>
         </div>
 
         <div className="doors">
@@ -61,19 +61,19 @@ export default function HomePage() {
             </svg>
             <span className="door-k">
               <svg className="ic" viewBox="0 0 24 24" aria-hidden="true">{pin}<circle cx="12" cy="10" r="2.3" /></svg>
-              Planning
+              {t("Planning")}
             </span>
             <h2 id="plan-h">{t("Plan a trip")}</h2>
-            <p>Say where, when and who you are going with. Get road, rail and air compared, a plan checked stop by stop, and every booking lined up.</p>
+            <p>{t("Say where, when and who you are going with. Get road, rail and air compared, a plan checked stop by stop, and every booking lined up.")}</p>
             <div className="door-box">
               <div className="hm-composer">
                 <label htmlFor="hm-ask">{t("Where do you want to go?")}</label>
-                <textarea id="hm-ask" value={ask} maxLength={4000} onChange={(e) => setAsk(e.target.value)} placeholder="Bengaluru to Goa, 11 to 14 Dec, with my parents and sister. Churches, temples, a little beach." />
+                <textarea id="hm-ask" value={ask} maxLength={4000} onChange={(e) => setAsk(e.target.value)} placeholder={t("Bengaluru to Goa, 11 to 14 Dec, with my parents and sister. Churches, temples, a little beach.")} />
                 <div className="hm-composer-row">
                   <button type="button" className="btn btn-primary" onClick={planIt}>{t("Plan my trip")}</button>
                 </div>
               </div>
-              <div className="hm-chips" aria-label="Ideas">
+              <div className="hm-chips" aria-label={t("Ideas")}>
                 {ideas.map((i) => (
                   <Link key={i} href={`/plan/start/?text=${encodeURIComponent(i)}`}>{i}</Link>
                 ))}
@@ -85,14 +85,14 @@ export default function HomePage() {
             <span className="door-art" aria-hidden="true">ಕಥೆ</span>
             <span className="door-k">
               <svg className="ic" viewBox="0 0 24 24" aria-hidden="true">{book}</svg>
-              Katha
+              {t("Katha")}
             </span>
-            <h2 id="katha-h">Hear the story</h2>
-            <p>The history and the legends of a city, a place or your planned day, told in your language, with each legend labelled as one.</p>
+            <h2 id="katha-h">{t("Hear the story")}</h2>
+            <p>{t("The history and the legends of a city, a place or your planned day, told in your language, with each legend labelled as one.")}</p>
             <div className="door-box">
               <div className="mini">
                 <div className="mini-top">
-                  <button type="button" className="kp-play" onClick={() => setPlaying(!playing)} aria-label={playing ? "Pause the Katha" : "Play the Katha"}>
+                  <button type="button" className="kp-play" onClick={() => setPlaying(!playing)} aria-label={playing ? t("Pause the Katha") : t("Play the Katha")}>
                     <PlayIcon playing={playing} />
                   </button>
                   <div>
@@ -103,9 +103,9 @@ export default function HomePage() {
                 <Wave play={playing} count={40} step={0.11} />
               </div>
               <div className="mini-links">
-                <Link className="btn btn-cream" href="/katha/city/">Open the City Katha</Link>
-                <Link className="btn btn-on-dark" href="/katha/">Browse the library</Link>
-                <Link className="btn btn-on-dark" href="/ask/">Ask the guide</Link>
+                <Link className="btn btn-cream" href="/katha/city/">{t("Open the City Katha")}</Link>
+                <Link className="btn btn-on-dark" href="/katha/">{t("Browse the library")}</Link>
+                <Link className="btn btn-on-dark" href="/ask/">{t("Ask the guide")}</Link>
               </div>
             </div>
           </section>
@@ -115,17 +115,17 @@ export default function HomePage() {
       <div className="split">
         <section className="main" aria-labelledby="trips-h">
           <div className="sec-title">
-            <h2 className="h2" id="trips-h">Your trips</h2>
-            <Link href="/trips/" style={{ fontWeight: 700 }}>See all trips</Link>
+            <h2 className="h2" id="trips-h">{t("Your trips")}</h2>
+            <Link href="/trips/" style={{ fontWeight: 700 }}>{t("See all trips")}</Link>
           </div>
           <div className="trips">
-            {trips.map((t) => (
-              <Link key={t.name} className="trip" href={t.href}>
-                <div className="trip-top"><b>{t.name}</b><span className={t.badge}>{t.when}</span></div>
-                <small>{t.dates}</small>
-                <div className="trip-route"><span>Bengaluru</span><i /><span>{t.to}</span></div>
+            {trips.map((trip) => (
+              <Link key={trip.name} className="trip" href={trip.href}>
+                <div className="trip-top"><b>{trip.name}</b><span className={trip.badge}>{trip.when}</span></div>
+                <small>{trip.dates}</small>
+                <div className="trip-route"><span>Bengaluru</span><i /><span>{trip.to}</span></div>
                 <div className="trip-foot">
-                  {t.status.map(([cls, text]) => (
+                  {trip.status.map(([cls, text]) => (
                     <span key={text} className={cls}>{text}</span>
                   ))}
                 </div>
@@ -135,7 +135,7 @@ export default function HomePage() {
         </section>
 
         <aside className="side panel panel-pad" aria-labelledby="needs-h">
-          <h2 className="h3" id="needs-h" style={{ marginBottom: 12 }}>Needs you</h2>
+          <h2 className="h3" id="needs-h" style={{ marginBottom: 12 }}>{t("Needs you")}</h2>
           <div className="needs">
             {needs.map((n) => (
               <div className="need" key={n.title}>
@@ -155,8 +155,8 @@ export default function HomePage() {
 
       <section aria-labelledby="stories-h">
         <div className="sec-title">
-          <h2 className="h2" id="stories-h">Stories to start with</h2>
-          <Link href="/katha/" style={{ fontWeight: 700 }}>Open the Katha library</Link>
+          <h2 className="h2" id="stories-h">{t("Stories to start with")}</h2>
+          <Link href="/katha/" style={{ fontWeight: 700 }}>{t("Open the Katha library")}</Link>
         </div>
         <div className="stories">
           <Link className="story" href="/katha/place/">
@@ -172,7 +172,7 @@ export default function HomePage() {
                 <rect x="226" y="92" width="36" height="20" /><path d="M224 94 Q244 62 264 94Z" />
               </g>
             </svg>
-            <div className="story-body"><b>Mysore Palace</b><div className="story-meta"><span className="tag tag-history">History</span><span className="tag tag-legend">Legend</span><span>Place Katha · 8 min</span></div></div>
+            <div className="story-body"><b>Mysore Palace</b><div className="story-meta"><span className="tag tag-history">{t("History")}</span><span className="tag tag-legend">{t("Legend")}</span><span>{t("Place Katha · {min} min", { min: 8 })}</span></div></div>
           </Link>
           <Link className="story" href="/katha/city/">
             <svg viewBox="0 0 320 180" aria-hidden="true">
@@ -181,7 +181,7 @@ export default function HomePage() {
               <g fill="#E7B25C"><rect x="150" y="40" width="22" height="26" /><path d="M146 42 L161 14 L176 42Z" /><rect x="159" y="6" width="4" height="10" /></g>
               <text x="24" y="160" className="kn" fontSize="46" fontWeight="700" fill="#F4EFE6">ಮೈಸೂರು</text>
             </svg>
-            <div className="story-body"><b>Mysuru in 5 minutes</b><div className="story-meta"><span className="tag tag-legend">Legend</span><span>City Katha · 2, 5 or 10 min</span></div></div>
+            <div className="story-body"><b>Mysuru in 5 minutes</b><div className="story-meta"><span className="tag tag-legend">{t("Legend")}</span><span>{t("City Katha · 2, 5 or 10 min")}</span></div></div>
           </Link>
           <Link className="story" href="/trip/live/">
             <svg viewBox="0 0 320 180" aria-hidden="true">
@@ -190,7 +190,7 @@ export default function HomePage() {
               <g fill="#9E4529"><rect x="96" y="96" width="128" height="58" /><rect x="108" y="66" width="104" height="32" /><rect x="124" y="42" width="72" height="26" /><path d="M134 44 L134 30 Q160 10 186 30 L186 44Z" /></g>
               <g fill="#6D2E1B"><path d="M150 154 V130 A10 10 0 0 1 170 130 V154Z" /><circle cx="160" cy="80" r="7" /></g>
             </svg>
-            <div className="story-body"><b>Saturday in Old Goa</b><div className="story-meta"><span className="tag tag-history">History</span><span>Day Katha · 5 stops · 12 min</span></div></div>
+            <div className="story-body"><b>Saturday in Old Goa</b><div className="story-meta"><span className="tag tag-history">{t("History")}</span><span>{t("Day Katha · {stops} stops · {min} min", { stops: 5, min: 12 })}</span></div></div>
           </Link>
           <Link className="story" href="/katha/">
             <svg viewBox="0 0 320 180" aria-hidden="true">
@@ -199,7 +199,7 @@ export default function HomePage() {
               <g fill="#5E4630"><rect x="118" y="96" width="84" height="40" /><path d="M126 96 L160 50 L194 96Z" /><rect x="134" y="80" width="52" height="16" /><circle cx="132" cy="140" r="14" /><circle cx="188" cy="140" r="14" /></g>
               <g fill="#C9B48A"><circle cx="132" cy="140" r="5" /><circle cx="188" cy="140" r="5" /></g>
             </svg>
-            <div className="story-body"><b>Hampi&apos;s stone chariot</b><div className="story-meta"><span className="tag tag-history">History</span><span>Place Katha · 6 min</span></div></div>
+            <div className="story-body"><b>Hampi&apos;s stone chariot</b><div className="story-meta"><span className="tag tag-history">{t("History")}</span><span>{t("Place Katha · {min} min", { min: 6 })}</span></div></div>
           </Link>
         </div>
       </section>

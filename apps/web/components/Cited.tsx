@@ -1,15 +1,17 @@
 import type { Citation } from "@/lib/contracts";
 import { citedParts } from "@/lib/guide";
+import { useI18n } from "@/lib/i18n";
 
 /** Text with [n] markers turned into links to source n in the matching <Sources id={id}>. */
 export function Cited({ text, id, count }: { text: string; id: string; count: number }) {
+  const { t } = useI18n();
   return (
     <>
       {citedParts(text).map((p, i) =>
         "text" in p ? (
           <span key={i}>{p.text}</span>
         ) : p.n >= 1 && p.n <= count ? (
-          <a key={i} className="cite" href={`#${id}-${p.n}`} aria-label={`Source ${p.n}`}>[{p.n}]</a>
+          <a key={i} className="cite" href={`#${id}-${p.n}`} aria-label={t("Source {n}", { n: p.n })}>[{p.n}]</a>
         ) : null, // a marker with no matching source is dropped rather than shown broken
       )}
     </>
@@ -18,10 +20,11 @@ export function Cited({ text, id, count }: { text: string; id: string; count: nu
 
 /** Numbered sources; each is the target of the [n] markers in <Cited>. */
 export function Sources({ id, items }: { id: string; items: Citation[] }) {
+  const { t } = useI18n();
   if (!items.length) return null;
   return (
     <div className="srcs">
-      <small>Sources</small>
+      <small>{t("Sources")}</small>
       <ol>
         {items.map((c, i) => (
           <li key={i} id={`${id}-${i + 1}`}>

@@ -7,7 +7,7 @@ import { getKatha, type KathaRequest, type KathaResult } from "@/lib/guide";
 import { useI18n } from "@/lib/i18n";
 
 const LENGTHS = [2, 5, 10] as const;
-// Labels TY2 may add later still show, as plain text with no tag.
+// Labels TY2 may add later still show, as plain text with no tag. The English names are dictionary keys.
 const LABEL: Record<string, string> = { history: "History", legend: "Legend", disputed: "Disputed" };
 const TAG: Record<string, string> = { history: "tag tag-history k-label", legend: "tag tag-legend k-label", disputed: "tag k-label" };
 // A first telling runs 4 to 10 model calls (TY2: ~60 s for 2 min, ~200 s for 10 min); past this it has stalled.
@@ -45,31 +45,31 @@ export function KathaView({ req }: { req: Omit<KathaRequest, "length_min" | "lan
   const sources = (story?.sources ?? []).map(citationFrom);
 
   return (
-    <section aria-label="Story">
+    <section aria-label={t("Story")}>
       <div className="k-bar">
-        <div className="toggle" role="group" aria-label="Length">
+        <div className="toggle" role="group" aria-label={t("Length")}>
           {LENGTHS.map((n) => (
             <button key={n} type="button" className={n === length ? "on" : undefined} aria-pressed={n === length} onClick={() => setLength(n)}>{n} {t("Minutes")}</button>
           ))}
         </div>
-        {story?.sample && <span className="badge">Sample story</span>}
+        {story?.sample && <span className="badge">{t("Sample story")}</span>}
       </div>
       {!current ? (
-        <p className="hint" role="status">Writing your story. The first telling can take one to three minutes (longer stories take longer); after that it opens at once.</p>
+        <p className="hint" role="status">{t("Writing your story. The first telling can take one to three minutes (longer stories take longer); after that it opens at once.")}</p>
       ) : current.problem ? (
         <Problem {...current.problem} onRetry={() => { setResult(null); setRun((r) => r + 1); }} />
       ) : story && (story.segments ?? []).length ? (
         <div className="k-story">
           {story.segments!.map((s, i) => (
             <div key={i} className={s.label === "legend" ? "seg legend" : "seg"}>
-              {LABEL[s.label] ? <span className={TAG[s.label]}>{LABEL[s.label]}</span> : null}
+              {LABEL[s.label] ? <span className={TAG[s.label]}>{t(LABEL[s.label])}</span> : null}
               <p><Cited text={s.text} id="k-src" count={sources.length} /></p>
             </div>
           ))}
           <Sources id="k-src" items={sources} />
         </div>
       ) : (
-        <p className="hint">{story?.text || "No story yet."}</p>
+        <p className="hint">{story?.text || t("No story yet.")}</p>
       )}
     </section>
   );

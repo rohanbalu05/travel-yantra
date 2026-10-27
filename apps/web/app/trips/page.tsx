@@ -45,17 +45,21 @@ export default function MyTrips() {
       <div className="st-head">
         <h1 className="page-title">{t("My trips")}</h1>
         <p className="page-sub">
-          {keep ? `Plans you made${res?.from === "browser" ? " in this browser" : ""}, newest first.` : "Saving trips is off. Turn on Keep my trips in Settings and the next plan you make will be saved here."}
+          {!keep
+            ? t("Saving trips is off. Turn on Keep my trips in Settings and the next plan you make will be saved here.")
+            : res?.from === "browser"
+              ? t("Plans you made in this browser, newest first.")
+              : t("Plans you made, newest first.")}
         </p>
       </div>
-      {!keep && <p><Link className="btn btn-quiet btn-sm" href="/settings/">Open {t("Settings")}</Link></p>}
+      {!keep && <p><Link className="btn btn-quiet btn-sm" href="/settings/">{t("Open Settings")}</Link></p>}
       {!res ? (
         <p className="hint" role="status">{t("Loading")}…</p>
       ) : res.problem ? (
         <Problem {...res.problem} onRetry={() => { setRes(null); setRun((r) => r + 1); }} />
       ) : res.trips!.length === 0 ? (
         <div className="panel panel-pad" style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start" }}>
-          <b>No saved trips yet.</b>
+          <b>{t("No saved trips yet.")}</b>
           <Link className="btn btn-primary" href="/plan/start/">{t("Plan a trip")}</Link>
         </div>
       ) : (
@@ -63,7 +67,7 @@ export default function MyTrips() {
           {res.trips!.map((trip) => (
             <article className="trip-card" key={trip.plan_id}>
               <b>{trip.destinations.join(", ")}</b>
-              <span className="hint">From {trip.origin} · {dayLabel(trip.start_date)} to {dayLabel(trip.end_date)}</span>
+              <span className="hint">{t("From {origin} · {start} to {end}", { origin: trip.origin, start: dayLabel(trip.start_date), end: dayLabel(trip.end_date) })}</span>
               <div className="row-wrap">
                 <button type="button" className="btn btn-primary btn-sm" onClick={() => open(trip)} disabled={!trip.itinerary && !trip.share_token}>{t("View details")}</button>
                 {trip.share_token && <Link className="btn btn-quiet btn-sm" href={`/t/${encodeURIComponent(trip.share_token)}/`}>{t("Share")}</Link>}

@@ -7,7 +7,7 @@ import { Trail } from "@/components/Trail";
 import type { ViolationCode } from "@/lib/contracts";
 import { inr } from "@/lib/format";
 import { rememberTrip } from "@/lib/account";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, type Vars } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { GOA_REQUEST } from "@/lib/mockPlan";
 import { PlanHttpError, savePlanInput, savePlanResult, streamPlan, usePlanInput, type PlanBody } from "@/lib/plan";
@@ -41,56 +41,58 @@ const tick = <path d="M5 12.5l4.5 4.5L19 7.5" />;
 const warn = <><circle cx="12" cy="12" r="9" /><path d="M12 7.5v5.5" /><path d="M12 16.5h.01" /></>;
 
 /** From the form, or from what intake understood once a partial plan arrives. */
-function title(body: PlanBody | null, s: PlanState): string {
+function title(body: PlanBody | null, s: PlanState, t: (text: string, vars?: Vars) => string): string {
   const dest = s.itinerary?.request.destinations ?? (body && "destinations" in body ? body.destinations : []);
-  return dest.length ? `Planning your ${dest.join(" and ")} trip` : "Planning your trip";
+  return dest.length ? t("Planning your {dest} trip", { dest: dest.join(` ${t("and")} `) }) : t("Planning your trip");
 }
 
 function AgentCard({ agent, find, planning }: { agent: Agent; find: string | null; planning: boolean }) {
+  const { t } = useI18n();
   const a = AGENT_INFO[agent];
   return (
-    <article className="agent" aria-label={`${a.name} specialist`}>
+    <article className="agent" aria-label={t("{name} specialist", { name: t(a.name) })}>
       <div className="agent-top">
         <span className="agent-ic"><svg className="ic" viewBox="0 0 24 24" aria-hidden="true">{a.icon}</svg></span>
-        <div><b>{a.name}</b><span className="agent-sub">{a.sub}</span></div>
-        {find ? <span className="st st-ok">Done</span> : <span className="st st-wait">{planning ? "Working" : "Waiting"}</span>}
+        <div><b>{t(a.name)}</b><span className="agent-sub">{t(a.sub)}</span></div>
+        {find ? <span className="st st-ok">{t("Done")}</span> : <span className="st st-wait">{planning ? t("Working") : t("Waiting")}</span>}
       </div>
       <div className="bar"><i className={find ? undefined : planning ? "run" : undefined} style={{ transform: find ? "scaleX(1)" : planning ? undefined : "scaleX(0)" }} /></div>
       <ul className="finds">
-        {find ? <li>{find}</li> : <li className="wait">{planning ? "Looking…" : "Starts once we have read your trip."}</li>}
+        {find ? <li>{find}</li> : <li className="wait">{planning ? t("Looking…") : t("Starts once we have read your trip.")}</li>}
       </ul>
     </article>
   );
 }
 
 function Checker({ s }: { s: PlanState }) {
+  const { t } = useI18n();
   const last = s.checks.at(-1);
   const passed = s.status === "done" || (last !== undefined && last.violations.length === 0);
-  const badge = s.checks.length === 0 ? (s.solved ? "Checking" : "Waiting") : passed ? "All checks passed" : `${last!.violations.length} to fix`;
+  const badge = s.checks.length === 0 ? (s.solved ? t("Checking") : t("Waiting")) : passed ? t("All checks passed") : t("{n} to fix", { n: last!.violations.length });
   const budget = s.itinerary?.budget;
   return (
     <section className="panel" aria-labelledby="chk-h">
       <div className="panel-head">
-        <h2 className="h3" id="chk-h">The checker</h2>
+        <h2 className="h3" id="chk-h">{t("The checker")}</h2>
         <span className={passed ? "badge badge-ok" : "badge badge-warn"}>{badge}</span>
       </div>
       <div className="panel-pad" style={{ display: "flex", flexDirection: "column", gap: 14, paddingTop: 6 }}>
         {s.checks.length === 0 ? (
-          <p className="hint" style={{ margin: 0 }}>Opening hours, travel time, long days, rest and budget are checked once the days are laid out.</p>
+          <p className="hint" style={{ margin: 0 }}>{t("Opening hours, travel time, long days, rest and budget are checked once the days are laid out.")}</p>
         ) : (
           <ul className="checks">
             {s.checks.map((c) => (
               <li key={c.iteration}>
                 <svg className={c.violations.length ? "ic fx" : "ic"} viewBox="0 0 24 24" aria-hidden="true">{c.violations.length ? warn : tick}</svg>
-                <span>Round {c.iteration}: {c.message}</span>
-                <small className={c.violations.length ? "fx" : undefined}>{c.violations.length ? `${c.violations.length} found` : "Passed"}</small>
+                <span>{t("Round {n}: {message}", { n: c.iteration, message: c.message })}</span>
+                <small className={c.violations.length ? "fx" : undefined}>{c.violations.length ? t("{n} found", { n: c.violations.length }) : t("Passed")}</small>
               </li>
             ))}
             {budget && (
               <li>
                 <svg className="ic" viewBox="0 0 24 24" aria-hidden="true">{tick}</svg>
-                <span>Budget</span>
-                <small className={budget.within_budget === false ? "fx" : undefined}>{inr(budget.total_inr)}{budgetOf(s)}</small>
+                <span>{t("Budget")}</span>
+                <small className={budget.within_budget === false ? "fx" : undefined}>{budgetOf(s, inr(budget.total_inr), t)}</small>
               </li>
             )}
           </ul>
@@ -101,7 +103,7 @@ function Checker({ s }: { s: PlanState }) {
             const repair = ci < s.checks.length - 1 ? s.repairs[ci] : undefined;
             return (
               <div className="fix" key={`${c.iteration}-${v.code}-${vi}`}>
-                <b>{repair ? "Fixed" : "Found"}: {VIOLATION_NAME[v.code]}</b>
+                <b>{repair ? t("Fixed: {problem}", { problem: t(VIOLATION_NAME[v.code]) }) : t("Found: {problem}", { problem: t(VIOLATION_NAME[v.code]) })}</b>
                 {v.message}{repair ? ` ${repair}` : ""}
               </div>
             );
@@ -120,9 +122,9 @@ const VIOLATION_NAME: Record<ViolationCode, string> = {
   no_rest: "no time to rest",
 };
 
-function budgetOf(s: PlanState): string {
+function budgetOf(s: PlanState, total: string, t: (text: string, vars?: Vars) => string): string {
   const b = s.itinerary?.request.constraints?.budget_inr;
-  return b ? ` of ${inr(b)}` : "";
+  return b ? t("{total} of {budget}", { total, budget: inr(b) }) : total;
 }
 
 export default function PlanThinking() {
@@ -185,8 +187,8 @@ export default function PlanThinking() {
           <Trail at={2} />
           <div className="pt-titlebar">
             <div className="col-10">
-              <h1 className="page-title">{title(body, state)}</h1>
-              <p className="page-sub">Four AI specialists work at once. Then a checker tests every stop on every day, and fixes what fails, before you see a thing.</p>
+              <h1 className="page-title">{title(body, state, t)}</h1>
+              <p className="page-sub">{t("Four AI specialists work at once. Then a checker tests every stop on every day, and fixes what fails, before you see a thing.")}</p>
             </div>
             {state.intake && <p className="badge" role="status" style={{ margin: 0 }}>{state.intake}</p>}
           </div>
@@ -194,14 +196,14 @@ export default function PlanThinking() {
 
         {state.status === "needs_input" && (
           <div className="ask-box" style={{ marginBottom: 20 }}>
-            <b>A few things before we plan</b>
+            <b>{t("A few things before we plan")}</b>
             <ol>{state.questions.map((q) => <li key={q}>{q}</li>)}</ol>
-            <label htmlFor="answers" className="sr">Your answers</label>
-            <textarea id="answers" className="input" value={answers} onChange={(e) => setAnswers(e.target.value)} placeholder="Answer in your own words…" />
+            <label htmlFor="answers" className="sr">{t("Your answers")}</label>
+            <textarea id="answers" className="input" value={answers} onChange={(e) => setAnswers(e.target.value)} placeholder={t("Answer in your own words…")} />
             <div className="row-wrap">
-              <button type="button" className="btn btn-primary" onClick={resend} disabled={!answers.trim()}>Send and plan</button>
+              <button type="button" className="btn btn-primary" onClick={resend} disabled={!answers.trim()}>{t("Send and plan")}</button>
               <Link className="btn btn-quiet" href={state.draft ? `/plan/start/?mode=form&draft=${encodeURIComponent(JSON.stringify(state.draft))}` : "/plan/start/?mode=form"}>
-                {state.draft ? "Finish it in the form" : "Fill a form instead"}
+                {state.draft ? t("Finish it in the form") : t("Fill a form instead")}
               </Link>
             </div>
           </div>
@@ -216,29 +218,29 @@ export default function PlanThinking() {
           <aside className="side" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             <Checker s={state} />
             <div className="why">
-              <div><b>The AI</b>Understands what you asked, compares the options and writes the plan.</div>
-              <div><b>The checker</b>Plain rules that never guess: hours, distances, meals, budget.</div>
+              <div><b>{t("The AI")}</b>{t("Understands what you asked, compares the options and writes the plan.")}</div>
+              <div><b>{t("The checker")}</b>{t("Plain rules that never guess: hours, distances, meals, budget.")}</div>
             </div>
           </aside>
         </div>
 
         {state.status === "error" ? (
           <div className="ready bad" role="alert">
-            <div><b>We could not finish the plan</b><span>{state.error?.message}</span></div>
+            <div><b>{t("We could not finish the plan")}</b><span>{state.error ? t(state.error.message) : null}</span></div>
             <div className="row-wrap">
               {state.error?.retryable && <button type="button" className="btn btn-primary btn-lg" onClick={retry}>{t("Try again")}</button>}
-              <Link className="btn btn-on-dark" href="/plan/start/">Change the trip</Link>
+              <Link className="btn btn-on-dark" href="/plan/start/">{t("Change the trip")}</Link>
             </div>
           </div>
         ) : state.status !== "needs_input" && (
           <div className="ready" aria-live="polite">
             {state.status === "done" ? (
               <>
-                <div><b>{t("Your plan is ready")}</b><span>{ways > 1 ? `${ways} ways to get there, compared for all of you.` : "Checked stop by stop."}</span></div>
-                <Link className="btn btn-primary btn-lg" href={ways > 1 ? "/plan/options/" : "/plan/itinerary/"}>{ways > 1 ? `See the ${ways} ways to go` : "See the plan"}</Link>
+                <div><b>{t("Your plan is ready")}</b><span>{ways > 1 ? t("{ways} ways to get there, compared for all of you.", { ways }) : t("Checked stop by stop.")}</span></div>
+                <Link className="btn btn-primary btn-lg" href={ways > 1 ? "/plan/options/" : "/plan/itinerary/"}>{ways > 1 ? t("See the {ways} ways to go", { ways }) : t("See the plan")}</Link>
               </>
             ) : (
-              <div><b>Still planning</b><span>{state.narrating ? "Writing your day-by-day plan." : "About 15 seconds. Keep this page open."}</span></div>
+              <div><b>{t("Still planning")}</b><span>{state.narrating ? t("Writing your day-by-day plan.") : t("About 15 seconds. Keep this page open.")}</span></div>
             )}
           </div>
         )}

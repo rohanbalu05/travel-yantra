@@ -71,9 +71,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </main>
       <footer className="app-foot">
         <div className="wrap">
-          <span>Travel Yantra prototype. Trips, fares and timings shown are sample data.</span>
+          <span>{t("Travel Yantra prototype. Trips, fares and timings shown are sample data.")}</span>
           <span>
-            <Link href="/legal/">Terms and privacy</Link>
+            <Link href="/legal/">{t("Terms and privacy")}</Link>
           </span>
         </div>
       </footer>

@@ -1,3 +1,6 @@
+"use client";
+
+import { useI18n } from "@/lib/i18n";
 import { layoutPins, osmLink, type Pin } from "@/lib/map";
 
 /**
@@ -6,6 +9,7 @@ import { layoutPins, osmLink, type Pin } from "@/lib/map";
  * OpenStreetMap at that spot.
  */
 export function StopsMap({ pins, caption }: { pins: Pin[]; caption: string }) {
+  const { t } = useI18n();
   const placed = layoutPins(pins);
   if (!placed.length) return null;
   const route = placed.filter((p) => p.kind === "stop").map((p) => `${p.x},${p.y}`).join(" ");
@@ -20,12 +24,12 @@ export function StopsMap({ pins, caption }: { pins: Pin[]; caption: string }) {
           {route.includes(" ") && <polyline points={route} fill="none" stroke="#13212B" strokeWidth=".6" strokeDasharray="1.6 1.6" vectorEffect="non-scaling-stroke" />}
         </svg>
         {placed.map((p) => (
-          <a key={p.id} className={`smap-pin smap-${p.kind}`} style={{ left: `${p.x}%`, top: `${p.y}%` }} href={osmLink(p.lat, p.lng)} target="_blank" rel="noopener noreferrer" title={`${p.name} on OpenStreetMap`} aria-label={`${p.name} on OpenStreetMap`}>
+          <a key={p.id} className={`smap-pin smap-${p.kind}`} style={{ left: `${p.x}%`, top: `${p.y}%` }} href={osmLink(p.lat, p.lng)} target="_blank" rel="noopener noreferrer" title={t("{name} on OpenStreetMap", { name: p.name })} aria-label={t("{name} on OpenStreetMap", { name: p.name })}>
             {p.label}
           </a>
         ))}
       </div>
-      <figcaption className="map-cap"><span>{caption}</span><span>Pins open OpenStreetMap</span></figcaption>
+      <figcaption className="map-cap"><span>{caption}</span><span>{t("Pins open OpenStreetMap")}</span></figcaption>
     </figure>
   );
 }

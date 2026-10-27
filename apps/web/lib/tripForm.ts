@@ -118,7 +118,7 @@ export function formProblems(f: TripForm): string[] {
   if (f.budget && !/^\d+$/.test(f.budget.replace(/,/g, ""))) p.push("Write the budget as a number of rupees.");
   const days = tripDays(f);
   const split = splitOf(f);
-  if (days && split.length > 1 && split.reduce((a, b) => a + b, 0) !== days) p.push(`The days in each city should add up to ${days}.`);
+  if (days && split.length > 1 && split.reduce((a, b) => a + b, 0) !== days) p.push("The days in each city should add up to {days}."); // a t() key: PlanStart fills {days}
   return p;
 }
 

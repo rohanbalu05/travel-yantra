@@ -11,7 +11,8 @@ export function Problem({ message, retryable, onRetry }: { message: string; retr
   const { t } = useI18n();
   return (
     <div className="problem" role="alert">
-      <span>{message}</span>
+      {/* The app's own fixed messages are in the dictionary; the server's reasons show as sent. */}
+      <span>{t(message)}</span>
       {retryable && onRetry && <button type="button" className="btn btn-quiet btn-sm" onClick={onRetry}>{t("Try again")}</button>}
     </div>
   );
