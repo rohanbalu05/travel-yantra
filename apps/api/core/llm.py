@@ -52,10 +52,11 @@ def backend() -> Literal["vertex", "ai_studio"]:
 
 
 class Model(Protocol):
-    async def json(self, prompt: str, schema: type[M], tier: Tier = "lite", *, thinking: Thinking | None = None) -> M: ...
+    async def json(self, prompt: str, schema: type[M], tier: Tier = "lite", *, thinking: Thinking | None = None,
+                   timeout_s: float | None = None) -> M: ...
 
     async def text(self, prompt: str, tier: Tier = "flash", *, thinking: Thinking | None = None,
-                   max_output_tokens: int = 600, temperature: float = 0.6) -> str: ...
+                   max_output_tokens: int = 600, temperature: float = 0.6, timeout_s: float | None = None) -> str: ...
 
 
 class GeminiModel:
@@ -72,30 +73,33 @@ class GeminiModel:
     def _thinking(self, level: Thinking | None):
         return self._types.ThinkingConfig(thinking_level=level.upper()) if level else None
 
-    async def json(self, prompt: str, schema: type[M], tier: Tier = "lite", *, thinking: Thinking | None = None) -> M:
+    async def json(self, prompt: str, schema: type[M], tier: Tier = "lite", *, thinking: Thinking | None = None,
+                   timeout_s: float | None = None) -> M:
         config = self._types.GenerateContentConfig(
             response_mime_type="application/json", response_schema=schema, temperature=0,
             thinking_config=self._thinking(thinking),
         )
-        r = await self._generate(model_name(tier), prompt, config)
+        r = await self._generate(model_name(tier), prompt, config, timeout_s)
         return schema.model_validate_json(r.text)
 
     async def text(self, prompt: str, tier: Tier = "flash", *, thinking: Thinking | None = None,
-                   max_output_tokens: int = 600, temperature: float = 0.6) -> str:
+                   max_output_tokens: int = 600, temperature: float = 0.6, timeout_s: float | None = None) -> str:
         config = self._types.GenerateContentConfig(
             temperature=temperature, max_output_tokens=max_output_tokens, thinking_config=self._thinking(thinking)
         )
-        r = await self._generate(model_name(tier), prompt, config)
+        r = await self._generate(model_name(tier), prompt, config, timeout_s)
         return (r.text or "").strip()
 
-    async def _generate(self, model: str, prompt: str, config):
+    async def _generate(self, model: str, prompt: str, config, timeout_s: float | None = None):
         """generate_content with retries on 429 and 503: exponential backoff with full jitter, each try
-        capped to the time left in the budget. Other errors, and the last failure, are raised."""
+        capped to the time left in the budget (timeout_s, default RETRY_BUDGET_S). Other errors, and the
+        last failure, are raised."""
         from google.genai import errors
 
+        budget = timeout_s or RETRY_BUDGET_S
         start = _now()
         for attempt in range(1, MAX_TRIES + 1):
-            left = RETRY_BUDGET_S - (_now() - start)
+            left = budget - (_now() - start)
             config.http_options = self._types.HttpOptions(timeout=int(max(left, 1) * 1000))
             try:
                 return await self._client.aio.models.generate_content(model=model, contents=prompt, config=config)
@@ -103,7 +107,7 @@ class GeminiModel:
                 if exc.code not in RETRY_CODES or attempt == MAX_TRIES:
                     raise
                 wait = random.uniform(0, BACKOFF_BASE_S * 2 ** (attempt - 1))
-                left = RETRY_BUDGET_S - (_now() - start)
+                left = budget - (_now() - start)
                 if wait >= left - 1:  # leave at least a second for the next try
                     raise
                 log.warning("model %s returned %s; retry %d of %d in %.1f s", model, exc.code, attempt, MAX_TRIES - 1, wait)

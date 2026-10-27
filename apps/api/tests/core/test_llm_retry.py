@@ -87,3 +87,10 @@ def test_no_retry_when_the_budget_is_spent(model, monkeypatch):
     with pytest.raises(errors.ClientError):
         asyncio.run(model.json("hi", llm.BaseModel))
     assert len(model._client.calls) == 1
+
+
+def test_timeout_s_replaces_the_default_budget(model, monkeypatch):
+    monkeypatch.setattr(llm, "_now", clock(0.0, 0.0, 30.0))
+    model._client = FakeClient([err(503), "ok"])
+    assert asyncio.run(model.text("long story", timeout_s=60)) == "ok"
+    assert model._client.calls == [60_000, 30_000]

@@ -84,6 +84,14 @@ export interface Itinerary {
   lang?: Lang;
 }
 
+export interface KathaRequest {
+  subject_kind: "place" | "city" | "day";
+  subject: string;
+  length_min: 2 | 5 | 10;
+  lang?: Lang;
+  places?: string[];
+}
+
 export interface KathaStory {
   subject_kind: "place" | "city" | "day";
   subject: string;
@@ -187,7 +195,7 @@ export interface Stay {
 }
 
 export interface StorySegment {
-  label: "legend" | "history";
+  label: "legend" | "history" | "disputed";
   text: string;
 }
 

@@ -208,8 +208,20 @@ class Itinerary(_Model):
 
 
 class StorySegment(_Model):
-    label: Literal["legend", "history"]
+    # "disputed": sources disagree; the text states both versions (design/katha-style.md rule 9).
+    label: Literal["legend", "history", "disputed"]
     text: str
+
+
+class KathaRequest(_Model):
+    """Body of the Katha story endpoint (TY2)."""
+
+    subject_kind: Literal["place", "city", "day"]
+    subject: str = Field(min_length=1, max_length=200)
+    length_min: Literal[2, 5, 10]
+    lang: Lang = Lang.en
+    # Day stories only: stop names or planner place ids, in visiting order.
+    places: list[str] = Field(default_factory=list)
 
 
 class KathaStory(_Model):

@@ -485,6 +485,54 @@
       "title": "Itinerary",
       "type": "object"
     },
+    "KathaRequest": {
+      "additionalProperties": false,
+      "description": "Body of the Katha story endpoint (TY2).",
+      "properties": {
+        "subject_kind": {
+          "enum": [
+            "place",
+            "city",
+            "day"
+          ],
+          "title": "Subject Kind",
+          "type": "string"
+        },
+        "subject": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Subject",
+          "type": "string"
+        },
+        "length_min": {
+          "enum": [
+            2,
+            5,
+            10
+          ],
+          "title": "Length Min",
+          "type": "integer"
+        },
+        "lang": {
+          "$ref": "#/$defs/Lang",
+          "default": "en"
+        },
+        "places": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Places",
+          "type": "array"
+        }
+      },
+      "required": [
+        "subject_kind",
+        "subject",
+        "length_min"
+      ],
+      "title": "KathaRequest",
+      "type": "object"
+    },
     "KathaStory": {
       "additionalProperties": false,
       "properties": {
@@ -1076,7 +1124,8 @@
         "label": {
           "enum": [
             "legend",
-            "history"
+            "history",
+            "disputed"
           ],
           "title": "Label",
           "type": "string"

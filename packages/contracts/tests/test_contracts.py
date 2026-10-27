@@ -12,6 +12,7 @@ from ty_contracts import (
     GuideAnswer,
     GuideQuestion,
     Itinerary,
+    KathaRequest,
     KathaStory,
     Lang,
     PlanEvent,
@@ -101,6 +102,13 @@ def test_katha_and_guide_roundtrip():
         "segments": [{"label": "legend", "text": "a"}, {"label": "history", "text": "b"}],
         "sources": ["wikimedia"], "lang": "kn"})
     roundtrip(GuideAnswer, {"text": "t", "citations": [{"title": "T"}], "lang": "hi"})
+    roundtrip(KathaStory, {"subject_kind": "place", "subject": "Hampi", "length_min": 5, "text": "t",
+                           "segments": [{"label": "disputed", "text": "Two accounts differ."}]})
+    req = roundtrip(KathaRequest, {"subject_kind": "day", "subject": "Mysuru day 1", "length_min": 10,
+                                   "places": ["mysuru-mysore-palace", "Chamundi Hill"]})
+    assert req.lang == "en" and req.places[0] == "mysuru-mysore-palace"
+    with pytest.raises(ValidationError):
+        KathaRequest.model_validate({"subject_kind": "place", "subject": "", "length_min": 2})
 
 
 def test_languages():
