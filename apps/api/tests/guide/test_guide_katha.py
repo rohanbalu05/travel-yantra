@@ -217,8 +217,11 @@ def test_katha_over_http(api) -> None:
                                        "length_min": 2, "lang": "kn"})  # fmt: skip
     assert r.status_code == 200
     story = r.json()
-    assert story["lang"] == "en" and story["subject"] == "Mysore Palace"
+    assert story["lang"] == "kn" and story["subject"] == "Mysore Palace"  # Kannada has a voice
     assert {s["label"] for s in story["segments"]} <= {"history", "legend", "disputed"}
+    r = api.post("/guide/katha", json={"subject_kind": "place", "subject": "Mysore Palace",
+                                       "length_min": 2, "lang": "ta"})  # fmt: skip
+    assert r.status_code == 200 and r.json()["lang"] == "en"  # no Tamil voice: English for translate
     r = api.post("/guide/katha", json={"subject_kind": "place", "subject": "Taj Mahal", "length_min": 2})
     assert r.status_code == 404 and r.json() == {"detail": "No story for that place yet."}
     assert api.post("/guide/katha", json={"subject_kind": "place", "subject": "x",
