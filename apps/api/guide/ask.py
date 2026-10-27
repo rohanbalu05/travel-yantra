@@ -28,6 +28,7 @@ from .retrieval.retrieve import Filters, Hit, TripContext, search
 K = 5  # sources handed to the model: fewer tokens in, a faster answer (card #40)
 MAX_TOKENS = 800  # an answer is about 100 tokens; the rest is headroom
 EMERGENCY_NUMBER = "112"  # India's single emergency number: police, fire, ambulance
+AMBULANCE_NUMBER = "108"  # the ambulance service in Goa, Karnataka and most states
 REFUSAL = (
     "I don't have a sourced answer to that yet, so I won't guess. "
     "Try asking about a specific place, its history, food or customs."
@@ -204,14 +205,17 @@ def answer_emergency(
     *,
     urgent: bool = False,
 ) -> GuideAnswer:
-    lines = [f"In an emergency, call {EMERGENCY_NUMBER} (police, fire and ambulance, all India)."]
+    lines = [f"In an emergency, call {EMERGENCY_NUMBER} (police, fire and ambulance, all India) "
+             f"or {AMBULANCE_NUMBER} for an ambulance."]
     if where is None:
         lines.append("Share your location and I can list the nearest help from Google Maps.")
         return GuideAnswer(text=" ".join(lines))
     found: list[Place] = []
     citations: list[Citation] = []
     for kind in kinds:
-        bigger = urgent and kind == "hospital"
+        # Every hospital question ranks hospitals above clinics (WA-19); urgent ones also
+        # say to go to a full hospital.
+        bigger = kind == "hospital"
         try:
             nearby = (places.nearby_emergency(*where, kind, radius_m=URGENT_RADIUS_M, limit=URGENT_RESULTS,
                                               rank="POPULARITY")
@@ -220,7 +224,8 @@ def answer_emergency(
             lines.append(f"I couldn't reach Google Maps for {KIND_LABEL[kind]} just now.")
             continue
         if not nearby:
-            lines.append(f"Google Maps lists no {KIND_LABEL[kind]} within 10 km of you.")
+            km = (URGENT_RADIUS_M if bigger else 10000) // 1000
+            lines.append(f"Google Maps lists no {KIND_LABEL[kind]} within {km} km of you.")
             continue
         if bigger:
             nearby = sorted(nearby, key=lambda p: (care_tier(p), _km(*where, p.lat, p.lng)))
@@ -229,10 +234,12 @@ def answer_emergency(
             found.append(place)
             citations.append(Citation(title=f"Google Maps: {place.name}", url=maps_url(place)))
             items.append(f"{place.name}, {_km(*where, place.lat, place.lng):.1f} km [{len(citations)}]")
-        if bigger:
+        if bigger and urgent:
             lines.append("For this, go to a full hospital, not a clinic. Hospitals, larger ones "
                          "first (likelier to have an emergency department; call ahead): "
                          + "; ".join(items) + ".")  # fmt: skip
+        elif bigger:
+            lines.append("Hospitals near you, larger ones first: " + "; ".join(items) + ".")
         else:
             lines.append(f"Nearest {KIND_LABEL[kind]}: " + "; ".join(items) + ".")
     return GuideAnswer(text=" ".join(lines), citations=citations, emergency_places=found)

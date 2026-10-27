@@ -367,12 +367,15 @@ def test_injuries_are_urgent_too(question) -> None:
     assert answer.emergency_places[0].name == "Sample Medical College and Hospital"
 
 
-def test_a_plain_hospital_question_still_lists_the_nearest() -> None:
+def test_a_plain_hospital_question_also_lists_hospitals_before_clinics() -> None:
+    # WA-19 (live, 28 Oct): "hospital near Panaji" listed a clinic and a health centre first.
     client, t = crowded()
     answer = asyncio.run(ask(GuideQuestion(question="Where is the nearest hospital?", lat=15.5, lng=73.8),
                              NoRows(), Spy(), client))  # fmt: skip
-    assert answer.emergency_places[0].name == "Sample Urban Health Centre"
-    assert "full hospital" not in answer.text and t.bodies[0]["maxResultCount"] == 5
+    assert answer.emergency_places[0].name == "Sample Medical College and Hospital"
+    assert "Sample Urban Health Centre" not in [p.name for p in answer.emergency_places]
+    assert "full hospital" not in answer.text and "larger ones first" in answer.text
+    assert t.bodies[0]["maxResultCount"] == 20 and "112" in answer.text and "108" in answer.text
 
 
 # --- "hospital near Panaji" with no location: the named place, not the city's middle ---
