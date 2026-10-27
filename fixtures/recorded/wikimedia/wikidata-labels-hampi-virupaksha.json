@@ -1,0 +1,35 @@
+{
+  "entities": {
+    "Q2502406": {
+      "type": "item",
+      "id": "Q2502406",
+      "labels": {
+        "en": {
+          "language": "en",
+          "value": "Virupaksha Temple"
+        },
+        "hi": {
+          "language": "hi",
+          "value": "hampi virupaksha temple information"
+        },
+        "te": {
+          "language": "te",
+          "value": "విరూపాక్ష దేవాలయం"
+        },
+        "bn": {
+          "language": "bn",
+          "value": "বিরূপাক্ষ মন্দির"
+        },
+        "ta": {
+          "language": "ta",
+          "value": "விருபாட்சர் கோயில்"
+        },
+        "kn": {
+          "language": "kn",
+          "value": "ವಿರೂಪಾಕ್ಷ ದೇವಾಲಯ"
+        }
+      }
+    }
+  },
+  "success": 1
+}

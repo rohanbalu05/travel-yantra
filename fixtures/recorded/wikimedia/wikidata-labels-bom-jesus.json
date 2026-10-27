@@ -1,0 +1,31 @@
+{
+  "entities": {
+    "Q391123": {
+      "type": "item",
+      "id": "Q391123",
+      "labels": {
+        "en": {
+          "language": "en",
+          "value": "Basilica of Bom Jesus"
+        },
+        "ta": {
+          "language": "ta",
+          "value": "குழந்தை இயேசு பெருங்கோவில்"
+        },
+        "te": {
+          "language": "te",
+          "value": "బాసిలికా ఆఫ్ బొమ్ జీసస్"
+        },
+        "kn": {
+          "language": "kn",
+          "value": "ಬಾಮ್ ಜೀಸಸ್ ಬಸಿಲಿಕಾ"
+        },
+        "hi": {
+          "language": "hi",
+          "value": "बॉम जीसस का बेसिलिका"
+        }
+      }
+    }
+  },
+  "success": 1
+}

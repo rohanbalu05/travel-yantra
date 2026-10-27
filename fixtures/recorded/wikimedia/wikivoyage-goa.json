@@ -1,0 +1,53 @@
+{
+  "type": "standard",
+  "title": "Goa",
+  "displaytitle": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Goa</span></span>",
+  "namespace": {
+    "id": 0,
+    "text": ""
+  },
+  "wikibase_item": "Q1171",
+  "titles": {
+    "canonical": "Goa",
+    "normalized": "Goa",
+    "display": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Goa</span></span>"
+  },
+  "pageid": 12877,
+  "thumbnail": {
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/db/Map-India-Goa01.png/330px-Map-India-Goa01.png?utm_source=en.wikivoyage.org&utm_campaign=api&utm_content=thumbnail",
+    "width": 330,
+    "height": 290
+  },
+  "originalimage": {
+    "source": "https://upload.wikimedia.org/wikipedia/commons/d/db/Map-India-Goa01.png?utm_source=en.wikivoyage.org&utm_campaign=api&utm_content=thumbnail_unscaled",
+    "width": 1255,
+    "height": 1104
+  },
+  "lang": "en",
+  "dir": "ltr",
+  "revision": "5383191",
+  "tid": "f3cf8dbc-c3f7-11f1-9b45-b88ee2eb3eb7",
+  "timestamp": "2026-10-09T15:41:54Z",
+  "description": "state in western India",
+  "description_source": "central",
+  "coordinates": {
+    "lat": 15.498889,
+    "lon": 73.827778
+  },
+  "content_urls": {
+    "desktop": {
+      "page": "https://en.wikivoyage.org/wiki/Goa",
+      "revisions": "https://en.wikivoyage.org/wiki/Goa?action=history",
+      "edit": "https://en.wikivoyage.org/wiki/Goa?action=edit",
+      "talk": "https://en.wikivoyage.org/wiki/Talk:Goa"
+    },
+    "mobile": {
+      "page": "https://en.wikivoyage.org/wiki/Goa",
+      "revisions": "https://en.wikivoyage.org/wiki/Special:History/Goa",
+      "edit": "https://en.wikivoyage.org/wiki/Goa?action=edit",
+      "talk": "https://en.wikivoyage.org/wiki/Talk:Goa"
+    }
+  },
+  "extract": "\nGoa, a state on India's west coast, is a former Portuguese colony with a rich history. Spread over 3,700 km² with a population of approximately 1.4 million, Goa is small by Indian standards. It has a unique mix of Indian and Portuguese cultures and architecture that attracts an estimated 2.5 million visitors each year. This has given the state a nickname, 'The Party State'.",
+  "extract_html": "<p>\n<b>Goa</b>, a state on India's west coast, is a former Portuguese colony with a rich history. Spread over 3,700 km² with a population of approximately 1.4 million, Goa is small by Indian standards. It has a unique mix of Indian and Portuguese cultures and architecture that attracts an estimated 2.5 million visitors each year. This has given the state a nickname, 'The Party State'.</p>"
+}

@@ -1,0 +1,35 @@
+{
+  "entities": {
+    "Q1171": {
+      "type": "item",
+      "id": "Q1171",
+      "labels": {
+        "en": {
+          "language": "en",
+          "value": "Goa"
+        },
+        "bn": {
+          "language": "bn",
+          "value": "গোয়া"
+        },
+        "hi": {
+          "language": "hi",
+          "value": "गोवा"
+        },
+        "kn": {
+          "language": "kn",
+          "value": "ಗೋವಾ"
+        },
+        "ta": {
+          "language": "ta",
+          "value": "கோவா"
+        },
+        "te": {
+          "language": "te",
+          "value": "గోవా"
+        }
+      }
+    }
+  },
+  "success": 1
+}

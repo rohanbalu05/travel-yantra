@@ -1,0 +1,53 @@
+{
+  "type": "standard",
+  "title": "Basilica of Bom Jesus",
+  "displaytitle": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Basilica of Bom Jesus</span></span>",
+  "namespace": {
+    "id": 0,
+    "text": ""
+  },
+  "wikibase_item": "Q391123",
+  "titles": {
+    "canonical": "Basilica_of_Bom_Jesus",
+    "normalized": "Basilica of Bom Jesus",
+    "display": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Basilica of Bom Jesus</span></span>"
+  },
+  "pageid": 1688078,
+  "thumbnail": {
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9e/Front_Elevation_of_Basilica_of_Bom_Jesus.jpg/330px-Front_Elevation_of_Basilica_of_Bom_Jesus.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "width": 330,
+    "height": 233
+  },
+  "originalimage": {
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9e/Front_Elevation_of_Basilica_of_Bom_Jesus.jpg/3840px-Front_Elevation_of_Basilica_of_Bom_Jesus.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "width": 5468,
+    "height": 3866
+  },
+  "lang": "en",
+  "dir": "ltr",
+  "revision": "1362805529",
+  "tid": "f6fb4023-7919-11f1-997e-54dd04dee43e",
+  "timestamp": "2026-07-06T09:06:25Z",
+  "description": "Catholic basilica in Old Goa, India",
+  "description_source": "local",
+  "coordinates": {
+    "lat": 15.50087222,
+    "lon": 73.91151111
+  },
+  "content_urls": {
+    "desktop": {
+      "page": "https://en.wikipedia.org/wiki/Basilica_of_Bom_Jesus",
+      "revisions": "https://en.wikipedia.org/wiki/Basilica_of_Bom_Jesus?action=history",
+      "edit": "https://en.wikipedia.org/wiki/Basilica_of_Bom_Jesus?action=edit",
+      "talk": "https://en.wikipedia.org/wiki/Talk:Basilica_of_Bom_Jesus"
+    },
+    "mobile": {
+      "page": "https://en.wikipedia.org/wiki/Basilica_of_Bom_Jesus",
+      "revisions": "https://en.wikipedia.org/wiki/Special:History/Basilica_of_Bom_Jesus",
+      "edit": "https://en.wikipedia.org/wiki/Basilica_of_Bom_Jesus?action=edit",
+      "talk": "https://en.wikipedia.org/wiki/Talk:Basilica_of_Bom_Jesus"
+    }
+  },
+  "extract": "The Basilica of Bom Jesus is a Catholic basilica in Goa, in the Konkan region of India. The church is a pilgrimage centre and recognised by UNESCO as a World Heritage Site. The basilica is located in Old Goa, the former capital of Portuguese India, and holds the body of St Francis Xavier.",
+  "extract_html": "<p>The <b>Basilica of Bom Jesus</b> is a Catholic basilica in Goa, in the Konkan region of India. The church is a pilgrimage centre and recognised by UNESCO as a World Heritage Site. The basilica is located in Old Goa, the former capital of Portuguese India, and holds the body of St Francis Xavier.</p>"
+}

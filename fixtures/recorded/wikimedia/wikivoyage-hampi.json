@@ -1,0 +1,53 @@
+{
+  "type": "standard",
+  "title": "Hampi",
+  "displaytitle": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Hampi</span></span>",
+  "namespace": {
+    "id": 0,
+    "text": ""
+  },
+  "wikibase_item": "Q26732",
+  "titles": {
+    "canonical": "Hampi",
+    "normalized": "Hampi",
+    "display": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Hampi</span></span>"
+  },
+  "pageid": 13999,
+  "thumbnail": {
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4b/Hampi_virupaksha_temple.jpg/330px-Hampi_virupaksha_temple.jpg?utm_source=en.wikivoyage.org&utm_campaign=api&utm_content=thumbnail",
+    "width": 330,
+    "height": 180
+  },
+  "originalimage": {
+    "source": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Hampi_virupaksha_temple.jpg?utm_source=en.wikivoyage.org&utm_campaign=api&utm_content=thumbnail_unscaled",
+    "width": 2244,
+    "height": 1225
+  },
+  "lang": "en",
+  "dir": "ltr",
+  "revision": "5372353",
+  "tid": "f90c02b8-ba27-11f1-afa9-2c4da4aa4e2a",
+  "timestamp": "2026-09-27T04:00:27Z",
+  "description": "ancient and medieval monuments, a UNESCO World Heritage Site in Karnataka, India",
+  "description_source": "central",
+  "coordinates": {
+    "lat": 15.335,
+    "lon": 76.462
+  },
+  "content_urls": {
+    "desktop": {
+      "page": "https://en.wikivoyage.org/wiki/Hampi",
+      "revisions": "https://en.wikivoyage.org/wiki/Hampi?action=history",
+      "edit": "https://en.wikivoyage.org/wiki/Hampi?action=edit",
+      "talk": "https://en.wikivoyage.org/wiki/Talk:Hampi"
+    },
+    "mobile": {
+      "page": "https://en.wikivoyage.org/wiki/Hampi",
+      "revisions": "https://en.wikivoyage.org/wiki/Special:History/Hampi",
+      "edit": "https://en.wikivoyage.org/wiki/Hampi?action=edit",
+      "talk": "https://en.wikivoyage.org/wiki/Talk:Hampi"
+    }
+  },
+  "extract": " \nHampi, in the state of Karnataka, India, is the site of the once-magnificent capital of the Vijayanagara Empire. The ruins are a UNESCO World Heritage site.",
+  "extract_html": "<p> \n<b>Hampi</b>, in the state of Karnataka, India, is the site of the once-magnificent capital of the Vijayanagara Empire. The ruins are a UNESCO World Heritage site.</p>"
+}

@@ -1,0 +1,53 @@
+{
+  "type": "standard",
+  "title": "Hampi",
+  "displaytitle": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Hampi</span></span>",
+  "namespace": {
+    "id": 0,
+    "text": ""
+  },
+  "wikibase_item": "Q26732",
+  "titles": {
+    "canonical": "Hampi",
+    "normalized": "Hampi",
+    "display": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Hampi</span></span>"
+  },
+  "pageid": 404334,
+  "thumbnail": {
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Wide_angle_of_Galigopuram_of_Virupaksha_Temple%2C_Hampi_%2804%29_%28cropped%29.jpg/330px-Wide_angle_of_Galigopuram_of_Virupaksha_Temple%2C_Hampi_%2804%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "width": 330,
+    "height": 165
+  },
+  "originalimage": {
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/dd/Wide_angle_of_Galigopuram_of_Virupaksha_Temple%2C_Hampi_%2804%29_%28cropped%29.jpg/3840px-Wide_angle_of_Galigopuram_of_Virupaksha_Temple%2C_Hampi_%2804%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "width": 6000,
+    "height": 3000
+  },
+  "lang": "en",
+  "dir": "ltr",
+  "revision": "1380353571",
+  "tid": "103a54fe-c85c-11f1-9bff-e79ae6ed34ec",
+  "timestamp": "2026-10-15T05:48:36Z",
+  "description": "Ancient and medieval monuments, a UNESCO World Heritage Site in Karnataka, India",
+  "description_source": "local",
+  "coordinates": {
+    "lat": 15.33444444,
+    "lon": 76.46222222
+  },
+  "content_urls": {
+    "desktop": {
+      "page": "https://en.wikipedia.org/wiki/Hampi",
+      "revisions": "https://en.wikipedia.org/wiki/Hampi?action=history",
+      "edit": "https://en.wikipedia.org/wiki/Hampi?action=edit",
+      "talk": "https://en.wikipedia.org/wiki/Talk:Hampi"
+    },
+    "mobile": {
+      "page": "https://en.wikipedia.org/wiki/Hampi",
+      "revisions": "https://en.wikipedia.org/wiki/Special:History/Hampi",
+      "edit": "https://en.wikipedia.org/wiki/Hampi?action=edit",
+      "talk": "https://en.wikipedia.org/wiki/Talk:Hampi"
+    }
+  },
+  "extract": "Hampi or Hampe, also referred to as the Group of Monuments at Hampi, is a UNESCO World Heritage Site located in the town of Hampi in Vijayanagara district, east-central Karnataka, India. Hampi predates the Vijayanagara Empire; it is mentioned in the Ramayana and the Puranas of Hinduism as Pampa Devi Tirtha Kshetra. Hampi continues as a religious centre, with the Virupaksha Temple, an active Adi Shankara-linked monastery and various monuments belonging to the old city.",
+  "extract_html": "<p><b>Hampi</b> or <b>Hampe</b>, also referred to as the <b>Group of Monuments at Hampi</b>, is a UNESCO World Heritage Site located in the town of Hampi in Vijayanagara district, east-central Karnataka, India. Hampi predates the Vijayanagara Empire; it is mentioned in the <i>Ramayana</i> and the Puranas of Hinduism as Pampa Devi Tirtha Kshetra. Hampi continues as a religious centre, with the Virupaksha Temple, an active Adi Shankara-linked monastery and various monuments belonging to the old city.</p>"
+}

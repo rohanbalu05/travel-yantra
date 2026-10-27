@@ -1,0 +1,53 @@
+{
+  "type": "standard",
+  "title": "Mysore",
+  "displaytitle": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Mysore</span></span>",
+  "namespace": {
+    "id": 0,
+    "text": ""
+  },
+  "wikibase_item": "Q10086",
+  "titles": {
+    "canonical": "Mysore",
+    "normalized": "Mysore",
+    "display": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Mysore</span></span>"
+  },
+  "pageid": 23628,
+  "thumbnail": {
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1e/Mahisha_statue_at_the_Chamundeswari_Temple%2C_Mysuru%2C_Karnataka%2C_India_%282007%29.jpg/330px-Mahisha_statue_at_the_Chamundeswari_Temple%2C_Mysuru%2C_Karnataka%2C_India_%282007%29.jpg?utm_source=en.wikivoyage.org&utm_campaign=api&utm_content=thumbnail",
+    "width": 330,
+    "height": 476
+  },
+  "originalimage": {
+    "source": "https://upload.wikimedia.org/wikipedia/commons/1/1e/Mahisha_statue_at_the_Chamundeswari_Temple%2C_Mysuru%2C_Karnataka%2C_India_%282007%29.jpg?utm_source=en.wikivoyage.org&utm_campaign=api&utm_content=thumbnail_unscaled",
+    "width": 1383,
+    "height": 1994
+  },
+  "lang": "en",
+  "dir": "ltr",
+  "revision": "5385476",
+  "tid": "c9afd5b6-c58d-11f1-a88f-5c5a9e7f08b1",
+  "timestamp": "2026-10-11T16:06:59Z",
+  "description": "city in Karnataka, India",
+  "description_source": "central",
+  "coordinates": {
+    "lat": 12.3,
+    "lon": 76.65
+  },
+  "content_urls": {
+    "desktop": {
+      "page": "https://en.wikivoyage.org/wiki/Mysore",
+      "revisions": "https://en.wikivoyage.org/wiki/Mysore?action=history",
+      "edit": "https://en.wikivoyage.org/wiki/Mysore?action=edit",
+      "talk": "https://en.wikivoyage.org/wiki/Talk:Mysore"
+    },
+    "mobile": {
+      "page": "https://en.wikivoyage.org/wiki/Mysore",
+      "revisions": "https://en.wikivoyage.org/wiki/Special:History/Mysore",
+      "edit": "https://en.wikivoyage.org/wiki/Mysore?action=edit",
+      "talk": "https://en.wikivoyage.org/wiki/Talk:Mysore"
+    }
+  },
+  "extract": "Mysore or Mysuru is the second-largest city of the Indian state of Karnataka after Bengaluru. It was the capital of the Wodeyar dynasty and is considered to be the cultural capital of Karnataka. Mysore is among the cleanest and best-planned cities in India. The regal city is striking a balance between olden times and modernity, resulting in the city being both old and new.",
+  "extract_html": "<p><b>Mysore</b> or <b>Mysuru</b> is the second-largest city of the Indian state of Karnataka after Bengaluru. It was the capital of the Wodeyar dynasty and is considered to be the cultural capital of Karnataka. Mysore is among the cleanest and best-planned cities in India. The regal city is striking a balance between olden times and modernity, resulting in the city being both old and new.</p>"
+}

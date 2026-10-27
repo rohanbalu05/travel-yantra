@@ -1,0 +1,35 @@
+{
+  "entities": {
+    "Q26732": {
+      "type": "item",
+      "id": "Q26732",
+      "labels": {
+        "en": {
+          "language": "en",
+          "value": "Hampi"
+        },
+        "hi": {
+          "language": "hi",
+          "value": "हम्पी"
+        },
+        "kn": {
+          "language": "kn",
+          "value": "ಹಂಪೆ"
+        },
+        "ta": {
+          "language": "ta",
+          "value": "அம்பி"
+        },
+        "te": {
+          "language": "te",
+          "value": "హంపి"
+        },
+        "bn": {
+          "language": "bn",
+          "value": "হাম্পি"
+        }
+      }
+    }
+  },
+  "success": 1
+}

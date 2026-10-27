@@ -1,0 +1,35 @@
+{
+  "entities": {
+    "Q456575": {
+      "type": "item",
+      "id": "Q456575",
+      "labels": {
+        "en": {
+          "language": "en",
+          "value": "Mysore Palace"
+        },
+        "kn": {
+          "language": "kn",
+          "value": "ಮೈಸೂರು ಅರಮನೆ"
+        },
+        "hi": {
+          "language": "hi",
+          "value": "अम्बा विलास महल"
+        },
+        "te": {
+          "language": "te",
+          "value": "మైసూర్ రాజభవనం"
+        },
+        "ta": {
+          "language": "ta",
+          "value": "மைசூர் அரண்மனை"
+        },
+        "bn": {
+          "language": "bn",
+          "value": "মাইসোর প্যালেস"
+        }
+      }
+    }
+  },
+  "success": 1
+}

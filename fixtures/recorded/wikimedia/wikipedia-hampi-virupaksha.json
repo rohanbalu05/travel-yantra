@@ -1,0 +1,53 @@
+{
+  "type": "standard",
+  "title": "Virupaksha Temple, Hampi",
+  "displaytitle": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Virupaksha Temple, Hampi</span></span>",
+  "namespace": {
+    "id": 0,
+    "text": ""
+  },
+  "wikibase_item": "Q2502406",
+  "titles": {
+    "canonical": "Virupaksha_Temple,_Hampi",
+    "normalized": "Virupaksha Temple, Hampi",
+    "display": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Virupaksha Temple, Hampi</span></span>"
+  },
+  "pageid": 6978205,
+  "thumbnail": {
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Complex_of_Virupaksha_Temple%2C_Hampi_%2804%29.jpg/330px-Complex_of_Virupaksha_Temple%2C_Hampi_%2804%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "width": 330,
+    "height": 186
+  },
+  "originalimage": {
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b9/Complex_of_Virupaksha_Temple%2C_Hampi_%2804%29.jpg/3840px-Complex_of_Virupaksha_Temple%2C_Hampi_%2804%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "width": 6000,
+    "height": 3375
+  },
+  "lang": "en",
+  "dir": "ltr",
+  "revision": "1374929197",
+  "tid": "120ccdbd-b08a-11f1-ad71-d65bd20b27c8",
+  "timestamp": "2026-09-14T22:17:28Z",
+  "description": "Temple in Karnataka, India",
+  "description_source": "local",
+  "coordinates": {
+    "lat": 15.335167,
+    "lon": 76.458722
+  },
+  "content_urls": {
+    "desktop": {
+      "page": "https://en.wikipedia.org/wiki/Virupaksha_Temple%2C_Hampi",
+      "revisions": "https://en.wikipedia.org/wiki/Virupaksha_Temple%2C_Hampi?action=history",
+      "edit": "https://en.wikipedia.org/wiki/Virupaksha_Temple%2C_Hampi?action=edit",
+      "talk": "https://en.wikipedia.org/wiki/Talk:Virupaksha_Temple%2C_Hampi"
+    },
+    "mobile": {
+      "page": "https://en.wikipedia.org/wiki/Virupaksha_Temple%2C_Hampi",
+      "revisions": "https://en.wikipedia.org/wiki/Special:History/Virupaksha_Temple%2C_Hampi",
+      "edit": "https://en.wikipedia.org/wiki/Virupaksha_Temple%2C_Hampi?action=edit",
+      "talk": "https://en.wikipedia.org/wiki/Talk:Virupaksha_Temple%2C_Hampi"
+    }
+  },
+  "extract": "The Virūpaksha Temple is located in Hampi in the Vijayanagara district of Karnataka, India, situated on the banks of the river Tungabhadra. Built in the 7th-century, it is dedicated to Virupaksha, a form of Shiva. It is part of the Group of Monuments at Hampi, designated as a UNESCO World Heritage Site. The temple was expanded by Lakkan Dandesha, a nayaka (chieftain) under the ruler Deva Raya II, also known as Prauda Deva Raya of the Vijayanagara Empire.",
+  "extract_html": "<p>The <b>Virūpaksha Temple</b> is located in Hampi in the Vijayanagara district of Karnataka, India, situated on the banks of the river Tungabhadra. Built in the 7th-century, it is dedicated to Virupaksha, a form of Shiva. It is part of the Group of Monuments at Hampi, designated as a UNESCO World Heritage Site. The temple was expanded by Lakkan Dandesha, a nayaka (chieftain) under the ruler Deva Raya II, also known as Prauda Deva Raya of the Vijayanagara Empire.</p>"
+}

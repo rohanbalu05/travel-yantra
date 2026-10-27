@@ -1,0 +1,35 @@
+{
+  "entities": {
+    "Q10086": {
+      "type": "item",
+      "id": "Q10086",
+      "labels": {
+        "en": {
+          "language": "en",
+          "value": "Mysore"
+        },
+        "bn": {
+          "language": "bn",
+          "value": "মহীশূর"
+        },
+        "hi": {
+          "language": "hi",
+          "value": "मैसूर"
+        },
+        "kn": {
+          "language": "kn",
+          "value": "ಮೈಸೂರು"
+        },
+        "ta": {
+          "language": "ta",
+          "value": "மைசூர்"
+        },
+        "te": {
+          "language": "te",
+          "value": "మైసూరు"
+        }
+      }
+    }
+  },
+  "success": 1
+}

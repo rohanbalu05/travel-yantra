@@ -1,0 +1,53 @@
+{
+  "type": "standard",
+  "title": "Mysore",
+  "displaytitle": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Mysore</span></span>",
+  "namespace": {
+    "id": 0,
+    "text": ""
+  },
+  "wikibase_item": "Q10086",
+  "titles": {
+    "canonical": "Mysore",
+    "normalized": "Mysore",
+    "display": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Mysore</span></span>"
+  },
+  "pageid": 70023,
+  "thumbnail": {
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/56/Mysuru_Montage.jpg/330px-Mysuru_Montage.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "width": 330,
+    "height": 579
+  },
+  "originalimage": {
+    "source": "https://upload.wikimedia.org/wikipedia/commons/5/56/Mysuru_Montage.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled",
+    "width": 1000,
+    "height": 1754
+  },
+  "lang": "en",
+  "dir": "ltr",
+  "revision": "1376768674",
+  "tid": "f68ea6b4-b958-11f1-8032-c5018de126dc",
+  "timestamp": "2026-09-26T03:18:37Z",
+  "description": "City in Karnataka, India",
+  "description_source": "local",
+  "coordinates": {
+    "lat": 12.30861111,
+    "lon": 76.65305556
+  },
+  "content_urls": {
+    "desktop": {
+      "page": "https://en.wikipedia.org/wiki/Mysore",
+      "revisions": "https://en.wikipedia.org/wiki/Mysore?action=history",
+      "edit": "https://en.wikipedia.org/wiki/Mysore?action=edit",
+      "talk": "https://en.wikipedia.org/wiki/Talk:Mysore"
+    },
+    "mobile": {
+      "page": "https://en.wikipedia.org/wiki/Mysore",
+      "revisions": "https://en.wikipedia.org/wiki/Special:History/Mysore",
+      "edit": "https://en.wikipedia.org/wiki/Mysore?action=edit",
+      "talk": "https://en.wikipedia.org/wiki/Talk:Mysore"
+    }
+  },
+  "extract": "Mysore, officially Mysuru, is a city in the southern Indian state of Karnataka. It is the administrative headquarters of Mysore district and Mysore division. As the traditional seat of the Wadiyar dynasty, the city functioned as the capital of the Kingdom of Mysore for almost six centuries. Known for its heritage structures, palaces, and its culture, Mysore has been called the \"City of Palaces\", the \"Heritage City\", and the \"Cultural capital of Karnataka\". It is the second-most populous city in the state and one of the cleanest cities in India according to the Swachh Survekshan.",
+  "extract_html": "<p><b>Mysore</b>, officially <b>Mysuru</b>, is a city in the southern Indian state of Karnataka. It is the administrative headquarters of Mysore district and Mysore division. As the traditional seat of the Wadiyar dynasty, the city functioned as the capital of the Kingdom of Mysore for almost six centuries. Known for its heritage structures, palaces, and its culture, Mysore has been called the \"City of Palaces\", the \"Heritage City\", and the \"Cultural capital of Karnataka\". It is the second-most populous city in the state and one of the cleanest cities in India according to the Swachh Survekshan.</p>"
+}
