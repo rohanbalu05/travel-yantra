@@ -37,6 +37,17 @@ export interface GuideAnswer {
   lang?: Lang;
 }
 
+export interface GuideQuestion {
+  question: string;
+  lang?: Lang;
+  city?: string | null;
+  place_name?: string | null;
+  place_id?: string | null;
+  lat?: number | null;
+  lng?: number | null;
+  has_elderly?: boolean;
+}
+
 export interface Itinerary {
   request: TripRequest;
   days: DayPlan[];
@@ -100,6 +111,7 @@ export interface PlanEvent {
   violations?: Violation[];
   iteration?: number | null;
   retryable?: boolean;
+  plan_id?: string | null;
 }
 
 export type PlanStage = "intake" | "planning" | "solving" | "checking" | "repairing" | "narrating" | "needs_input" | "done" | "error";

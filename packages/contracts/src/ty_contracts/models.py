@@ -186,6 +186,21 @@ class GuideAnswer(_Model):
     lang: Lang = Lang.en
 
 
+class GuideQuestion(_Model):
+    """Body of POST /guide/ask."""
+
+    question: str = Field(min_length=1, max_length=500)
+    lang: Lang = Lang.en
+    city: str | None = None
+    # The current stop as in the itinerary: its name, and its Place.id when known.
+    place_name: str | None = None
+    place_id: str | None = None
+    # The traveller's position, used for emergency questions.
+    lat: float | None = Field(default=None, ge=-90, le=90)
+    lng: float | None = Field(default=None, ge=-180, le=180)
+    has_elderly: bool = False
+
+
 class PlanStage(StrEnum):
     intake = "intake"
     planning = "planning"
@@ -250,3 +265,5 @@ class PlanEvent(_Model):
     iteration: int | None = Field(default=None, ge=1, le=3)
     # On error: whether trying again may help.
     retryable: bool = False
+    # On done: opaque id for POST /plan/{plan_id}/revise.
+    plan_id: str | None = None

@@ -8,6 +8,7 @@ from pydantic import ValidationError
 
 from ty_contracts import (
     GuideAnswer,
+    GuideQuestion,
     Itinerary,
     KathaStory,
     Lang,
@@ -71,6 +72,8 @@ def test_plan_event_extra_fields_roundtrip_and_stay_optional():
         PlanEvent.model_validate({"stage": "needs_input", "message": "?", "questions": ["a", "b", "c", "d"]})
     with pytest.raises(ValidationError):
         PlanEvent.model_validate({"stage": "checking", "message": "x", "iteration": 4})
+    assert roundtrip(PlanEvent, {"stage": "done", "message": "Done", "plan_id": "abc"}).plan_id == "abc"
+    assert roundtrip(GuideQuestion, {"question": "Is it open?", "place_name": "Mysore Palace", "lat": 12.3}).lang == "en"
     assert roundtrip(PlanText, {"text": "Goa with my parents in December", "lang": "hi"}).lang == "hi"
 
 

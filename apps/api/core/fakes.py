@@ -1,15 +1,23 @@
-"""Fake pipeline steps. They read the sample trips in packages/contracts/samples; no model or network calls.
+"""Sample-backed data and the fake model. They read packages/contracts/samples; no model or network calls.
 
-Each step takes the session state and returns (state_delta, message). State values are plain JSON.
+The data functions stand in for TY2's places and TY3's transport and stays until those lanes expose
+planner functions (core/steps.py calls them directly).
 """
 
+from __future__ import annotations
+
 import json
+import re
+from datetime import timedelta
 from functools import lru_cache
 from pathlib import Path
 
-from ty_contracts import Itinerary, KathaStory, Lang, StorySegment, TripRequest
+from pydantic import BaseModel
+
+from ty_contracts import Itinerary, Place, Stay, TransportOption, TripRequest
 
 SAMPLES = Path(__file__).resolve().parents[3] / "packages" / "contracts" / "samples"
+BY_CITY = {"goa": "goa_family.json", "mysuru": "mysuru_weekend.json", "mysore": "mysuru_weekend.json"}
 
 
 @lru_cache
@@ -18,67 +26,55 @@ def sample(name: str) -> Itinerary:
     return Itinerary.model_validate(data["itinerary"])
 
 
-def _sample_for(request: dict) -> Itinerary:
-    wanted = {d.lower() for d in request["destinations"]}
-    return sample("mysuru_weekend.json" if "mysuru" in wanted else "goa_family.json")
+def sample_for(request: TripRequest) -> Itinerary | None:
+    for d in request.destinations:
+        if d.lower() in BY_CITY:
+            return sample(BY_CITY[d.lower()])
+    return None
 
 
-def _dump(obj) -> dict | list:
-    return json.loads(json.dumps(obj, default=lambda o: o.model_dump(mode="json", by_alias=True)))
+def transport(request: TripRequest) -> list[TransportOption]:
+    s = sample_for(request)
+    return list(s.transport) if s else []
 
 
-def intake(state: dict):
-    request = TripRequest.model_validate(state["request"])
-    return {"request": request.model_dump(mode="json")}, f"Planning {request.origin} to {', '.join(request.destinations)}"
+def places(request: TripRequest) -> list[Place]:
+    s = sample_for(request)
+    return [p for d in s.days for p in d.stops] if s else []
 
 
-def transport(state: dict):
-    options = _sample_for(state["request"]).transport
-    return {"transport": _dump(options)}, f"Found {len(options)} ways to travel"
+def stays(request: TripRequest) -> list[Stay]:
+    s = sample_for(request)
+    if not s:
+        return []
+    nights = max((request.end_date - request.start_date).days, 1)
+    return [st.model_copy(update={"check_in": request.start_date,
+                                  "check_out": request.start_date + timedelta(days=nights)}) for st in s.stays]
 
 
-def places(state: dict):
-    days = [d.stops for d in _sample_for(state["request"]).days]
-    return {"places": _dump(days)}, f"Picked {sum(map(len, days))} places"
+class FakeModel:
+    """Deterministic stand-in for Gemini. Intake reads the city, origin and dates of the two samples."""
 
+    async def json(self, prompt: str, schema: type[BaseModel], tier: str = "lite") -> BaseModel:
+        from .intake import IntakeDraft
 
-def stays(state: dict):
-    found = _sample_for(state["request"]).stays
-    return {"stays": _dump(found)}, f"Found {len(found)} stays"
+        if schema is not IntakeDraft:
+            raise NotImplementedError(f"FakeModel has no answer for {schema.__name__}")
+        text = prompt.rsplit("Message:\n", 1)[-1].lower()
+        city = next((c for c in BY_CITY if c in text), None)
+        req = sample(BY_CITY[city]).request if city else None
+        has_dates = bool(re.search(r"\d", text))
+        has_origin = any(w in text for w in ("bengaluru", "bangalore", "from"))
+        return IntakeDraft(
+            origin=req.origin if req and has_origin else None,
+            destinations=req.destinations if req else [],
+            start_date=req.start_date if req and has_dates else None,
+            end_date=req.end_date if req and has_dates else None,
+            budget_inr=req.constraints.budget_inr if req else None,
+            pace=req.constraints.pace if req else None,
+            travellers=[{"name": t.name, "age": t.age} for t in req.constraints.travellers] if req else [],
+        )
 
-
-def story(state: dict):
-    sample = _sample_for(state["request"])
-    subject = sample.days[0].stops[0].name if sample.days[0].stops else sample.request.destinations[0]
-    katha = KathaStory(
-        subject_kind="place", subject=subject, length_min=2, lang=Lang.en, sources=["sample"],
-        text=f"Sample story about {subject}.", segments=[StorySegment(label="history", text=f"Sample history of {subject}.")],
-    )
-    return {"story": katha.model_dump(mode="json")}, f"Story ready for {subject}"
-
-
-def solver(state: dict):
-    # ponytail: fake solver reuses the sample days and dates; the real solver is TY1-04
-    sample = _sample_for(state["request"])
-    days = [{**d.model_dump(mode="json", by_alias=True), "stops": stops} for d, stops in zip(sample.days, state["places"])]
-    itinerary = {
-        **sample.model_dump(mode="json", by_alias=True),
-        "request": state["request"], "days": days, "transport": state["transport"], "stays": state["stays"],
-        "lang": state["request"]["lang"],
-    }
-    return {"itinerary": Itinerary.model_validate(itinerary).model_dump(mode="json", by_alias=True)}, "Built a day-by-day plan"
-
-
-def checker(state: dict):
-    itinerary = Itinerary.model_validate(state["itinerary"])
-    budget = itinerary.request.constraints.budget_inr
-    itinerary.budget.within_budget = None if budget is None else itinerary.budget.total_inr <= budget
-    ok = itinerary.budget.within_budget is not False
-    return {"itinerary": itinerary.model_dump(mode="json", by_alias=True)}, "Plan checks passed" if ok else "Plan is over budget"
-
-
-def narrator(state: dict):
-    return {}, f"Your trip is ready. {state['story']['text']}"
-
-
-STEPS = {f.__name__: f for f in (intake, transport, places, stays, story, solver, checker, narrator)}
+    async def text(self, prompt: str, tier: str = "flash") -> str:
+        first = prompt.strip().splitlines()[0]
+        return f"(sample) {first[:120]}"
