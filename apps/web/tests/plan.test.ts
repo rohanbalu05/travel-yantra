@@ -272,3 +272,13 @@ describe("TY1's journey day (QA #118, #104)", () => {
     expect(tripCost(plan, used)).toBe(plan.budget.total_inr);
   });
 });
+
+describe("a plan mode with no matching option (review P1)", () => {
+  it("falls back to the cheapest that fits without looping", () => {
+    const road = { ...GOA_ITINERARY, request: { ...GOA_ITINERARY.request, transport_mode: "road" as const } };
+    expect(road.transport!.some((o) => o.mode === "road")).toBe(false);
+    const i = pickIndex(road);
+    expect(i).toBe(pickIndex(GOA_ITINERARY));
+    expect(tripCost(road, road.transport![i])).toBeGreaterThan(0);
+  });
+});

@@ -38,10 +38,12 @@ export function dayRows(day: DayPlan, it: Itinerary): DayRow[] {
  * the plan's other costs plus that option.
  */
 export function tripCost(it: Itinerary, opt: TransportOption): number {
-  const b = it.budget;
-  if (planMode(it) && opt === (it.transport ?? [])[pickIndex(it)]) return b.total_inr;
-  return b.total_inr - b.transport_inr + opt.total_cost_inr;
+  if (planMode(it) && opt === (it.transport ?? [])[pickIndex(it)]) return it.budget.total_inr;
+  return estimate(it, opt);
 }
+
+/** The plan's other costs plus this option. pickIndex uses it directly: tripCost calls pickIndex. */
+const estimate = (it: Itinerary, opt: TransportOption) => it.budget.total_inr - it.budget.transport_inr + opt.total_cost_inr;
 
 /** "₹2,600 to spare" / "Over by ₹26,700" against the budget, or null with no budget. */
 export function againstBudget(it: Itinerary, cost: number): { ok: boolean; diff: number } | null {
@@ -71,7 +73,7 @@ export function pickIndex(it: Itinerary): number {
   const own = m ? opts.findIndex((o) => o.mode === m) : -1;
   if (own >= 0) return own;
   if (opts.length < 2) return 0;
-  const fits = opts.map((o, i) => ({ i, cost: tripCost(it, o), ok: againstBudget(it, tripCost(it, o))?.ok ?? true }));
+  const fits = opts.map((o, i) => ({ i, cost: estimate(it, o), ok: againstBudget(it, estimate(it, o))?.ok ?? true }));
   const ok = fits.filter((f) => f.ok);
   return (ok.length ? ok : fits).sort((a, b) => a.cost - b.cost)[0].i;
 }
