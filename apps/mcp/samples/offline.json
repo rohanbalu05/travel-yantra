@@ -1,0 +1,42 @@
+{
+  "katha": {
+    "subject_kind": "place",
+    "subject": "goa-basilica",
+    "length_min": 2,
+    "text": "Sample story (offline): the Basilica of Bom Jesus in Old Goa was completed in 1605 and holds the remains of St Francis Xavier. Pilgrims say the saint still watches over the sailors of the Mandovi.",
+    "segments": [
+      {
+        "label": "history",
+        "text": "The Basilica of Bom Jesus in Old Goa was completed in 1605 and holds the remains of St Francis Xavier."
+      },
+      {
+        "label": "legend",
+        "text": "Pilgrims say the saint still watches over the sailors of the Mandovi."
+      }
+    ],
+    "sources": ["https://commons.wikimedia.org/wiki/Category:Basilica_of_Bom_Jesus"],
+    "lang": "en"
+  },
+  "guide": {
+    "text": "Sample answer (offline): Goan fish curry with rice is the everyday lunch; try it at a family-run place in Panaji.",
+    "citations": [{"title": "Goan cuisine (sample citation)", "url": null}],
+    "emergency_places": [],
+    "lang": "en"
+  },
+  "pnr": {
+    "pnr": "1234567890",
+    "train": "10111 Konkan Kanya Express",
+    "class": "3A",
+    "date": "2026-12-11",
+    "passengers": [
+      {"name": "Arjun Rao", "status": "CNF B2 34"},
+      {"name": "Meera Rao", "status": "CNF B2 35"}
+    ],
+    "timeline": [
+      {"at": "2026-11-20T10:00:00+05:30", "status": "WL 12"},
+      {"at": "2026-11-28T18:30:00+05:30", "status": "RAC 3"},
+      {"at": "2026-12-10T21:00:00+05:30", "status": "CNF"}
+    ],
+    "sample": true
+  }
+}

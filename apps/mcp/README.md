@@ -1,9 +1,18 @@
 # apps/mcp (TY5 voice)
 
-FastMCP server over streamable HTTP at `/mcp`. Tool: `plan_trip(request: TripRequest) -> Itinerary`.
+FastMCP server over streamable HTTP at `/mcp`. Six tools:
 
-- `API_BASE_URL` set: calls the API's `POST /plan` and returns the final itinerary.
-- Not set: returns the Goa sample.
+| Tool | API call | Returns |
+| --- | --- | --- |
+| `plan_trip(request)` | `POST /plan` (SSE PlanEvents) | `Itinerary` |
+| `compare_transport(origin, destination, on)` | `POST /routes/compare` | `list[TransportOption]` |
+| `revise_trip(plan_id, intent, day?, place_id?)` | `POST /plan/{id}/revise` (SSE) | `Itinerary` |
+| `get_katha(place_id, length)` | `GET /guide/katha` | `KathaStory` |
+| `ask_guide(question, lang)` | `POST /guide/ask` | `GuideAnswer` |
+| `track_booking(pnr)` | `GET /routes/pnr-mock` | PNR timeline (mock) |
+
+- `API_BASE_URL` set: each tool calls the API.
+- Not set: each tool answers from `samples/` (the Goa sample and `offline.json`).
 
 ## Run
 

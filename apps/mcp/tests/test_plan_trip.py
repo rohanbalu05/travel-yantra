@@ -12,7 +12,7 @@ SAMPLE = json.loads(server.SAMPLE.read_text(encoding="utf-8"))["itinerary"]
 async def _call():
     async with connect(server.mcp._mcp_server) as client:
         tools = await client.list_tools()
-        assert [t.name for t in tools.tools] == ["plan_trip"]
+        assert "plan_trip" in [t.name for t in tools.tools]
         res = await client.call_tool("plan_trip", {"request": SAMPLE["request"]})
         assert not res.isError
         return Itinerary.model_validate(res.structuredContent)
