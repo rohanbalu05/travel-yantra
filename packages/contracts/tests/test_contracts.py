@@ -17,6 +17,7 @@ from ty_contracts import (
     PlanEvent,
     PlanStage,
     PlanText,
+    ReviseRequest,
     TripRequest,
 )
 
@@ -86,6 +87,11 @@ def test_plan_event_extra_fields_roundtrip_and_stay_optional():
         "unavailable": [{"mode": "air", "reason": "no airport"}]})
     assert resp.options[0].option.legs[0].from_ == "SBC"
     assert roundtrip(CompareRequest, {"origin": "Bengaluru", "destination": "Goa"}).modes == ["road", "rail", "air"]
+    assert roundtrip(ReviseRequest, {"intent": "lighter_day", "day": "2026-12-12"}).day.day == 12
+    assert roundtrip(ReviseRequest, {"intent": "rain"}).day is None
+    for bad in ({"intent": "lighter_day"}, {"intent": "swap_stop"}, {"intent": "snow"}):
+        with pytest.raises(ValidationError):
+            ReviseRequest.model_validate(bad)
     assert roundtrip(PlanText, {"text": "Goa with my parents in December", "lang": "hi"}).lang == "hi"
 
 

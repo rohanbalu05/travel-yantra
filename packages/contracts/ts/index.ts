@@ -138,6 +138,7 @@ export interface PlanEvent {
   iteration?: number | null;
   retryable?: boolean;
   plan_id?: string | null;
+  share_token?: string | null;
 }
 
 export type PlanStage = "intake" | "planning" | "solving" | "checking" | "repairing" | "narrating" | "needs_input" | "done" | "error";
@@ -156,6 +157,15 @@ export interface RankedOption {
   score: number;
   sources: string[];
   option: TransportOption;
+}
+
+export type ReviseIntent = "lighter_day" | "swap_stop" | "rain";
+
+export interface ReviseRequest {
+  intent: ReviseIntent;
+  day?: string | null;
+  place_id?: string | null;
+  lang?: Lang | null;
 }
 
 export interface SellerOffer {

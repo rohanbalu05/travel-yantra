@@ -5,7 +5,7 @@ Only intake (Flash-Lite), story (Flash-Lite) and narrator (Flash) call the model
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, timedelta
 from functools import lru_cache
 
 from ty_contracts import (
@@ -84,7 +84,7 @@ async def transport(state: dict, model: Model):
     return {"transport": _dump(options)}, f"Found {len(options)} ways to travel"
 
 
-# Places and stays are sample-backed until TY2 (places) and TY3 (stays) expose planners.
+# Places are sample-backed until TY2 exposes a places planner.
 
 
 async def places(state: dict, model: Model):
@@ -92,8 +92,23 @@ async def places(state: dict, model: Model):
     return {"places": _dump(found)}, f"Found {len(found)} places to see"
 
 
+def stay_options(request: TripRequest) -> list[Stay]:
+    """Ranked stays from TY3's routes.stays for the first destination; sample stays when it has none."""
+    from routes.compare import UnknownPlace
+    from routes.stays import rank_stays
+
+    nights = max((request.end_date - request.start_date).days, 1)
+    people = max(len(request.constraints.travellers), 1)
+    try:
+        found = rank_stays(request.destinations[0], request.start_date, request.start_date + timedelta(days=nights),
+                           party=people, limit=3)
+    except (UnknownPlace, ValueError):
+        found = []
+    return found or fakes.stays(request)
+
+
 async def stays(state: dict, model: Model):
-    found = fakes.stays(_request(state))
+    found = stay_options(_request(state))
     return {"stays": _dump(found)}, f"Found {len(found)} stays"
 
 

@@ -47,6 +47,12 @@ def _cheaper(it: Itinerary, travel: Travel, lim: Limits) -> list[str]:
             it.transport.remove(cheapest)
             it.transport.insert(0, cheapest)
             return [f"Switched to {cheapest.mode.value} to save money"]
+    if len(it.stays) > 1:
+        stay = min(it.stays, key=lambda s: s.price_per_night_inr)
+        if stay is not it.stays[0] and stay.price_per_night_inr < it.stays[0].price_per_night_inr:
+            it.stays.remove(stay)
+            it.stays.insert(0, stay)
+            return [f"Switched to {stay.name} to save money"]
     fullest = max(it.days, key=lambda d: len(d.stops))
     if not fullest.stops:
         return []

@@ -315,3 +315,29 @@ class PlanEvent(_Model):
     retryable: bool = False
     # On done: opaque id for POST /plan/{plan_id}/revise.
     plan_id: str | None = None
+    # On done: token for the read-only share link GET /trips/{share_token}.
+    share_token: str | None = None
+
+
+class ReviseIntent(StrEnum):
+    lighter_day = "lighter_day"
+    swap_stop = "swap_stop"
+    rain = "rain"
+
+
+class ReviseRequest(_Model):
+    """Body of POST /plan/{plan_id}/revise. lighter_day needs day; swap_stop needs place_id; rain takes
+    an optional day (all days when missing). The response streams PlanEvents like /plan."""
+
+    intent: ReviseIntent
+    day: date | None = None
+    place_id: str | None = None
+    lang: Lang | None = None
+
+    @model_validator(mode="after")
+    def _needs(self) -> ReviseRequest:
+        if self.intent is ReviseIntent.lighter_day and self.day is None:
+            raise ValueError("lighter_day needs day")
+        if self.intent is ReviseIntent.swap_stop and not self.place_id:
+            raise ValueError("swap_stop needs place_id")
+        return self

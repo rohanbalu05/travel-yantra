@@ -52,6 +52,35 @@ def stays(request: TripRequest) -> list[Stay]:
                                   "check_out": request.start_date + timedelta(days=nights)}) for st in s.stays]
 
 
+def _alt(pid: str, name: str, lat: float, lng: float, category: str, minutes: int) -> Place:
+    hours = [{"day": d, "opens": "09:00", "closes": "17:00"} for d in ("mon", "tue", "wed", "thu", "fri", "sat", "sun")]
+    return Place.model_validate({"id": pid, "name": name, "lat": lat, "lng": lng, "category": category,
+                                 "typical_visit_minutes": minutes, "opening_hours": hours, "source": "sample"})
+
+
+# Sample alternatives beyond the sample itineraries, for revise (swap a stop, rain). Approximate coordinates.
+ALTERNATIVES = {
+    "goa_family.json": [
+        _alt("goa-state-museum", "Goa State Museum", 15.4949, 73.8296, "museum", 60),
+        _alt("goa-asi-museum", "Archaeological Museum, Old Goa", 15.5040, 73.9125, "museum", 45),
+        _alt("goa-st-cajetan", "Church of St. Cajetan", 15.5048, 73.9145, "church", 30),
+        _alt("goa-reis-magos", "Reis Magos Fort", 15.4977, 73.8094, "fort", 60),
+        _alt("goa-dona-paula", "Dona Paula viewpoint", 15.4560, 73.8040, "viewpoint", 45),
+    ],
+    "mysuru_weekend.json": [
+        _alt("mys-jaganmohan", "Jaganmohan Palace Art Gallery", 12.3064, 76.6496, "gallery", 60),
+        _alt("mys-rail-museum", "Rail Museum", 12.3160, 76.6440, "museum", 45),
+        _alt("mys-philomena", "St. Philomena's Church", 12.3209, 76.6584, "church", 30),
+        _alt("mys-karanji", "Karanji Lake", 12.3020, 76.6740, "park", 60),
+    ],
+}
+
+
+def alternatives(request: TripRequest) -> list[Place]:
+    name = next((BY_CITY[d.lower()] for d in request.destinations if d.lower() in BY_CITY), None)
+    return list(ALTERNATIVES.get(name, []))
+
+
 class FakeModel:
     """Deterministic stand-in for Gemini. Intake reads the city, origin and dates of the two samples."""
 

@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 
 from core import pipeline, sse, steps
 from core.intake import IntakeDraft
+from core.trips import get_store
 from main import app
 from ty_contracts import Itinerary, PlanEvent, PlanStage
 
@@ -58,7 +59,7 @@ def test_sample_trip_streams_every_stage_and_a_valid_itinerary(body):
     assert len(final.days) == (final.request.end_date - final.request.start_date).days + 1
     assert sum(len(d.stops) for d in final.days) > 0 and final.transport and final.stays
     assert final.budget.within_budget is True
-    assert events[-1]["plan_id"] in pipeline.PLANS
+    assert get_store().get(events[-1]["plan_id"]) is not None and events[-1]["share_token"]
 
 
 def test_goa_family_keeps_relaxed_pace_with_at_most_two_stops_a_day():
@@ -90,9 +91,10 @@ def test_over_budget_plan_streams_a_repair_round(monkeypatch):
     monkeypatch.setattr(steps, "transport_options", air_first)
     events = frames(client.post("/plan", json=GOA))
     s = stages(events)
-    assert s[6:9] == ["checking", "repairing", "checking"]
-    assert events[6]["violations"][0]["code"] == "over_budget"
-    assert events[7]["iteration"] == 1 and events[8]["iteration"] == 2 and events[8]["violations"] == []
+    # Round 1 switches to rail; with TY3's sample stays that is still over, so round 2 picks a cheaper stay.
+    assert s[6:11] == ["checking", "repairing", "checking", "repairing", "checking"]
+    assert events[6]["violations"][0]["code"] == "over_budget" and events[7]["message"] == "Switched to rail to save money"
+    assert events[9]["message"].startswith("Switched to ") and events[10]["iteration"] == 3 and events[10]["violations"] == []
     final = Itinerary.model_validate(events[-1]["partial"])
     assert final.transport[0].mode.value == "rail" and final.budget.within_budget is True
 

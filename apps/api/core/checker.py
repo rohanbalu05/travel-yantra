@@ -17,10 +17,12 @@ ELDERLY_MAX_OUT_HOURS = 6
 
 
 def budget(itinerary: Itinerary) -> BudgetSummary:
-    """Transport is the first (chosen) option for every traveller; stays are nightly price x nights."""
+    """Transport and stay are the first (chosen) options; transport is per traveller, the stay price is
+    for the whole party per night."""
     people = max(len(itinerary.request.constraints.travellers), 1)
     transport = itinerary.transport[0].total_cost_inr * people if itinerary.transport else 0
-    stay = sum(s.price_per_night_inr * max((s.check_out - s.check_in).days, 1) for s in itinerary.stays)
+    first = itinerary.stays[:1]
+    stay = sum(s.price_per_night_inr * max((s.check_out - s.check_in).days, 1) for s in first)
     stops = sum(len(d.stops) for d in itinerary.days)
     activities = ACTIVITY_INR_PER_STOP_PERSON * stops * people
     food = FOOD_INR_PER_DAY_PERSON * len(itinerary.days) * people

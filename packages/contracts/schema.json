@@ -798,6 +798,18 @@
           ],
           "default": null,
           "title": "Plan Id"
+        },
+        "share_token": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Share Token"
         }
       },
       "required": [
@@ -901,6 +913,65 @@
         "option"
       ],
       "title": "RankedOption",
+      "type": "object"
+    },
+    "ReviseIntent": {
+      "enum": [
+        "lighter_day",
+        "swap_stop",
+        "rain"
+      ],
+      "title": "ReviseIntent",
+      "type": "string"
+    },
+    "ReviseRequest": {
+      "additionalProperties": false,
+      "description": "Body of POST /plan/{plan_id}/revise. lighter_day needs day; swap_stop needs place_id; rain takes\nan optional day (all days when missing). The response streams PlanEvents like /plan.",
+      "properties": {
+        "intent": {
+          "$ref": "#/$defs/ReviseIntent"
+        },
+        "day": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Day"
+        },
+        "place_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Place Id"
+        },
+        "lang": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Lang"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "intent"
+      ],
+      "title": "ReviseRequest",
       "type": "object"
     },
     "SellerOffer": {

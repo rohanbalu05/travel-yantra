@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import uuid
-from collections import OrderedDict
 from collections.abc import AsyncIterator
 
 from google.adk.agents import BaseAgent, LoopAgent, ParallelAgent, SequentialAgent
@@ -26,6 +26,7 @@ from ty_contracts import (
 
 from . import llm, steps
 from .repair import MAX_ROUNDS
+from .trips import get_store
 
 log = logging.getLogger(__name__)
 
@@ -45,11 +46,6 @@ STAGE = {
     "repair": PlanStage.repairing,
     "narrator": PlanStage.narrating,
 }
-# Finished plans by id, for revise (card #20). In memory until trips persistence (#37) lands.
-PLANS: OrderedDict[str, Itinerary] = OrderedDict()
-MAX_PLANS = 200
-
-
 class Step(BaseAgent):
     """Runs one step function and writes its result into session state."""
 
@@ -92,14 +88,6 @@ def _event(author: str, message: str, state: dict, delta: dict) -> PlanEvent:
     )
 
 
-def remember(itinerary: Itinerary) -> str:
-    plan_id = uuid.uuid4().hex
-    PLANS[plan_id] = itinerary
-    while len(PLANS) > MAX_PLANS:
-        PLANS.popitem(last=False)
-    return plan_id
-
-
 async def run_plan(body: TripRequest | PlanText) -> AsyncIterator[PlanEvent]:
     """Yield one PlanEvent per finished step, then one terminal event (done, needs_input or error). Never raises."""
     # First answer at once (card #38): before any ADK setup or model call.
@@ -132,9 +120,22 @@ async def run_plan(body: TripRequest | PlanText) -> AsyncIterator[PlanEvent]:
         finally:
             await events.aclose()
         final = Itinerary.model_validate(state["itinerary"])
-        yield PlanEvent(stage=PlanStage.done, message="Done", partial=final, plan_id=remember(final))
+        trip = await asyncio.to_thread(lambda: get_store().save(final))
+        yield PlanEvent(stage=PlanStage.done, message="Done", partial=final, plan_id=trip.id, share_token=trip.share_token)
     except Exception as exc:
         log.exception("plan failed")
         # Bad input or a bug will fail again; a model timeout or network error may not.
         retryable = not isinstance(exc, (ValidationError, ValueError, NotImplementedError, KeyError))
         yield PlanEvent(stage=PlanStage.error, message="Planning failed. Please try again.", retryable=retryable)
+
+
+def revise_events(old_id: str, revised: Itinerary, what: str, rounds: int) -> list[PlanEvent]:
+    """The revise stream (card #20): what changed, the check result, then done with the new trip's ids."""
+    trip = get_store().save(revised, revised_from=old_id)
+    checked = "Plan checks passed" if rounds == 0 else f"Checked and repaired in {rounds} round{'s' * (rounds > 1)}"
+    return [
+        PlanEvent(stage=PlanStage.solving, step=PlanStep.solver, message=what, partial=revised),
+        PlanEvent(stage=PlanStage.checking, step=PlanStep.checker, message=checked, partial=revised,
+                  iteration=min(max(rounds, 1), MAX_ROUNDS)),
+        PlanEvent(stage=PlanStage.done, message="Done", partial=revised, plan_id=trip.id, share_token=trip.share_token),
+    ]
