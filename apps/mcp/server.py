@@ -20,6 +20,7 @@ from ty_contracts import (
     GuideAnswer,
     GuideQuestion,
     Itinerary,
+    KathaRequest,
     KathaStory,
     Lang,
     PlanEvent,
@@ -187,16 +188,21 @@ async def get_katha(
     """Tell the story (Katha) of a place, a city or a trip day in 2, 5 or 10 minutes.
 
     subject: a place name or id slug (e.g. "mysuru-mysore-palace"), a city name, or for a day a
-    label with its `places`. Segments are labelled legend or history; [n] is sources[n-1].
+    label with its `places`. Segments are labelled legend, history or disputed (sources
+    disagree); [n] is sources[n-1].
     A first telling can take up to a minute.
     """
     if not _base():
         story = KathaStory.model_validate(_offline("katha"))
     else:
-        body = {"subject_kind": subject_kind, "subject": subject, "length_min": length_min}
-        body["lang"] = "en"  # the guide writes English; translation happens here
-        if subject_kind == "day":
-            body["places"] = places or []
+        req = KathaRequest(
+            subject_kind=subject_kind,
+            subject=subject,
+            length_min=length_min,
+            lang=Lang.en,  # the guide writes English; translation happens here
+            places=places or [],
+        )
+        body = req.model_dump(mode="json", exclude={"places"} if subject_kind != "day" else None)
         data = await _request("POST", "/guide/katha", timeout=90, json=body)
         story = KathaStory.model_validate(data)
     # One translate call for the text and every segment; Translator.text keeps the line count.
