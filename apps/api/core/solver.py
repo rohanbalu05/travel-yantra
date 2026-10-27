@@ -16,6 +16,7 @@ ELDERLY_AGE = 60
 # Elderly travellers get a rest break before the next stop once they have been out this long.
 REST_AFTER_MIN = 180
 REST_MIN = 45
+REST_NOTE = "Rest break"
 
 
 @dataclass(frozen=True)
@@ -156,12 +157,14 @@ def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorde
     stops = order(stops, travel) if reorder else list(stops)
     mins = [travel.minutes(a, b) for a, b in zip(stops, stops[1:])]
     visits, problem = schedule(day, stops, mins, lim)
+    rested = any(b.arrive - a.leave > timedelta(minutes=m) for a, b, m in zip(visits, visits[1:], mins))
     legs = []
     for a, b in zip(visits, visits[1:]):
         minutes, cost = travel.edge(a.place, b.place)
         legs.append(Leg(**{"from": a.place.name}, to=b.place.name, mode=Mode.road, depart=a.leave,
                         arrive=a.leave + timedelta(minutes=minutes), minutes=minutes, cost_inr=cost))
-    return DayPlan(date=day, stops=stops, legs=legs), problem
+    notes = [REST_NOTE] if rested else []
+    return DayPlan(date=day, stops=stops, legs=legs, notes=notes), problem
 
 
 def fits(day: date, stops: list[Place], travel: Travel, lim: Limits) -> bool:
