@@ -29,8 +29,7 @@ ORDER = {"hook": 0, "story": 1, "sensory": 2, "fact": 3}
 
 def facts_for(place: str, length: int) -> tuple[Subject, list[Fact]]:
     poi = next(p for p in load_pois()["pois"] if p["name"] == place)
-    rows = [r for r in chunk_rows()[0]
-            if r.get("poi") == place and r["chunk_type"] != "practical" and r.get("source_url")]  # fmt: skip
+    rows = [r for r in chunk_rows()[0] if r.get("poi") == place and r["chunk_type"] != "practical"]
     rows.sort(key=lambda r: (r.get("tier") or 2, ORDER.get(r["chunk_type"], 4)))
     facts = [
         Fact(n=i + 1, chunk_id=i + 1, city=r["city"], title=r.get("title"), body=r["body"],

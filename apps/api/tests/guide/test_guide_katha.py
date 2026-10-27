@@ -73,7 +73,7 @@ def test_parse_and_renumber_share_sources_and_order_markers() -> None:
     assert [s[0] for s in segments] == ["history", "history", "legend", "disputed"]
     facts = [fact(1, "https://a"), fact(2, "https://a"), fact(3)]
     out, sources = renumber(segments, facts)
-    assert sources == ["T3 (S)", "https://a"]  # facts 1 and 2 share a URL, so a number
+    assert sources == ["S", "https://a"]  # facts 1 and 2 share a URL, so a number; 3 is named
     assert [s.text for s in out] == ["A [1]. B [2].", "C [1].", "People say D [2].", "E [2]."]
     assert out[3].label == ("disputed" if "disputed" in CONTRACT_LABELS else "history")
 
@@ -110,7 +110,7 @@ def test_checks_see_every_number_in_combined_markers() -> None:
 
 
 def test_renumber_splits_combined_markers_into_sources() -> None:
-    facts = [fact(n, "https://a" if n in (11, 12) else None) for n in range(1, 15)]
+    facts = [fact(n, "https://a" if n in (11, 12) else f"https://s/{n}") for n in range(1, 15)]
     segments = [("history", t) for t in REAL]
     out, sources = renumber(segments, facts)
     assert [s.text[-12:] for s in out] == [
@@ -419,7 +419,6 @@ def test_lang_sample_facts_come_from_the_seed_in_story_order() -> None:
     assert subject.city == "Mysuru" and 2 <= len(facts) <= CAP[2]
     assert [f.n for f in facts] == list(range(1, len(facts) + 1))
     assert not any("ticket" in (f.title or "").lower() for f in facts)  # practical rows left out
-    assert all(f.source_url for f in facts)  # linked sources only (HQ QA)
 
 
 def test_a_bracketed_year_range_is_prose_not_a_citation() -> None:
@@ -517,7 +516,7 @@ def test_a_fact_told_twice_is_caught_in_a_real_story() -> None:
     assert checks.repeats(echo) == []  # an image returned in new words is not a repeat
 
 
-def test_katha_facts_come_only_from_linked_sources() -> None:
+def test_unlinked_facts_stay_and_are_named_honestly() -> None:
     from guide.katha import facts as f
 
     seen = []
@@ -533,5 +532,14 @@ def test_katha_facts_come_only_from_linked_sources() -> None:
             return R()
 
     f.gather(Recording(), f.Subject(kind="city", name="Mysuru", city="Mysuru"), 2)
-    assert seen and all("source_url" in sql and "<> ''" in sql for sql in seen)
+    assert seen and not any("source_url, '') <>" in sql for sql in seen)  # nothing dropped
+
+    def src(url, name):
+        return Fact(n=1, chunk_id=1, city="Mysuru", title="Three palaces burned", body="B.",
+                    is_legend=False, source_name=name, source_url=url).source  # fmt: skip
+
+    assert src("https://example.org/a", "Wikipedia") == "https://example.org/a"  # web: its link
+    assert src(None, "travel-yantra field notes") == "Travel Yantra field notes"
+    assert src(None, "Mysore Palace Board") == "Mysore Palace Board"  # original name, no link
+    assert src(None, None) == "Travel Yantra field notes"
 

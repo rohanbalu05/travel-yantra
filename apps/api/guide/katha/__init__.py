@@ -14,7 +14,7 @@ from .pipeline import LANGS, KathaFailed, Outline, write
 __all__ = ["KathaFailed", "KathaRequest", "UnknownSubject", "katha", "katha_model"]
 
 #: Bump when prompts or checks change, so cached stories are rewritten.
-PIPELINE_VERSION = "7"
+PIPELINE_VERSION = "8"
 
 
 def katha_model() -> Any:

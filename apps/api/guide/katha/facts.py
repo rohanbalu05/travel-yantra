@@ -18,14 +18,13 @@ NEED = {2: 2, 5: 6, 10: 12}
 PER_DAY_STOP = 3
 
 COLS = "id, poi_id, city, title, body, is_legend, source_name, source_url"
-#: Every source a reader sees must link somewhere they can check (HQ QA): facts without a
-#: source URL (field notes, "general reference") are left out, and thin sources make a
-#: shorter story (rule 9).
-LINKED = "coalesce(source_url, '') <> ''"
-LINKED_C = "coalesce(c.source_url, '') <> ''"  # the same, for the joined query
 #: Story material first. Practical notes (tickets, water) never make a story.
 STORY_ORDER = """CASE chunk_type WHEN 'hook' THEN 0 WHEN 'story' THEN 1 WHEN 'sensory' THEN 2
     WHEN 'fact' THEN 3 ELSE 4 END"""
+
+
+FIELD_NOTES = "Travel Yantra field notes"
+OUR_NOTES = {"travel-yantra field notes", "travel yantra field notes", "travel yantra"}
 
 
 class Fact(BaseModel):
@@ -40,10 +39,13 @@ class Fact(BaseModel):
 
     @property
     def source(self) -> str:
-        """What the reader sees in the source list: the URL when there is one."""
+        """What the reader sees in the source list (HQ QA): a web source is its link; any
+        other is named honestly, without a link: our own notes as "Travel Yantra field
+        notes", the rest by their original source name."""
         if self.source_url:
             return self.source_url
-        return f"{self.title or 'Travel Yantra guide'} ({self.source_name or 'Travel Yantra'})"
+        name = (self.source_name or "").strip()
+        return FIELD_NOTES if not name or name.lower() in OUR_NOTES else name
 
 
 class Subject(BaseModel):
@@ -86,7 +88,7 @@ def resolve(db: Any, kind: str, subject: str, places: list[str] = ()) -> Subject
 
 def _rows(db: Any, where: str, params: tuple, limit: int) -> list[tuple]:
     return db.execute(
-        f"SELECT {COLS} FROM doc_chunk WHERE NOT retired AND chunk_type <> 'practical' AND {LINKED} "
+        f"SELECT {COLS} FROM doc_chunk WHERE NOT retired AND chunk_type <> 'practical' "
         f"AND {where} ORDER BY coalesce(tier, 2), {STORY_ORDER}, id LIMIT %s",
         (*params, limit),
     ).fetchall()
@@ -106,7 +108,7 @@ def gather(db: Any, subject: Subject, length_min: int) -> list[Fact]:
             rows += db.execute(
                 f"SELECT {', '.join('c.' + c.strip() for c in COLS.split(','))} "
                 "FROM doc_chunk c JOIN poi p ON p.id = c.poi_id "
-                f"WHERE NOT c.retired AND c.chunk_type <> 'practical' AND {LINKED_C} AND c.city = %s "
+                f"WHERE NOT c.retired AND c.chunk_type <> 'practical' AND c.city = %s "
                 f"ORDER BY p.popularity DESC NULLS LAST, {STORY_ORDER.replace('chunk_type', 'c.chunk_type')}, "
                 "c.id LIMIT %s",
                 (subject.city, cap - len(rows)),
