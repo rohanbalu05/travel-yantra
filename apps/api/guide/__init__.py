@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 from collections.abc import Iterator
@@ -71,7 +72,7 @@ async def post_katha(
     model: Any = Depends(katha_model),
 ) -> KathaStory:
     try:
-        return await katha(req, db, model)
+        story = await katha(req, db, model)
     except UnknownSubject as e:
         raise HTTPException(404, NO_STORY) from e
     except KathaFailed as e:  # thin sources, or a draft that failed its checks twice
@@ -80,3 +81,8 @@ async def post_katha(
     except Exception as e:
         log.exception("guide katha failed")
         raise HTTPException(503, BUSY) from e
+    # Read aloud, if it has been (V3-AF): one small public GET; no audio is never an error.
+    from .katha.voice import attach
+
+    audio = await asyncio.to_thread(attach, story)
+    return story.model_copy(update={"audio": audio}) if audio else story

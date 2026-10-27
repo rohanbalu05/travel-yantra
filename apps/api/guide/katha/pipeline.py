@@ -301,6 +301,18 @@ async def _trim(model: Any, subject: Subject, text: str, length: int, lang: str 
     return text, f"trim not used: {before} -> {after} words"
 
 
+def chapter_starts(per_chapter: list[int], total: int) -> list[int]:
+    """The segment index each chapter starts at, for reading aloud with chapter breaks.
+    A trim drops paragraphs, so the starts are scaled to what is left (approximate then)."""
+    starts, at = [], 0
+    for n in per_chapter:
+        starts.append(at)
+        at += n
+    if at and at != total:
+        starts = [round(s * total / at) for s in starts]
+    return sorted({s for s in starts if s < total}) or [0]
+
+
 async def plan(model: Any, subject: Subject, length: int, facts: list[Fact]) -> Outline:
     """Step 2: the outline every language is written from (rule 12)."""
     return await _timed(f"outline {subject.name} {length}min", model.json(
@@ -320,7 +332,9 @@ async def tell(model: Any, subject: Subject, length: int, facts: list[Fact], out
         critiques.append(critique)
     text, trim = await _trim(model, subject, "\n\n".join(texts), length, lang)
     segments = parse(text)
-    notes = {"outline": outline.model_dump(), "critiques": critiques} | ({"trim": trim} if trim else {})
+    notes = {"outline": outline.model_dump(), "critiques": critiques,
+             "chapter_starts": chapter_starts([len(parse(t)) for t in texts], len(segments))}  # fmt: skip
+    notes |= {"trim": trim} if trim else {}
     if problems := checks.problems(segments, len(facts), length, lang):
         return None, notes, problems, text
     story_segments, sources = renumber(segments, facts)
