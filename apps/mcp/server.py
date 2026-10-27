@@ -8,6 +8,7 @@ import os
 from datetime import date
 from pathlib import Path
 from typing import Any, Literal
+from urllib.parse import quote
 
 import httpx
 from mcp.server.fastmcp import FastMCP
@@ -106,7 +107,7 @@ async def revise_trip(
         it = _sample_itinerary()
         return it.model_copy(update={"warnings": [*it.warnings, "offline sample: not revised"]})
     body = {"intent": intent, "day": day.isoformat() if day else None, "place_id": place_id}
-    return await _stream_plan(f"/plan/{plan_id}/revise", body)
+    return await _stream_plan(f"/plan/{quote(plan_id, safe='')}/revise", body)
 
 
 @mcp.tool()

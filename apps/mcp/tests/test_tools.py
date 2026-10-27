@@ -140,3 +140,10 @@ async def test_plan_needs_input_surfaces_questions(monkeypatch):
         res = await client.call_tool("plan_trip", CALLS["plan_trip"])
     assert res.isError
     assert "Which dates? How many?" in res.content[0].text
+
+
+async def test_revise_trip_escapes_plan_id(monkeypatch):
+    seen = _fake_api(monkeypatch, lambda req: httpx.Response(200, text=_sse(SAMPLE)))
+    async with connect(server.mcp._mcp_server) as client:
+        await client.call_tool("revise_trip", {**CALLS["revise_trip"], "plan_id": "../admin?x=1"})
+    assert seen[0].url.raw_path == b"/plan/..%2Fadmin%3Fx%3D1/revise"
