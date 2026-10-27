@@ -29,7 +29,8 @@ def katha_model() -> Any:
 
 def cache_key(req: KathaRequest, subject_name: str, chunk_ids: list[int]) -> str:
     raw = json.dumps([PIPELINE_VERSION, req.subject_kind, subject_name, req.length_min,
-                      req.lang, chunk_ids], sort_keys=True)  # fmt: skip
+                      chunk_ids], sort_keys=True)  # fmt: skip
+    # No lang yet: every story is written in English, so one cached copy serves all.
     return hashlib.sha256(raw.encode()).hexdigest()
 
 

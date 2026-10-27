@@ -35,6 +35,7 @@ def test_banned_shapes_are_caught() -> None:
     assert checks.slop("It was a grand, majestic and beautiful palace.")
     assert checks.slop("Why did the king leave? Who stayed behind? Nobody knows.")
     assert checks.slop("The Bustling market.")  # any case
+    assert checks.slop("It delves into history and boasted of gold.")  # inflected forms
 
 
 def test_plain_good_writing_passes() -> None:
