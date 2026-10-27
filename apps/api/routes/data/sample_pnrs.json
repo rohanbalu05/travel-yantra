@@ -1,0 +1,37 @@
+[
+  {
+    "pnr": "1234567890",
+    "train": "90001", "class": "3A", "date": "2026-12-11", "from": "SBC", "to": "MAO",
+    "party": "goa_family",
+    "berths": ["B2 34", "B2 33", "B2 36", "B2 35"],
+    "events": [
+      {"at": "2026-10-20T10:00:00+05:30", "status": "WL 12", "note": "Booked at WL 12. Tracking started."},
+      {"at": "2026-11-05T09:15:00+05:30", "status": "WL 4", "note": "Moved from WL 12 to WL 4."},
+      {"at": "2026-11-28T18:30:00+05:30", "status": "RAC 3", "note": "Moved from WL 4 to RAC 3."},
+      {"at": "2026-12-11T19:30:00+05:30", "status": "CNF", "note": "Chart prepared. All four berths confirmed in coach B2.", "chart": true}
+    ]
+  },
+  {
+    "pnr": "4521683907",
+    "train": "90002", "class": "3A", "date": "2026-12-10", "from": "SBC", "to": "MAO",
+    "party": "goa_family",
+    "berths": ["B2 9", "B2 12", "B2 10", "B2 11"],
+    "events": [
+      {"at": "2026-10-20T10:05:00+05:30", "status": "CNF", "note": "Booked and confirmed in coach B2, berths 9 to 12."}
+    ]
+  },
+  {
+    "pnr": "4521690144",
+    "train": "90010", "class": "3A", "date": "2026-12-14", "from": "MAO", "to": "SBC",
+    "party": "goa_family",
+    "berths": ["B1 41", "B1 44", "B1 42", "B1 43"],
+    "events": [
+      {"at": "2026-10-20T10:10:00+05:30", "status": "WL 19", "note": "Booked at WL 19. Tracking started."},
+      {"at": "2026-10-23T08:40:00+05:30", "status": "WL 15", "note": "Moved from WL 19 to WL 15."},
+      {"at": "2026-10-25T12:20:00+05:30", "status": "WL 12", "note": "Moved from WL 15 to WL 12."},
+      {"at": "2026-10-27T07:02:00+05:30", "status": "WL 7", "note": "Moved from WL 12 to WL 7."},
+      {"at": "2026-12-08T11:00:00+05:30", "status": "RAC 2", "note": "Moved from WL 7 to RAC 2."},
+      {"at": "2026-12-14T15:05:00+05:30", "status": "CNF", "note": "Chart prepared. All four berths confirmed in coach B1.", "chart": true}
+    ]
+  }
+]

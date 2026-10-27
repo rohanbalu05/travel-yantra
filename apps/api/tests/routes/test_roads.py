@@ -69,8 +69,12 @@ def test_errors_and_empty_responses_fall_back(payload, error):
     assert p.road_edge(BLR, GOA) == HaversineRoadProvider().road_edge(BLR, GOA)
 
 
-def test_default_provider_follows_the_key(monkeypatch):
+def test_default_provider_follows_the_key_and_is_shared(monkeypatch):
+    default_road_provider.cache_clear()
     monkeypatch.delenv("GOOGLE_MAPS_API_KEY", raising=False)
     assert isinstance(default_road_provider(), HaversineRoadProvider)
+    default_road_provider.cache_clear()
     monkeypatch.setenv("GOOGLE_MAPS_API_KEY", "test-key")
-    assert isinstance(default_road_provider(), RoutesApiRoadProvider)
+    shared = default_road_provider()
+    assert isinstance(shared, RoutesApiRoadProvider) and default_road_provider() is shared
+    default_road_provider.cache_clear()

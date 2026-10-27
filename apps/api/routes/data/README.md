@@ -7,8 +7,8 @@ structure and rough timings only, never as live schedules).
 ## Current contents: SAMPLE ONLY
 
 `sample_raw/` holds a tiny hand-made dataset in the datameet format (15
-stations, 9 fictional trains numbered 90001-90009, approximate coordinates;
-90008 and 90009 run Bengaluru-Mysuru).
+stations, 10 fictional trains numbered 90001-90010, approximate coordinates;
+90008 and 90009 run Bengaluru-Mysuru, 90010 Madgaon-Bengaluru).
 `rail_stations.json` and `rail_trains.json` are built from it. The real
 datameet files could not be downloaded from the cloud session (egress policy
 blocked raw.githubusercontent.com), so the full six-state subset is still to be

@@ -13,6 +13,7 @@ import os
 import time as _time
 import urllib.request
 from collections.abc import Callable
+from functools import lru_cache
 from typing import Protocol
 
 from .graph import COMFORT, ROAD_INR_PER_KM, Edge, HaversineRoadProvider, Node
@@ -106,8 +107,10 @@ class RoutesApiRoadProvider:
         return self.fallback.road_edge(a, b)
 
 
+@lru_cache(maxsize=1)
 def default_road_provider() -> RoutesApiRoadProvider | HaversineRoadProvider:
-    """Routes API when a key is configured, else the offline fake."""
+    """Routes API when a key is configured, else the offline fake. One shared
+    instance per process, so every caller draws on the same cache and call cap."""
     if os.environ.get("GOOGLE_MAPS_API_KEY"):
         return RoutesApiRoadProvider()
     return HaversineRoadProvider()

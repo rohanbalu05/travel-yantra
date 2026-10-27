@@ -1,0 +1,22 @@
+{
+  "_note": "Fictional sample stays (names, rates and ratings are made up). Replaced by SerpApi Hotels in P2.",
+  "panaji": [
+    {"name": "Sample Mandovi Riverside Inn", "area": "Panaji", "room_inr": 4200, "rating": 4.3, "sleeps": 3},
+    {"name": "Sample Fontainhas Heritage Stay", "area": "Fontainhas", "room_inr": 5600, "rating": 4.6, "sleeps": 3},
+    {"name": "Sample Miramar Beach Hotel", "area": "Miramar", "room_inr": 7800, "rating": 4.4, "sleeps": 3},
+    {"name": "Sample Altinho Budget Rooms", "area": "Altinho", "room_inr": 1900, "rating": 3.8, "sleeps": 2}
+  ],
+  "madgaon": [
+    {"name": "Sample Colva Shore Resort", "area": "Colva", "room_inr": 6100, "rating": 4.2, "sleeps": 3},
+    {"name": "Sample Margao Station Lodge", "area": "Madgaon", "room_inr": 2200, "rating": 3.9, "sleeps": 3}
+  ],
+  "mysuru": [
+    {"name": "Sample Palace View Residency", "area": "Mysuru", "room_inr": 3600, "rating": 4.4, "sleeps": 3},
+    {"name": "Sample Chamundi Hills Retreat", "area": "Chamundi Hills", "room_inr": 6900, "rating": 4.7, "sleeps": 3},
+    {"name": "Sample Devaraja Market Rooms", "area": "Devaraja Mohalla", "room_inr": 1600, "rating": 3.7, "sleeps": 2}
+  ],
+  "bengaluru": [
+    {"name": "Sample MG Road Business Hotel", "area": "MG Road", "room_inr": 5200, "rating": 4.3, "sleeps": 2},
+    {"name": "Sample Malleswaram Guest House", "area": "Malleswaram", "room_inr": 2400, "rating": 4.1, "sleeps": 3}
+  ]
+}
