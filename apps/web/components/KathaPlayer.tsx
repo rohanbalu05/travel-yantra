@@ -55,7 +55,7 @@ export function KathaPlayer({ audio }: { audio: KathaAudio[] }) {
   };
 
   return (
-    <div className="kp" role="group" aria-label={t("Listen to the Katha")}>
+    <div className="kap" role="group" aria-label={t("Listen to the Katha")}>
       <audio
         ref={el}
         src={parts[part].url}
@@ -75,10 +75,10 @@ export function KathaPlayer({ audio }: { audio: KathaAudio[] }) {
       <button type="button" className="kp-play" onClick={toggle} aria-label={playing ? t("Pause the Katha") : t("Play the Katha")}>
         <PlayIcon playing={playing} />
       </button>
-      <div className="kp-main">
+      <div className="kap-main">
         <input
           type="range"
-          className="kp-seek"
+          className="kap-seek"
           min={0}
           max={length || 0}
           step={1}
@@ -92,16 +92,16 @@ export function KathaPlayer({ audio }: { audio: KathaAudio[] }) {
             setAt(v);
           }}
         />
-        <div className="kp-row">
-          <span className="kp-time">{mmss(at)} / {mmss(length)}</span>
+        <div className="kap-row">
+          <span className="kap-time">{mmss(at)} / {mmss(length)}</span>
           {parts.length > 1 && (
-            <span className="kp-parts">
+            <span className="kap-parts">
               <button type="button" className="btn btn-quiet btn-sm" disabled={part === 0} onClick={() => go(part - 1)} aria-label={t("Previous part")}>‹</button>
               <span>{t("Part {n} of {total}", { n: part + 1, total: parts.length })}</span>
               <button type="button" className="btn btn-quiet btn-sm" disabled={part + 1 >= parts.length} onClick={() => go(part + 1)} aria-label={t("Next part")}>›</button>
             </span>
           )}
-          <label className="kp-speed">
+          <label className="kap-speed">
             <span>{t("Speed")}</span>
             <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))}>
               {SPEEDS.map((s) => <option key={s} value={s}>{s}×</option>)}
