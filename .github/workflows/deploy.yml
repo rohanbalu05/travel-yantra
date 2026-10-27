@@ -140,3 +140,16 @@ jobs:
             --image "asia-south1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/ty/${{ matrix.service.name }}:${{ github.sha }}" \
             --update-env-vars "GIT_SHA=${{ github.sha }}" \
             --region asia-south1 --project "${{ vars.GCP_PROJECT_ID }}" --quiet
+      - name: Warm ty-api's guide model
+        # V3-AC: request-based CPU starves the background warm-up, so one real
+        # /guide/ask loads e5 while a request holds the CPU (1–2 Gemini calls).
+        # The every-minute uptime check then keeps that instance alive.
+        # A failed warm-up never fails the deploy.
+        if: matrix.service.name == 'ty-api'
+        run: |
+          url=$(gcloud run services describe ty-api --region asia-south1 \
+            --project "${{ vars.GCP_PROJECT_ID }}" --format 'value(status.url)')
+          curl -sS -o /dev/null --max-time 120 -X POST "$url/guide/ask" \
+            -H 'content-type: application/json' \
+            -d '{"question":"When was Mysore Palace built?","city":"Mysuru"}' \
+            -w "warm-up /guide/ask: HTTP %{http_code} in %{time_total}s\n" || echo "warm-up request failed (ignored)"

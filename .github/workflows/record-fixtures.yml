@@ -3,13 +3,14 @@ name: record-fixtures
 # Runs infra/fixtures/record.py with API secrets in env (live calls happen
 # only here), checks the output with sanitise.py and uploads it as an
 # artifact. TY6 downloads it, reviews it and commits fixtures/recorded/ (no PRs
-# in v3, and Rohan stays the author). Budget: 8 SerpApi searches per run.
+# in v3, and Rohan stays the author). SerpApi is off unless named in `only`
+# (8 searches when on; the free plan's daily calls are shared with TY3).
 
 on:
   workflow_dispatch:
     inputs:
       only:
-        description: "Providers to record (space-separated: places routes wikimedia serpapi; empty = all)"
+        description: "Providers to record (space-separated: places routes wikimedia serpapi). Empty = places routes wikimedia; SerpApi runs only when named (free plan, 8 searches)"
         required: false
         type: string
 
@@ -36,7 +37,7 @@ jobs:
           ONLY: ${{ inputs.only }}
         run: |
           args=()
-          for p in $ONLY; do args+=(--only "$p"); done
+          for p in ${ONLY:-places routes wikimedia}; do args+=(--only "$p"); done
           python3 infra/fixtures/record.py --out fixtures/recorded "${args[@]}"
       - name: Sanitise
         run: python3 infra/fixtures/sanitise.py fixtures/recorded
