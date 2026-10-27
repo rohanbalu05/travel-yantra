@@ -13,6 +13,8 @@ COPY apps/web apps/web
 # NEXT_PUBLIC_* values are inlined at build time.
 ARG NEXT_PUBLIC_API_BASE_URL=""
 # Firebase web config for Google sign-in (V3-AG): public client config, empty = sign-in off.
+# deploy.yml passes these from the GitHub repo variables of the same names
+# (Firebase project = the trial project, project-cea09bbb-b5f7-4fc4-95b).
 ARG NEXT_PUBLIC_FIREBASE_API_KEY=""
 ARG NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=""
 ARG NEXT_PUBLIC_FIREBASE_PROJECT_ID=""

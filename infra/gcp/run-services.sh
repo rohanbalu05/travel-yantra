@@ -68,7 +68,7 @@ case "${1:-}" in
     gcloud run deploy ty-api --image "$R-docker.pkg.dev/$P/ty/ty-api:$SHA" "${common[@]}" \
       --service-account "ty-api-run@$P.iam.gserviceaccount.com" --memory 2Gi \
       --add-cloudsql-instances "$CONN" \
-      --set-env-vars "^@^$VERTEX@TY_MODEL_FLASH=gemini-3.5-flash@TY_MODEL_LITE=gemini-3.1-flash-lite@EMBEDDER=e5@TY_CORS_ORIGINS=$web_url@KATHA_AUDIO_BUCKET=$AUDIO_BUCKET@KATHA_AUDIO_BASE_URL=https://storage.googleapis.com/$AUDIO_BUCKET@GIT_SHA=$SHA" \
+      --set-env-vars "^@^$VERTEX@TY_MODEL_FLASH=gemini-3.5-flash@TY_MODEL_LITE=gemini-3.1-flash-lite@EMBEDDER=e5@TY_CORS_ORIGINS=$web_url@TY_FIREBASE_PROJECT_ID=$P@KATHA_AUDIO_BUCKET=$AUDIO_BUCKET@KATHA_AUDIO_BASE_URL=https://storage.googleapis.com/$AUDIO_BUCKET@GIT_SHA=$SHA" \
       ${sec:+"$sec"}
     ;;
   ty-web)
