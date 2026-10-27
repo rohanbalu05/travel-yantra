@@ -6,7 +6,9 @@ import { Problem, problemOf } from "@/components/Problem";
 import { getKatha, type KathaRequest, type KathaResult } from "@/lib/guide";
 
 const LENGTHS = [2, 5, 10] as const;
-const LABEL: Record<string, string> = { history: "History", legend: "Legend" };
+// Labels TY2 may add later still show, as plain text with no tag.
+const LABEL: Record<string, string> = { history: "History", legend: "Legend", disputed: "Disputed" };
+const TAG: Record<string, string> = { history: "tag tag-history k-label", legend: "tag tag-legend k-label", disputed: "tag k-label" };
 // A first telling runs several model calls; past this the connection has stalled.
 const KATHA_TIMEOUT_MS = 90_000;
 
@@ -56,7 +58,7 @@ export function KathaView({ req }: { req: Omit<KathaRequest, "length_min"> }) {
         <div className="k-story">
           {story.segments!.map((s, i) => (
             <div key={i} className={s.label === "legend" ? "seg legend" : "seg"}>
-              {LABEL[s.label] ? <span className={s.label === "legend" ? "tag tag-legend k-label" : "tag tag-history k-label"}>{LABEL[s.label]}</span> : null}
+              {LABEL[s.label] ? <span className={TAG[s.label]}>{LABEL[s.label]}</span> : null}
               <p><Cited text={s.text} id="k-src" count={sources.length} /></p>
             </div>
           ))}
