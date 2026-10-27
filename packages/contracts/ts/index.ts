@@ -14,6 +14,32 @@ export interface Citation {
   url?: string | null;
 }
 
+export interface CityRef {
+  name: string;
+  lat: number;
+  lng: number;
+}
+
+export interface CompareRequest {
+  origin: string;
+  destination: string;
+  date?: string | null;
+  depart_time?: string;
+  rank_by?: "balanced" | "time" | "cost" | "changes";
+  modes?: Mode[];
+  travellers?: number;
+}
+
+export interface CompareResponse {
+  origin: CityRef;
+  destination: CityRef;
+  date: string;
+  rank_by: "balanced" | "time" | "cost" | "changes";
+  options: RankedOption[];
+  unavailable?: Unavailable[];
+  notes?: string[];
+}
+
 export interface Constraints {
   budget_inr?: number | null;
   pace?: Pace;
@@ -123,6 +149,15 @@ export interface PlanText {
   lang?: Lang;
 }
 
+export interface RankedOption {
+  id: string;
+  rank: number;
+  changes: number;
+  score: number;
+  sources: string[];
+  option: TransportOption;
+}
+
 export interface SellerOffer {
   seller: string;
   price_inr?: number | null;
@@ -168,6 +203,11 @@ export interface TripRequest {
   constraints?: Constraints;
   lang?: Lang;
   notes?: string | null;
+}
+
+export interface Unavailable {
+  mode: Mode;
+  reason: string;
 }
 
 export interface Violation {

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime as dt
 from datetime import date, datetime, time
 from enum import StrEnum
 from typing import Literal
@@ -116,6 +117,53 @@ class TransportOption(_Model):
     total_cost_inr: int = Field(ge=0)
     comfort: int = Field(ge=1, le=5)
     offers: list[SellerOffer] = Field(default_factory=list)
+
+
+RankBy = Literal["balanced", "time", "cost", "changes"]
+
+
+class CompareRequest(_Model):
+    """Body of POST /routes/compare (TY3)."""
+
+    origin: str = Field(min_length=1)
+    destination: str = Field(min_length=1)
+    date: dt.date | None = None
+    depart_time: dt.time = time(8, 0)
+    rank_by: RankBy = "balanced"
+    modes: list[Mode] = Field(default_factory=lambda: list(Mode), min_length=1)
+    travellers: int = Field(default=1, ge=1, le=20)
+
+
+class CityRef(_Model):
+    name: str
+    lat: float
+    lng: float
+
+
+class RankedOption(_Model):
+    id: str
+    rank: int = Field(ge=1)
+    # Vehicle changes, first and last mile transfers included.
+    changes: int = Field(ge=0)
+    score: float = Field(ge=0)
+    # Where the data came from: sample_rail | routes_api | haversine | fake_air | walk
+    sources: list[str]
+    option: TransportOption
+
+
+class Unavailable(_Model):
+    mode: Mode
+    reason: str
+
+
+class CompareResponse(_Model):
+    origin: CityRef
+    destination: CityRef
+    date: dt.date
+    rank_by: RankBy
+    options: list[RankedOption]
+    unavailable: list[Unavailable] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
 
 
 class Stay(_Model):

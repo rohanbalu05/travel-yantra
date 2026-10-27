@@ -7,6 +7,8 @@ import pytest
 from pydantic import ValidationError
 
 from ty_contracts import (
+    CompareRequest,
+    CompareResponse,
     GuideAnswer,
     GuideQuestion,
     Itinerary,
@@ -74,6 +76,16 @@ def test_plan_event_extra_fields_roundtrip_and_stay_optional():
         PlanEvent.model_validate({"stage": "checking", "message": "x", "iteration": 4})
     assert roundtrip(PlanEvent, {"stage": "done", "message": "Done", "plan_id": "abc"}).plan_id == "abc"
     assert roundtrip(GuideQuestion, {"question": "Is it open?", "place_name": "Mysore Palace", "lat": 12.3}).lang == "en"
+    resp = roundtrip(CompareResponse, {
+        "origin": {"name": "Bengaluru", "lat": 12.97, "lng": 77.59}, "destination": {"name": "Goa", "lat": 15.5, "lng": 73.8},
+        "date": "2026-12-11", "rank_by": "cost",
+        "options": [{"id": "r1", "rank": 1, "changes": 0, "score": 1.0, "sources": ["sample_rail"],
+                     "option": {"mode": "rail", "total_minutes": 600, "total_cost_inr": 600, "comfort": 4, "legs": [
+                         {"from": "SBC", "to": "MAO", "mode": "rail", "depart": "2026-12-11T21:00:00",
+                          "arrive": "2026-12-12T07:00:00", "minutes": 600, "cost_inr": 600}]}}],
+        "unavailable": [{"mode": "air", "reason": "no airport"}]})
+    assert resp.options[0].option.legs[0].from_ == "SBC"
+    assert roundtrip(CompareRequest, {"origin": "Bengaluru", "destination": "Goa"}).modes == ["road", "rail", "air"]
     assert roundtrip(PlanText, {"text": "Goa with my parents in December", "lang": "hi"}).lang == "hi"
 
 
