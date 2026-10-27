@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { PlayIcon, Wave } from "@/components/Wave";
+import { savePlanInput } from "@/lib/plan";
 import "./home.css";
 
 // Sample data only (Arjun Rao and family). TY4-02 swaps these for API data.
@@ -25,7 +27,16 @@ const pin = <path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21
 const book = <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5ZM4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5" />;
 
 export default function HomePage() {
+  const router = useRouter();
   const [playing, setPlaying] = useState(false);
+  const [ask, setAsk] = useState("");
+  // Typed text goes straight to planning; an empty box opens the full start page.
+  const planIt = () => {
+    const text = ask.trim();
+    if (!text) return router.push("/plan/start/");
+    savePlanInput({ text, lang: "en" });
+    router.push("/plan/thinking/");
+  };
   return (
     <AppShell>
       <div>
@@ -53,14 +64,14 @@ export default function HomePage() {
             <div className="door-box">
               <div className="hm-composer">
                 <label htmlFor="hm-ask">Where to?</label>
-                <textarea id="hm-ask" placeholder="Bengaluru to Goa, 11 to 14 Dec, with my parents and sister. Churches, temples, a little beach." />
+                <textarea id="hm-ask" value={ask} maxLength={4000} onChange={(e) => setAsk(e.target.value)} placeholder="Bengaluru to Goa, 11 to 14 Dec, with my parents and sister. Churches, temples, a little beach." />
                 <div className="hm-composer-row">
-                  <Link className="btn btn-primary" href="/plan/start/">Plan it</Link>
+                  <button type="button" className="btn btn-primary" onClick={planIt}>Plan it</button>
                 </div>
               </div>
               <div className="hm-chips" aria-label="Ideas">
                 {ideas.map((i) => (
-                  <Link key={i} href="/plan/start/">{i}</Link>
+                  <Link key={i} href={`/plan/start/?text=${encodeURIComponent(i)}`}>{i}</Link>
                 ))}
               </div>
             </div>
