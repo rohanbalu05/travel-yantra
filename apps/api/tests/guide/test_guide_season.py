@@ -52,27 +52,27 @@ def test_lookup_by_alias_and_by_date() -> None:
 def test_no_dasara_lights_for_a_trip_after_dasara() -> None:
     from datetime import date
 
-    from guide.season import notes_for_trip
+    from guide.season import is_event, notes_for_trip
 
     after = notes_for_trip("Mysuru", date(2026, 10, 31), date(2026, 11, 1))
     assert after and not any("illuminated" in n["text"] for n in after)
-    assert all(n["kind"] != "event" for n in after)
+    assert not any(is_event(n) for n in after) and {n["kind"] for n in after} <= {"month", "general"}
     during = notes_for_trip("Mysore", date(2026, 10, 15), date(2026, 10, 18))
-    assert any(n["kind"] == "event" and "illuminated" in n["text"] for n in during)
+    assert any(is_event(n) and "illuminated" in n["text"] for n in during)
     assert len({n["text"] for n in during}) == len(during)  # each note once
 
 
 def test_events_are_kept_only_on_known_dates() -> None:
     from datetime import date
 
-    from guide.season import event_window, notes_for, notes_for_trip
+    from guide.season import event_window, is_event, notes_for, notes_for_trip
 
-    assert [n["kind"] for n in notes_for("Mysuru", 10)].count("event") == 1  # still listed by month
+    october = notes_for("Mysuru", 10)
+    assert sum(map(is_event, october)) == 1  # still listed by month
+    assert {n["kind"] for n in october} <= {"month", "general"}  # the contract's kinds only
     assert event_window("Mysore Palace is illuminated for Dasara", 2026) == (date(2026, 10, 11), date(2026, 10, 20))
     assert event_window("Mysore Palace is illuminated for Dasara", 2031) is None  # unknown year: left out
-    assert notes_for_trip("Mysuru", date(2031, 10, 1), date(2031, 10, 31)) == [
-        n for n in notes_for_trip("Mysuru", date(2031, 10, 1), date(2031, 10, 31)) if n["kind"] != "event"
-    ]
+    assert not any(map(is_event, notes_for_trip("Mysuru", date(2031, 10, 1), date(2031, 10, 31))))
     hampi = notes_for_trip("Hampi", date(2026, 11, 3), date(2026, 11, 5))
     assert any("Hampi Utsav" in n["text"] for n in hampi)
     assert not any("Hampi Utsav" in n["text"] for n in notes_for_trip("Hampi", date(2026, 11, 20), date(2026, 11, 22)))

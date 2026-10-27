@@ -119,11 +119,15 @@ EVENT_DATES: list[tuple[re.Pattern, Callable[[int], tuple[date, date] | None]]] 
 
 def notes_for(city: str, month: int | date) -> list[dict]:
     """[{text, source_url, kind}] for a destination in a month (1-12 or a date). kind is
-    "month" when the source names that month, "event" when it names a festival (dated:
-    use notes_for_trip to keep only those inside the trip), "general" for the climate."""
+    "month" when the source names that month, "general" for the destination's climate
+    (the contract's SeasonNote kinds). A festival note is listed for its whole month here;
+    notes_for_trip keeps it only inside the trip."""
     m = month.month if isinstance(month, date) else month
-    notes = _table().get(corpus_city(city) or city, {}).get(MONTHS[m - 1], [])
-    return [{**n, "kind": "event"} if EVENT.search(n["text"]) else dict(n) for n in notes]
+    return list(_table().get(corpus_city(city) or city, {}).get(MONTHS[m - 1], []))
+
+
+def is_event(note: dict) -> bool:
+    return bool(EVENT.search(note["text"]))
 
 
 def event_window(text: str, year: int) -> tuple[date, date] | None:
@@ -144,7 +148,7 @@ def notes_for_trip(city: str, start: date, end: date) -> list[dict]:
         for note in notes_for(city, m):
             if note["text"] in seen:
                 continue
-            if note["kind"] == "event":
+            if is_event(note):
                 window = event_window(note["text"], y)
                 if not window or window[1] < start or window[0] > end:
                     continue
