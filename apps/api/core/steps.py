@@ -115,7 +115,14 @@ def transport_options(request: TripRequest) -> list[TransportOption]:
     """Ranked options from TY3's /routes/compare service for origin to first destination (one way).
     Falls back to the sample options when routes does not know a city."""
     options = [o.model_copy(deep=True) for o in _compared(request.origin, request.destinations[0], request.start_date)]
-    return options or fakes.transport(request)
+    return prefer(options or fakes.transport(request), request.transport_mode)
+
+
+def prefer(options, mode: Mode | None) -> list:
+    """The options of the traveller's chosen mode first (in their ranked order), then the rest."""
+    if mode is None:
+        return list(options)
+    return [o for o in options if o.mode is mode] + [o for o in options if o.mode is not mode]
 
 
 async def transport(state: dict, model: Model):
@@ -197,8 +204,10 @@ def hop(request: TripRequest, a: str, b: str, day: date, depart: time = HOP_DEPA
     """The journey from a to b on `day`: TY3's best-ranked option (a real train when that is rail, else
     leaving at `depart`), or a road estimate between the two cities' top places when routes does not know
     a city."""
-    found = _compared(a, b, day, depart)
-    if found:
+    found = prefer(_compared(a, b, day, depart), request.transport_mode)
+    # Chosen road but routes has no road option: fall through to our own road estimate below. For rail or air
+    # there is nothing to estimate, so the best option of any mode stands.
+    if found and (request.transport_mode in (None, found[0].mode) or request.transport_mode is not Mode.road):
         return journey(a, b, timed(request, a, b, day, found[0], role), role)
     pa, pb = city_places(request, a), city_places(request, b)
     if not pa or not pb:

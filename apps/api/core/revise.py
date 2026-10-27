@@ -7,11 +7,12 @@ from __future__ import annotations
 
 from datetime import date
 
-from ty_contracts import Itinerary, Place, ReviseIntent, ReviseRequest
+from ty_contracts import Itinerary, Mode, Place, ReviseIntent, ReviseRequest
 
 from . import fakes
 from .repair import check_and_repair
 from .solver import (
+    _KEEP,
     Limits,
     Travel,
     city_of,
@@ -118,6 +119,8 @@ def revise(it: Itinerary, req: ReviseRequest, travel: Travel | None = None) -> t
         what = swap_stop(it, req.place_id, travel, lim)
     elif req.intent is ReviseIntent.move_day:
         it, what = move_day(it, req.city)
+    elif req.intent is ReviseIntent.transport:
+        what = change_transport(it, req.mode, travel)
     else:
         what = rain(it, req.day, travel, lim)
     it, rounds = check_and_repair(it, travel)
@@ -149,3 +152,26 @@ def move_day(it: Itinerary, city: str) -> tuple[Itinerary, str]:
     # A new split re-plans every day, so earlier swaps, rain plans and lighter days do not carry over.
     moved.warnings.append("The days were re-planned for the new split; earlier changes to this plan were replaced.")
     return moved, f"Moved a day from {req.destinations[donor]} to {req.destinations[i]}"
+
+
+def change_transport(it: Itinerary, mode: Mode, travel: Travel) -> str:
+    """Every journey (out, between cities, home) switches to `mode`; each day keeps its stops and is re-timed
+    around its new journeys."""
+    from .steps import chosen_options, home, hops
+
+    req = it.request.model_copy(update={"transport_mode": mode})
+    options = chosen_options(req)
+    if not options or options[0].mode is not mode:
+        raise ReviseError(f"there is no {mode.value} option for this trip")
+    it.request, it.transport = req, options
+    lim = limits(req)
+    starts = {dates[0]: city for city, dates in split_days(req) if dates}
+    journeys, back = hops(req, options), home(req)
+    last = it.days[-1].date if it.days else None
+    for day in list(it.days):
+        new_hop = journeys.get(starts[day.date]) if day.date in starts else _KEEP
+        new_out = back if day.date == last else _KEEP
+        if new_hop is not _KEEP or new_out is not _KEEP:
+            rebuild_day(it, day.date, list(day.stops), travel, lim, hop=new_hop, out=new_out)
+    word = {"rail": "train", "road": "road", "air": "air"}[mode.value]
+    return f"Switched every journey to {word}"

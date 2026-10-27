@@ -291,12 +291,14 @@ def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorde
 _KEEP = object()
 
 
-def rebuild_day(it: Itinerary, d: date, stops: list[Place], travel: Travel, lim: Limits, hop=_KEEP) -> None:
+def rebuild_day(it: Itinerary, d: date, stops: list[Place], travel: Travel, lim: Limits, hop=_KEEP,
+                out=_KEEP) -> None:
     """Re-plan one day of an itinerary in place with new stops, keeping its journeys (or a new opening
     journey when `hop` is given) and its own notes; the rest and journey notes are rebuilt with the day."""
     i = next(i for i, x in enumerate(it.days) if x.date == d)
     old = it.days[i]
-    plan, _ = build_day(d, stops, travel, lim, hop=hop_of(old) if hop is _KEEP else hop, out=out_of(old))
+    plan, _ = build_day(d, stops, travel, lim, hop=hop_of(old) if hop is _KEEP else hop,
+                        out=out_of(old) if out is _KEEP else out)
     # Drop only the notes this module wrote for the old day; anything else on the day stays.
     generated = {REST_NOTE} | {hop_note(h) for h in [hop_of(old)] if h} | {home_note(o) for o in [out_of(old)] if o}
     # Plans saved before Leg.role wrote their journey notes as "Travel: ..." and "Return: ...".

@@ -181,3 +181,13 @@ def test_season_notes_on_an_itinerary():
     assert roundtrip(Itinerary, {**data, "season_notes": [note]}).season_notes[0].kind == "month"
     with pytest.raises(ValidationError):
         Itinerary.model_validate({**data, "season_notes": [{**note, "kind": "guess"}]})
+
+
+def test_transport_choice():
+    base = {"origin": "Bengaluru", "destinations": ["Mysuru"], "start_date": "2026-10-31", "end_date": "2026-11-01"}
+    assert roundtrip(TripRequest, {**base, "transport_mode": "road"}).transport_mode == "road"
+    assert TripRequest.model_validate(base).transport_mode is None
+    assert roundtrip(ReviseRequest, {"intent": "transport", "mode": "rail"}).mode == "rail"
+    for bad in ({"intent": "transport"}, {"intent": "transport", "mode": "boat"}):
+        with pytest.raises(ValidationError):
+            ReviseRequest.model_validate(bad)

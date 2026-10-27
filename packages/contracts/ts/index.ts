@@ -198,13 +198,14 @@ export interface RatingIn {
   lang?: Lang;
 }
 
-export type ReviseIntent = "lighter_day" | "swap_stop" | "rain" | "move_day";
+export type ReviseIntent = "lighter_day" | "swap_stop" | "rain" | "move_day" | "transport";
 
 export interface ReviseRequest {
   intent: ReviseIntent;
   day?: string | null;
   place_id?: string | null;
   city?: string | null;
+  mode?: Mode | null;
   lang?: Lang | null;
 }
 
@@ -271,6 +272,7 @@ export interface TripRequest {
   lang?: Lang;
   notes?: string | null;
   days_per_destination?: number[] | null;
+  transport_mode?: Mode | null;
 }
 
 export interface TripSummary {

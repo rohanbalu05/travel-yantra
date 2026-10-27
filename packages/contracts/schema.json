@@ -1182,14 +1182,15 @@
         "lighter_day",
         "swap_stop",
         "rain",
-        "move_day"
+        "move_day",
+        "transport"
       ],
       "title": "ReviseIntent",
       "type": "string"
     },
     "ReviseRequest": {
       "additionalProperties": false,
-      "description": "Body of POST /plan/{plan_id}/revise. lighter_day needs day; swap_stop needs place_id; rain takes\nan optional day (all days when missing); move_day needs city (the destination that gains a day from a\nneighbour). The response streams PlanEvents like /plan.",
+      "description": "Body of POST /plan/{plan_id}/revise. lighter_day needs day; swap_stop needs place_id; rain takes\nan optional day (all days when missing); move_day needs city (the destination that gains a day from a\nneighbour); transport needs mode (every journey switches to it, stops are kept). The response streams\nPlanEvents like /plan.",
       "properties": {
         "intent": {
           "$ref": "#/$defs/ReviseIntent"
@@ -1230,6 +1231,17 @@
           ],
           "default": null,
           "title": "City"
+        },
+        "mode": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Mode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "lang": {
           "anyOf": [
@@ -1614,6 +1626,17 @@
           ],
           "default": null,
           "title": "Days Per Destination"
+        },
+        "transport_mode": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Mode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [

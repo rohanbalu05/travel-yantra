@@ -59,6 +59,8 @@ class TripRequest(_Model):
     notes: str | None = None
     # Days in each destination, in order (multi-city). None shares the days out evenly.
     days_per_destination: list[int] | None = None
+    # The traveller's chosen way to travel; every journey (out, between cities, home) prefers it. None: best ranked.
+    transport_mode: Mode | None = None
 
     @model_validator(mode="after")
     def _dates_in_order(self) -> TripRequest:
@@ -376,17 +378,20 @@ class ReviseIntent(StrEnum):
     swap_stop = "swap_stop"
     rain = "rain"
     move_day = "move_day"
+    transport = "transport"
 
 
 class ReviseRequest(_Model):
     """Body of POST /plan/{plan_id}/revise. lighter_day needs day; swap_stop needs place_id; rain takes
     an optional day (all days when missing); move_day needs city (the destination that gains a day from a
-    neighbour). The response streams PlanEvents like /plan."""
+    neighbour); transport needs mode (every journey switches to it, stops are kept). The response streams
+    PlanEvents like /plan."""
 
     intent: ReviseIntent
     day: date | None = None
     place_id: str | None = None
     city: str | None = None
+    mode: Mode | None = None
     lang: Lang | None = None
 
     @model_validator(mode="after")
@@ -397,6 +402,8 @@ class ReviseRequest(_Model):
             raise ValueError("swap_stop needs place_id")
         if self.intent is ReviseIntent.move_day and not self.city:
             raise ValueError("move_day needs city")
+        if self.intent is ReviseIntent.transport and self.mode is None:
+            raise ValueError("transport needs mode")
         return self
 
 
