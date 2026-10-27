@@ -1,6 +1,9 @@
 export type {
   BudgetSummary,
   Citation,
+  Consents,
+  RatingIn,
+  TripSummary,
   CompareRequest,
   CompareResponse,
   DayPlan,

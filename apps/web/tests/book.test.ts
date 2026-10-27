@@ -10,7 +10,16 @@ function fakeFetch(body: unknown) {
   return fn;
 }
 
-afterEach(() => vi.unstubAllGlobals());
+// Node's global localStorage hides jsdom's here; the account (with its consents) lives in this one.
+const store = new Map<string, string>();
+const withStorage = () =>
+  vi.stubGlobal("localStorage", { getItem: (k: string) => store.get(k) ?? null, setItem: (k: string, v: string) => void store.set(k, v), removeItem: (k: string) => void store.delete(k) });
+const consent = (analytics: boolean) => store.set("ty.account", JSON.stringify({ consents: { plan_history: false, location: false, analytics } }));
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  store.clear();
+});
 
 describe("routes client", () => {
   it("POSTs compare with the party size", async () => {
@@ -42,7 +51,18 @@ describe("routes client", () => {
 });
 
 describe("metrics beacon", () => {
+  it("sends nothing without the analytics consent (DPDP opt-in)", () => {
+    withStorage();
+    consent(false);
+    const beacon = vi.fn<(url: string, data: Blob) => boolean>(() => true);
+    vi.stubGlobal("navigator", { ...navigator, sendBeacon: beacon });
+    expect(track("start", "plan_trip", "http://api.test")).toBe(false);
+    expect(beacon).not.toHaveBeenCalled();
+  });
+
   it("sends text/plain JSON by sendBeacon with an anonymous session id", async () => {
+    withStorage();
+    consent(true);
     const beacon = vi.fn<(url: string, data: Blob) => boolean>(() => true);
     vi.stubGlobal("navigator", { ...navigator, sendBeacon: beacon });
     expect(track("booking_chosen", "plan_trip", "http://api.test")).toBe(true);

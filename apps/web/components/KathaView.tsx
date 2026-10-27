@@ -10,8 +10,9 @@ const LENGTHS = [2, 5, 10] as const;
 // Labels TY2 may add later still show, as plain text with no tag.
 const LABEL: Record<string, string> = { history: "History", legend: "Legend", disputed: "Disputed" };
 const TAG: Record<string, string> = { history: "tag tag-history k-label", legend: "tag tag-legend k-label", disputed: "tag k-label" };
-// A first telling runs several model calls; past this the connection has stalled.
-const KATHA_TIMEOUT_MS = 90_000;
+// A first telling runs 4 to 10 model calls (TY2: ~60 s for 2 min, ~200 s for 10 min); past this it has stalled.
+// The server still finishes and caches it, so Try again later is instant.
+const KATHA_TIMEOUT_MS = 210_000;
 
 /** The story for one subject with a 2, 5 or 10 minute switch, labelled segments and numbered sources. */
 export function KathaView({ req }: { req: Omit<KathaRequest, "length_min" | "lang"> }) {
@@ -29,7 +30,7 @@ export function KathaView({ req }: { req: Omit<KathaRequest, "length_min" | "lan
       .then((story) => setResult({ key: reqKey, story }))
       .catch((e) => {
         if (ctl.signal.reason === "left") return;
-        setResult({ key: reqKey, problem: ctl.signal.reason === "timeout" ? { message: "The story took too long. Try again.", retryable: true } : problemOf(e) });
+        setResult({ key: reqKey, problem: ctl.signal.reason === "timeout" ? { message: "The story is still being written. It will be ready in a few minutes; try again then.", retryable: true } : problemOf(e) });
       })
       .finally(() => clearTimeout(timer));
     return () => {
@@ -54,7 +55,7 @@ export function KathaView({ req }: { req: Omit<KathaRequest, "length_min" | "lan
         {story?.sample && <span className="badge">Sample story</span>}
       </div>
       {!current ? (
-        <p className="hint" role="status">Writing your story. The first telling of a place can take up to a minute.</p>
+        <p className="hint" role="status">Writing your story. The first telling can take one to three minutes (longer stories take longer); after that it opens at once.</p>
       ) : current.problem ? (
         <Problem {...current.problem} onRetry={() => { setResult(null); setRun((r) => r + 1); }} />
       ) : story && (story.segments ?? []).length ? (

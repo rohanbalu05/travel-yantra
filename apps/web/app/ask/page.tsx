@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Cited, Sources } from "@/components/Cited";
 import { Problem, problemOf } from "@/components/Problem";
 import type { GuideAnswer, Place } from "@/lib/contracts";
+import { useAccount } from "@/lib/account";
 import { askGuide } from "@/lib/guide";
 import { useI18n } from "@/lib/i18n";
 import { osmLink } from "@/lib/map";
@@ -38,6 +40,7 @@ function Emergency({ places }: { places: Place[] }) {
 export default function AskGuide() {
   const plan = usePlanResult();
   const { lang, t } = useI18n();
+  const account = useAccount();
   const city = plan?.itinerary.request.destinations[0] ?? null;
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState("");
@@ -127,7 +130,11 @@ export default function AskGuide() {
             <section className="panel panel-pad" aria-labelledby="loc-h">
               <h2 className="h3" id="loc-h" style={{ marginBottom: 8 }}>{t("Emergency numbers")}</h2>
               <p className="hint" style={{ margin: "0 0 12px" }}>For the nearest hospital, police or pharmacy, the guide can use where you are. It is sent only with your questions and not stored.</p>
-              <button type="button" className="btn btn-quiet btn-sm" onClick={share} disabled={!!pos}>{pos ? "Location shared" : "Share my location"}</button>
+              {account?.consents.location ? (
+                <button type="button" className="btn btn-quiet btn-sm" onClick={share} disabled={!!pos}>{pos ? "Location shared" : "Share my location"}</button>
+              ) : (
+                <p className="hint" style={{ margin: 0 }}>Turn on <Link href="/settings/">Use my location for emergencies</Link> in Settings first.</p>
+              )}
               {posNote && <p className="hint" role="status" style={{ margin: "8px 0 0" }}>{posNote}</p>}
             </section>
           </aside>

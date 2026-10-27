@@ -128,6 +128,15 @@
 .smap-pin:hover{background:#E3A33B;color:#13212B}
 .smap-pin.smap-stay{background:#245A4B}
 .map-cap{display:flex;justify-content:space-between;gap:10px;padding:10px 2px 0;font-size:13.5px;color:#56646E}
+.rating{display:flex;flex-direction:column;gap:10px}
+.rating h2{margin:0}
+.rating textarea{min-height:70px;padding:10px}
+.rating .btn{align-self:flex-start}
+.stars{display:flex;align-items:center;gap:4px}
+.star{width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:4px;background:transparent;color:#C9BFAD}
+.star svg{width:28px;height:28px;fill:currentColor}
+.star.on{color:#E3A33B}
+.star:hover{background:#EDE6D9}
 .note-list{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14.5px;line-height:1.5}
 .warn-list{margin:0;padding:12px 14px 12px 32px;border-radius:4px;background:#F6EAD2;color:#5F3D0B;font-size:14.5px;line-height:1.5}
 @media (max-width:600px){

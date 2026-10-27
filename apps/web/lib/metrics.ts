@@ -1,3 +1,4 @@
+import { currentConsents } from "@/lib/account";
 import { API_BASE_URL } from "@/lib/api";
 
 // User-study timing (TY3's POST /routes/metrics/event). Anonymous: a random id per tab, nothing else.
@@ -25,6 +26,7 @@ function sessionId(): string | null {
  */
 export function track(event: MetricEvent, task = "plan_trip", base = API_BASE_URL): boolean {
   if (!base || typeof window === "undefined") return false;
+  if (!currentConsents().analytics) return false; // DPDP: only with the "Help us measure" consent
   const session_id = sessionId();
   if (!session_id) return false;
   const body = JSON.stringify({ session_id, task, arm: "ty", event });

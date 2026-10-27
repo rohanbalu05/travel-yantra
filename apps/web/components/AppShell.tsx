@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Brand } from "@/components/Brand";
+import { useAccount } from "@/lib/account";
 import type { Lang } from "@/lib/contracts";
 import { LANGS, useI18n } from "@/lib/i18n";
 import { NAV } from "@/lib/screens";
@@ -14,6 +15,10 @@ const globe = (
     <path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18Z" />
   </svg>
 );
+
+/** "Arjun Rao (sample)" → "AR" */
+const initials = (name: string) =>
+  name.replace(/\(.*\)/g, "").trim().split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("") || "?";
 
 /** The six-language switch; each language is named in its own script. */
 export function LangPicker() {
@@ -35,6 +40,7 @@ export function LangPicker() {
 export function AppShell({ children }: { children: React.ReactNode }) {
   const path = usePathname() ?? "";
   const { t } = useI18n();
+  const user = useAccount()?.user;
   const on = (p: string) => path === p || (p !== "/home/" && path.startsWith(p.slice(0, -1)));
   return (
     <div className="app">
@@ -49,9 +55,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
         <div className="appbar-end">
           <LangPicker />
-          <Link className="avatar" href="/settings/" aria-label={t("Settings")}>
-            AR
-          </Link>
+          {user ? (
+            <Link className="avatar" href="/settings/" aria-label={`${t("Settings")}: ${user.name ?? user.email ?? ""}`}>
+              {initials(user.name ?? user.email ?? "?")}
+            </Link>
+          ) : (
+            <Link className="btn btn-quiet btn-sm" href="/signin/">{t("Sign in")}</Link>
+          )}
         </div>
       </header>
       <main className="app-main">

@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Brand } from "@/components/Brand";
+import { signIn } from "@/lib/account";
 import type { Lang } from "@/lib/contracts";
 import "./signin.css";
 
@@ -36,8 +38,27 @@ export default function SignInPage() {
   const [agree, setAgree] = useState(false);
   const [wa, setWa] = useState(false);
   const [tried, setTried] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const router = useRouter();
   const t = T[lang];
   const google = <span className={t.cls}>{t.google}</span>;
+
+  // Google via Firebase when it is configured, otherwise the demo account; terms first either way.
+  const go = async () => {
+    setTried(true);
+    setFailed(false);
+    if (!agree) return;
+    setBusy(true);
+    try {
+      await signIn();
+      router.push("/home/");
+    } catch {
+      setFailed(true);
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <div className="si">
@@ -112,19 +133,18 @@ export default function SignInPage() {
             </label>
           </div>
 
-          {agree ? (
-            <Link className="btn btn-dark btn-lg btn-block" href="/home/">
-              {google}
-            </Link>
-          ) : (
-            <button type="button" className="btn btn-dark btn-lg btn-block" onClick={() => setTried(true)}>
-              {google}
-            </button>
-          )}
+          <button type="button" className="btn btn-dark btn-lg btn-block" disabled={busy} onClick={() => void go()}>
+            {google}
+          </button>
 
           {tried && !agree && (
             <p className="si-err" role="alert">
               Tick the first box to agree to the Terms and the Privacy Policy, then continue.
+            </p>
+          )}
+          {failed && (
+            <p className="si-err" role="alert">
+              Google sign-in did not finish. Try again, or keep planning without an account.
             </p>
           )}
 

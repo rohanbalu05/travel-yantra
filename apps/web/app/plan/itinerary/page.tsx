@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { NoPlan } from "@/components/NoPlan";
+import { Rating } from "@/components/Rating";
 import { StopsMap } from "@/components/StopsMap";
 import { Trail } from "@/components/Trail";
 import type { DayPlan, Itinerary, ReviseRequest } from "@/lib/contracts";
@@ -197,6 +198,7 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
               </div>
             </section>
           )}
+          <Rating planId={planId} />
           <section className="panel panel-pad" aria-labelledby="b-h">
             <h2 className="h3" id="b-h" style={{ marginBottom: 14 }}>The budget</h2>
             <dl className="kv cost">

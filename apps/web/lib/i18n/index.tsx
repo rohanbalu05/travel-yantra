@@ -51,11 +51,10 @@ let chosen: Lang | null = null;
 function readLang(): Lang {
   try {
     const v = localStorage.getItem(KEY);
-    if (isLang(v)) return v;
+    return isLang(v) ? v : "en";
   } catch {
-    // Storage blocked: fall through to the in-memory choice.
+    return chosen ?? "en"; // storage blocked: the in-memory choice
   }
-  return chosen ?? "en";
 }
 
 function subscribe(cb: () => void) {

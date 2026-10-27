@@ -26,13 +26,16 @@ export function detailText(body: unknown): string {
  * GET (no body) or POST (with body) JSON to the API. Network failures become
  * ApiError status 0, so callers have one error type to show.
  */
-export async function apiJSON<T>(path: string, opts: { body?: unknown; signal?: AbortSignal; base?: string } = {}): Promise<T> {
+export async function apiJSON<T>(
+  path: string,
+  opts: { body?: unknown; signal?: AbortSignal; base?: string; method?: "GET" | "POST" | "PUT" | "DELETE"; headers?: Record<string, string> } = {},
+): Promise<T> {
   const base = opts.base ?? API_BASE_URL;
   let res: Response;
   try {
     res = await fetch(`${base}${path}`, {
-      method: opts.body === undefined ? "GET" : "POST",
-      headers: opts.body === undefined ? { Accept: "application/json" } : { "Content-Type": "application/json", Accept: "application/json" },
+      method: opts.method ?? (opts.body === undefined ? "GET" : "POST"),
+      headers: { Accept: "application/json", ...(opts.body === undefined ? {} : { "Content-Type": "application/json" }), ...opts.headers },
       body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
       signal: opts.signal,
     });
