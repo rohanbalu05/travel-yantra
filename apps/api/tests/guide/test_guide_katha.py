@@ -196,3 +196,9 @@ def test_a_rewrite_that_was_cut_short_keeps_the_draft() -> None:
                                           outline, 0, [fact(1)], 230))  # fmt: skip
     assert "Only this" not in text and "rewrite not used" in critique
     assert parse(text) == [("history", " ".join(["word"] * 200) + " [1].")]  # the note is dropped
+
+
+def test_a_goa_place_gets_a_story(db) -> None:
+    story = run(db, subject_kind="place", subject="goa-basilica-of-bom-jesus", length_min=2)
+    assert story.subject == "Basilica of Bom Jesus" and story.sources
+    assert all("wikipedia.org" in s for s in story.sources)

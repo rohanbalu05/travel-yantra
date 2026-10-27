@@ -34,7 +34,7 @@ def test_closed_days_are_left_out_of_the_hours() -> None:
 def test_aliases_filters_and_exclude() -> None:
     assert corpus_city("Mysore") == corpus_city(" mysuru ") == "Mysuru"
     assert places_for("Kodagu") == places_for("Coorg")
-    assert places_for("Goa") == []
+    assert places_for("Kashmir") == []
     temples = places_for("Hampi", categories={"temple"})
     assert temples and all(p.category == "temple" for p in temples)
     first = places_for("Mysuru")[0].id
@@ -67,3 +67,13 @@ def test_places_for_a_request_spans_destinations_in_order() -> None:
     places = places_for_request(req)
     assert len(places) == 28 + 15
     assert places[0].id.startswith("mysuru-") and places[-1].id.startswith("coorg-")
+
+
+def test_goa_corridor_has_at_least_ten_places_with_native_names() -> None:
+    goa = places_for("Panjim")
+    assert len(goa) >= 10 and goa == places_for("Goa")
+    named = [p for p in goa if p.native_names]
+    assert len(named) >= 10
+    basilica = next(p for p in goa if p.name == "Basilica of Bom Jesus")
+    assert basilica.native_names["kn"] and basilica.id == "goa-basilica-of-bom-jesus"
+    assert basilica.opening_hours == []  # not in Wikimedia: unknown, not invented

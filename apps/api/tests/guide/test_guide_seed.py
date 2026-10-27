@@ -8,11 +8,13 @@ CATEGORIES = {"temple", "monument", "museum", "nature", "viewpoint", "market", "
 def test_seed_counts() -> None:
     # The v1 database also held 23 drafted Mangalore POIs and 54 retired chunks
     # that were never in git; the committed seed is 112 POIs, 288 chunks, 22 legends.
+    # Built corridors (data/corridor/, from Wikimedia) come on top: Goa adds 18 and 101.
     data = load_pois()
     rows, retags = chunk_rows()
-    assert len(data["pois"]) == 112
-    assert len(rows) == 288
-    assert len({(r["city"], r["title"]) for r in rows}) == 288
+    karnataka = [p for p in data["pois"] if p["city"] != "Goa"]
+    assert len(karnataka) == 112 and len(data["pois"]) == 112 + 18
+    assert len(rows) == 288 + 101
+    assert len({(r["city"], r["title"]) for r in rows}) == len(rows)
     assert sum(bool(r.get("is_legend")) for r in rows) == 22
     assert len(retags) == 39
 

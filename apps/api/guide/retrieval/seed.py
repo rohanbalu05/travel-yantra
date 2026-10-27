@@ -55,7 +55,11 @@ def _load(name: str) -> dict:
 
 
 def load_pois() -> dict:
-    return _load("pois.json")
+    """The curated Karnataka corpus plus every built corridor (data/corridor/*_pois.json)."""
+    data = _load("pois.json")
+    for path in sorted((DATA / "corridor").glob("*_pois.json")):
+        data["pois"] = data["pois"] + json.loads(path.read_text(encoding="utf-8"))["pois"]
+    return data
 
 
 def poi_row(p: dict) -> dict:
@@ -80,6 +84,8 @@ def chunk_rows() -> tuple[list[dict], list[dict]]:
             "last_verified": CURATED_DATE,
         })  # fmt: skip
     rows += [{"lang": "en", **c} for c in _load("chunks.json")["chunks"]]
+    for path in sorted((DATA / "corridor").glob("*_chunks.json")):
+        rows += json.loads(path.read_text(encoding="utf-8"))["chunks"]
     retags = []
     for c in _load("chunks_city.json")["chunks"]:
         if "body" in c:

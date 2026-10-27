@@ -74,6 +74,7 @@ CITY_KN = {
     "Bengaluru": "ಬೆಂಗಳೂರು",
     "Chikmagalur": "ಚಿಕ್ಕಮಗಳೂರು",
     "Coorg": "ಕೊಡಗು",
+    "Goa": "ಗೋವಾ",
 }
 
 

@@ -25,6 +25,8 @@ CITY_ALIASES = {
     "coorg": "Coorg", "kodagu": "Coorg", "madikeri": "Coorg",
     "chikmagalur": "Chikmagalur", "chikkamagaluru": "Chikmagalur",
     "belur": "Chikmagalur", "halebidu": "Chikmagalur",
+    "goa": "Goa", "panaji": "Goa", "panjim": "Goa", "old goa": "Goa", "margao": "Goa",
+    "madgaon": "Goa", "north goa": "Goa", "south goa": "Goa", "mapusa": "Goa",
 }  # fmt: skip
 ELDERLY_AGE = 65
 
@@ -38,6 +40,8 @@ def _slug(text: str) -> str:
 
 
 def _hours(p: dict) -> list[OpeningHours]:
+    if not p.get("opens") or not p.get("closes"):
+        return []  # not known (corridor places from Wikimedia): the solver treats it as open
     opens, closes = time.fromisoformat(p["opens"]), time.fromisoformat(p["closes"])
     closed = set(p.get("closed_on") or [])
     return [
@@ -51,7 +55,7 @@ def to_place(p: dict) -> Place:
     return Place(
         id=_slug(f"{p['city']} {p['name']}"),
         name=p["name"],
-        native_names={Lang.kn: p["name_kn"]} if p.get("name_kn") else {},
+        native_names=p.get("names") or ({Lang.kn: p["name_kn"]} if p.get("name_kn") else {}),
         lat=p["lat"],
         lng=p["lng"],
         category=p["category"],

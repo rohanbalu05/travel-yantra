@@ -12,6 +12,7 @@ import hashlib
 import json
 import re
 from typing import Any
+from urllib.error import HTTPError
 from urllib.parse import quote, urlencode
 
 from .places import Cache, MemoryCache, Transport, urllib_transport
@@ -44,7 +45,12 @@ class WikiClient:
     def summary(self, title: str, lang: str = "en") -> dict:
         """REST summary: title, extract (the lead paragraph), page URL, coordinates."""
         url = f"https://{lang}.wikipedia.org/api/rest_v1/page/summary/{quote(title.replace(' ', '_'))}"
-        raw = self._get(url)
+        try:
+            raw = self._get(url)
+        except HTTPError as e:
+            if e.code != 404:
+                raise
+            raw = {}  # no such page: the caller skips it
         return {
             "title": raw.get("title", title),
             "extract": raw.get("extract", ""),

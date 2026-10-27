@@ -270,11 +270,18 @@ def test_city_is_a_soft_hint() -> None:
     answer = asyncio.run(ask(req, NoRows(), Spy("Built by a king [1]."), retrieve=retrieve))
     assert seen == ["Mysuru", None] and answer.citations  # narrowed first, then everywhere
     seen.clear()
-    asyncio.run(ask(GuideQuestion(question="q", city="Goa"), NoRows(), Spy("x [1]."), retrieve=retrieve))
+    asyncio.run(ask(GuideQuestion(question="q", city="Kashmir"), NoRows(), Spy("x [1]."), retrieve=retrieve))
     assert seen == [None]  # not a corpus city: no filter at all
 
 
 def test_a_plan_in_goa_still_answers_about_mysuru(db) -> None:
     req = GuideQuestion(question="who invented Mysore pak", city="Goa")
     answer = asyncio.run(ask(req, db, FakeAnswerer(), places()[0]))
-    assert answer.citations
+    # Goa is a corpus city now: the Goa-only search must refuse and fall back, not cite Goa.
+    assert any(c.title.startswith("The sweet") for c in answer.citations), answer.citations
+
+
+def test_goa_questions_answer_from_the_corridor(db) -> None:
+    answer = asyncio.run(ask(GuideQuestion(question="Basilica of Bom Jesus Francis Xavier", city="Goa"),
+                             db, FakeAnswerer(), places()[0]))  # fmt: skip
+    assert answer.citations and all("wikipedia.org" in (c.url or "") for c in answer.citations)

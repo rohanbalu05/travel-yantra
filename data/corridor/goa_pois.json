@@ -1,0 +1,464 @@
+{
+ "_notes": "Built by guide/scripts/build_corridor.py from Wikipedia and Wikidata on 2026-10-27. Text is CC BY-SA; each chunk cites its page.",
+ "pois": [
+  {
+   "name": "Basilica of Bom Jesus",
+   "name_kn": "ಬಾಮ್ ಜೀಸಸ್ ಬಸಿಲಿಕಾ",
+   "names": {
+    "ta": "குழந்தை இயேசு பெருங்கோவில்",
+    "te": "బాసిలికా ఆఫ్ బొమ్ జీసస్",
+    "kn": "ಬಾಮ್ ಜೀಸಸ್ ಬಸಿಲಿಕಾ",
+    "hi": "बॉम जीसस का बेसिलिका"
+   },
+   "city": "Goa",
+   "district": "North Goa",
+   "lat": 15.50087,
+   "lng": 73.91159,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q391123",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Se Cathedral",
+   "name_kn": null,
+   "names": {},
+   "city": "Goa",
+   "district": "North Goa",
+   "lat": 15.50377,
+   "lng": 73.91229,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q2942482",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Church of St. Francis of Assisi",
+   "name_kn": null,
+   "names": {},
+   "city": "Goa",
+   "district": "North Goa",
+   "lat": 15.50317,
+   "lng": 73.91138,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q5117224",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Fontainhas",
+   "name_kn": null,
+   "names": {},
+   "city": "Goa",
+   "district": "North Goa",
+   "lat": 17.188,
+   "lng": -25.104,
+   "category": "experience",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 90,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q5465122",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Immaculate Conception Church, Panaji",
+   "name_kn": null,
+   "names": {},
+   "city": "Goa",
+   "district": "North Goa",
+   "lat": 15.49833,
+   "lng": 73.82944,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q7111015",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Fort Aguada",
+   "name_kn": "ಅಗುವಾಡಾ ಕೋಟೆ",
+   "names": {
+    "ta": "அகுவாடா கோட்டை",
+    "hi": "फोर्ट अगुआडा",
+    "kn": "ಅಗುವಾಡಾ ಕೋಟೆ",
+    "te": "అగ్వాడ కోట"
+   },
+   "city": "Goa",
+   "district": "North Goa",
+   "lat": 15.49229,
+   "lng": 73.77365,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 75,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q4991900",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Reis Magos Fort",
+   "name_kn": null,
+   "names": {},
+   "city": "Goa",
+   "district": "North Goa",
+   "lat": -5.75639,
+   "lng": -35.19472,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q3304114",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Chapora Fort",
+   "name_kn": null,
+   "names": {
+    "ta": "சப்போரா கோட்டை"
+   },
+   "city": "Goa",
+   "district": "North Goa",
+   "lat": 15.60611,
+   "lng": 73.73639,
+   "category": "viewpoint",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q5073352",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Calangute Beach",
+   "name_kn": null,
+   "names": {
+    "bn": "কালাঙ্গুত",
+    "ta": "கலங்குட்",
+    "hi": "कलंगुट (गोवा)"
+   },
+   "city": "Goa",
+   "district": "North Goa",
+   "lat": 15.545,
+   "lng": 73.76306,
+   "category": "nature",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 120,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q861976",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Anjuna Beach",
+   "name_kn": null,
+   "names": {
+    "ta": "அஞ்சுனா"
+   },
+   "city": "Goa",
+   "district": "North Goa",
+   "lat": 15.5833,
+   "lng": 73.7333,
+   "category": "nature",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 120,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q4765908",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Palolem Beach",
+   "name_kn": "ಪಲೋಲೆಮ್ ಬೀಚ್",
+   "names": {
+    "bn": "পাললেম",
+    "ta": "பாலோலம் கடற்கரை",
+    "kn": "ಪಲೋಲೆಮ್ ಬೀಚ್"
+   },
+   "city": "Goa",
+   "district": "South Goa",
+   "lat": 15.00889,
+   "lng": 74.02278,
+   "category": "nature",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 150,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q2048357",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Dudhsagar Falls",
+   "name_kn": "ದೂಧ್ ಸಾಗರ್ ಜಲಪಾತ",
+   "names": {
+    "hi": "दुधसागर",
+    "ta": "தூத்சாகர் அருவி",
+    "te": "దూద్ సాగర్ జలపాతం",
+    "kn": "ದೂಧ್ ಸಾಗರ್ ಜಲಪಾತ",
+    "bn": "দুধসাগর জলপ্রপাত"
+   },
+   "city": "Goa",
+   "district": "South Goa",
+   "lat": 15.31277,
+   "lng": 74.31416,
+   "category": "nature",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 240,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q37545",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Mangueshi Temple",
+   "name_kn": "ಮಂಗೇಶಿ ದೇವಸ್ಥಾನ",
+   "names": {
+    "hi": "Mangueshi Temple",
+    "kn": "ಮಂಗೇಶಿ ದೇವಸ್ಥಾನ",
+    "ta": "மங்கேசி கோயில்",
+    "bn": "মঙ্গেশ মন্দির",
+    "te": "శ్రీ మంగేష్ దేవాలయం"
+   },
+   "city": "Goa",
+   "district": "North Goa",
+   "lat": 15.51631,
+   "lng": 73.983,
+   "category": "temple",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q4789425",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Shantadurga Temple",
+   "name_kn": null,
+   "names": {
+    "hi": "श्री शांतादुर्गा मंदिर",
+    "bn": "শ্রী শান্তদুর্গা মন্দির",
+    "te": "శాంత దుర్గా దేవాలయం"
+   },
+   "city": "Goa",
+   "district": "North Goa",
+   "lat": 15.50772,
+   "lng": 73.80312,
+   "category": "temple",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q7489022",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Goa State Museum",
+   "name_kn": null,
+   "names": {
+    "ta": "கோவா மாநில அருங்காட்சியகம்",
+    "bn": "গোয়া রাজ্য জাদুঘর"
+   },
+   "city": "Goa",
+   "district": "North Goa",
+   "lat": 15.49592,
+   "lng": 73.83361,
+   "category": "museum",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q5575115",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Naval Aviation Museum",
+   "name_kn": null,
+   "names": {
+    "ta": "கடற்படை விமான அருங்காட்சியகம்"
+   },
+   "city": "Goa",
+   "district": "South Goa",
+   "lat": 15.37474,
+   "lng": 73.83854,
+   "category": "museum",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 75,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q12063607",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Cabo de Rama",
+   "name_kn": null,
+   "names": {},
+   "city": "Goa",
+   "district": "South Goa",
+   "lat": 15.08861,
+   "lng": 73.92194,
+   "category": "viewpoint",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q5015741",
+   "last_verified": "2026-10-27"
+  },
+  {
+   "name": "Divar Island",
+   "name_kn": null,
+   "names": {
+    "hi": "divar"
+   },
+   "city": "Goa",
+   "district": "North Goa",
+   "lat": 15.525,
+   "lng": 73.9025,
+   "category": "nature",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 120,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q5283830",
+   "last_verified": "2026-10-27"
+  }
+ ]
+}
