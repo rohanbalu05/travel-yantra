@@ -42,6 +42,7 @@ def test_hampi_air_uses_the_live_flight_and_shows_several_sellers(serp):
     # S5 701 leaves 10:25 and flies 50 min; the leg starts AIRPORT_MIN earlier
     assert flight.depart == dt.datetime(2026, 12, 11, 10, 25) - dt.timedelta(minutes=AIRPORT_MIN)
     assert flight.minutes == AIRPORT_MIN + 50 and flight.cost_inr == 4 * 4755
+    assert flight.ref == "S5 701"
     assert air.option.legs[0].depart >= dt.datetime(2026, 12, 11, 8, 0)
     priced = [o for o in air.option.offers if o.price_inr is not None]
     assert len({o.seller for o in priced}) >= 3

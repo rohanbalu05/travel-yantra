@@ -65,6 +65,8 @@ def test_bengaluru_to_mysuru_has_rail_and_road_and_explains_no_air(service):
     # one train to Mysore JN, not off early at Naganahalli for a longer cab
     trains = [leg for leg in rail.option.legs if leg.mode is Mode.rail]
     assert [t.to for t in trains] == ["Mysore JN"]
+    assert all(t.ref and t.ref.isdigit() and len(t.ref) == 5 for t in trains)  # the train number, for IRCTC
+    assert all(leg.ref is None for leg in rail.option.legs if leg.mode is Mode.road)
 
 
 def test_legs_chain_from_the_requested_departure(service):

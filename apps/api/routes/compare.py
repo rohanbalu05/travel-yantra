@@ -260,7 +260,8 @@ class CompareService:
                     arrive=leave + timedelta(minutes=a_min), minutes=a_min,
                     cost_inr=round(_party_cost(first, travellers).cost_inr))]
         legs += [Leg(**{"from": self._station(r.board).name}, to=self._station(r.alight).name, mode=Mode.rail,
-                     depart=r.depart, arrive=r.arrive, minutes=r.minutes, cost_inr=round(r.fare_inr * travellers))
+                     depart=r.depart, arrive=r.arrive, minutes=r.minutes, cost_inr=round(r.fare_inr * travellers),
+                     ref=r.train)
                  for r in j.rides]
         end = j.rides[-1].arrive
         legs.append(Leg(**{"from": self._station(j.egress).name}, to=dst.name, mode=Mode.road, depart=end,
@@ -357,7 +358,9 @@ class CompareService:
         # one leg per vehicle, built by the same code as search
         merged = tuple(_party_cost(e, travellers) for e in _merge(res.edges))
         opt = _result(merged, res.objective, res.expansions, start).option
-        legs = [leg.model_copy(update={"from_": _label(g.nodes[e.src]), "to": _label(g.nodes[e.dst])})
+        # ref: the flight number of a live flight (estimated flights have none)
+        legs = [leg.model_copy(update={"from_": _label(g.nodes[e.src]), "to": _label(g.nodes[e.dst]),
+                                       "ref": e.ref if e.mode == "air" and e.ref in live else None})
                 for leg, e in zip(opt.legs, merged, strict=True)]
         stops, offers = 0, []
         air = next((i for i, e in enumerate(merged) if e.mode == "air"), None)
