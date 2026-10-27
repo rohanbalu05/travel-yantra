@@ -2,6 +2,7 @@ import itertools
 import random
 
 import pytest
+
 from routes.graph import (
     KIND_PLACE,
     FakeAirProvider,
