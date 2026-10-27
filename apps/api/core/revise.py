@@ -176,4 +176,8 @@ def change_transport(it: Itinerary, mode: Mode, travel: Travel) -> str:
         if new_hop is not _KEEP or new_out is not _KEEP:
             rebuild_day(it, day.date, list(day.stops), travel, lim, hop=new_hop, out=new_out)
     word = {"rail": "train", "road": "road", "air": "air"}[mode.value]
-    return f"Switched every journey to {word}"
+    # Between some cities the chosen mode may not exist; say so rather than claim every journey switched.
+    kept = [leg for leg in [*journeys.values(), back] if leg and leg.mode is not mode]
+    for leg in kept:
+        it.warnings.append(f"No {word} between {leg.from_} and {leg.to}; that journey stays by {leg.mode.value}")
+    return f"Switched every journey to {word}" if not kept else f"Switched journeys to {word} where possible"

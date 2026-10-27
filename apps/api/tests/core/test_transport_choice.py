@@ -62,3 +62,17 @@ def test_switch_through_the_endpoint_and_a_mode_the_trip_does_not_have():
         assert has_air
     except ReviseError:
         assert not has_air
+
+
+def test_a_journey_without_the_chosen_mode_is_named_in_a_warning(monkeypatch):
+    by_train = steps.replan(TripRequest.model_validate({**DEMO, "transport_mode": "rail"}))
+    real_hop = steps.hop
+
+    def no_rail_home(request, a, b, day, *args, **kw):  # pretend the way home has no train
+        leg = real_hop(request, a, b, day, *args, **kw)
+        return leg.model_copy(update={"mode": Mode.road}) if kw.get("role") == "home" else leg
+
+    monkeypatch.setattr(steps, "hop", no_rail_home)
+    out, what, _ = revise(by_train, ReviseRequest(intent="transport", mode="rail"))
+    assert what == "Switched journeys to train where possible"
+    assert any(w.startswith("No train between Mysuru and Bengaluru") for w in out.warnings)
