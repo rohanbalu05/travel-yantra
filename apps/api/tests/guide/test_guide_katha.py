@@ -419,6 +419,7 @@ def test_lang_sample_facts_come_from_the_seed_in_story_order() -> None:
     assert subject.city == "Mysuru" and 2 <= len(facts) <= CAP[2]
     assert [f.n for f in facts] == list(range(1, len(facts) + 1))
     assert not any("ticket" in (f.title or "").lower() for f in facts)  # practical rows left out
+    assert all(f.source_url for f in facts)  # linked sources only (HQ QA)
 
 
 def test_a_bracketed_year_range_is_prose_not_a_citation() -> None:
