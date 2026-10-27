@@ -54,6 +54,7 @@ NOT_TEXT = "Sorry, I can only read text messages for now. Please type your messa
 LOCATION_OK = "Got your location. Ask me, for example: nearest hospital or pharmacy."
 ASKING = "To plan this I need a little more:"
 PLANNING = "Working on your plan now; this takes about a minute."
+FINDING_STORY = "Finding the story; this takes a few seconds."
 CONTACT = "rohan@aizyantra.com"
 FORGOTTEN = "Done. I have forgotten your plans, your language and your location, and deleted {n}."
 FORGOTTEN_NONE = "Done. I have forgotten your language and your location; I hold no plans of yours."
@@ -400,10 +401,10 @@ class Brain:
             return _detail(r) != "Not Found"
         return r.is_success
 
-    async def working(self, user: User) -> None:
-        """Tell the user a slow plan is under way (only against the real API)."""
+    async def working(self, user: User, note: str = PLANNING) -> None:
+        """Tell the user a slow plan or story is under way (only against the real API)."""
         if self.base and (notify := NOTIFY.get()):
-            await notify(await self.tr.text(PLANNING, user.lang))
+            await notify(await self.tr.text(note, user.lang))
 
     async def say(self, user: User, english: str, keep: list[str] = (), tail: str = "") -> str:
         body = await self.tr.text(english, user.lang, keep) if english else ""
@@ -588,7 +589,7 @@ class Brain:
         """
         if lang is not None:
             user.lang = lang
-        await self.working(user)
+        await self.working(user, FINDING_STORY)
         try:
             told = await self.katha(what, minutes, user.lang)
         except ApiError as e:

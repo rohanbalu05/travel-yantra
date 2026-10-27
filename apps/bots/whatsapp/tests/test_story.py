@@ -5,7 +5,7 @@ import pytest
 from test_brain import TRANSLATE, fake_http, tagging_translate, text
 from ty_contracts import Lang
 
-from app.brain import NO_STORY, STORY_BUSY, Brain, parse_story
+from app.brain import FINDING_STORY, NO_STORY, STORY_BUSY, Brain, parse_story
 from app.translate import Translator
 
 API = "http://api.test"
@@ -143,3 +143,14 @@ async def test_katha_errors_log_the_api_detail(monkeypatch, caplog):
     await Brain(base=API).handle(text("story Atlantis"))
     assert "katha as place: HTTP 404 'No story for that place yet.'" in caplog.text
     assert "katha as city: HTTP 404 'HTTP 404'" in caplog.text
+
+
+async def test_story_has_its_own_working_note(monkeypatch):
+    fake_http(monkeypatch, katha_api((200, story())))
+    notes = []
+
+    async def notify(t):
+        notes.append(t)
+
+    await Brain(base=API).handle(text("story Mysore Palace"), notify=notify)
+    assert notes == [FINDING_STORY] == ["Finding the story; this takes a few seconds."]
