@@ -1,0 +1,655 @@
+{
+ "note": "Built by `python -m guide.season` from Wikivoyage and Wikipedia on 2026-10-27. Sentences are quoted, CC BY-SA; each keeps its page URL.",
+ "notes": {
+  "Mysuru": {
+   "jan": [
+    {
+     "text": "Mysore has a tropical savanna climate with three main seasons - summer (March to May), the monsoon (June to October), and winter (November to February).",
+     "source_url": "https://en.wikivoyage.org/wiki/Mysore",
+     "kind": "month"
+    }
+   ],
+   "feb": [
+    {
+     "text": "Mysore has a tropical savanna climate with three main seasons - summer (March to May), the monsoon (June to October), and winter (November to February).",
+     "source_url": "https://en.wikivoyage.org/wiki/Mysore",
+     "kind": "month"
+    }
+   ],
+   "mar": [
+    {
+     "text": "Mysore has a tropical savanna climate with three main seasons - summer (March to May), the monsoon (June to October), and winter (November to February).",
+     "source_url": "https://en.wikivoyage.org/wiki/Mysore",
+     "kind": "month"
+    }
+   ],
+   "apr": [
+    {
+     "text": "Mysore has a tropical savanna climate with three main seasons - summer (March to May), the monsoon (June to October), and winter (November to February).",
+     "source_url": "https://en.wikivoyage.org/wiki/Mysore",
+     "kind": "month"
+    },
+    {
+     "text": "Temperatures are generally warm year-round, with average highs ranging from about 28 degree Celsius in the coolest months to a high of 35 degree Celsius in April, the hottest month.",
+     "source_url": "https://en.wikivoyage.org/wiki/Mysore",
+     "kind": "month"
+    }
+   ],
+   "may": [
+    {
+     "text": "Mysore has a tropical savanna climate with three main seasons - summer (March to May), the monsoon (June to October), and winter (November to February).",
+     "source_url": "https://en.wikivoyage.org/wiki/Mysore",
+     "kind": "month"
+    }
+   ],
+   "jun": [
+    {
+     "text": "Mysore has a tropical savanna climate with three main seasons - summer (March to May), the monsoon (June to October), and winter (November to February).",
+     "source_url": "https://en.wikivoyage.org/wiki/Mysore",
+     "kind": "month"
+    }
+   ],
+   "jul": [
+    {
+     "text": "Mysore has a tropical savanna climate with three main seasons - summer (March to May), the monsoon (June to October), and winter (November to February).",
+     "source_url": "https://en.wikivoyage.org/wiki/Mysore",
+     "kind": "month"
+    }
+   ],
+   "aug": [
+    {
+     "text": "Mysore has a tropical savanna climate with three main seasons - summer (March to May), the monsoon (June to October), and winter (November to February).",
+     "source_url": "https://en.wikivoyage.org/wiki/Mysore",
+     "kind": "month"
+    }
+   ],
+   "sep": [
+    {
+     "text": "Mysore has a tropical savanna climate with three main seasons - summer (March to May), the monsoon (June to October), and winter (November to February).",
+     "source_url": "https://en.wikivoyage.org/wiki/Mysore",
+     "kind": "month"
+    },
+    {
+     "text": "On all ten days of the festival (celebrated in September and October), the Mysore Palace is illuminated with over 100,000 lights.",
+     "source_url": "https://en.wikivoyage.org/wiki/Mysore",
+     "kind": "month"
+    }
+   ],
+   "oct": [
+    {
+     "text": "Mysore has a tropical savanna climate with three main seasons - summer (March to May), the monsoon (June to October), and winter (November to February).",
+     "source_url": "https://en.wikivoyage.org/wiki/Mysore",
+     "kind": "month"
+    },
+    {
+     "text": "On all ten days of the festival (celebrated in September and October), the Mysore Palace is illuminated with over 100,000 lights.",
+     "source_url": "https://en.wikivoyage.org/wiki/Mysore",
+     "kind": "month"
+    }
+   ],
+   "nov": [
+    {
+     "text": "Mysore has a tropical savanna climate with three main seasons - summer (March to May), the monsoon (June to October), and winter (November to February).",
+     "source_url": "https://en.wikivoyage.org/wiki/Mysore",
+     "kind": "month"
+    }
+   ],
+   "dec": [
+    {
+     "text": "Mysore has a tropical savanna climate with three main seasons - summer (March to May), the monsoon (June to October), and winter (November to February).",
+     "source_url": "https://en.wikivoyage.org/wiki/Mysore",
+     "kind": "month"
+    }
+   ]
+  },
+  "Hampi": {
+   "jan": [],
+   "feb": [],
+   "mar": [],
+   "apr": [],
+   "may": [],
+   "jun": [],
+   "jul": [],
+   "aug": [],
+   "sep": [],
+   "oct": [],
+   "nov": [
+    {
+     "text": "Hampi hosts the 'Hampi Utsav' (literally 'Hampi Festival') every year during the first week of November.",
+     "source_url": "https://en.wikivoyage.org/wiki/Hampi",
+     "kind": "month"
+    }
+   ],
+   "dec": []
+  },
+  "Bengaluru": {
+   "jan": [
+    {
+     "text": "Winter – November to January (with January being the coldest month)",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    }
+   ],
+   "feb": [
+    {
+     "text": "Summer – February to May (peak temperature is during April and May)",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    }
+   ],
+   "mar": [
+    {
+     "text": "Summer – February to May (peak temperature is during April and May)",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    }
+   ],
+   "apr": [
+    {
+     "text": "Summer – February to May (peak temperature is during April and May)",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    }
+   ],
+   "may": [
+    {
+     "text": "Summer – February to May (peak temperature is during April and May)",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    },
+    {
+     "text": "So, be prepared for rain for the better part of the year, especially from May to November.",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    }
+   ],
+   "jun": [
+    {
+     "text": "Monsoon – June to October (the heaviest rains are typically between June and August)",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    },
+    {
+     "text": "So, be prepared for rain for the better part of the year, especially from May to November.",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    }
+   ],
+   "jul": [
+    {
+     "text": "Monsoon – June to October (the heaviest rains are typically between June and August)",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    },
+    {
+     "text": "So, be prepared for rain for the better part of the year, especially from May to November.",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    }
+   ],
+   "aug": [
+    {
+     "text": "Monsoon – June to October (the heaviest rains are typically between June and August)",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    },
+    {
+     "text": "So, be prepared for rain for the better part of the year, especially from May to November.",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    }
+   ],
+   "sep": [
+    {
+     "text": "Monsoon – June to October (the heaviest rains are typically between June and August)",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    },
+    {
+     "text": "So, be prepared for rain for the better part of the year, especially from May to November.",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    }
+   ],
+   "oct": [
+    {
+     "text": "Monsoon – June to October (the heaviest rains are typically between June and August)",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    },
+    {
+     "text": "So, be prepared for rain for the better part of the year, especially from May to November.",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    }
+   ],
+   "nov": [
+    {
+     "text": "Winter – November to January (with January being the coldest month)",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    },
+    {
+     "text": "So, be prepared for rain for the better part of the year, especially from May to November.",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    }
+   ],
+   "dec": [
+    {
+     "text": "Winter – November to January (with January being the coldest month)",
+     "source_url": "https://en.wikivoyage.org/wiki/Bengaluru",
+     "kind": "month"
+    }
+   ]
+  },
+  "Chikmagalur": {
+   "jan": [
+    {
+     "text": "Located on the foothills of the Chandra Drona Mountain range of the Western Ghats, the city attracts tourists from around the world for its pleasant and favourable hill station climate, tropical rainforest and coffee estates.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    },
+    {
+     "text": "Chikmagalur generally has a moderate to cool climate.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    }
+   ],
+   "feb": [
+    {
+     "text": "Located on the foothills of the Chandra Drona Mountain range of the Western Ghats, the city attracts tourists from around the world for its pleasant and favourable hill station climate, tropical rainforest and coffee estates.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    },
+    {
+     "text": "Chikmagalur generally has a moderate to cool climate.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    }
+   ],
+   "mar": [
+    {
+     "text": "Located on the foothills of the Chandra Drona Mountain range of the Western Ghats, the city attracts tourists from around the world for its pleasant and favourable hill station climate, tropical rainforest and coffee estates.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    },
+    {
+     "text": "Chikmagalur generally has a moderate to cool climate.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    }
+   ],
+   "apr": [
+    {
+     "text": "Located on the foothills of the Chandra Drona Mountain range of the Western Ghats, the city attracts tourists from around the world for its pleasant and favourable hill station climate, tropical rainforest and coffee estates.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    },
+    {
+     "text": "Chikmagalur generally has a moderate to cool climate.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    }
+   ],
+   "may": [
+    {
+     "text": "Located on the foothills of the Chandra Drona Mountain range of the Western Ghats, the city attracts tourists from around the world for its pleasant and favourable hill station climate, tropical rainforest and coffee estates.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    },
+    {
+     "text": "Chikmagalur generally has a moderate to cool climate.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    }
+   ],
+   "jun": [
+    {
+     "text": "Located on the foothills of the Chandra Drona Mountain range of the Western Ghats, the city attracts tourists from around the world for its pleasant and favourable hill station climate, tropical rainforest and coffee estates.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    },
+    {
+     "text": "Chikmagalur generally has a moderate to cool climate.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    }
+   ],
+   "jul": [
+    {
+     "text": "Located on the foothills of the Chandra Drona Mountain range of the Western Ghats, the city attracts tourists from around the world for its pleasant and favourable hill station climate, tropical rainforest and coffee estates.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    },
+    {
+     "text": "Chikmagalur generally has a moderate to cool climate.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    }
+   ],
+   "aug": [
+    {
+     "text": "Located on the foothills of the Chandra Drona Mountain range of the Western Ghats, the city attracts tourists from around the world for its pleasant and favourable hill station climate, tropical rainforest and coffee estates.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    },
+    {
+     "text": "Chikmagalur generally has a moderate to cool climate.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    }
+   ],
+   "sep": [
+    {
+     "text": "Located on the foothills of the Chandra Drona Mountain range of the Western Ghats, the city attracts tourists from around the world for its pleasant and favourable hill station climate, tropical rainforest and coffee estates.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    },
+    {
+     "text": "Chikmagalur generally has a moderate to cool climate.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    }
+   ],
+   "oct": [
+    {
+     "text": "Located on the foothills of the Chandra Drona Mountain range of the Western Ghats, the city attracts tourists from around the world for its pleasant and favourable hill station climate, tropical rainforest and coffee estates.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    },
+    {
+     "text": "Chikmagalur generally has a moderate to cool climate.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    }
+   ],
+   "nov": [
+    {
+     "text": "Located on the foothills of the Chandra Drona Mountain range of the Western Ghats, the city attracts tourists from around the world for its pleasant and favourable hill station climate, tropical rainforest and coffee estates.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    },
+    {
+     "text": "Chikmagalur generally has a moderate to cool climate.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    }
+   ],
+   "dec": [
+    {
+     "text": "Located on the foothills of the Chandra Drona Mountain range of the Western Ghats, the city attracts tourists from around the world for its pleasant and favourable hill station climate, tropical rainforest and coffee estates.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    },
+    {
+     "text": "Chikmagalur generally has a moderate to cool climate.",
+     "source_url": "https://en.wikipedia.org/wiki/Chikmagalur",
+     "kind": "general"
+    }
+   ]
+  },
+  "Coorg": {
+   "jan": [
+    {
+     "text": "The mean daily minimum temperature is lowest in January at about 11 °C (52 °F).",
+     "source_url": "https://en.wikipedia.org/wiki/Madikeri",
+     "kind": "month"
+    }
+   ],
+   "feb": [
+    {
+     "text": "Tourists can travel around the Coorg, enjoying the amazing natural beauty in the monsoon season.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kodagu",
+     "kind": "general"
+    },
+    {
+     "text": "Madikeri features a tropical highland climate as it has an elevation of 1,170 m (3,840 ft).",
+     "source_url": "https://en.wikipedia.org/wiki/Madikeri",
+     "kind": "general"
+    }
+   ],
+   "mar": [
+    {
+     "text": "Tourists can travel around the Coorg, enjoying the amazing natural beauty in the monsoon season.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kodagu",
+     "kind": "general"
+    },
+    {
+     "text": "Madikeri features a tropical highland climate as it has an elevation of 1,170 m (3,840 ft).",
+     "source_url": "https://en.wikipedia.org/wiki/Madikeri",
+     "kind": "general"
+    }
+   ],
+   "apr": [
+    {
+     "text": "Tourists can travel around the Coorg, enjoying the amazing natural beauty in the monsoon season.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kodagu",
+     "kind": "general"
+    },
+    {
+     "text": "Madikeri features a tropical highland climate as it has an elevation of 1,170 m (3,840 ft).",
+     "source_url": "https://en.wikipedia.org/wiki/Madikeri",
+     "kind": "general"
+    }
+   ],
+   "may": [
+    {
+     "text": "Tourists can travel around the Coorg, enjoying the amazing natural beauty in the monsoon season.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kodagu",
+     "kind": "general"
+    },
+    {
+     "text": "Madikeri features a tropical highland climate as it has an elevation of 1,170 m (3,840 ft).",
+     "source_url": "https://en.wikipedia.org/wiki/Madikeri",
+     "kind": "general"
+    }
+   ],
+   "jun": [
+    {
+     "text": "With the onset of the south-west monsoon, the temperature decreases in June and the weather becomes chilly.",
+     "source_url": "https://en.wikipedia.org/wiki/Madikeri",
+     "kind": "month"
+    }
+   ],
+   "jul": [
+    {
+     "text": "Tourists can travel around the Coorg, enjoying the amazing natural beauty in the monsoon season.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kodagu",
+     "kind": "general"
+    },
+    {
+     "text": "Madikeri features a tropical highland climate as it has an elevation of 1,170 m (3,840 ft).",
+     "source_url": "https://en.wikipedia.org/wiki/Madikeri",
+     "kind": "general"
+    }
+   ],
+   "aug": [
+    {
+     "text": "Tourists can travel around the Coorg, enjoying the amazing natural beauty in the monsoon season.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kodagu",
+     "kind": "general"
+    },
+    {
+     "text": "Madikeri features a tropical highland climate as it has an elevation of 1,170 m (3,840 ft).",
+     "source_url": "https://en.wikipedia.org/wiki/Madikeri",
+     "kind": "general"
+    }
+   ],
+   "sep": [
+    {
+     "text": "Tourists can travel around the Coorg, enjoying the amazing natural beauty in the monsoon season.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kodagu",
+     "kind": "general"
+    },
+    {
+     "text": "Madikeri features a tropical highland climate as it has an elevation of 1,170 m (3,840 ft).",
+     "source_url": "https://en.wikipedia.org/wiki/Madikeri",
+     "kind": "general"
+    }
+   ],
+   "oct": [
+    {
+     "text": "Tourists can travel around the Coorg, enjoying the amazing natural beauty in the monsoon season.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kodagu",
+     "kind": "general"
+    },
+    {
+     "text": "Madikeri features a tropical highland climate as it has an elevation of 1,170 m (3,840 ft).",
+     "source_url": "https://en.wikipedia.org/wiki/Madikeri",
+     "kind": "general"
+    }
+   ],
+   "nov": [
+    {
+     "text": "Tourists can travel around the Coorg, enjoying the amazing natural beauty in the monsoon season.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kodagu",
+     "kind": "general"
+    },
+    {
+     "text": "Madikeri features a tropical highland climate as it has an elevation of 1,170 m (3,840 ft).",
+     "source_url": "https://en.wikipedia.org/wiki/Madikeri",
+     "kind": "general"
+    }
+   ],
+   "dec": [
+    {
+     "text": "Tourists can travel around the Coorg, enjoying the amazing natural beauty in the monsoon season.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kodagu",
+     "kind": "general"
+    },
+    {
+     "text": "Madikeri features a tropical highland climate as it has an elevation of 1,170 m (3,840 ft).",
+     "source_url": "https://en.wikipedia.org/wiki/Madikeri",
+     "kind": "general"
+    }
+   ]
+  },
+  "Goa": {
+   "jan": [
+    {
+     "text": "The best time of the year to visit Goa is mid-November to mid-February when the weather is comfortable, dry and pleasant.",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    },
+    {
+     "text": "Diving — the season is between mid-October to mid-May.",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    },
+    {
+     "text": "The season starts in January, you can expect 1-2 windy days a week during January and February, and 2-3 days a week during March.",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    }
+   ],
+   "feb": [
+    {
+     "text": "The best time of the year to visit Goa is mid-November to mid-February when the weather is comfortable, dry and pleasant.",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    },
+    {
+     "text": "Diving — the season is between mid-October to mid-May.",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    },
+    {
+     "text": "The season starts in January, you can expect 1-2 windy days a week during January and February, and 2-3 days a week during March.",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    }
+   ],
+   "mar": [
+    {
+     "text": "Diving — the season is between mid-October to mid-May.",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    },
+    {
+     "text": "The season starts in January, you can expect 1-2 windy days a week during January and February, and 2-3 days a week during March.",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    }
+   ],
+   "apr": [
+    {
+     "text": "Diving — the season is between mid-October to mid-May.",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    }
+   ],
+   "may": [
+    {
+     "text": "Diving — the season is between mid-October to mid-May.",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    }
+   ],
+   "jun": [
+    {
+     "text": "Diving is not possible during the monsoons in India (June till mid-October).",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    }
+   ],
+   "jul": [
+    {
+     "text": "Diving is not possible during the monsoons in India (June till mid-October).",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    }
+   ],
+   "aug": [
+    {
+     "text": "Diving is not possible during the monsoons in India (June till mid-October).",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    }
+   ],
+   "sep": [
+    {
+     "text": "Diving is not possible during the monsoons in India (June till mid-October).",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    }
+   ],
+   "oct": [
+    {
+     "text": "Diving — the season is between mid-October to mid-May.",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    },
+    {
+     "text": "Diving is not possible during the monsoons in India (June till mid-October).",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    }
+   ],
+   "nov": [
+    {
+     "text": "The best time of the year to visit Goa is mid-November to mid-February when the weather is comfortable, dry and pleasant.",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    },
+    {
+     "text": "Diving — the season is between mid-October to mid-May.",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    }
+   ],
+   "dec": [
+    {
+     "text": "The best time of the year to visit Goa is mid-November to mid-February when the weather is comfortable, dry and pleasant.",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    },
+    {
+     "text": "Diving — the season is between mid-October to mid-May.",
+     "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    }
+   ]
+  }
+ }
+}
