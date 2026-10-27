@@ -46,6 +46,7 @@ HOP_DEPART = time(8, 0)
 # Real trains: the earliest a morning journey may leave, and where the search for a late-day train starts.
 TRAIN_EARLIEST = time(6, 0)
 TRAIN_AFTERNOON = time(12, 0)
+TRAIN_LIMIT = 30
 LANG_NAME = {Lang.en: "English", Lang.hi: "Hindi", Lang.kn: "Kannada", Lang.ta: "Tamil", Lang.te: "Telugu", Lang.bn: "Bengali"}
 
 
@@ -100,6 +101,16 @@ def _compared(origin: str, destination: str, day: date, depart: time = time(8, 0
     return tuple(o.option for o in found.options)
 
 
+def chosen_options(request: TripRequest) -> list[TransportOption]:
+    """The ranked options with the first one made concrete: when it is rail, the real train the outbound
+    journey takes (so the listed option and day 1's journey match)."""
+    options = transport_options(request)
+    first = next((c for c, d in split_days(request) if d), None)
+    if options and first:
+        options = [timed(request, request.origin, first, request.start_date, options[0], "outbound"), *options[1:]]
+    return options
+
+
 def transport_options(request: TripRequest) -> list[TransportOption]:
     """Ranked options from TY3's /routes/compare service for origin to first destination (one way).
     Falls back to the sample options when routes does not know a city."""
@@ -109,10 +120,7 @@ def transport_options(request: TripRequest) -> list[TransportOption]:
 
 async def transport(state: dict, model: Model):
     r = _request(state)
-    options = transport_options(r)
-    if options:  # the chosen option becomes the real train the outbound journey takes, when it is rail
-        first = next(c for c, d in split_days(r) if d)
-        options = [timed(r, r.origin, first, r.start_date, options[0], "outbound"), *options[1:]]
+    options = chosen_options(r)
     journeys = hops(r, options)
     back = home(r)
     more = f" and {len(journeys) - 1} between cities" if len(journeys) > 1 else ""
@@ -145,11 +153,12 @@ async def places(state: dict, model: Model):
 
 @lru_cache(maxsize=256)
 def _trains(a: str, b: str, day: date, earliest: time) -> tuple[TransportOption, ...]:
-    """TY3's real rail journeys from a to b leaving at or after `earliest`, in departure order."""
+    """TY3's real rail journeys from a to b leaving at or after `earliest` that day, in departure order
+    (up to TRAIN_LIMIT, enough to reach the day's last train on these corridors)."""
     from routes.compare import UnknownPlace
 
     try:
-        return tuple(_compare().rail_departures(a, b, day, earliest=earliest))
+        return tuple(_compare().rail_departures(a, b, day, earliest=earliest, limit=TRAIN_LIMIT))
     except (UnknownPlace, ValueError):
         return ()
 
@@ -316,7 +325,7 @@ def season_notes(r: TripRequest) -> list[SeasonNote]:
 
 def replan(r: TripRequest) -> Itinerary:
     """The whole deterministic plan for a request, without the agents (revise uses it)."""
-    options = transport_options(r)
+    options = chosen_options(r)
     pools = {city: city_places(r, city) for city in r.destinations}
     return assemble(r, pools, options, hops(r, options), home(r), stay_options(r))
 

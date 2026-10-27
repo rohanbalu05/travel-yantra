@@ -33,6 +33,7 @@ def test_the_demo_trip_rides_real_trains_both_ways():
     out, home = it.days[0].legs[0], it.days[-1].legs[-1]
     assert (out.role, out.mode.value, home.role, home.mode.value) == ("outbound", "rail", "home", "rail")
     assert out.depart.time() >= time(6, 0) and out.depart.time() != time(8, 0)
+    assert out.depart == steps.morning_train(DEMO, "Bengaluru", "Mysuru", date(2026, 10, 31)).legs[0].depart
     assert it.transport[0].legs[0].depart == out.depart  # the listed option is the train taken
 
 

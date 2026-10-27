@@ -222,3 +222,16 @@ def test_plans_saved_before_leg_roles_still_have_their_journeys():
     assert hop_of(old.days[0]).to == "Mysuru" and hop_of(old.days[3]).to == "Coorg"
     assert out_of(old.days[-1]).to == "Bengaluru" and hop_of(old.days[1]) is None
     assert budget(old) == budget(it)  # the outbound journey is not counted twice
+
+
+def test_rebuild_drops_journey_lines_in_the_older_wording_but_not_own_notes():
+    from core.solver import Travel, limits, rebuild_day
+
+    it = plan()
+    day = it.days[3]
+    old_line = "Travel: Mysuru → Coorg by road, 2h51"
+    it.days[3] = day.model_copy(update={"notes": [old_line, *day.notes, "Travel: book the jeep the night before"]})
+    rebuild_day(it, day.date, day.stops, Travel(), limits(it.request))
+    notes = it.days[3].notes
+    assert old_line not in notes and "Travel: book the jeep the night before" in notes
+    assert sum(" Mysuru → Coorg, " in n for n in notes) == 1

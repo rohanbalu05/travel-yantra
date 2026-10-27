@@ -6,6 +6,7 @@ No model calls. Travel times come from TY3's RoadEdgeProvider (HaversineRoadProv
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass, replace
 from datetime import date, datetime, time, timedelta
 
@@ -36,6 +37,8 @@ HOP_SETTLE_MIN = 30
 RETURN_NOTE = "Return: "
 RETURN_DEPART = time(18, 0)
 RETURN_BUFFER_MIN = 60
+# Journey notes as written before the timetable wording, e.g. "Travel: A → B by rail, 3h20".
+OLD_JOURNEY_NOTE = re.compile(r"^(Travel|Return): .+ → .+ by (rail|road|air), ")
 
 
 @dataclass(frozen=True)
@@ -297,8 +300,9 @@ def rebuild_day(it: Itinerary, d: date, stops: list[Place], travel: Travel, lim:
     # Drop only the notes this module wrote for the old day; anything else on the day stays.
     generated = {REST_NOTE} | {hop_note(h) for h in [hop_of(old)] if h} | {home_note(o) for o in [out_of(old)] if o}
     # Plans saved before Leg.role wrote their journey notes as "Travel: ..." and "Return: ...".
-    legacy = any(leg.role is None for leg in (hop_of(old), out_of(old)) if leg)
-    keep = [n for n in old.notes if n not in generated and not (legacy and n.startswith((HOP_NOTE, RETURN_NOTE)))]
+    # Journey lines in the older wording ("Travel: A → B by rail, 3h20") are ours too; a traveller's own
+    # note that merely starts with "Travel: " is not.
+    keep = [n for n in old.notes if n not in generated and not OLD_JOURNEY_NOTE.match(n)]
     it.days[i] = plan.model_copy(update={"notes": keep + plan.notes, "title": old.title})
 
 
