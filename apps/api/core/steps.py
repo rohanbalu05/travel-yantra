@@ -208,7 +208,7 @@ async def story(state: dict, model: Model):
     text = await model.text(
         f"Tell a short, warm story (about 120 words) about {subject} for a family visiting it. "
         f"Write in {LANG_NAME[r.lang]}. Plain text, no headings. Only well-known history; say 'it is said' for legends.",
-        tier="lite", thinking="minimal",
+        tier="lite", thinking="minimal", label="story",
     )
     katha = KathaStory(subject_kind="place", subject=subject, length_min=2, lang=r.lang, text=text, sources=["model"])
     return {"story": katha.model_dump(mode="json")}, f"Story ready for {subject}"
@@ -305,6 +305,6 @@ async def narrator(state: dict, model: Model):
         f"In 2 or 3 friendly sentences in {LANG_NAME[it.lang]}, introduce this trip from {it.request.origin} "
         f"to {', '.join(it.request.destinations)}. Days: {days}. Total about ₹{it.budget.total_inr:,}. "
         "Do not add places or prices that are not listed.",
-        tier="flash", thinking="low", max_output_tokens=400,
+        tier="flash", thinking="low", max_output_tokens=400, label="narrator",
     )
     return {}, text or "Your trip is ready."

@@ -29,6 +29,16 @@ log = logging.getLogger(__name__)
 _now = time.monotonic  # patched in tests
 
 
+def log_usage(model: str, response, label: str | None, seconds: float) -> None:
+    """One INFO line per successful call: model, label and token counts (missing counts are 0). No prompt text."""
+    u = getattr(response, "usage_metadata", None)
+    n = {k: (getattr(u, k, None) or 0) for k in ("prompt_token_count", "candidates_token_count",
+                                                 "thoughts_token_count", "total_token_count")}
+    log.info("model=%s label=%s prompt=%d output=%d thoughts=%d total=%d seconds=%.2f", model, label or "-",
+             n["prompt_token_count"], n["candidates_token_count"], n["thoughts_token_count"], n["total_token_count"],
+             seconds)
+
+
 def fake_enabled() -> bool:
     """TY_FAKE_LLM=1 selects the fake model: no model or network calls."""
     return os.getenv("TY_FAKE_LLM", "0") == "1"
@@ -53,10 +63,11 @@ def backend() -> Literal["vertex", "ai_studio"]:
 
 class Model(Protocol):
     async def json(self, prompt: str, schema: type[M], tier: Tier = "lite", *, thinking: Thinking | None = None,
-                   timeout_s: float | None = None) -> M: ...
+                   timeout_s: float | None = None, label: str | None = None) -> M: ...
 
     async def text(self, prompt: str, tier: Tier = "flash", *, thinking: Thinking | None = None,
-                   max_output_tokens: int = 600, temperature: float = 0.6, timeout_s: float | None = None) -> str: ...
+                   max_output_tokens: int = 600, temperature: float = 0.6, timeout_s: float | None = None,
+                   label: str | None = None) -> str: ...
 
 
 class GeminiModel:
@@ -74,23 +85,24 @@ class GeminiModel:
         return self._types.ThinkingConfig(thinking_level=level.upper()) if level else None
 
     async def json(self, prompt: str, schema: type[M], tier: Tier = "lite", *, thinking: Thinking | None = None,
-                   timeout_s: float | None = None) -> M:
+                   timeout_s: float | None = None, label: str | None = None) -> M:
         config = self._types.GenerateContentConfig(
             response_mime_type="application/json", response_schema=schema, temperature=0,
             thinking_config=self._thinking(thinking),
         )
-        r = await self._generate(model_name(tier), prompt, config, timeout_s)
+        r = await self._generate(model_name(tier), prompt, config, timeout_s, label or schema.__name__)
         return schema.model_validate_json(r.text)
 
     async def text(self, prompt: str, tier: Tier = "flash", *, thinking: Thinking | None = None,
-                   max_output_tokens: int = 600, temperature: float = 0.6, timeout_s: float | None = None) -> str:
+                   max_output_tokens: int = 600, temperature: float = 0.6, timeout_s: float | None = None,
+                   label: str | None = None) -> str:
         config = self._types.GenerateContentConfig(
             temperature=temperature, max_output_tokens=max_output_tokens, thinking_config=self._thinking(thinking)
         )
-        r = await self._generate(model_name(tier), prompt, config, timeout_s)
+        r = await self._generate(model_name(tier), prompt, config, timeout_s, label)
         return (r.text or "").strip()
 
-    async def _generate(self, model: str, prompt: str, config, timeout_s: float | None = None):
+    async def _generate(self, model: str, prompt: str, config, timeout_s: float | None = None, label: str | None = None):
         """generate_content with retries on 429 and 503: exponential backoff with full jitter, each try
         capped to the time left in the budget (timeout_s, default RETRY_BUDGET_S). Other errors, and the
         last failure, are raised."""
@@ -102,7 +114,9 @@ class GeminiModel:
             left = budget - (_now() - start)
             config.http_options = self._types.HttpOptions(timeout=int(max(left, 1) * 1000))
             try:
-                return await self._client.aio.models.generate_content(model=model, contents=prompt, config=config)
+                r = await self._client.aio.models.generate_content(model=model, contents=prompt, config=config)
+                log_usage(model, r, label, _now() - start)
+                return r
             except errors.APIError as exc:
                 if exc.code not in RETRY_CODES or attempt == MAX_TRIES:
                     raise

@@ -172,7 +172,7 @@ async def intake(body: TripRequest | PlanText, model: Model, today: date | None 
     if key in _cache:
         _cache.move_to_end(key)
         return _cache[key].model_copy(deep=True)
-    draft = await model.json(prompt(body.text, today), IntakeDraft, tier="lite", thinking="minimal")
+    draft = await model.json(prompt(body.text, today), IntakeDraft, tier="lite", thinking="minimal", label="intake")
     # Model questions are dropped here unless something is missing; they never reach a complete request.
     result = to_request(draft, body.lang, notes=body.text[:500])
     result.draft = draft

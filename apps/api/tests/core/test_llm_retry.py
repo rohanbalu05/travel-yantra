@@ -94,3 +94,27 @@ def test_timeout_s_replaces_the_default_budget(model, monkeypatch):
     model._client = FakeClient([err(503), "ok"])
     assert asyncio.run(model.text("long story", timeout_s=60)) == "ok"
     assert model._client.calls == [60_000, 30_000]
+
+
+def test_each_successful_call_logs_its_token_usage(model, caplog):
+    class Usage:
+        prompt_token_count, candidates_token_count, thoughts_token_count, total_token_count = 120, 40, None, 160
+
+    class Answer(SimpleNamespace):
+        pass
+
+    client = FakeClient([err(503), "ok"])
+    base = client.generate_content
+
+    async def with_usage(model, contents, config):
+        r = await base(model, contents, config)
+        return Answer(text=r.text, usage_metadata=Usage())
+
+    client.aio.models.generate_content = with_usage
+    model._client = client
+    with caplog.at_level(logging.INFO, logger="core.llm"):
+        asyncio.run(model.text("secret prompt text", label="draft Mysore Palace ch1/2"))
+    lines = [r.getMessage() for r in caplog.records if r.levelno == logging.INFO]
+    assert len(lines) == 1  # the failed try logs a retry warning, not usage
+    assert "label=draft Mysore Palace ch1/2 prompt=120 output=40 thoughts=0 total=160" in lines[0]
+    assert "secret prompt text" not in lines[0]

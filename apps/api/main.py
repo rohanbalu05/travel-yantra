@@ -14,6 +14,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from core import router as core_router
 
 log = logging.getLogger(__name__)
+# Our loggers print WARNING and up, plus core.llm's per-call token lines (INFO). TY_LOG_LEVEL overrides both.
+logging.basicConfig(level=os.getenv("TY_LOG_LEVEL", "WARNING"), format="%(levelname)s %(name)s %(message)s")
+logging.getLogger("core.llm").setLevel(os.getenv("TY_LOG_LEVEL", "INFO"))
 
 LANES = ("guide", "routes")
 MOUNTED: list[ModuleType] = []
