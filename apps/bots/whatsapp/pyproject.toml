@@ -1,0 +1,28 @@
+[project]
+name = "ty-bot-whatsapp"
+version = "0.1.0"
+description = "Travel Yantra WhatsApp bot (Cloud API webhook, test number only)"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "httpx>=0.27",
+    "ty-contracts",
+]
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.6"]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+ty-contracts = { path = "../../../packages/contracts" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
