@@ -46,6 +46,7 @@ class TripStore(Protocol):
     def by_owner(self, owner: str) -> list[Trip]: ...
     def delete_owner(self, owner: str) -> int: ...
     def reassign_owner(self, old: str, new: str) -> int: ...
+    def delete(self, trip_id: str) -> bool: ...
 
 
 class MemoryStore:
@@ -72,6 +73,10 @@ class MemoryStore:
     def by_owner(self, owner: str) -> list[Trip]:
         """Newest first."""
         return sorted((t for t in list(self._trips.values()) if t.owner == owner), key=lambda t: t.created_at, reverse=True)
+
+    def delete(self, trip_id: str) -> bool:
+        with self._lock:
+            return self._trips.pop(trip_id, None) is not None
 
     def reassign_owner(self, old: str, new: str) -> int:
         with self._lock:
@@ -132,6 +137,11 @@ class PgStore:
             rows = conn.execute(f"SELECT {self._COLUMNS} FROM trips WHERE owner = %s ORDER BY created_at DESC",
                                 (owner,)).fetchall()
         return [self._trip(r) for r in rows]
+
+    def delete(self, trip_id: str) -> bool:
+        with self._connect() as conn, conn.transaction():
+            conn.execute("UPDATE trips SET revised_from = NULL WHERE revised_from = %s", (trip_id,))
+            return conn.execute("DELETE FROM trips WHERE id = %s", (trip_id,)).rowcount > 0
 
     def reassign_owner(self, old: str, new: str) -> int:
         with self._connect() as conn:

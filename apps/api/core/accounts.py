@@ -99,6 +99,7 @@ class AccountStore(Protocol):
     def add_rating(self, rating: Rating) -> None: ...
     def delete(self, uid: str, plan_ids: list[str] | None = None) -> int: ...
     def linked(self, anon: str) -> bool: ...
+    def delete_ratings_for(self, plan_ids: list[str]) -> int: ...
     def link(self, anon: str, uid: str) -> int: ...
 
 
@@ -137,6 +138,13 @@ class MemoryAccounts:
 
     def linked(self, anon: str) -> bool:
         return anon in self._links
+
+    def delete_ratings_for(self, plan_ids: list[str]) -> int:
+        gone = set(plan_ids)
+        with self._lock:
+            kept = [r for r in self.ratings if r.plan_id not in gone]
+            n, self.ratings = len(self.ratings) - len(kept), kept
+            return n
 
     def link(self, anon: str, uid: str) -> int:
         """Move the browser's ratings and (if the account has none yet) consents to the account."""
@@ -196,6 +204,10 @@ class PgAccounts:
             return n + conn.execute("DELETE FROM ratings WHERE uid = %s OR plan_id = ANY(%s)",
                                     (uid, list(plan_ids or []))).rowcount
 
+
+    def delete_ratings_for(self, plan_ids: list[str]) -> int:
+        with self._connect() as conn:
+            return conn.execute("DELETE FROM ratings WHERE plan_id = ANY(%s)", (list(plan_ids),)).rowcount
 
     def linked(self, anon: str) -> bool:
         with self._connect() as conn:

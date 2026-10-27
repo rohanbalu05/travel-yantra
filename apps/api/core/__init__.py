@@ -2,7 +2,7 @@ import asyncio
 import os
 
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import Response, StreamingResponse
 
 from ty_contracts import (
     Itinerary,
@@ -13,7 +13,7 @@ from ty_contracts import (
     TripRequest,
 )
 
-from .accounts import client_id, keeps_history
+from .accounts import client_id, get_accounts, keeps_history
 from .accounts import router as accounts_router
 from .pipeline import revise_events, run_plan
 from .revise import ReviseError, revise
@@ -84,6 +84,20 @@ async def revise_plan(plan_id: str, body: ReviseRequest, client: str | None = De
             yield event
 
     return stream(events())
+
+
+@router.delete("/plan/{plan_id}", status_code=204)
+def delete_plan(plan_id: str, client: str | None = Depends(client_id)) -> Response:
+    """Delete one plan by its id (the creator's capability; a share token is not enough). A plan linked to an
+    account or browser needs that caller (403 otherwise). Its share link stops working; ratings of it go too."""
+    trip = get_store().get(plan_id)
+    if trip is None:
+        raise HTTPException(404, "plan not found")
+    if trip.owner is not None and trip.owner != client:
+        raise HTTPException(403, "this plan belongs to someone else")
+    get_store().delete(plan_id)
+    get_accounts().delete_ratings_for([plan_id])
+    return Response(status_code=204)
 
 
 @router.get("/trips/{share_token}", response_model=Itinerary, response_model_by_alias=True)

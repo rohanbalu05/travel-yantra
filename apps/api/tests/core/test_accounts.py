@@ -121,3 +121,20 @@ def test_withdrawing_plan_history_deletes_the_saved_trips():
     assert client.get("/me/trips", headers=ME).json() == []
     assert client.get(f"/trips/{kept['share_token']}").status_code == 404
     assert client.get(f"/trips/{theirs['share_token']}").status_code == 200
+
+
+def test_delete_plan_by_id(memory_accounts):
+    anon_trip = done(client.post("/plan", json=MYSURU))  # e.g. made by the WhatsApp bot: no owner
+    client.post("/ratings", json={"plan_id": anon_trip["plan_id"], "score": 5})
+    assert client.delete(f"/plan/{anon_trip['plan_id']}").status_code == 204
+    assert client.get(f"/trips/{anon_trip['share_token']}").status_code == 404
+    assert memory_accounts.ratings == []
+    assert client.delete(f"/plan/{anon_trip['plan_id']}").status_code == 404
+    assert client.delete(f"/trips/{anon_trip['share_token']}").status_code == 405  # a share token cannot delete
+
+    client.put("/me/consents", json={"plan_history": True}, headers=ME)
+    mine = done(client.post("/plan", json=MYSURU, headers=ME))
+    assert client.delete(f"/plan/{mine['plan_id']}").status_code == 403
+    assert client.delete(f"/plan/{mine['plan_id']}", headers=OTHER).status_code == 403
+    assert client.delete(f"/plan/{mine['plan_id']}", headers=ME).status_code == 204
+    assert client.get("/me/trips", headers=ME).json() == []
