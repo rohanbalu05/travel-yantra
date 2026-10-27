@@ -67,6 +67,7 @@ export interface DayPlan {
   legs?: Leg[];
   notes?: string[];
   title?: string | null;
+  schedule?: StopTime[];
 }
 
 export interface GuideAnswer {
@@ -134,7 +135,8 @@ export interface Leg {
   arrive: string;
   minutes: number;
   cost_inr: number;
-  role?: "outbound" | "between" | "home" | null;
+  role?: "outbound" | "between" | "home" | "transfer" | null;
+  ref?: string | null;
 }
 
 export interface Me {
@@ -240,6 +242,13 @@ export interface Stay {
   check_out: string;
   price_per_night_inr: number;
   offers?: SellerOffer[];
+}
+
+export interface StopTime {
+  place_id: string;
+  arrive: string;
+  start: string;
+  leave: string;
 }
 
 export interface StorySegment {

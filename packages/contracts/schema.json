@@ -384,6 +384,13 @@
           ],
           "default": null,
           "title": "Title"
+        },
+        "schedule": {
+          "items": {
+            "$ref": "#/$defs/StopTime"
+          },
+          "title": "Schedule",
+          "type": "array"
         }
       },
       "required": [
@@ -767,7 +774,8 @@
               "enum": [
                 "outbound",
                 "between",
-                "home"
+                "home",
+                "transfer"
               ],
               "type": "string"
             },
@@ -777,6 +785,18 @@
           ],
           "default": null,
           "title": "Role"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ref"
         }
       },
       "required": [
@@ -1428,6 +1448,39 @@
         "price_per_night_inr"
       ],
       "title": "Stay",
+      "type": "object"
+    },
+    "StopTime": {
+      "additionalProperties": false,
+      "description": "When a stop is reached, its visit starts (after any wait for opening time) and ends.",
+      "properties": {
+        "place_id": {
+          "title": "Place Id",
+          "type": "string"
+        },
+        "arrive": {
+          "format": "date-time",
+          "title": "Arrive",
+          "type": "string"
+        },
+        "start": {
+          "format": "date-time",
+          "title": "Start",
+          "type": "string"
+        },
+        "leave": {
+          "format": "date-time",
+          "title": "Leave",
+          "type": "string"
+        }
+      },
+      "required": [
+        "place_id",
+        "arrive",
+        "start",
+        "leave"
+      ],
+      "title": "StopTime",
       "type": "object"
     },
     "StorySegment": {

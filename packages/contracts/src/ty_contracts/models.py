@@ -102,8 +102,11 @@ class Leg(_Model):
     minutes: int = Field(ge=0)
     cost_inr: int = Field(ge=0)
     # Set on a DayPlan's journeys: "outbound" (origin to the first city, opens day 1), "between" (city to
-    # city, opens that city's first day), "home" (closes the last day). None for stop-to-stop legs.
-    role: Literal["outbound", "between", "home"] | None = None
+    # city, opens that city's first day), "home" (closes the last day), "transfer" (from the station or city
+    # centre to the first stop, after a journey). None for stop-to-stop legs.
+    role: Literal["outbound", "between", "home", "transfer"] | None = None
+    # Train number (5 digits) for rail, flight number for air, when known.
+    ref: str | None = None
 
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
@@ -194,6 +197,15 @@ class Stay(_Model):
         return self
 
 
+class StopTime(_Model):
+    """When a stop is reached, its visit starts (after any wait for opening time) and ends."""
+
+    place_id: str
+    arrive: datetime
+    start: datetime
+    leave: datetime
+
+
 class DayPlan(_Model):
     date: date
     stops: list[Place] = Field(default_factory=list)
@@ -201,6 +213,8 @@ class DayPlan(_Model):
     notes: list[str] = Field(default_factory=list)
     # A short heading, e.g. "Day 1 · Sat 31 Oct · Arrive in Mysuru".
     title: str | None = None
+    # One entry per stop, in visiting order (the first stop included).
+    schedule: list[StopTime] = Field(default_factory=list)
 
 
 class BudgetSummary(_Model):

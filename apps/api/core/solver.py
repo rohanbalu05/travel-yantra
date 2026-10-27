@@ -9,6 +9,7 @@ import math
 import re
 from dataclasses import dataclass, replace
 from datetime import date, datetime, time, timedelta
+from functools import lru_cache
 
 from routes.graph import KIND_PLACE, HaversineRoadProvider, Node, RoadEdgeProvider
 from ty_contracts import (
@@ -18,6 +19,7 @@ from ty_contracts import (
     Mode,
     Pace,
     Place,
+    StopTime,
     TransportOption,
     TripRequest,
 )
@@ -33,6 +35,8 @@ RANK_MINUTES = 6
 # A travel day: the note that names the hop, and the time to settle in after arriving.
 HOP_NOTE = "Travel: "
 HOP_SETTLE_MIN = 30
+# After a journey arrives: the wait before the ride to the first stop.
+TRANSFER_WAIT_MIN = 10
 # The journey home: its note, the default departure time and how long before it the last visit ends.
 RETURN_NOTE = "Return: "
 # The last day is planned to about RETURN_FILL_END; the journey home then leaves at least RETURN_BUFFER_MIN
@@ -273,6 +277,9 @@ def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorde
     and the one that closes it (out), if any. Returns the plan and the first problem."""
     lim = frame(lim, hop, out)
     stops = order(stops, travel) if reorder else list(stops)
+    transfer = _transfer(hop, stops[0], travel) if hop and stops and lim.start < lim.end else None
+    if transfer and transfer.arrive.date() == day:
+        lim = replace(lim, start=max(lim.start, transfer.arrive.time()))
     mins = [travel.minutes(a, b) for a, b in zip(stops, stops[1:])]
     visits, problem = schedule(day, stops, mins, lim)
     rested = any(b.arrive - a.leave > timedelta(minutes=m) for a, b, m in zip(visits, visits[1:], mins))
@@ -282,13 +289,45 @@ def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorde
         legs.append(Leg(**{"from": a.place.name}, to=b.place.name, mode=Mode.road, depart=a.leave,
                         arrive=a.leave + timedelta(minutes=minutes), minutes=minutes, cost_inr=cost))
     notes = [REST_NOTE] if rested else []
+    if transfer:
+        legs.insert(0, transfer)
     if hop:
         legs.insert(0, hop)
         notes.insert(0, hop_note(hop))
     if out:
         legs.append(out)
         notes.append(home_note(out))
-    return DayPlan(date=day, stops=stops, legs=legs, notes=notes), problem
+    times = [StopTime(place_id=v.place.id, arrive=v.arrive, start=v.start, leave=v.leave) for v in visits]
+    return DayPlan(date=day, stops=stops, legs=legs, notes=notes, schedule=times), problem
+
+
+@lru_cache(maxsize=64)
+def _city_point(name: str) -> Place | None:
+    """Where a journey into a city ends (TY3's city point), as a Place the road provider can route from."""
+    from routes.compare import UnknownPlace, resolve_city
+
+    try:
+        node = resolve_city(name)
+    except UnknownPlace:
+        return None
+    return Place(id=f"city:{node.id}", name=name, lat=node.lat, lng=node.lon, category="city",
+                 typical_visit_minutes=0, source="routes")
+
+
+def _transfer(hop: Leg, first: Place, travel: Travel) -> Leg | None:
+    """The ride from where the journey arrives to the day's first stop, after a short wait (QA #118)."""
+    point = _city_point(hop.to)
+    if point is None:
+        return None
+    minutes, cost = travel.edge(point, first)
+    depart = hop.arrive + timedelta(minutes=TRANSFER_WAIT_MIN)
+    return Leg(**{"from": hop.to}, to=first.name, mode=Mode.road, depart=depart,
+               arrive=depart + timedelta(minutes=minutes), minutes=minutes, cost_inr=cost, role="transfer")
+
+
+def stop_legs(day: DayPlan) -> list[Leg]:
+    """Stop-to-stop legs only (no journeys, no transfer)."""
+    return [leg for leg in day.legs if leg.role is None]
 
 
 _KEEP = object()
@@ -314,9 +353,10 @@ def rebuild_day(it: Itinerary, d: date, stops: list[Place], travel: Travel, lim:
 def journey(a: str, b: str, option: TransportOption, role: str = "between") -> Leg:
     """One leg for a whole transport option, labelled with the two cities (its own legs may be stations)."""
     depart = option.legs[0].depart
+    ref = next((leg.ref for leg in option.legs if leg.mode is option.mode and leg.ref), None)
     return Leg(**{"from": a}, to=b, mode=option.mode, depart=depart,
                arrive=depart + timedelta(minutes=option.total_minutes), minutes=option.total_minutes,
-               cost_inr=option.total_cost_inr, role=role)
+               cost_inr=option.total_cost_inr, role=role, ref=ref)
 
 
 def _duration(leg: Leg) -> str:

@@ -80,3 +80,22 @@ def test_the_last_day_is_used_and_the_train_home_follows_the_last_visit():
     earlier = [t for t in steps._trains("Mysuru", "Bengaluru", last.date, (ends + timedelta(minutes=RETURN_BUFFER_MIN)).time())]
     assert home.depart == earlier[0].legs[0].depart  # the first train from then, not the day's last
     assert home.depart - ends < timedelta(hours=3)
+
+
+def test_a_ride_from_the_station_to_the_first_stop_and_a_time_for_every_stop():
+    # QA #118: no transfer from the station to the first stop, and the first stop had no time.
+    it = steps.replan(DEMO)
+    first = it.days[0]
+    out, ride = first.legs[0], first.legs[1]
+    assert (out.role, ride.role) == ("outbound", "transfer")
+    assert ride.from_ == "Mysuru" and ride.to == first.stops[0].name and ride.depart >= out.arrive
+    for day in it.days:
+        assert [s.place_id for s in day.schedule] == [p.id for p in day.stops]
+        assert all(s.arrive <= s.start < s.leave for s in day.schedule)
+    assert first.schedule[0].start >= ride.arrive
+
+
+def test_rail_journeys_carry_the_train_number_when_routes_gives_one():
+    it = steps.replan(DEMO)
+    refs = [leg.ref for leg in (it.days[0].legs[0], it.days[-1].legs[-1])]
+    assert all(r is None or (r.isdigit() and len(r) == 5) for r in refs)

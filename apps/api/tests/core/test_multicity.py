@@ -14,6 +14,7 @@ from core.solver import (
     local_legs,
     out_of,
     split_days,
+    stop_legs,
 )
 from main import app
 from ty_contracts import Itinerary, ReviseRequest, TripRequest, ViolationCode
@@ -200,8 +201,9 @@ def test_journeys_are_marked_by_role_and_rebuilds_keep_other_notes():
     from core.solver import Travel, limits, rebuild_day
 
     it = plan()
-    assert [leg.role for d in it.days for leg in d.legs if leg.role] == ["outbound", "between", "home"]
-    assert all(leg.role is None for d in it.days for leg in local_legs(d))
+    assert [leg.role for d in it.days for leg in d.legs if leg.role and leg.role != "transfer"] == ["outbound", "between", "home"]
+    assert [leg.role for leg in it.days[0].legs[:2]] == ["outbound", "transfer"]
+    assert all(leg.role is None for d in it.days for leg in stop_legs(d))
     # A note of the traveller's own that happens to start like ours survives a re-plan of the day.
     day = it.days[3]
     it.days[3] = day.model_copy(update={"notes": [*day.notes, "Travel: carry a rain jacket"]})

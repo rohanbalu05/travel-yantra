@@ -16,8 +16,8 @@ from .solver import (
     hop_of,
     hours_on,
     limits,
-    local_legs,
     out_of,
+    stop_legs,
 )
 
 # Estimates (reversible): the sample budgets use these, so the Goa sample totals ₹46,800.
@@ -80,14 +80,18 @@ def _check_day(day, lim: Limits, elderly: bool, travel: Travel) -> list[Violatio
     # A journey may open the day (visits start after it) or close it (visits end before it). Only local
     # road time counts against the daily cap.
     hop, home = hop_of(day), out_of(day)
-    begin = datetime.combine(day.date, lim.start) if hop is None else hop.depart
+    # A long day is about time out and about: from arrival, not from boarding the train.
+    begin = datetime.combine(day.date, lim.start) if hop is None else hop.arrive
     # Travel times come from the plan's own legs when they line up with the stops, else from the provider.
-    leg_min = [leg.minutes for leg in local_legs(day)]
+    leg_min = [leg.minutes for leg in stop_legs(day)]
+    transfer = next((leg for leg in day.legs if leg.role == "transfer"), None)
     if len(leg_min) != len(day.stops) - 1:
         leg_min = [travel.minutes(a, b) for a, b in zip(day.stops, day.stops[1:])]
 
     # Replay the day from its start with no end-of-day cut-off, so lateness is reported once, as long_day.
     t = datetime.combine(day.date, after_hop(lim, hop).start)
+    if transfer and transfer.arrive > t:  # visits start once the ride from the station arrives
+        t = transfer.arrive
     first_start = last_leave = None
     for i, p in enumerate(day.stops):
         if i:
@@ -119,7 +123,7 @@ def _check_day(day, lim: Limits, elderly: bool, travel: Travel) -> list[Violatio
             out.append(Violation(code=ViolationCode.no_rest, day=day.date,
                                  message=f"{hours:.1f} hours out with no rest for elderly travellers"))
 
-    road = sum(leg_min)
+    road = sum(leg_min) + (transfer.minutes if transfer else 0)
     if road > lim.max_travel_min:
         out.append(Violation(code=ViolationCode.too_much_travel, day=day.date,
                              message=f"{road} min on the road; the limit is {lim.max_travel_min}"))

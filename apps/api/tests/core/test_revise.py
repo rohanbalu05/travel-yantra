@@ -109,3 +109,19 @@ def test_share_link_opens_a_read_only_trip():
     assert Itinerary.model_validate(r.json()) == Itinerary.model_validate(done["partial"])
     assert client.get("/trips/not-a-token").status_code == 404
     assert client.put(f"/trips/{done['share_token']}", json={}).status_code == 405
+
+
+def test_swap_then_lighter_changes_the_day_through_the_endpoint():
+    # QA #108: "Make Sun lighter" said Done but nothing changed (after swapping Sunday's first stop).
+    body = {"origin": "Bengaluru", "destinations": ["Mysuru"], "start_date": "2026-10-31", "end_date": "2026-11-01"}
+    first = frames(client.post("/plan", json=body))[-1]
+    sunday = first["partial"]["days"][-1]
+    swapped = frames(client.post(f"/plan/{first['plan_id']}/revise",
+                                 json={"intent": "swap_stop", "place_id": sunday["stops"][0]["id"]}))[-1]
+    before = [s["id"] for s in swapped["partial"]["days"][-1]["stops"]]
+    lighter = frames(client.post(f"/plan/{swapped['plan_id']}/revise",
+                                 json={"intent": "lighter_day", "day": sunday["date"]}))
+    after = [s["id"] for s in lighter[-1]["partial"]["days"][-1]["stops"]]
+    assert len(after) == len(before) - 1 and set(after) < set(before)
+    assert lighter[-1]["plan_id"] not in (first["plan_id"], swapped["plan_id"])  # clients must switch to it
+    assert lighter[1]["message"].startswith(("Moved", "Dropped"))
