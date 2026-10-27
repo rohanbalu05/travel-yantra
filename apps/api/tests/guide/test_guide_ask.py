@@ -232,3 +232,21 @@ def test_sample_emergency_over_http(api) -> None:
     assert transport.kinds == ["hospital"]
     assert [p["name"] for p in data["emergency_places"]] == ["Sample Hospital One"]
     assert data["citations"][0]["title"] == "Google Maps: Sample Hospital One"
+
+
+def test_a_failing_model_is_503_with_a_reason(monkeypatch) -> None:
+    class Broken:
+        calls = 0
+
+        async def __call__(self, question, sources):
+            Broken.calls += 1
+            raise RuntimeError("429 RESOURCE_EXHAUSTED")
+
+    monkeypatch.setattr(ask_mod, "search", lambda *a, **k: [hit(1)])
+    app = FastAPI()
+    app.include_router(guide.router)
+    app.dependency_overrides[guide.get_db] = NoRows
+    app.dependency_overrides[guide.answerer] = Broken
+    r = TestClient(app).post("/guide/ask", json={"question": "who built it"})
+    assert r.status_code == 503 and r.json() == {"detail": guide.BUSY}
+    assert Broken.calls == 1  # it failed in the model, not somewhere earlier

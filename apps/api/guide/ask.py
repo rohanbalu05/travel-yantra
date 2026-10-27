@@ -175,13 +175,13 @@ async def ask(
     answerer: Answerer,
     places: PlacesClient | None = None,
     *,
-    retrieve=search,
+    retrieve=None,
 ) -> GuideAnswer:
     if kinds := emergency_kinds(req.question):
         return answer_emergency(kinds, _locate(db, req), places)
     # place_id is accepted but not matched: the corpus does not store itinerary ids yet.
     poi = _poi(db, req.place_name, req.city)
-    hits = retrieve(
+    hits = (retrieve or search)(
         req.question,
         db,
         filters=Filters(city=req.city) if req.city and not poi else None,
