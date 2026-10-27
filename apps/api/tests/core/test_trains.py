@@ -40,3 +40,12 @@ def test_road_only_routes_keep_the_fixed_times():
     road = steps.timed(DEMO, "Mysuru", "Coorg", date(2026, 11, 23),
                        steps.transport_options(DEMO)[0].model_copy(update={"mode": Mode.road}), "between")
     assert road.mode.value == "road"  # not swapped for a train
+
+
+def test_days_have_titles_and_journeys_read_like_a_timetable():
+    it = steps.replan(DEMO)
+    assert [d.title for d in it.days] == ["Day 1 · Sat 31 Oct · Arrive in Mysuru", "Day 2 · Sun 01 Nov · Mysuru, then home"]
+    out, home = it.days[0].legs[0], it.days[-1].legs[-1]
+    assert it.days[0].notes[0] == f"Train Bengaluru → Mysuru, {out.depart:%H:%M}–{out.arrive:%H:%M}, " \
+                                  f"{out.minutes // 60}h{out.minutes % 60:02d}"
+    assert it.days[-1].notes[-1].startswith(f"Train home Mysuru → Bengaluru, {home.depart:%H:%M}–")

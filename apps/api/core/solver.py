@@ -194,12 +194,43 @@ def out_of(day: DayPlan) -> Leg | None:
     return leg if legacy and leg.to not in {p.name for p in day.stops} else None
 
 
+MODE_WORD = {Mode.rail: "Train", Mode.road: "Drive", Mode.air: "Flight"}
+
+
+def _times(leg: Leg) -> str:
+    next_day = " (+1 day)" if leg.arrive.date() > leg.depart.date() else ""
+    return f"{leg.depart:%H:%M}–{leg.arrive:%H:%M}{next_day}, {_duration(leg)}"
+
+
 def hop_note(hop: Leg) -> str:
-    return f"{HOP_NOTE}{hop.from_} → {hop.to} by {hop.mode.value}, {_duration(hop)}"
+    """e.g. "Train Bengaluru → Mysuru, 06:40–10:00, 3h20"."""
+    return f"{MODE_WORD[hop.mode]} {hop.from_} → {hop.to}, {_times(hop)}"
 
 
 def home_note(out: Leg) -> str:
-    return f"{RETURN_NOTE}{out.from_} → {out.to} by {out.mode.value}, leaves {out.depart:%H:%M}, {_duration(out)}"
+    """e.g. "Train home Mysuru → Bengaluru, 20:10–23:35, 3h25"."""
+    return f"{MODE_WORD[out.mode]} home {out.from_} → {out.to}, {_times(out)}"
+
+
+def day_titles(days: list[DayPlan], request: TripRequest) -> list[DayPlan]:
+    """Give each day a short heading: day number, date and what happens ("Arrive in Mysuru", "Mysuru, then
+    home", "Free day in Coorg")."""
+    out = []
+    for n, d in enumerate(days, 1):
+        city = city_of(request, d.date) or request.destinations[0]
+        hop, home = hop_of(d), out_of(d)
+        if hop and home:
+            what = f"{city} day trip"
+        elif hop:
+            what = f"Arrive in {city}"
+        elif home:
+            what = f"{city}, then home"
+        elif not d.stops:
+            what = f"Free day in {city}"
+        else:
+            what = city
+        out.append(d.model_copy(update={"title": f"Day {n} · {d.date:%a %d %b} · {what}"}))
+    return out
 
 
 def local_legs(day: DayPlan) -> list[Leg]:
@@ -265,8 +296,10 @@ def rebuild_day(it: Itinerary, d: date, stops: list[Place], travel: Travel, lim:
     plan, _ = build_day(d, stops, travel, lim, hop=hop_of(old) if hop is _KEEP else hop, out=out_of(old))
     # Drop only the notes this module wrote for the old day; anything else on the day stays.
     generated = {REST_NOTE} | {hop_note(h) for h in [hop_of(old)] if h} | {home_note(o) for o in [out_of(old)] if o}
-    keep = [n for n in old.notes if n not in generated]
-    it.days[i] = plan.model_copy(update={"notes": keep + plan.notes})
+    # Plans saved before Leg.role wrote their journey notes as "Travel: ..." and "Return: ...".
+    legacy = any(leg.role is None for leg in (hop_of(old), out_of(old)) if leg)
+    keep = [n for n in old.notes if n not in generated and not (legacy and n.startswith((HOP_NOTE, RETURN_NOTE)))]
+    it.days[i] = plan.model_copy(update={"notes": keep + plan.notes, "title": old.title})
 
 
 def journey(a: str, b: str, option: TransportOption, role: str = "between") -> Leg:

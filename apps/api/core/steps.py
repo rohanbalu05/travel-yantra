@@ -34,6 +34,7 @@ from .solver import (
     RETURN_BUFFER_MIN,
     RETURN_DEPART,
     Travel,
+    day_titles,
     journey,
     limits,
     solve_trip,
@@ -283,6 +284,7 @@ def assemble(r: TripRequest, pools: dict[str, list[Place]], options: list[Transp
              back: Leg | None, stays_found: list[Stay]) -> Itinerary:
     """Solve the days and put the itinerary together with its budget and warnings."""
     days, _ = solve_trip(r, pools, journeys, home=back)
+    days = day_titles(days, r)
     empty = [c for c, v in pools.items() if not v]
     it = Itinerary(
         request=r, days=days, lang=r.lang, transport=options, stays=stays_found,
@@ -351,6 +353,7 @@ async def final_check(state: dict, model: Model):
     """After the loop: leftovers become warnings. Returns an empty message when nothing was left."""
     before = _itinerary(state)
     it = finish(before)
+    it.days = day_titles(it.days, it.request)  # repairs may have emptied or filled a day
     left = len(it.warnings) - len(before.warnings)
     return {"itinerary": it.model_dump(mode="json", by_alias=True)}, (f"{left} issue{'s' * (left > 1)} left as warnings" if left else "")
 

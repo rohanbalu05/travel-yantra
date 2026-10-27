@@ -66,6 +66,7 @@ export interface DayPlan {
   stops?: Place[];
   legs?: Leg[];
   notes?: string[];
+  title?: string | null;
 }
 
 export interface GuideAnswer {

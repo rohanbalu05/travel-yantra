@@ -104,6 +104,10 @@ class FakeModel:
             travellers=[{"name": t.name, "age": t.age} for t in req.constraints.travellers] if req else [],
         )
 
-    async def text(self, prompt: str, tier: str = "flash", **_: object) -> str:
-        first = prompt.strip().splitlines()[0]
-        return f"(sample) {first[:120]}"
+    async def text(self, prompt: str, tier: str = "flash", *, label: str | None = None, **_: object) -> str:
+        """Short canned text per call, so fake-mode screens read like a plan, not like a prompt."""
+        canned = {
+            "narrator": "(sample text) Your trip is ready: the days below are planned around opening hours and travel time.",
+            "story": "(sample text) A short story about this place appears here when a model is connected.",
+        }
+        return canned.get(label or "", "(sample text) Model text appears here when a model is connected.")

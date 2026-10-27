@@ -6,7 +6,15 @@ from fastapi.testclient import TestClient
 from core import steps
 from core.checker import budget, check
 from core.revise import revise
-from core.solver import city_of, hop_of, local_legs, out_of, split_days
+from core.solver import (
+    city_of,
+    home_note,
+    hop_note,
+    hop_of,
+    local_legs,
+    out_of,
+    split_days,
+)
 from main import app
 from ty_contracts import Itinerary, ReviseRequest, TripRequest, ViolationCode
 
@@ -41,7 +49,7 @@ def test_each_city_gets_its_own_places_and_the_switch_day_opens_with_the_hop():
     switch = it.days[3]
     hop = hop_of(switch)
     assert hop is not None and (hop.from_, hop.to) == ("Mysuru", "Coorg")
-    assert switch.notes[0].startswith("Travel: Mysuru → Coorg")
+    assert switch.notes[0] == hop_note(hop) and " Mysuru → Coorg, " in switch.notes[0]
     # Day 1 opens with the outbound journey, the last day closes with the journey home; no other journeys.
     assert hop_of(it.days[0]).from_ == "Bengaluru" and hop_of(it.days[0]).to == "Mysuru"
     assert out_of(it.days[-1]).from_ == "Coorg" and out_of(it.days[-1]).to == "Bengaluru"
@@ -135,7 +143,7 @@ def test_day_one_starts_after_arrival_and_the_last_day_ends_before_the_journey_h
     assert hop_of(first).depart >= datetime.combine(first.date, out_floor)
     if out_of(last).mode.value != "rail":
         assert out_of(last).depart >= datetime.combine(last.date, time(18, 0))
-    assert any(n.startswith("Return: Coorg → Bengaluru") for n in last.notes)
+    assert home_note(out_of(last)) in last.notes and " home Coorg → Bengaluru, " in home_note(out_of(last))
 
 
 def test_visits_past_the_departure_home_are_flagged():
@@ -200,13 +208,16 @@ def test_journeys_are_marked_by_role_and_rebuilds_keep_other_notes():
     rebuild_day(it, day.date, day.stops[:1], Travel(), limits(it.request))
     notes = it.days[3].notes
     assert "Travel: carry a rain jacket" in notes and hop_of(it.days[3]).role == "between"
-    assert sum(n.startswith("Travel: Mysuru → Coorg") for n in notes) == 1
+    assert sum(" Mysuru → Coorg, " in n for n in notes) == 1
 
 
 def test_plans_saved_before_leg_roles_still_have_their_journeys():
     it = plan()
     old = it.model_copy(deep=True)
-    for d in old.days:
+    for d in old.days:  # as saved before Leg.role: no role, and "Travel: " / "Return: " notes
+        hop, home = hop_of(d), out_of(d)
+        d.notes = [("Travel: " if hop and n == hop_note(hop) else "Return: " if home and n == home_note(home) else "") + n
+                   for n in d.notes]
         d.legs = [leg.model_copy(update={"role": None}) for leg in d.legs]
     assert hop_of(old.days[0]).to == "Mysuru" and hop_of(old.days[3]).to == "Coorg"
     assert out_of(old.days[-1]).to == "Bengaluru" and hop_of(old.days[1]) is None

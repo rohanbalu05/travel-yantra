@@ -15,6 +15,7 @@ from .solver import (
     Limits,
     Travel,
     city_of,
+    day_titles,
     fits,
     hop_of,
     limits,
@@ -120,6 +121,7 @@ def revise(it: Itinerary, req: ReviseRequest, travel: Travel | None = None) -> t
     else:
         what = rain(it, req.day, travel, lim)
     it, rounds = check_and_repair(it, travel)
+    it.days = day_titles(it.days, it.request)
     return it, what, rounds
 
 

@@ -197,6 +197,8 @@ class DayPlan(_Model):
     stops: list[Place] = Field(default_factory=list)
     legs: list[Leg] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
+    # A short heading, e.g. "Day 1 · Sat 31 Oct · Arrive in Mysuru".
+    title: str | None = None
 
 
 class BudgetSummary(_Model):
