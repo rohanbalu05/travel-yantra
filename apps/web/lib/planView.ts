@@ -69,3 +69,17 @@ export function pickIndex(it: Itinerary): number {
   const ok = fits.filter((f) => f.ok);
   return (ok.length ? ok : fits).sort((a, b) => a.cost - b.cost)[0].i;
 }
+
+/** A leg with TY3's service number (train or flight), once the contract carries it; absent before. */
+export type RefLeg = Leg & { ref?: string | null };
+
+/**
+ * The train the plan takes: the first rail journey in the days, else the first
+ * rail leg of the option the days follow, else any rail leg.
+ */
+export function planRailLeg(it: Itinerary): RefLeg | undefined {
+  const inDays = it.days.flatMap((d) => d.legs ?? []).find((l) => l.mode === "rail" && isJourney(l));
+  if (inDays) return inDays;
+  const opts = it.transport ?? [];
+  return opts[pickIndex(it)]?.legs.find((l) => l.mode === "rail") ?? opts.flatMap((o) => o.legs).find((l) => l.mode === "rail");
+}

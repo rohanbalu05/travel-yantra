@@ -1,17 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { NoPlan } from "@/components/NoPlan";
 import { Problem, problemOf } from "@/components/Problem";
 import { Trail } from "@/components/Trail";
 import type { CompareResponse, Itinerary, Mode, SellerOffer } from "@/lib/contracts";
-import { MODE_ICON, MODE_NAME, dayLabel, duration, inr } from "@/lib/format";
+import { MODE_ICON, MODE_NAME, clock, dayLabel, duration, inr } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { saveChoice, useChoice, usePlanResult } from "@/lib/plan";
-import { againstBudget, pickIndex, tripCost } from "@/lib/planView";
+import { againstBudget, pickIndex, planRailLeg, tripCost } from "@/lib/planView";
 import { SAMPLE_PNRS, compareRoutes, irctcCard, partyFor, pnrStatus, type IrctcCard, type PnrStatus } from "@/lib/routes";
 import "./book.css";
 
@@ -109,7 +109,8 @@ function Travel({ it }: { it: Itinerary }) {
 }
 
 function TrainCard({ it }: { it: Itinerary }) {
-  const rail = (it.transport ?? []).flatMap((o) => o.legs).find((l) => l.mode === "rail");
+  // The plan's own train, so the card names the same one as Options and the Itinerary (QA #101).
+  const rail = useMemo(() => planRailLeg(it), [it]);
   const [card, setCard] = useState<Load<IrctcCard>>(null);
   const [copied, setCopied] = useState(false);
   const [run, setRun] = useState(0);
@@ -118,7 +119,9 @@ function TrainCard({ it }: { it: Itinerary }) {
   useEffect(() => {
     if (!rail) return;
     const ctl = new AbortController();
-    irctcCard({ from: rail.from, to: rail.to, date: rail.depart.slice(0, 10), party: partyFor(it) }, ctl.signal)
+    // TY3 picks the train by number when the leg has one (Leg.ref, asked of TY1); else the first that runs.
+    const train = rail.ref && /^\d{5}$/.test(rail.ref) ? rail.ref : null;
+    irctcCard({ from: rail.from, to: rail.to, date: rail.depart.slice(0, 10), party: partyFor(it), train }, ctl.signal)
       .then((data) => setCard({ data }))
       .catch((e) => !ctl.signal.aborted && setCard({ problem: problemOf(e) }));
     return () => ctl.abort();
@@ -167,6 +170,9 @@ function TrainCard({ it }: { it: Itinerary }) {
                 <tbody>{c.passengers.map((p) => <tr key={p.name}><td>{p.name}</td><td>{p.age}</td><td>{p.gender}</td><td>{p.berth}</td></tr>)}</tbody>
               </table>
             </div>
+            {c.departs !== clock(rail.depart) && (
+              <p className="badge badge-warn">{t("Your plan's train leaves at {time}; this one leaves at {other}. Pick the plan's train on IRCTC.", { time: clock(rail.depart), other: c.departs })}</p>
+            )}
             <p>{t("About {fare} for everyone.", { fare: inr(c.fare_estimate_inr) })} {c.notes.join(" ")}</p>
             <div className="row-wrap">
               <button type="button" className="btn btn-cream" onClick={copy}>{copied ? t("Copied") : t("Copy all details")}</button>

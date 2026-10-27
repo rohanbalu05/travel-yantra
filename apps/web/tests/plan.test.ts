@@ -5,7 +5,7 @@ import { GOA_ITINERARY, goaEvents, revisedItinerary } from "@/lib/mockPlan";
 import { PlanHttpError, streamPlan, streamRevise } from "@/lib/plan";
 import { initialPlanState, planReducer } from "@/lib/planState";
 import { OSM_ATTRIBUTION, OSM_TILES, pinHtml } from "@/lib/map";
-import { dayRows, pickIndex, planMode, tripCost } from "@/lib/planView";
+import { dayRows, pickIndex, planMode, planRailLeg, tripCost } from "@/lib/planView";
 import { formFromDraft, formProblems, goaForm, splitOf, toTripRequest, tripDays } from "@/lib/tripForm";
 
 const sse = (evs: PlanEvent[]) => evs.map((e) => `: ping\n\ndata: ${JSON.stringify(e)}\n\n`).join("");
@@ -232,5 +232,14 @@ describe("map pins", () => {
     expect(pinHtml({ label: "<b>1</b>", kind: "stop" })).toBe('<span class="smap-pin smap-stop" aria-hidden="true">&#60;b&#62;1&#60;/b&#62;</span>');
     expect(OSM_ATTRIBUTION).toContain("OpenStreetMap</a> contributors");
     expect(OSM_TILES).toBe("https://tile.openstreetmap.org/{z}/{x}/{y}.png");
+  });
+});
+
+describe("the plan's train (QA #101)", () => {
+  it("takes the rail journey from the days before any option's leg", () => {
+    const leg = { from: "Bangalore City JN", to: "Mysuru JN", mode: "rail" as const, depart: "2026-10-31T07:00:00+05:30", arrive: "2026-10-31T09:44:00+05:30", minutes: 164, cost_inr: 400, role: "outbound" as const };
+    const it = { ...GOA_ITINERARY, days: [{ date: "2026-10-31", legs: [leg] }] };
+    expect(planRailLeg(it)).toBe(leg);
+    expect(planRailLeg(GOA_ITINERARY)?.depart).toBe("2026-12-11T21:00:00"); // no journeys in the days: the option's leg
   });
 });
