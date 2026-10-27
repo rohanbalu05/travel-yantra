@@ -20,7 +20,7 @@ test("plan Goa from Home to the itinerary, revise a day and rate it", async ({ p
 
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("2 ways to Goa");
   await expect(page.getByText("Our pick: rail")).toBeVisible();
-  await page.getByRole("link", { name: "See the day-by-day plan" }).click();
+  await page.getByRole("button", { name: "See the day-by-day plan" }).click();
 
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Goa with family");
   await expect(page.locator(".smap-pin")).toHaveCount(2);
@@ -28,7 +28,7 @@ test("plan Goa from Home to the itinerary, revise a day and rate it", async ({ p
   await noSidewaysScroll(page);
 
   await page.getByRole("button", { name: "Make Fri lighter" }).click();
-  await expect(page.getByText(/Done: Fri is lighter/)).toBeVisible();
+  await expect(page.getByText(/^Done: Dropped /)).toBeVisible(); // TY1's own line for what changed
   await expect(page.locator("#day-panel .mk-stop")).toHaveCount(1);
 
   await page.getByRole("radio", { name: "4: Good" }).click();
@@ -52,7 +52,7 @@ test("book: train card, PNR timeline and stays", async ({ page }) => {
 
 test("Katha with labelled legends and sources, and the guide with an emergency answer", async ({ page }) => {
   await page.goto("/katha/place/?subject=Basilica%20of%20Bom%20Jesus");
-  await page.getByRole("button", { name: /^10 / }).click();
+  await page.getByRole("button", { name: /^10 / }).click(); // nothing loads until a length is picked
   await expect(page.locator(".seg.legend").first()).toContainText("As the story goes");
   await expect(page.locator(".srcs li")).toHaveCount(2);
   await page.locator("a.cite").first().click();
