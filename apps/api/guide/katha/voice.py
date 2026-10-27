@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import re
+import time
 from collections.abc import Callable
 from typing import Any, Protocol
 
@@ -39,6 +40,7 @@ FAMILIES = ("Chirp3-HD", "Neural2", "Wavenet", "Standard")
 PREFERRED = ("Charon", "Kore", "Achird", "Aoede")
 MAX_BYTES = 4800  # the API takes 5,000 bytes of input per request; Indic scripts are 3 a char
 TIMEOUT_S = 60
+RETRY_WAITS_S = (5, 15, 30, 60)  # then one last try
 
 
 class BudgetSpent(RuntimeError):
@@ -105,9 +107,26 @@ class GcsStorage:
         return self.url(name)
 
 
+def _transient(status: int, body: bytes) -> bool:
+    """Worth a retry: quota, overload, or an API enabled minutes ago that not every Google
+    frontend knows yet (403 "has not been used ... or it is disabled"; seen live)."""
+    return status in (429, 500, 503) or (status == 403 and b"has not been used" in body)
+
+
+def _with_retry(http: Http, method, url, body, data, headers) -> tuple[int, bytes]:
+    """A failed TTS request is not billed, so retrying never counts characters twice."""
+    for wait in RETRY_WAITS_S:
+        status, raw = http(method, url, body, data, headers)
+        if not _transient(status, raw):
+            return status, raw
+        log.warning("tts %s HTTP %d; retrying in %d s", url.rsplit("/", 1)[-1][:30], status, wait)
+        time.sleep(wait)
+    return http(method, url, body, data, headers)
+
+
 def voices(http: Http, lang: str) -> list[str]:
     """Every voice name TTS lists for the language (en-IN etc.), sorted."""
-    status, body = http("GET", f"{TTS}/voices?languageCode={LANG_CODE[lang]}", None, None, {})
+    status, body = _with_retry(http, "GET", f"{TTS}/voices?languageCode={LANG_CODE[lang]}", None, None, {})
     if status != 200:
         raise RuntimeError(f"voices {lang}: HTTP {status} {body[:200]!r}")
     code = LANG_CODE[lang]
@@ -185,7 +204,7 @@ def synthesize(http: Http, inputs: list[dict], voice: str, lang: str, budget: Bu
         budget.take(characters([item]))
         body = {"input": item, "voice": {"languageCode": LANG_CODE[lang], "name": voice},
                 "audioConfig": {"audioEncoding": "MP3", "speakingRate": 0.95}}  # fmt: skip
-        status, raw = http("POST", f"{TTS}/text:synthesize", body, None, {})
+        status, raw = _with_retry(http, "POST", f"{TTS}/text:synthesize", body, None, {})
         if status != 200:
             raise RuntimeError(f"synthesize {voice}: HTTP {status} {raw[:200]!r}")
         audio += base64.b64decode(json.loads(raw)["audioContent"])

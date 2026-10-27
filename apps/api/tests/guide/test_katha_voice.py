@@ -179,3 +179,21 @@ def test_the_voice_report_lists_every_language_and_the_choice(tmp_path, monkeypa
     assert report["hi"]["chosen"] == "hi-IN-Chirp3-HD-Charon"
     assert json.loads((tmp_path / "voices.json").read_text(encoding="utf-8")) == report
     assert set(script.DEMO) >= {"place:Mysore Palace:2:hi"} and len(script.DEMO) == 5
+
+
+def test_a_freshly_enabled_api_is_retried_and_billed_once(monkeypatch):
+    monkeypatch.setattr(v.time, "sleep", lambda s: None)
+    real = FakeHttp()
+    flaky = {"left": 2}
+
+    def http(method, url, body, data, headers):
+        if flaky["left"]:
+            flaky["left"] -= 1
+            return 403, b'{"error": {"message": "Cloud Text-to-Speech API has not been used in project"}}'
+        return real(method, url, body, data, headers)
+
+    budget = v.Budget(1000)
+    mp3 = v.synthesize(http, [{"markup": "One line."}], "en-IN-Chirp3-HD-Charon", "en", budget)
+    assert mp3 == b"One line." and budget.used == len("One line.")
+    status, _ = v._with_retry(lambda *a: (403, b"denied: no permission"), "GET", "u", None, None, {})
+    assert status == 403  # a real permission error is not retried
