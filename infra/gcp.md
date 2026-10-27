@@ -147,6 +147,26 @@ Approved by Rohan (V3-V).
   `postgresql://ty:…@/travelyantra?host=/cloudsql/<connection name>`. Both
   were generated in the shell and never printed.
 
+## Katha audio (V3-AF)
+
+- API `texttospeech.googleapis.com`, using Chirp 3: HD voices (1M
+  characters a month free, then US$30 per 1M).
+- Bucket `gs://project-cea09bbb-b5f7-4fc4-95b-katha-audio` in asia-south1,
+  uniform access, holding only `katha/<story key>/<lang>/ch<n>.mp3`.
+  - `allUsers`: `storage.legacyObjectReader`, so anyone can read an object
+    by name but nobody can list the bucket.
+  - `ty-api-run`: `objectCreator` and `objectViewer` on this bucket, plus
+    `serviceusage.serviceUsageConsumer` on the project for TTS calls.
+- ty-api env: `KATHA_AUDIO_BUCKET`, and `KATHA_AUDIO_BASE_URL` =
+  `https://storage.googleapis.com/<bucket>`.
+
+## Logging
+
+- Exclusion `ty-bots-verify-token` on the `_Default` sink drops ty-bots
+  request lines whose URL carries `hub.verify_token`, because Meta's
+  verification GET puts the verify token in the query string. The app logs
+  (startup, POST counts, send results) are kept.
+
 ## Monitoring
 
 `infra/monitoring/setup.sh`:
