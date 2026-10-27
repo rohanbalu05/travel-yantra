@@ -109,10 +109,12 @@ class GeminiTranslator:
             from google import genai
             from google.genai import types
 
-            location = os.environ.get("GOOGLE_CLOUD_LOCATION", "global")
-            client = genai.Client(
-                location=location, http_options=types.HttpOptions(timeout=TIMEOUT_MS)
-            )
+            opts = types.HttpOptions(timeout=TIMEOUT_MS)
+            if os.environ.get("GOOGLE_GENAI_USE_VERTEXAI", "").lower() in ("1", "true"):
+                location = os.environ.get("GOOGLE_CLOUD_LOCATION", "global")
+                client = genai.Client(vertexai=True, location=location, http_options=opts)
+            else:  # AI Studio (GEMINI_API_KEY); the SDK raises a clear error if neither is set
+                client = genai.Client(http_options=opts)
         self._client = client
 
     def translate(self, texts: list[str], target: str, source: str = "en") -> list[str]:

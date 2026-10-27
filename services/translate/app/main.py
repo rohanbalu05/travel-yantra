@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -55,7 +56,18 @@ def load_entity_names() -> dict[str, dict[str, str]]:
     return json.loads(Path(path).read_text(encoding="utf-8")) if path else {}
 
 
+def setup_logging() -> None:
+    """Every live model call is logged (no text) to stderr, which Cloud Run collects."""
+    log = logging.getLogger("ty.translate")
+    if not log.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter("%(levelname)s %(name)s %(message)s"))
+        log.addHandler(handler)
+        log.setLevel(logging.INFO)
+
+
 def create_app(service: TranslationService | None = None) -> FastAPI:
+    setup_logging()
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         # Model is loaded once, here, not per request.
