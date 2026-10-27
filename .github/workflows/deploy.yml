@@ -63,8 +63,22 @@ jobs:
           workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
           service_account: ${{ vars.GCP_DEPLOY_SA }}
       - uses: google-github-actions/setup-gcloud@v2
+      - name: Build ${{ matrix.service.name }}
+        env:
+          IMAGE: asia-south1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/ty/${{ matrix.service.name }}:${{ github.sha }}
+        run: |
+          # ty-translate's Dockerfile still expects its own directory as context.
+          if [ "${{ matrix.service.name }}" = "ty-translate" ]; then
+            gcloud builds submit "${{ matrix.service.dir }}" --config infra/cloudbuild/image.yaml \
+              --substitutions "_DOCKERFILE=Dockerfile,_IMAGE=$IMAGE" \
+              --project "${{ vars.GCP_PROJECT_ID }}"
+            exit 0
+          fi
+          gcloud builds submit . --config infra/cloudbuild/image.yaml \
+            --substitutions "_DOCKERFILE=${{ matrix.service.dir }}/Dockerfile,_IMAGE=$IMAGE" \
+            --project "${{ vars.GCP_PROJECT_ID }}"
       - name: Deploy ${{ matrix.service.name }}
         run: |
           gcloud run deploy "${{ matrix.service.name }}" \
-            --source "${{ matrix.service.dir }}" \
+            --image "asia-south1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/ty/${{ matrix.service.name }}:${{ github.sha }}" \
             --region asia-south1 --project "${{ vars.GCP_PROJECT_ID }}" --quiet
