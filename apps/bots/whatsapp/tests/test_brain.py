@@ -380,3 +380,35 @@ async def test_long_answer_keeps_its_sources(monkeypatch):
 async def test_malformed_translate_response_stays_english(monkeypatch, body):
     fake_http(monkeypatch, lambda req: httpx.Response(200, json=body))
     assert await Translator(TRANSLATE).text("Hello [1].", Lang.hi) == "Hello [1]."
+
+
+async def test_on_cloud_run_translate_gets_a_cached_id_token(monkeypatch):
+    monkeypatch.setenv("K_SERVICE", "ty-bots")
+
+    def handler(req):
+        if req.url.host == "metadata.google.internal":
+            assert req.headers["metadata-flavor"] == "Google"
+            assert req.url.params["audience"] == "https://translate.example"
+            return httpx.Response(200, text="id-token-1")
+        assert req.headers["authorization"] == "Bearer id-token-1"
+        return tagging_translate(req)
+
+    seen = fake_http(monkeypatch, handler)
+    tr = Translator("https://translate.example")
+    await tr.text("Hello.", Lang.hi)
+    await tr.text("Again.", Lang.hi)
+    hosts = [r.url.host for r in seen]
+    assert hosts.count("metadata.google.internal") == 1 and hosts.count("translate.example") == 2
+
+
+async def test_local_translate_sends_no_token(monkeypatch):
+    monkeypatch.delenv("K_SERVICE", raising=False)
+    seen = fake_http(monkeypatch, tagging_translate)
+    await Translator("https://translate.example").text("Hello.", Lang.hi)
+    assert "authorization" not in seen[0].headers
+
+
+async def test_no_token_means_english(monkeypatch):
+    monkeypatch.setenv("K_SERVICE", "ty-bots")
+    fake_http(monkeypatch, lambda req: httpx.Response(500))
+    assert await Translator("https://translate.example").text("Hello.", Lang.hi) == "Hello."

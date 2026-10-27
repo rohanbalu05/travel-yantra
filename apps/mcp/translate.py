@@ -7,6 +7,7 @@ from __future__ import annotations
 import logging
 import os
 import re
+import time
 
 import httpx
 from ty_contracts import Lang
@@ -17,6 +18,10 @@ SENTENCE = re.compile(r"(?<=[.!?।])\s+")
 MAX_TEXT = 1000  # per-text cap of POST /translate
 MAX_ENTITIES = 50
 MAX_TEXTS = 200  # per-request cap of POST /translate
+METADATA_TOKEN = (
+    "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity"
+)
+TOKEN_SECONDS = 50 * 60  # Google ID tokens last an hour
 
 
 def sentences(line: str) -> list[str]:
@@ -28,6 +33,24 @@ class Translator:
     def __init__(self, base: str | None = None) -> None:
         base = base if base is not None else os.environ.get("TRANSLATE_URL", "")
         self.base = base.rstrip("/")
+        self._token: tuple[str, float] | None = None  # (ID token, expiry on the monotonic clock)
+
+    async def _auth(self, client: httpx.AsyncClient) -> dict[str, str]:
+        """ty-translate is private on Cloud Run: send an ID token for it from the metadata server.
+
+        Only on Cloud Run (K_SERVICE set) with an https TRANSLATE_URL; local runs send nothing.
+        """
+        if not (os.environ.get("K_SERVICE") and self.base.startswith("https://")):
+            return {}
+        if self._token is None or time.monotonic() > self._token[1]:
+            r = await client.get(
+                METADATA_TOKEN,
+                params={"audience": self.base},
+                headers={"Metadata-Flavor": "Google"},
+            )
+            r.raise_for_status()
+            self._token = (r.text.strip(), time.monotonic() + TOKEN_SECONDS)
+        return {"Authorization": f"Bearer {self._token[0]}"}
 
     async def texts(self, texts: list[str], lang: Lang, keep: list[str] = ()) -> list[str]:
         """Translate each text to `lang`. `keep` (place names) and [n] markers are not translated.
@@ -52,7 +75,8 @@ class Translator:
                     "entities": entities[:MAX_ENTITIES],
                 }
                 try:
-                    r = await client.post(f"{self.base}/translate", json=body)
+                    headers = await self._auth(client)
+                    r = await client.post(f"{self.base}/translate", json=body, headers=headers)
                     r.raise_for_status()
                     data = r.json()
                     pairs = list(zip(data["translations"], data["flags"], strict=True))
