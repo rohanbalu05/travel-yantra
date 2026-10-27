@@ -92,7 +92,7 @@ async def test_revise_trip_streams_from_plan_revise(monkeypatch):
     assert json.loads(seen[0].content) == {
         "intent": "rain",
         "day": SAMPLE["days"][0]["date"],
-        "place_id": None,
+        "lang": "en",
     }
     assert it.days
 
@@ -247,3 +247,18 @@ async def test_api_4xx_detail_is_the_tool_error(monkeypatch):
         res = await client.call_tool("track_booking", CALLS["track_booking"])
     assert res.isError
     assert "unknown sample PNR" in res.content[0].text
+
+
+async def test_revise_unknown_plan_shows_api_detail(monkeypatch):
+    _fake_api(monkeypatch, lambda req: httpx.Response(404, json={"detail": "unknown plan_id"}))
+    async with connect(server.mcp._mcp_server) as client:
+        res = await client.call_tool("revise_trip", CALLS["revise_trip"])
+    assert res.isError and "unknown plan_id" in res.content[0].text
+
+
+async def test_revise_422_messages_are_joined(monkeypatch):
+    body = {"detail": [{"msg": "lighter_day needs day"}, {"msg": "day not in plan"}]}
+    _fake_api(monkeypatch, lambda req: httpx.Response(422, json=body))
+    async with connect(server.mcp._mcp_server) as client:
+        res = await client.call_tool("revise_trip", CALLS["revise_trip"])
+    assert res.isError and "lighter_day needs day; day not in plan" in res.content[0].text

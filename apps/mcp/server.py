@@ -59,16 +59,22 @@ def _offline(key: str) -> Any:
 async def _request(method: str, path: str, **kw: Any) -> Any:
     async with httpx.AsyncClient(timeout=60) as client:
         resp = await client.request(method, f"{_base()}{path}", **kw)
-        if 400 <= resp.status_code < 500:
-            # The API's own words (for example "unknown sample PNR") help the client more.
-            try:
-                detail = resp.json().get("detail")
-            except ValueError:
-                detail = None
-            if isinstance(detail, str):
-                raise RuntimeError(detail)
-        resp.raise_for_status()
+        _raise_for_detail(resp)
         return resp.json()
+
+
+def _raise_for_detail(resp: httpx.Response) -> None:
+    """On a 4xx, raise with the API's own words ("unknown sample PNR", a 422's messages)."""
+    if 400 <= resp.status_code < 500:
+        try:
+            detail = resp.json().get("detail")
+        except ValueError:
+            detail = None
+        if isinstance(detail, list):  # FastAPI validation errors
+            detail = "; ".join(str(d.get("msg", d)) for d in detail if isinstance(d, dict)) or None
+        if isinstance(detail, str):
+            raise RuntimeError(detail)
+    resp.raise_for_status()
 
 
 async def _stream_plan(path: str, body: Any) -> PlannedTrip:
@@ -77,7 +83,9 @@ async def _stream_plan(path: str, body: Any) -> PlannedTrip:
         httpx.AsyncClient(timeout=120) as client,
         client.stream("POST", f"{_base()}{path}", json=body) as resp,
     ):
-        resp.raise_for_status()
+        if resp.is_error:
+            await resp.aread()
+        _raise_for_detail(resp)
         async for line in resp.aiter_lines():
             if not line.startswith("data:"):
                 continue
@@ -124,13 +132,19 @@ async def revise_trip(
     intent: Literal["lighter_day", "swap_stop", "rain"],
     day: date | None = None,
     place_id: str | None = None,
+    lang: Lang = Lang.en,
 ) -> PlannedTrip:
-    """Revise a planned trip (plan_id from plan_trip): lighter day, swap a stop, or rain plan."""
+    """Revise a planned trip (plan_id from plan_trip): lighter day, swap a stop, or rain plan.
+
+    lighter_day needs day; swap_stop needs place_id; rain without a day covers every day.
+    Returns a new plan_id; the old plan stays revisable.
+    """
     if not _base():
         it = _sample_itinerary()
         it = it.model_copy(update={"warnings": [*it.warnings, "offline sample: not revised"]})
         return PlannedTrip(plan_id=plan_id, itinerary=it)
     body = {"intent": intent, "day": day.isoformat() if day else None, "place_id": place_id}
+    body = {k: v for k, v in body.items() if v is not None} | {"lang": lang.value}
     return await _stream_plan(f"/plan/{quote(plan_id, safe='')}/revise", body)
 
 
