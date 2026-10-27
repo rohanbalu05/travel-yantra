@@ -11,7 +11,7 @@ import { MODE_ICON, MODE_NAME, clock, dayLabel, duration, inr } from "@/lib/form
 import { useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { usePlanResult } from "@/lib/plan";
-import { againstBudget, pickIndex, planRailLeg, tripCost } from "@/lib/planView";
+import { againstBudget, pickIndex, planRailLeg, trainDiffers, trainLeg, tripCost } from "@/lib/planView";
 import { SAMPLE_PNRS, irctcCard, partyFor, pnrStatus, type IrctcCard, type PnrStatus } from "@/lib/routes";
 import { useRevise } from "@/lib/useRevise";
 import "./book.css";
@@ -147,8 +147,8 @@ function TrainCard({ it }: { it: Itinerary }) {
                 <tbody>{c.passengers.map((p) => <tr key={p.name}><td>{p.name}</td><td>{p.age}</td><td>{p.gender}</td><td>{p.berth}</td></tr>)}</tbody>
               </table>
             </div>
-            {c.departs !== clock(rail.depart) && (
-              <p className="badge badge-warn">{t("Your plan's train leaves at {time}; this one leaves at {other}. Pick the plan's train on IRCTC.", { time: clock(rail.depart), other: c.departs })}</p>
+            {trainDiffers(rail, c, it) && (
+              <p className="badge badge-warn">{t("Your plan's train leaves at {time}; this one leaves at {other}. Pick the plan's train on IRCTC.", { time: clock(trainLeg(it)?.depart ?? rail.depart), other: c.departs })}</p>
             )}
             <p>{t("About {fare} for everyone.", { fare: inr(c.fare_estimate_inr) })} {c.notes.join(" ")}</p>
             <div className="row-wrap">

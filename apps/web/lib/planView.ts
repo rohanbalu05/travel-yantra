@@ -1,5 +1,5 @@
 import type { DayPlan, Itinerary, Leg, Mode, Place, StopTime, TransportOption } from "@/lib/contracts";
-import { daysBetween } from "@/lib/format";
+import { clock, daysBetween } from "@/lib/format";
 
 export type DayRow = { kind: "stop"; n: number; place: Place; at?: StopTime } | { kind: "move"; leg: Leg } | { kind: "stay"; name: string };
 
@@ -87,4 +87,16 @@ export function planRailLeg(it: Itinerary): Leg | undefined {
   if (inDays) return inDays;
   const opts = it.transport ?? [];
   return opts[pickIndex(it)]?.legs.find((l) => l.mode === "rail") ?? opts.flatMap((o) => o.legs).find((l) => l.mode === "rail");
+}
+
+/** The train itself in the option the days follow (the day's journey leg also counts the ride to the station). */
+export const trainLeg = (it: Itinerary) => (it.transport ?? [])[pickIndex(it)]?.legs.find((l) => l.mode === "rail");
+
+/**
+ * The IRCTC card names another train than the plan: by number when the leg has one (Leg.ref),
+ * else by the train's own departure, not the journey leg's (which starts with the cab to the station).
+ */
+export function trainDiffers(rail: Leg, card: { departs: string; train: { number: string } }, it: Itinerary): boolean {
+  if (rail.ref) return card.train.number !== rail.ref;
+  return card.departs !== clock((trainLeg(it) ?? rail).depart);
 }

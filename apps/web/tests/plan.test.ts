@@ -5,7 +5,7 @@ import { GOA_ITINERARY, goaEvents, revisedItinerary } from "@/lib/mockPlan";
 import { PlanHttpError, streamPlan, streamRevise } from "@/lib/plan";
 import { initialPlanState, planReducer } from "@/lib/planState";
 import { OSM_ATTRIBUTION, OSM_TILES, pinHtml } from "@/lib/map";
-import { dayRows, pickIndex, planMode, planRailLeg, tripCost } from "@/lib/planView";
+import { dayRows, pickIndex, planMode, planRailLeg, trainDiffers, tripCost } from "@/lib/planView";
 import { formFromDraft, formProblems, goaForm, leaveSample, splitOf, toTripRequest, tripDays } from "@/lib/tripForm";
 
 const sse = (evs: PlanEvent[]) => evs.map((e) => `: ping\n\ndata: ${JSON.stringify(e)}\n\n`).join("");
@@ -290,5 +290,18 @@ describe("the form leaves the Goa sample (QA #117)", () => {
     expect(toTripRequest(f).constraints?.mobility_needs).toEqual([]);
     const mine = { ...f, food: "Jain" };
     expect(leaveSample(mine)).toBe(mine); // the traveller's own choices stay
+  });
+});
+
+describe("the IRCTC card's train against the plan (TY3, live)", () => {
+  const journey = { from: "Bengaluru", to: "Mysuru", mode: "rail" as const, depart: "2026-10-31T06:28:00", arrive: "2026-10-31T10:30:00", minutes: 242, cost_inr: 900, role: "outbound" as const, ref: "16731" };
+  it("matches by train number, not the journey leg's start (which includes the cab)", () => {
+    expect(trainDiffers(journey, { departs: "07:00", train: { number: "16731" } }, GOA_ITINERARY)).toBe(false);
+    expect(trainDiffers(journey, { departs: "07:00", train: { number: "16021" } }, GOA_ITINERARY)).toBe(true);
+  });
+  it("without a number, compares with the train's own time in the plan's option", () => {
+    const noRef = { ...journey, ref: null };
+    expect(trainDiffers(noRef, { departs: "21:00", train: { number: "90001" } }, GOA_ITINERARY)).toBe(false); // the sample option's 21:00
+    expect(trainDiffers(noRef, { departs: "04:00", train: { number: "06202" } }, GOA_ITINERARY)).toBe(true);
   });
 });
