@@ -152,7 +152,9 @@ Approved by Rohan (V3-V).
 - API `texttospeech.googleapis.com`, using Chirp 3: HD voices (1M
   characters a month free, then US$30 per 1M).
 - Bucket `gs://project-cea09bbb-b5f7-4fc4-95b-katha-audio` in asia-south1,
-  uniform access, holding only `katha/<story key>/<lang>/ch<n>.mp3`.
+  uniform access, holding only `katha/<story key>/<lang>/ch<n>.mp3` and one
+  `katha/<story key>/<lang>/audio.json` manifest per story (chapter, url,
+  voice, characters).
   - `allUsers`: `storage.legacyObjectReader`, so anyone can read an object
     by name but nobody can list the bucket.
   - `ty-api-run`: `objectCreator` and `objectViewer` on this bucket, plus

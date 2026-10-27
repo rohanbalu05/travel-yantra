@@ -3,7 +3,7 @@
 # gcloud builds submit . --config infra/cloudbuild/image.yaml --region asia-south1 \
 #   --service-account projects/PROJECT/serviceAccounts/ty-deploy@PROJECT.iam.gserviceaccount.com \
 #   --substitutions=_DOCKERFILE=apps/api/Dockerfile,_IMAGE=asia-south1-docker.pkg.dev/PROJECT/ty/ty-api:SHA
-# _API_BASE_URL is only read by infra/web/Dockerfile; other images ignore it.
+# _API_BASE_URL and _FB_* are only read by infra/web/Dockerfile; other images ignore them.
 steps:
   - name: gcr.io/cloud-builders/docker
     args:
@@ -12,12 +12,24 @@ steps:
       - ${_DOCKERFILE}
       - --build-arg
       - NEXT_PUBLIC_API_BASE_URL=${_API_BASE_URL}
+      - --build-arg
+      - NEXT_PUBLIC_FIREBASE_API_KEY=${_FB_API_KEY}
+      - --build-arg
+      - NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=${_FB_AUTH_DOMAIN}
+      - --build-arg
+      - NEXT_PUBLIC_FIREBASE_PROJECT_ID=${_FB_PROJECT_ID}
+      - --build-arg
+      - NEXT_PUBLIC_FIREBASE_APP_ID=${_FB_APP_ID}
       - -t
       - ${_IMAGE}
       - .
 images: ['${_IMAGE}']
 substitutions:
   _API_BASE_URL: ''
+  _FB_API_KEY: ''
+  _FB_AUTH_DOMAIN: ''
+  _FB_PROJECT_ID: ''
+  _FB_APP_ID: ''
 # ty-api bakes torch and the e5 model (~9 min cold); the default limit is 10 min.
 timeout: 1800s
 options:

@@ -108,12 +108,21 @@ jobs:
           IMAGE: asia-south1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/ty/${{ matrix.service.name }}:${{ github.sha }}
           PROJECT: ${{ vars.GCP_PROJECT_ID }}
           DEPLOY_SA: ${{ vars.GCP_DEPLOY_SA }}
+          FB_API_KEY: ${{ vars.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          FB_AUTH_DOMAIN: ${{ vars.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          FB_PROJECT_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          FB_APP_ID: ${{ vars.NEXT_PUBLIC_FIREBASE_APP_ID }}
         run: |
-          # The web build inlines the live API URL (empty until ty-api exists).
-          api_url=""
+          # The web build inlines the live API URL (empty until ty-api exists) and
+          # the Firebase web config (V3-AG) from repo variables. It's public client
+          # config, but the commit hooks block its key pattern, so it lives in
+          # GitHub variables, not the repo. Empty means sign-in stays off.
+          api_url="" fb=""
           if [ "${{ matrix.service.name }}" = "ty-web" ]; then
             api_url=$(gcloud run services describe ty-api --region asia-south1 --project "$PROJECT" \
               --format 'value(status.url)' 2>/dev/null || true)
+            fb="_FB_API_KEY=$FB_API_KEY~_FB_AUTH_DOMAIN=$FB_AUTH_DOMAIN~_FB_PROJECT_ID=$FB_PROJECT_ID~_FB_APP_ID=$FB_APP_ID"
+            [ -n "$FB_API_KEY" ] && echo "firebase web config: set" || echo "firebase web config: not set (sign-in off)"
           fi
           # An explicit staging dir skips gcloud's default-bucket ownership check,
           # which needs project-wide storage.buckets.list that ty-deploy lacks.
@@ -122,7 +131,7 @@ jobs:
           id=$(gcloud builds submit . --config infra/cloudbuild/image.yaml --async --format 'value(id)' \
             --region asia-south1 --service-account "projects/$PROJECT/serviceAccounts/$DEPLOY_SA" \
             --gcs-source-staging-dir "gs://${PROJECT}_cloudbuild/source" \
-            --substitutions "_DOCKERFILE=${{ matrix.service.dockerfile }},_IMAGE=$IMAGE,_API_BASE_URL=$api_url" \
+            --substitutions "^~^_DOCKERFILE=${{ matrix.service.dockerfile }}~_IMAGE=$IMAGE~_API_BASE_URL=$api_url${fb:+~$fb}" \
             --project "$PROJECT")
           echo "build $id"
           # Give up after 10 failed reads in a row, or 33 min (the build's own

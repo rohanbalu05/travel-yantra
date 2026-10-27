@@ -12,7 +12,16 @@ COPY packages/contracts/ts packages/contracts/ts
 COPY apps/web apps/web
 # NEXT_PUBLIC_* values are inlined at build time.
 ARG NEXT_PUBLIC_API_BASE_URL=""
-ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+# Firebase web config for Google sign-in (V3-AG): public client config, empty = sign-in off.
+ARG NEXT_PUBLIC_FIREBASE_API_KEY=""
+ARG NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=""
+ARG NEXT_PUBLIC_FIREBASE_PROJECT_ID=""
+ARG NEXT_PUBLIC_FIREBASE_APP_ID=""
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL \
+    NEXT_PUBLIC_FIREBASE_API_KEY=$NEXT_PUBLIC_FIREBASE_API_KEY \
+    NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=$NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN \
+    NEXT_PUBLIC_FIREBASE_PROJECT_ID=$NEXT_PUBLIC_FIREBASE_PROJECT_ID \
+    NEXT_PUBLIC_FIREBASE_APP_ID=$NEXT_PUBLIC_FIREBASE_APP_ID
 # public/ is optional in apps/web; make sure the runtime COPY has a source.
 RUN cd apps/web && mkdir -p public && pnpm build
 
