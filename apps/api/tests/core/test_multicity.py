@@ -141,8 +141,8 @@ def test_day_one_starts_after_arrival_and_the_last_day_ends_before_the_journey_h
     # Rail journeys are real trains (first after 06:00 out; home after the visits); road keeps 08:00 / 18:00.
     out_floor = time(6, 0) if hop_of(first).mode.value == "rail" else time(8, 0)
     assert hop_of(first).depart >= datetime.combine(first.date, out_floor)
-    if out_of(last).mode.value != "rail":
-        assert out_of(last).depart >= datetime.combine(last.date, time(18, 0))
+    # The journey home leaves at least 45 minutes after the last visit ends (rail: the first train from then).
+    assert out_of(last).depart >= max(v.leave for v in visits_of(last, it)) + timedelta(minutes=45)
     assert home_note(out_of(last)) in last.notes and " home Coorg → Bengaluru, " in home_note(out_of(last))
 
 
@@ -235,3 +235,12 @@ def test_rebuild_drops_journey_lines_in_the_older_wording_but_not_own_notes():
     notes = it.days[3].notes
     assert old_line not in notes and "Travel: book the jeep the night before" in notes
     assert sum(" Mysuru → Coorg, " in n for n in notes) == 1
+
+
+def visits_of(day, it):
+    from core.solver import Travel, after_hop, limits, schedule
+
+    travel = Travel()
+    mins = [travel.minutes(a, b) for a, b in zip(day.stops, day.stops[1:])]
+    visits, _ = schedule(day.date, day.stops, mins, after_hop(limits(it.request), hop_of(day)))
+    return visits

@@ -35,8 +35,11 @@ HOP_NOTE = "Travel: "
 HOP_SETTLE_MIN = 30
 # The journey home: its note, the default departure time and how long before it the last visit ends.
 RETURN_NOTE = "Return: "
-RETURN_DEPART = time(18, 0)
-RETURN_BUFFER_MIN = 60
+# The last day is planned to about RETURN_FILL_END; the journey home then leaves at least RETURN_BUFFER_MIN
+# after the last visit ends (RETURN_DEPART is the provisional departure the solver plans against).
+RETURN_FILL_END = time(17, 0)
+RETURN_BUFFER_MIN = 45
+RETURN_DEPART = time(17, 45)
 # Journey notes as written before the timetable wording, e.g. "Travel: A → B by rail, 3h20".
 OLD_JOURNEY_NOTE = re.compile(r"^(Travel|Return): .+ → .+ by (rail|road|air), ")
 

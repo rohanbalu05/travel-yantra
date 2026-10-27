@@ -10,6 +10,7 @@ from datetime import date
 from ty_contracts import Itinerary, Mode, Place, ReviseIntent, ReviseRequest
 
 from . import fakes
+from .checker import budget
 from .repair import check_and_repair
 from .solver import (
     _KEEP,
@@ -126,6 +127,10 @@ def revise(it: Itinerary, req: ReviseRequest, travel: Travel | None = None) -> t
     else:
         what = rain(it, req.day, travel, lim)
     it, rounds = check_and_repair(it, travel)
+    from .steps import retime_home
+
+    retime_home(it)  # the last day may have changed
+    it.budget = budget(it)
     it.days = day_titles(it.days, it.request)
     return it, what, rounds
 

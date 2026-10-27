@@ -35,9 +35,14 @@ from .solver import (
     RETURN_BUFFER_MIN,
     RETURN_DEPART,
     Travel,
+    after_hop,
     day_titles,
+    hop_of,
     journey,
     limits,
+    out_of,
+    rebuild_day,
+    schedule,
     solve_trip,
     split_days,
 )
@@ -185,26 +190,23 @@ def morning_train(request: TripRequest, a: str, b: str, day: date) -> TransportO
     return next((t for t in trains if t.legs[-1].arrive <= start), trains[0] if trains else None)
 
 
-def evening_train(request: TripRequest, a: str, b: str, day: date) -> TransportOption | None:
-    """The latest train that leaves after the day's visits and still arrives that day; else the first after
-    the visits; and when none leaves that late, the day's last train (the visits then end earlier)."""
-    after = (datetime.combine(day, limits(request).end) + timedelta(minutes=RETURN_BUFFER_MIN)).time()
+def evening_train(request: TripRequest, a: str, b: str, day: date, after: time = RETURN_DEPART) -> TransportOption | None:
+    """The first train that leaves at or after `after`; when none leaves that late, the day's last train
+    (the checker then trims the visits to make it)."""
     later = _trains(a, b, day, after)
-    same_day = [t for t in later if t.legs[-1].arrive.date() == day]
-    if same_day:
-        return same_day[-1]
     if later:
         return later[0]
     afternoon = _trains(a, b, day, TRAIN_AFTERNOON)
     return afternoon[-1] if afternoon else None
 
 
-def timed(request: TripRequest, a: str, b: str, day: date, option: TransportOption, role: str) -> TransportOption:
+def timed(request: TripRequest, a: str, b: str, day: date, option: TransportOption, role: str,
+          depart: time = RETURN_DEPART) -> TransportOption:
     """A rail option swapped for a real timetabled train (morning for outbound and between, evening for
     home); road and air keep their fixed departure."""
     if option.mode is not Mode.rail:
         return option
-    train = (evening_train if role == "home" else morning_train)(request, a, b, day)
+    train = evening_train(request, a, b, day, depart) if role == "home" else morning_train(request, a, b, day)
     return train or option
 
 
@@ -216,7 +218,7 @@ def hop(request: TripRequest, a: str, b: str, day: date, depart: time = HOP_DEPA
     # Chosen road but routes has no road option: fall through to our own road estimate below. For rail or air
     # there is nothing to estimate, so the best option of any mode stands.
     if found and (request.transport_mode in (None, found[0].mode) or request.transport_mode is not Mode.road):
-        return journey(a, b, timed(request, a, b, day, found[0], role), role)
+        return journey(a, b, timed(request, a, b, day, found[0], role, depart), role)
     pa, pb = city_places(request, a), city_places(request, b)
     if not pa or not pb:
         return None
@@ -243,8 +245,26 @@ def hops(request: TripRequest, options: list[TransportOption]) -> dict[str, Leg]
     return out
 
 
+def retime_home(it: Itinerary) -> None:
+    """Once the last day is planned: the journey home leaves at least RETURN_BUFFER_MIN after the last visit
+    ends (the first train from then on; road leaves then), in the mode of the provisional journey."""
+    if not it.days or (out := out_of(it.days[-1])) is None:
+        return
+    last, lim, travel = it.days[-1], limits(it.request), Travel()
+    opened = after_hop(lim, hop_of(last))
+    mins = [travel.minutes(x, y) for x, y in zip(last.stops, last.stops[1:])]
+    visits, _ = schedule(last.date, last.stops, mins, opened)
+    ends = visits[-1].leave if visits else datetime.combine(last.date, opened.start)
+    leave = (ends + timedelta(minutes=RETURN_BUFFER_MIN)).time()
+    same_mode = it.request.model_copy(update={"transport_mode": out.mode})
+    new = hop(same_mode, out.from_, out.to, last.date, leave, role="home")
+    if new and (new.depart, new.mode) != (out.depart, out.mode):
+        rebuild_day(it, last.date, list(last.stops), travel, lim, out=new)
+
+
 def home(request: TripRequest) -> Leg | None:
-    """The journey back to the origin from the last city, in the evening of the last day."""
+    """The journey back to the origin from the last city: provisional (the solver plans the last day against
+    it); retime_home picks the real one once the day's visits are known."""
     split = [(c, d) for c, d in split_days(request) if d]
     if not split:
         return None
@@ -320,6 +340,7 @@ def assemble(r: TripRequest, pools: dict[str, list[Place]], options: list[Transp
         + _missing_stays(r, [s.model_dump(mode="json") for s in stays_found]),
         season_notes=season_notes(r),
     )
+    retime_home(it)
     it.budget = budget(it)
     return it
 
@@ -379,6 +400,8 @@ async def final_check(state: dict, model: Model):
     """After the loop: leftovers become warnings. Returns an empty message when nothing was left."""
     before = _itinerary(state)
     it = finish(before)
+    retime_home(it)  # repairs may have shortened the last day
+    it.budget = budget(it)
     it.days = day_titles(it.days, it.request)  # repairs may have emptied or filled a day
     left = len(it.warnings) - len(before.warnings)
     return {"itinerary": it.model_dump(mode="json", by_alias=True)}, (f"{left} issue{'s' * (left > 1)} left as warnings" if left else "")

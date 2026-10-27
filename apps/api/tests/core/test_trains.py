@@ -62,3 +62,21 @@ def test_opening_hours_are_filled_only_where_asked(monkeypatch):
     steps.city_places(DEMO, "Mysuru", hours=True)
     steps.replan(DEMO)
     assert len(calls) == 2 and all(n > 0 for n in calls)
+
+
+def test_the_last_day_is_used_and_the_train_home_follows_the_last_visit():
+    # QA #109: Sunday ended about 11:30 with the train home at 20:03.
+    from core.solver import RETURN_BUFFER_MIN, RETURN_FILL_END, Travel, out_of, schedule
+
+    it = steps.replan(DEMO)
+    last = it.days[-1]
+    home = out_of(last)
+    travel = Travel()
+    visits, _ = schedule(last.date, last.stops, [travel.minutes(a, b) for a, b in zip(last.stops, last.stops[1:])],
+                         limits(DEMO))
+    ends = visits[-1].leave
+    assert ends.time() <= RETURN_FILL_END and home.mode.value == "rail"
+    assert home.depart >= ends + timedelta(minutes=RETURN_BUFFER_MIN)
+    earlier = [t for t in steps._trains("Mysuru", "Bengaluru", last.date, (ends + timedelta(minutes=RETURN_BUFFER_MIN)).time())]
+    assert home.depart == earlier[0].legs[0].depart  # the first train from then, not the day's last
+    assert home.depart - ends < timedelta(hours=3)
