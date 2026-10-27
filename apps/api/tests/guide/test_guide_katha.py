@@ -406,3 +406,13 @@ def test_katha_hindi_reuses_the_english_outline_and_caches_both(monkeypatch) -> 
     # a language Katha has no voice for gets the English story, for translate to carry
     ta = asyncio.run(katha(KathaRequest(subject_kind="place", subject="x", length_min=2, lang="ta"), db, model))
     assert ta.lang == "en" and model.labels.count("katha outline") == 1 and len(db.rows) == 2
+
+
+def test_lang_sample_facts_come_from_the_seed_in_story_order() -> None:
+    from guide.katha.facts import CAP
+    from guide.scripts.katha_lang_sample import facts_for
+
+    subject, facts = facts_for("Mysore Palace", 2)
+    assert subject.city == "Mysuru" and 2 <= len(facts) <= CAP[2]
+    assert [f.n for f in facts] == list(range(1, len(facts) + 1))
+    assert not any("ticket" in (f.title or "").lower() for f in facts)  # practical rows left out
