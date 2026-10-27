@@ -35,6 +35,7 @@ from .metrics import (
     record,
     summarise,
 )
+from .study import TASKS, StudyReport, StudyTask, report
 
 router = APIRouter(prefix="/routes")
 
@@ -96,3 +97,13 @@ async def post_metric_event(request: Request, store: Store = Depends(get_store),
 @router.get("/metrics/summary", response_model=list[TaskSummary])
 def get_metric_summary(store: Store = Depends(get_store)) -> list[TaskSummary]:
     return summarise(store.all())
+
+
+@router.get("/metrics/tasks", response_model=list[StudyTask])
+def get_study_tasks() -> list[StudyTask]:
+    return TASKS
+
+
+@router.get("/metrics/report", response_model=StudyReport)
+def get_study_report(store: Store = Depends(get_store)) -> StudyReport:
+    return report(store.all())
