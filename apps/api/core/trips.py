@@ -88,11 +88,14 @@ class PgStore:
             )
         return Trip(trip_id, token, itinerary, owner, revised_from)
 
-    def _one(self, where: str, value: str) -> Trip | None:
+    _SELECT = {
+        "id": "SELECT id, share_token, itinerary, owner, revised_from FROM trips WHERE id = %s",
+        "share_token": "SELECT id, share_token, itinerary, owner, revised_from FROM trips WHERE share_token = %s",
+    }
+
+    def _one(self, key: str, value: str) -> Trip | None:
         with self._connect() as conn:
-            row = conn.execute(
-                f"SELECT id, share_token, itinerary, owner, revised_from FROM trips WHERE {where} = %s", (value,)
-            ).fetchone()
+            row = conn.execute(self._SELECT[key], (value,)).fetchone()
         if row is None:
             return None
         return Trip(row[0], row[1], Itinerary.model_validate(row[2]), row[3], row[4])
