@@ -40,7 +40,7 @@ gcloud services enable run.googleapis.com artifactregistry.googleapis.com \
 | --- | --- | --- |
 | `ty-api-run@…` | Cloud Run ty-api | `aiplatform.user`, `cloudsql.client` (project); `secretmanager.secretAccessor` on the four secrets below only |
 | `ty-web-run@…` | Cloud Run ty-web | none |
-| `ty-deploy@…` | GitHub Actions through WIF; Cloud Build | `run.developer`, `artifactregistry.writer`, `cloudbuild.builds.editor`, `serviceusage.serviceUsageConsumer`, `logging.logWriter`, `logging.viewer` (project); `storage.objectAdmin` on the build bucket only |
+| `ty-deploy@…` | GitHub Actions through WIF; Cloud Build | `run.developer`, `artifactregistry.writer`, `cloudbuild.builds.editor`, `serviceusage.serviceUsageConsumer`, `logging.logWriter`, `logging.viewer` (project); `storage.objectAdmin` and `storage.legacyBucketReader` on the build bucket only (`gcloud builds submit` needs `storage.buckets.get`) |
 
 No JSON keys exist and none may be created.
 
