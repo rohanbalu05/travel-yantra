@@ -21,7 +21,7 @@ type Entry = Partial<Record<Lang, string>>;
 // UNREVIEWED: drafted in TY4; send to TY5 for the phrasebook review before the demo.
 const EXTRA: Record<string, Entry> = {
   Home: { hi: "होम", kn: "ಮುಖಪುಟ", ta: "முகப்பு", te: "హోమ్", bn: "হোম" },
-  "Plan a trip": { hi: "यात्रा की योजना बनाएं", kn: "ಪ್ರವಾಸ ಯೋಜಿಸಿ", ta: "பயணம் திட்டமிடுங்கள்", te: "యాత్ర ప్లాన్ చేయండి", bn: "ভ্রমণের পরিকল্পনা" },
+  "Plan a trip": { hi: "यात्रा की योजना बनाएं", kn: "ಪ್ರವಾಸ ಯೋಜಿಸಿ", ta: "பயணத்தைத் திட்டமிடுங்கள்", te: "యాత్ర ప్లాన్ చేయండి", bn: "ভ্রমণের পরিকল্পনা" },
   Katha: { hi: "कथा", kn: "ಕಥೆ", ta: "கதை", te: "కథ", bn: "কথা" },
   "My trips": { hi: "मेरी यात्राएं", kn: "ನನ್ನ ಪ್ರವಾಸಗಳು", ta: "என் பயணங்கள்", te: "నా యాత్రలు", bn: "আমার ভ্রমণ" },
   "Ask the guide": { hi: "गाइड से पूछें", kn: "ಮಾರ್ಗದರ್ಶಿಯನ್ನು ಕೇಳಿ", ta: "வழிகாட்டியிடம் கேளுங்கள்", te: "గైడ్‌ను అడగండి", bn: "গাইডকে জিজ্ঞাসা করুন" },
