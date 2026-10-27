@@ -97,7 +97,9 @@ class Timetable:
         """Connection scan. access: station -> minute you can board there (from the
         travel day's midnight); egress: station -> minutes on to the destination.
         night_end: no change of trains (getting off to change, or boarding the next
-        train) from midnight to this minute of the day; None allows any.
+        train) from midnight to this minute of the day; None allows any. The first boarding
+        and the final arrival may still fall in the night: compare.sensible() drops those
+        journeys unless nothing else exists.
         Returns the rides as (board index, alight index, ...) resolved to
         [(dep, arr, conn) per ride], and the arrival at the destination."""
         night = (lambda m: m % 1440 < night_end) if night_end else (lambda m: False)
