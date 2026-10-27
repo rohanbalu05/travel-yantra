@@ -360,18 +360,16 @@ def assemble(r: TripRequest, pools: dict[str, list[Place]], options: list[Transp
 
 
 def season_notes(r: TripRequest) -> list[SeasonNote]:
-    """TY2's quoted season notes for each city and each month the trip spends there. Nothing is added when
-    the sources say nothing (no guessing)."""
-    from guide.season import notes_for
+    """TY2's quoted season notes for each city over the dates the trip spends there: every month it spans,
+    each note once, festivals only when their dates fall inside the trip. Nothing when the sources say
+    nothing (no guessing)."""
+    from guide.season import notes_for_trip
 
     out: list[SeasonNote] = []
-    seen: set[tuple[str, str]] = set()
     for city, dates in split_days(r):
-        for month in dict.fromkeys(d.month for d in dates):
-            for n in notes_for(city, next(d for d in dates if d.month == month)):
-                if (city, n["text"]) not in seen:
-                    seen.add((city, n["text"]))
-                    out.append(SeasonNote(city=city, text=n["text"], source_url=n["source_url"], kind=n["kind"]))
+        if dates:
+            out += [SeasonNote(city=city, text=n["text"], source_url=n["source_url"], kind=n["kind"])
+                    for n in notes_for_trip(city, dates[0], dates[-1])]
     return out
 
 
