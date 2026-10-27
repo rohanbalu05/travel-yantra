@@ -247,3 +247,23 @@ def test_manifest_lookups_are_remembered():
         assert len(seen) == 1
     finally:
         del os.environ["KATHA_AUDIO_BASE_URL"]
+
+
+def test_a_story_the_api_cannot_give_is_skipped_and_the_run_goes_on(tmp_path, monkeypatch):
+    # TY6's run: Mysuru 5 min hi answered 503 (failed its checks twice) and the run died.
+    import urllib.error
+
+    from guide.scripts import katha_voice as script
+
+    monkeypatch.setattr(script, "OUT", tmp_path)
+
+    def fetch(kind, subject, length, lang):
+        if lang == "hi":
+            raise urllib.error.HTTPError("u", 503, "Service Unavailable", {}, None)
+        return story(lang=lang)
+
+    report = {lang: {"chosen": f"{lang}-IN-Chirp3-HD-Charon"} for lang in v.LANG_CODE}
+    store = MemoryStorage()
+    skipped = script.run(["city:Mysuru:5:hi", "city:Mysuru:2:en"], fetch, report, FakeHttp(), store,
+                         v.Budget(100_000))  # fmt: skip
+    assert skipped == 1 and any(k.endswith("/en/ch1.mp3") for k in store.objects)

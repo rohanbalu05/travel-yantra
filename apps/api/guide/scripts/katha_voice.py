@@ -18,6 +18,8 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
+import urllib.error
 import urllib.request
 from datetime import UTC, datetime
 
@@ -64,23 +66,45 @@ def main() -> None:
         return
     storage = v.GcsStorage(os.environ["KATHA_AUDIO_BUCKET"], http, os.environ.get("KATHA_AUDIO_BASE_URL"))
     budget = v.Budget(args.budget)
-    for spec in args.stories:
+    api = os.environ["TY_API_URL"]
+    skipped = run(args.stories, lambda *a: fetch_story(api, *a), report, http, storage, budget)
+    print(f"TTS characters this run: {budget.used} (budget {budget.limit}); skipped {skipped}")
+    if skipped:
+        sys.exit(1)
+
+
+def run(specs, fetch, report: dict, http: v.Http, storage: v.Storage, budget: v.Budget) -> int:
+    """Read each spec aloud; a story the API can't give (503: it failed its checks twice;
+    404; a timeout) or TTS can't read is skipped and the rest go on. Returns the number
+    skipped. The budget is one counter for the whole run, so the cap holds."""
+    skipped = 0
+    for spec in specs:
         kind, subject, length, lang = spec.split(":")
-        story = fetch_story(os.environ["TY_API_URL"], kind, subject, int(length), lang)
+        try:
+            story = fetch(kind, subject, int(length), lang)
+        except urllib.error.HTTPError as e:
+            print(f"SKIPPED {spec}: HTTP {e.code}")
+            skipped += 1
+            continue
+        except OSError as e:
+            print(f"SKIPPED {spec}: {type(e).__name__}")
+            skipped += 1
+            continue
         chosen = report[story.lang]["chosen"]
         try:
             audio, sent = v.read_aloud(story, chosen, http, storage, budget)
         except v.BudgetSpent as e:
             print(f"stop: {e}")
-            break
-        except RuntimeError as e:  # TTS or upload failed for this story: the others still run,
-            print(f"FAILED {spec}: {e}")  # and a re-run resumes it from the chapters stored
+            return skipped + 1
+        except RuntimeError as e:  # TTS or upload failed: a re-run resumes from the stored chapters
+            print(f"FAILED {spec}: {e}")
+            skipped += 1
             continue
         line = f"{story.subject} {story.length_min}min {story.lang} {chosen} {len(audio)} chapters {sent} chars"
         print(line)
         with (OUT / "calls.log").open("a", encoding="utf-8") as f:
             f.write(f"{datetime.now(UTC):%Y-%m-%dT%H:%M:%SZ}\t{line}\n")
-    print(f"TTS characters this run: {budget.used} (budget {budget.limit})")
+    return skipped
 
 
 if __name__ == "__main__":
