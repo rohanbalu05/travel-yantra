@@ -5,9 +5,10 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from ty_contracts import GuideAnswer, GuideQuestion
+from ty_contracts import GuideAnswer, GuideQuestion, KathaStory
 
 from .ask import Answerer, answerer, ask
+from .katha import KathaFailed, KathaRequest, UnknownSubject, katha, katha_model
 from .places import PgCache, PlacesClient
 
 router = APIRouter(prefix="/guide")
@@ -45,4 +46,25 @@ async def post_ask(
         return await ask(req, db, model, places)
     except Exception as e:  # model quota or timeout, embedder missing, a dropped connection
         log.exception("guide ask failed")
+        raise HTTPException(503, BUSY) from e
+
+
+NO_STORY = "No story for that place yet."
+
+
+@router.post("/katha", response_model=KathaStory)
+async def post_katha(
+    req: KathaRequest,
+    db: Any = Depends(get_db),
+    model: Any = Depends(katha_model),
+) -> KathaStory:
+    try:
+        return await katha(req, db, model)
+    except UnknownSubject as e:
+        raise HTTPException(404, NO_STORY) from e
+    except KathaFailed as e:  # thin sources, or a draft that failed its checks twice
+        log.warning("katha failed: %s", e.problems)
+        raise HTTPException(503, BUSY) from e
+    except Exception as e:
+        log.exception("guide katha failed")
         raise HTTPException(503, BUSY) from e
