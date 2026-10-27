@@ -4,19 +4,19 @@ from __future__ import annotations
 
 from datetime import date
 
-from ty_contracts import DayPlan, Itinerary, Place, Violation, ViolationCode
+from ty_contracts import DayPlan, Itinerary, Violation, ViolationCode
 
 from .checker import budget, check, chosen_stays, warnings
 from .solver import (
-    HOP_NOTE,
-    REST_NOTE,
     Limits,
     Travel,
-    build_day,
     city_of,
     fits,
     hop_of,
+    journey,
     limits,
+    out_of,
+    rebuild_day,
 )
 
 DAY_CODES = (ViolationCode.long_day, ViolationCode.too_much_travel, ViolationCode.no_rest)
@@ -43,12 +43,6 @@ def _day(it: Itinerary, d: date | None) -> DayPlan | None:
     return next((x for x in it.days if x.date == d), None)
 
 
-def _rebuild(it: Itinerary, d: date, stops: list[Place], travel: Travel, lim: Limits) -> None:
-    i = next(i for i, x in enumerate(it.days) if x.date == d)
-    plan, _ = build_day(d, stops, travel, lim, hop=hop_of(it.days[i]))
-    # Keep the day's own notes; the rest and travel notes are rebuilt with the day.
-    plan.notes = [n for n in it.days[i].notes if n != REST_NOTE and not n.startswith(HOP_NOTE)] + plan.notes
-    it.days[i] = plan
 
 
 def _cheaper(it: Itinerary, travel: Travel, lim: Limits) -> list[str]:
@@ -57,6 +51,10 @@ def _cheaper(it: Itinerary, travel: Travel, lim: Limits) -> list[str]:
         if cheapest is not it.transport[0] and cheapest.total_cost_inr < it.transport[0].total_cost_inr:
             it.transport.remove(cheapest)
             it.transport.insert(0, cheapest)
+            first = it.days[0] if it.days else None
+            hop = hop_of(first) if first else None
+            if hop and hop.from_ == it.request.origin:  # day 1 travels on the chosen option: switch it too
+                rebuild_day(it, first.date, list(first.stops), travel, lim, hop=journey(hop.from_, hop.to, cheapest))
             return [f"Switched to {cheapest.mode.value} to save money"]
     for chosen in chosen_stays(it):
         same = [s for s in it.stays if s.check_in == chosen.check_in]
@@ -70,7 +68,7 @@ def _cheaper(it: Itinerary, travel: Travel, lim: Limits) -> list[str]:
     if not fullest.stops:
         return []
     drop = max(fullest.stops, key=lambda p: p.typical_visit_minutes)
-    _rebuild(it, fullest.date, [p for p in fullest.stops if p.id != drop.id], travel, lim)
+    rebuild_day(it, fullest.date, [p for p in fullest.stops if p.id != drop.id], travel, lim)
     it.warnings.append(f"Dropped {drop.name} to stay within budget")
     return [f"Dropped {drop.name} to save money"]
 
@@ -80,11 +78,11 @@ def _move_or_drop(it: Itinerary, d: date | None, place_id: str, travel: Travel, 
     place = next((p for p in day.stops if p.id == place_id), None) if day else None
     if place is None:
         return []
-    _rebuild(it, day.date, [p for p in day.stops if p.id != place_id], travel, lim)
+    rebuild_day(it, day.date, [p for p in day.stops if p.id != place_id], travel, lim)
     for other in sorted(it.days, key=lambda x: len(x.stops)):
         same_city = city_of(it.request, other.date) == city_of(it.request, day.date)
-        if other.date != day.date and same_city and fits(other.date, [*other.stops, place], travel, lim, hop_of(other)):
-            _rebuild(it, other.date, [*other.stops, place], travel, lim)
+        if other.date != day.date and same_city and fits(other.date, [*other.stops, place], travel, lim, hop_of(other), out_of(other)):
+            rebuild_day(it, other.date, [*other.stops, place], travel, lim)
             return [f"Moved {place.name} to {other.date:%a %d %b}"]
     it.warnings.append(f"Dropped {place.name}: {why}")
     return [f"Dropped {place.name}"]
@@ -95,7 +93,7 @@ def _lighten(it: Itinerary, v: Violation, travel: Travel, lim: Limits) -> list[s
     if day is None or not day.stops:
         return []
     # First re-plan the day as the solver would (better order, rest breaks). Enough if it now passes.
-    _rebuild(it, day.date, list(day.stops), travel, lim)
+    rebuild_day(it, day.date, list(day.stops), travel, lim)
     if not [x for x in check(it, travel) if x.day == day.date and x.code in DAY_CODES]:
         return [f"Re-planned {day.date:%a %d %b}"]
     last = _day(it, day.date).stops[-1]

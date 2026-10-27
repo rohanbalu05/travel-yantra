@@ -10,7 +10,16 @@ from dataclasses import dataclass, replace
 from datetime import date, datetime, time, timedelta
 
 from routes.graph import KIND_PLACE, HaversineRoadProvider, Node, RoadEdgeProvider
-from ty_contracts import DayPlan, Leg, Mode, Pace, Place, TripRequest
+from ty_contracts import (
+    DayPlan,
+    Itinerary,
+    Leg,
+    Mode,
+    Pace,
+    Place,
+    TransportOption,
+    TripRequest,
+)
 
 WEEKDAYS = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 ELDERLY_AGE = 60
@@ -23,6 +32,10 @@ RANK_MINUTES = 6
 # A travel day: the note that names the hop, and the time to settle in after arriving.
 HOP_NOTE = "Travel: "
 HOP_SETTLE_MIN = 30
+# The journey home: its note, the default departure time and how long before it the last visit ends.
+RETURN_NOTE = "Return: "
+RETURN_DEPART = time(18, 0)
+RETURN_BUFFER_MIN = 60
 
 
 @dataclass(frozen=True)
@@ -159,28 +172,54 @@ def schedule(day: date, stops: list[Place], travel_min: list[int], lim: Limits) 
 
 
 def hop_of(day: DayPlan) -> Leg | None:
-    """The inter-city leg that opens a travel day, if any. Stop-to-stop legs always start at a stop."""
-    if day.legs and (not day.stops or day.legs[0].from_ not in {p.name for p in day.stops}):
+    """The journey that opens a day (the outbound trip on day 1, or a move to the next city), if any."""
+    names = {p.name for p in day.stops}
+    if day.legs and any(n.startswith(HOP_NOTE) for n in day.notes) and day.legs[0].from_ not in names:
         return day.legs[0]
     return None
 
 
+def out_of(day: DayPlan) -> Leg | None:
+    """The journey home that closes the last day, if any."""
+    names = {p.name for p in day.stops}
+    if day.legs and any(n.startswith(RETURN_NOTE) for n in day.notes) and day.legs[-1].to not in names:
+        return day.legs[-1]
+    return None
+
+
+def local_legs(day: DayPlan) -> list[Leg]:
+    """Stop-to-stop legs only: without the journeys that open or close the day."""
+    hop, out = hop_of(day), out_of(day)
+    return [leg for leg in day.legs if leg is not hop and leg is not out]
+
+
 def after_hop(lim: Limits, hop: Leg | None) -> Limits:
-    """A travel day starts once the hop has arrived (plus time to settle) and has less road time left."""
+    """A travel day starts once the journey has arrived, plus time to settle."""
     if hop is None:
         return lim
     ready = hop.arrive + timedelta(minutes=HOP_SETTLE_MIN)
     # An arrival after the day's end (or after midnight) leaves no time for visits that day.
     late = ready.date() != hop.depart.date() or ready.time() >= lim.end
-    start = lim.end if late else max(lim.start, ready.time())
-    return replace(lim, start=start, max_travel_min=max(lim.max_travel_min - hop.minutes, 0))
+    return replace(lim, start=lim.end if late else max(lim.start, ready.time()))
+
+
+def before_out(lim: Limits, out: Leg | None) -> Limits:
+    """The last day ends early enough to make the journey home."""
+    if out is None:
+        return lim
+    leave_by = (out.depart - timedelta(minutes=RETURN_BUFFER_MIN)).time()
+    return replace(lim, end=max(min(lim.end, leave_by), lim.start))
+
+
+def frame(lim: Limits, hop: Leg | None, out: Leg | None) -> Limits:
+    return before_out(after_hop(lim, hop), out)
 
 
 def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorder: bool = True,
-              hop: Leg | None = None) -> tuple[DayPlan, str | None]:
-    """Order (optionally), schedule and attach road legs (after the inter-city hop, if any).
-    Returns the plan and the first problem."""
-    lim = after_hop(lim, hop)
+              hop: Leg | None = None, out: Leg | None = None) -> tuple[DayPlan, str | None]:
+    """Order (optionally), schedule and attach road legs, between the journey that opens the day (hop)
+    and the one that closes it (out), if any. Returns the plan and the first problem."""
+    lim = frame(lim, hop, out)
     stops = order(stops, travel) if reorder else list(stops)
     mins = [travel.minutes(a, b) for a, b in zip(stops, stops[1:])]
     visits, problem = schedule(day, stops, mins, lim)
@@ -193,15 +232,46 @@ def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorde
     notes = [REST_NOTE] if rested else []
     if hop:
         legs.insert(0, hop)
-        notes.insert(0, f"{HOP_NOTE}{hop.from_} → {hop.to} by {hop.mode.value}, {hop.minutes // 60}h{hop.minutes % 60:02d}")
+        notes.insert(0, f"{HOP_NOTE}{hop.from_} → {hop.to} by {hop.mode.value}, {_duration(hop)}")
+    if out:
+        legs.append(out)
+        notes.append(f"{RETURN_NOTE}{out.from_} → {out.to} by {out.mode.value}, leaves {out.depart:%H:%M}, {_duration(out)}")
     return DayPlan(date=day, stops=stops, legs=legs, notes=notes), problem
 
 
-def fits(day: date, stops: list[Place], travel: Travel, lim: Limits, hop: Leg | None = None) -> bool:
+_KEEP = object()
+
+
+def rebuild_day(it: Itinerary, d: date, stops: list[Place], travel: Travel, lim: Limits, hop=_KEEP) -> None:
+    """Re-plan one day of an itinerary in place with new stops, keeping its journeys (or a new opening
+    journey when `hop` is given) and its own notes; the rest and journey notes are rebuilt with the day."""
+    i = next(i for i, x in enumerate(it.days) if x.date == d)
+    old = it.days[i]
+    plan, _ = build_day(d, stops, travel, lim, hop=hop_of(old) if hop is _KEEP else hop, out=out_of(old))
+    keep = [n for n in old.notes if n != REST_NOTE and not n.startswith((HOP_NOTE, RETURN_NOTE))]
+    it.days[i] = plan.model_copy(update={"notes": keep + plan.notes})
+
+
+def journey(a: str, b: str, option: TransportOption) -> Leg:
+    """One leg for a whole transport option, labelled with the two cities (its own legs may be stations)."""
+    depart = option.legs[0].depart
+    return Leg(**{"from": a}, to=b, mode=option.mode, depart=depart,
+               arrive=depart + timedelta(minutes=option.total_minutes), minutes=option.total_minutes,
+               cost_inr=option.total_cost_inr)
+
+
+def _duration(leg: Leg) -> str:
+    return f"{leg.minutes // 60}h{leg.minutes % 60:02d}"
+
+
+def fits(day: date, stops: list[Place], travel: Travel, lim: Limits, hop: Leg | None = None,
+         out: Leg | None = None) -> bool:
+    """The stops fit the day. Only local road time counts against the daily cap; the journeys that open
+    or close a day move its start and end instead."""
     if len(stops) > lim.max_stops:
         return False
-    plan, problem = build_day(day, stops, travel, lim, hop=hop)
-    return problem is None and sum(leg.minutes for leg in plan.legs) <= lim.max_travel_min
+    plan, problem = build_day(day, stops, travel, lim, hop=hop, out=out)
+    return problem is None and sum(leg.minutes for leg in local_legs(plan)) <= lim.max_travel_min
 
 
 def trip_days(request: TripRequest) -> list[date]:
@@ -209,14 +279,17 @@ def trip_days(request: TripRequest) -> list[date]:
 
 
 def split_days(request: TripRequest) -> list[tuple[str, list[date]]]:
-    """Share the trip's days between the destinations, in order, as evenly as possible (earlier cities
-    get the spare days). With fewer days than cities, the last cities get none."""
+    """Share the trip's days between the destinations, in order: request.days_per_destination when set
+    (revise moves days with it), else as evenly as possible (earlier cities get the spare days). With
+    fewer days than cities, the last cities get none."""
     days = trip_days(request)
     cities = request.destinations
-    base, extra = divmod(len(days), len(cities))
+    counts = request.days_per_destination
+    if not counts:
+        base, extra = divmod(len(days), len(cities))
+        counts = [base + (1 if n < extra else 0) for n in range(len(cities))]
     out, i = [], 0
-    for n, city in enumerate(cities):
-        take = base + (1 if n < extra else 0)
+    for city, take in zip(cities, counts):
         out.append((city, days[i:i + take]))
         i += take
     return out
@@ -228,24 +301,28 @@ def city_of(request: TripRequest, day: date) -> str | None:
 
 
 def solve_trip(request: TripRequest, pools: dict[str, list[Place]], hops: dict[str, Leg] | None = None,
-               travel: Travel | None = None) -> tuple[list[DayPlan], list[Place]]:
-    """One solve per destination over its share of the days; the hop into a city opens its first day."""
+               travel: Travel | None = None, home: Leg | None = None) -> tuple[list[DayPlan], list[Place]]:
+    """One solve per destination over its share of the days. The journey into a city (from the origin for
+    the first one) opens its first day; the journey home closes the trip's last day."""
     travel = travel or Travel()
     days: list[DayPlan] = []
     left: list[Place] = []
-    for city, dates in split_days(request):
-        if not dates:
+    split = [(c, d) for c, d in split_days(request) if d]
+    for city, _ in split_days(request):
+        if city not in dict(split):
             left += pools.get(city, [])
-            continue
-        part = request.model_copy(update={"destinations": [city], "start_date": dates[0], "end_date": dates[-1]})
-        got, rest = solve(part, pools.get(city, []), travel, first_hop=(hops or {}).get(city))
+    for n, (city, dates) in enumerate(split):
+        part = request.model_copy(update={"destinations": [city], "start_date": dates[0], "end_date": dates[-1],
+                                          "days_per_destination": None})
+        got, rest = solve(part, pools.get(city, []), travel, first_hop=(hops or {}).get(city),
+                          last_out=home if n == len(split) - 1 else None)
         days += got
         left += rest
     return days, left
 
 
 def solve(request: TripRequest, places: list[Place], travel: Travel | None = None,
-          first_hop: Leg | None = None) -> tuple[list[DayPlan], list[Place]]:
+          first_hop: Leg | None = None, last_out: Leg | None = None) -> tuple[list[DayPlan], list[Place]]:
     """Greedy clustering by distance: each day seeds with the first unplaced place that fits, then adds
     the nearest places that still fit. A day takes its share of what is left (never more than the pace
     allows), so a short list spreads over the trip instead of piling onto day one.
@@ -258,16 +335,17 @@ def solve(request: TripRequest, places: list[Place], travel: Travel | None = Non
     days: list[DayPlan] = []
     for n, d in enumerate(dates):
         hop = first_hop if n == 0 else None
+        out = last_out if n == len(dates) - 1 else None
         share = min(lim.max_stops, math.ceil(len(left) / (len(dates) - n)))
-        seed = next((p for p in left if fits(d, [p], travel, lim, hop)), None)
+        seed = next((p for p in left if fits(d, [p], travel, lim, hop, out)), None)
         chosen = [seed] if seed and share else []
         while chosen and len(chosen) < share:
             # Near the day's stops, but a much more popular place is worth a short detour.
             near = sorted(left, key=lambda p: (min(travel.minutes(c, p) for c in chosen) + RANK_MINUTES * rank[p.id], p.id))
-            added = next((p for p in near if p not in chosen and fits(d, [*chosen, p], travel, lim, hop)), None)
+            added = next((p for p in near if p not in chosen and fits(d, [*chosen, p], travel, lim, hop, out)), None)
             if added is None:
                 break
             chosen.append(added)
         left = [p for p in left if p not in chosen]
-        days.append(build_day(d, chosen, travel, lim, hop=hop)[0])
+        days.append(build_day(d, chosen, travel, lim, hop=hop, out=out)[0])
     return days, left

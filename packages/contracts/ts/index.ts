@@ -195,12 +195,13 @@ export interface RatingIn {
   lang?: Lang;
 }
 
-export type ReviseIntent = "lighter_day" | "swap_stop" | "rain";
+export type ReviseIntent = "lighter_day" | "swap_stop" | "rain" | "move_day";
 
 export interface ReviseRequest {
   intent: ReviseIntent;
   day?: string | null;
   place_id?: string | null;
+  city?: string | null;
   lang?: Lang | null;
 }
 
@@ -259,6 +260,7 @@ export interface TripRequest {
   constraints?: Constraints;
   lang?: Lang;
   notes?: string | null;
+  days_per_destination?: number[] | null;
 }
 
 export interface TripSummary {

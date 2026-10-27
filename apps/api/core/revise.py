@@ -12,15 +12,14 @@ from ty_contracts import Itinerary, Place, ReviseIntent, ReviseRequest
 from . import fakes
 from .repair import check_and_repair
 from .solver import (
-    HOP_NOTE,
-    REST_NOTE,
     Limits,
     Travel,
-    build_day,
     city_of,
     fits,
     hop_of,
     limits,
+    out_of,
+    rebuild_day,
 )
 
 # Categories that keep you dry. Everything else (beach, viewpoint, neighbourhood walks, forts) is outdoor.
@@ -44,12 +43,6 @@ def candidates(it: Itinerary, city: str | None = None) -> list[Place]:
     return [p for p in {p.id: p for p in pool}.values() if p.id not in used]
 
 
-def _rebuild(it: Itinerary, d: date, stops: list[Place], travel: Travel, lim: Limits) -> None:
-    i = next(i for i, x in enumerate(it.days) if x.date == d)
-    old = it.days[i]
-    plan = build_day(d, stops, travel, lim, hop=hop_of(old))[0]
-    keep = [n for n in old.notes if n != REST_NOTE and not n.startswith(HOP_NOTE)]
-    it.days[i] = plan.model_copy(update={"notes": keep + plan.notes})
 
 
 def _day(it: Itinerary, d: date):
@@ -65,11 +58,11 @@ def lighter_day(it: Itinerary, d: date, travel: Travel, lim: Limits) -> str:
         return f"{d:%a %d %b} is already free"
     # Take out the longest visit; move it to the lightest day that can take it, else drop it.
     out = max(day.stops, key=lambda p: (p.typical_visit_minutes, p.id))
-    _rebuild(it, d, [p for p in day.stops if p.id != out.id], travel, lim)
+    rebuild_day(it, d, [p for p in day.stops if p.id != out.id], travel, lim)
     for other in sorted(it.days, key=lambda x: (len(x.stops), x.date)):
         same_city = city_of(it.request, other.date) == city_of(it.request, d)
-        if other.date != d and same_city and fits(other.date, [*other.stops, out], travel, lim, hop_of(other)):
-            _rebuild(it, other.date, [*other.stops, out], travel, lim)
+        if other.date != d and same_city and fits(other.date, [*other.stops, out], travel, lim, hop_of(other), out_of(other)):
+            rebuild_day(it, other.date, [*other.stops, out], travel, lim)
             return f"Moved {out.name} to {other.date:%a %d %b}"
     it.warnings.append(f"Dropped {out.name} to make {d:%a %d %b} lighter")
     return f"Dropped {out.name}"
@@ -83,8 +76,8 @@ def swap_stop(it: Itinerary, place_id: str, travel: Travel, lim: Limits) -> str:
     keep = [p for p in day.stops if p.id != place_id]
     near = sorted(candidates(it, city_of(it.request, day.date)),
                   key=lambda p: (p.category != old.category, travel.minutes(old, p), p.id))
-    new = next((p for p in near if fits(day.date, [*keep, p], travel, lim, hop_of(day))), None)
-    _rebuild(it, day.date, [*keep, new] if new else keep, travel, lim)
+    new = next((p for p in near if fits(day.date, [*keep, p], travel, lim, hop_of(day), out_of(day))), None)
+    rebuild_day(it, day.date, [*keep, new] if new else keep, travel, lim)
     if new is None:
         it.warnings.append(f"No other place fits {day.date:%a %d %b}; removed {old.name}")
         return f"Removed {old.name}"
@@ -99,14 +92,14 @@ def rain(it: Itinerary, d: date | None, travel: Travel, lim: Limits) -> str:
         keep = [p for p in day.stops if p.category in INDOOR]
         for old in (p for p in day.stops if p.category not in INDOOR):
             pick = min(spare, key=lambda p: (travel.minutes(old, p), p.id), default=None)
-            if pick and fits(day.date, [*keep, pick], travel, lim, hop_of(day)):
+            if pick and fits(day.date, [*keep, pick], travel, lim, hop_of(day), out_of(day)):
                 spare.remove(pick)
                 keep.append(pick)
                 changes.append(f"{old.name} → {pick.name}")
             else:
                 it.warnings.append(f"Rain: dropped {old.name} on {day.date:%a %d %b}; no indoor place fits")
                 changes.append(f"dropped {old.name}")
-        _rebuild(it, day.date, keep, travel, lim)
+        rebuild_day(it, day.date, keep, travel, lim)
     return "Rain plan: " + ("; ".join(changes) if changes else "every stop is already indoors")
 
 

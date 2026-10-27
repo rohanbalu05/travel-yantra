@@ -28,7 +28,7 @@ from .checker import budget, check
 from .intake import intake as run_intake
 from .llm import Model
 from .repair import finish, repair
-from .solver import ELDERLY_AGE, Travel, solve_trip, split_days
+from .solver import ELDERLY_AGE, RETURN_DEPART, Travel, journey, solve_trip, split_days
 
 # Inter-city road hops leave at this time when routes has no timetable for them.
 HOP_DEPART = time(8, 0)
@@ -75,12 +75,12 @@ def _compare():
 
 
 @lru_cache(maxsize=256)
-def _compared(origin: str, destination: str, day: date) -> tuple[TransportOption, ...]:
-    """Cached per route and day: the graph search is deterministic for the same inputs."""
+def _compared(origin: str, destination: str, day: date, depart: time = time(8, 0)) -> tuple[TransportOption, ...]:
+    """Cached per route, day and departure time: the graph search is deterministic for the same inputs."""
     from routes.compare import CompareRequest, UnknownPlace
 
     try:
-        found = _compare().compare(CompareRequest(origin=origin, destination=destination, date=day))
+        found = _compare().compare(CompareRequest(origin=origin, destination=destination, date=day, depart_time=depart))
     except UnknownPlace:
         return ()
     return tuple(o.option for o in found.options)
@@ -96,9 +96,12 @@ def transport_options(request: TripRequest) -> list[TransportOption]:
 async def transport(state: dict, model: Model):
     r = _request(state)
     options = transport_options(r)
-    between = hops(r)
-    more = f" and {len(between)} between cities" if between else ""
-    return ({"transport": _dump(options), "hops": {c: leg.model_dump(mode="json", by_alias=True) for c, leg in between.items()}},
+    journeys = hops(r, options)
+    back = home(r)
+    more = f" and {len(journeys) - 1} between cities" if len(journeys) > 1 else ""
+    return ({"transport": _dump(options),
+             "hops": {c: leg.model_dump(mode="json", by_alias=True) for c, leg in journeys.items()},
+             "home": back.model_dump(mode="json", by_alias=True) if back else None},
             f"Found {len(options)} ways to travel{more}")
 
 
@@ -123,33 +126,44 @@ async def places(state: dict, model: Model):
     return {"pools": {c: _dump(v) for c, v in pools.items()}}, f"Found {found} places to see"
 
 
-def hop(request: TripRequest, a: str, b: str, day: date) -> Leg | None:
-    """The inter-city leg from a to b on the morning of `day`: TY3's best-ranked option, or a road estimate
-    between the two cities' top places when routes does not know a city."""
-    found = _compared(a, b, day)
+def hop(request: TripRequest, a: str, b: str, day: date, depart: time = HOP_DEPART) -> Leg | None:
+    """The journey from a to b on `day`, leaving around `depart`: TY3's best-ranked option, or a road
+    estimate between the two cities' top places when routes does not know a city."""
+    found = _compared(a, b, day, depart)
     if found:
-        opt = found[0]
-        depart = opt.legs[0].depart
-        return Leg(**{"from": a}, to=b, mode=opt.mode, depart=depart,
-                   arrive=depart + timedelta(minutes=opt.total_minutes), minutes=opt.total_minutes,
-                   cost_inr=opt.total_cost_inr)
+        return journey(a, b, found[0])
     pa, pb = city_places(request, a), city_places(request, b)
     if not pa or not pb:
         return None
     minutes, cost = Travel().edge(pa[0], pb[0])
-    depart = datetime.combine(day, HOP_DEPART)
-    return Leg(**{"from": a}, to=b, mode=Mode.road, depart=depart, arrive=depart + timedelta(minutes=minutes),
+    leave = datetime.combine(day, depart)
+    return Leg(**{"from": a}, to=b, mode=Mode.road, depart=leave, arrive=leave + timedelta(minutes=minutes),
                minutes=minutes, cost_inr=cost)
 
 
-def hops(request: TripRequest) -> dict[str, Leg]:
-    """One hop into each destination after the first, on that city's first day."""
+def hops(request: TripRequest, options: list[TransportOption]) -> dict[str, Leg]:
+    """The journey into each destination on its first day: from the origin on the chosen transport option
+    for the first city, then city to city."""
     split = [(c, d) for c, d in split_days(request) if d]
     out = {}
+    if split:
+        first, dates = split[0]
+        leg = journey(request.origin, first, options[0]) if options else hop(request, request.origin, first, dates[0])
+        if leg is not None:
+            out[first] = leg
     for (prev, _), (city, dates) in zip(split, split[1:]):
         if (leg := hop(request, prev, city, dates[0])) is not None:
             out[city] = leg
     return out
+
+
+def home(request: TripRequest) -> Leg | None:
+    """The journey back to the origin from the last city, in the evening of the last day."""
+    split = [(c, d) for c, d in split_days(request) if d]
+    if not split:
+        return None
+    last, dates = split[-1]
+    return hop(request, last, request.origin, dates[-1], RETURN_DEPART)
 
 
 def city_stays(request: TripRequest, city: str, check_in: date, nights: int) -> list[Stay]:
@@ -210,7 +224,8 @@ async def solver(state: dict, model: Model):
     r = _request(state)
     pools = {c: [Place.model_validate(p) for p in v] for c, v in state["pools"].items()}
     between = {c: Leg.model_validate(v) for c, v in state.get("hops", {}).items()}
-    days, _ = solve_trip(r, pools, between)
+    back = Leg.model_validate(state["home"]) if state.get("home") else None
+    days, _ = solve_trip(r, pools, between, home=back)
     empty = [c for c, v in pools.items() if not v]
     it = Itinerary(
         request=r, days=days, lang=r.lang,

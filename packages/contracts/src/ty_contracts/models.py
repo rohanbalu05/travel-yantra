@@ -57,11 +57,19 @@ class TripRequest(_Model):
     constraints: Constraints = Field(default_factory=Constraints)
     lang: Lang = Lang.en
     notes: str | None = None
+    # Days in each destination, in order (multi-city). None shares the days out evenly.
+    days_per_destination: list[int] | None = None
 
     @model_validator(mode="after")
     def _dates_in_order(self) -> TripRequest:
         if self.end_date < self.start_date:
             raise ValueError("end_date must not be before start_date")
+        if self.days_per_destination is not None:
+            days = (self.end_date - self.start_date).days + 1
+            if len(self.days_per_destination) != len(self.destinations) or sum(self.days_per_destination) != days:
+                raise ValueError("days_per_destination needs one count per destination, adding up to the trip's days")
+            if any(n < 0 for n in self.days_per_destination):
+                raise ValueError("days_per_destination counts must not be negative")
         return self
 
 
@@ -350,15 +358,18 @@ class ReviseIntent(StrEnum):
     lighter_day = "lighter_day"
     swap_stop = "swap_stop"
     rain = "rain"
+    move_day = "move_day"
 
 
 class ReviseRequest(_Model):
     """Body of POST /plan/{plan_id}/revise. lighter_day needs day; swap_stop needs place_id; rain takes
-    an optional day (all days when missing). The response streams PlanEvents like /plan."""
+    an optional day (all days when missing); move_day needs city (the destination that gains a day from a
+    neighbour). The response streams PlanEvents like /plan."""
 
     intent: ReviseIntent
     day: date | None = None
     place_id: str | None = None
+    city: str | None = None
     lang: Lang | None = None
 
     @model_validator(mode="after")
@@ -367,6 +378,8 @@ class ReviseRequest(_Model):
             raise ValueError("lighter_day needs day")
         if self.intent is ReviseIntent.swap_stop and not self.place_id:
             raise ValueError("swap_stop needs place_id")
+        if self.intent is ReviseIntent.move_day and not self.city:
+            raise ValueError("move_day needs city")
         return self
 
 

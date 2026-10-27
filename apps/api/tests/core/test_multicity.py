@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from core import steps
 from core.checker import budget, check
 from core.revise import revise
-from core.solver import city_of, hop_of, split_days
+from core.solver import city_of, hop_of, local_legs, out_of, split_days
 from main import app
 from ty_contracts import Itinerary, ReviseRequest, TripRequest, ViolationCode
 
@@ -42,20 +42,27 @@ def test_each_city_gets_its_own_places_and_the_switch_day_opens_with_the_hop():
     hop = hop_of(switch)
     assert hop is not None and (hop.from_, hop.to) == ("Mysuru", "Coorg")
     assert switch.notes[0].startswith("Travel: Mysuru → Coorg")
-    assert all(hop_of(d) is None for d in it.days if d.date != switch.date)
+    # Day 1 opens with the outbound journey, the last day closes with the journey home; no other journeys.
+    assert hop_of(it.days[0]).from_ == "Bengaluru" and hop_of(it.days[0]).to == "Mysuru"
+    assert out_of(it.days[-1]).from_ == "Coorg" and out_of(it.days[-1]).to == "Bengaluru"
+    assert all(hop_of(d) is None for d in it.days[1:] if d.date != switch.date)
+    assert all(out_of(d) is None for d in it.days[:-1])
     assert check(it) == []
 
 
-def test_the_hop_counts_as_road_time_and_money():
+def test_journeys_cost_money_but_only_local_road_time_counts_against_the_cap():
     it = plan()
     hop = hop_of(it.days[3])
     without = it.model_copy(deep=True)
-    without.days[3] = without.days[3].model_copy(update={"legs": without.days[3].legs[1:]})
+    day = without.days[3]
+    without.days[3] = day.model_copy(update={"legs": day.legs[1:], "notes": [n for n in day.notes if not n.startswith("Travel")]})
     assert budget(it).transport_inr - budget(without).transport_inr == hop.cost_inr * 2
-    # A tight travel cap makes the hop alone too much for that day.
+    # A tight cap judges only stop-to-stop legs; the inter-city journey moves the day's start instead.
     tight = it.model_copy(deep=True)
     tight.request.constraints.max_travel_hours_per_day = 1
-    assert any(v.code is ViolationCode.too_much_travel and v.day == it.days[3].date for v in check(tight))
+    local = sum(leg.minutes for leg in local_legs(tight.days[3]))
+    flagged = any(v.code is ViolationCode.too_much_travel and v.day == it.days[3].date for v in check(tight))
+    assert flagged == (local > 60)
 
 
 def test_stays_are_per_city_and_a_city_without_data_is_flagged():
@@ -80,7 +87,8 @@ def test_revise_keeps_the_hop_and_stays_in_the_city():
 
 def test_single_city_trips_are_unchanged():
     one = plan({**TRIP, "destinations": ["Mysuru"]})
-    assert all(hop_of(d) is None for d in one.days) and len(one.days) == 5
+    assert len(one.days) == 5 and hop_of(one.days[0]).from_ == "Bengaluru" and out_of(one.days[-1]).to == "Bengaluru"
+    assert all(hop_of(d) is None for d in one.days[1:]) and all(out_of(d) is None for d in one.days[:-1])
 
 
 def test_a_hop_arriving_after_the_day_ends_leaves_no_visits_that_day():
@@ -96,3 +104,32 @@ def test_a_hop_arriving_after_the_day_ends_leaves_no_visits_that_day():
     morning = late.model_copy(update={"depart": datetime(2026, 11, 23, 8, 0), "arrive": datetime(2026, 11, 23, 10, 0),
                                       "minutes": 120})
     assert after_hop(lim, morning).start == time(10, 30)
+
+
+def test_day_one_starts_after_arrival_and_the_last_day_ends_before_the_journey_home():
+    from datetime import timedelta
+
+    from core.solver import HOP_SETTLE_MIN, RETURN_BUFFER_MIN, Travel, limits, schedule
+
+    it = plan()
+    lim = limits(it.request)
+    first, last = it.days[0], it.days[-1]
+    arrive = hop_of(first).arrive + timedelta(minutes=HOP_SETTLE_MIN)
+    leave_by = out_of(last).depart - timedelta(minutes=RETURN_BUFFER_MIN)
+    travel = Travel()
+    for day, check_visit in ((first, lambda v: v.start >= arrive), (last, lambda v: v.leave <= leave_by)):
+        mins = [travel.minutes(a, b) for a, b in zip(day.stops, day.stops[1:])]
+        from core.solver import frame
+
+        visits, problem = schedule(day.date, day.stops, mins, frame(lim, hop_of(day), out_of(day)))
+        assert problem is None and all(check_visit(v) for v in visits)
+    assert out_of(last).depart.hour == 18 and any(n.startswith("Return: Coorg → Bengaluru") for n in last.notes)
+
+
+def test_visits_past_the_departure_home_are_flagged():
+    it = plan()
+    last = it.days[-1]
+    early = out_of(last).model_copy(update={"depart": out_of(last).depart.replace(hour=11)})
+    late = it.model_copy(deep=True)
+    late.days[-1] = last.model_copy(update={"legs": [*last.legs[:-1], early]})
+    assert any(v.code is ViolationCode.long_day and "home leaves" in v.message for v in check(late)) == bool(last.stops)

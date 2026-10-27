@@ -159,3 +159,15 @@ def test_account_models():
     for bad in ({"score": 0}, {"score": 6}, {"score": 3, "comment": "x" * 501}):
         with pytest.raises(ValidationError):
             RatingIn.model_validate(bad)
+
+
+def test_days_per_destination_and_move_day():
+    base = {"origin": "Bengaluru", "destinations": ["Mysuru", "Coorg"], "start_date": "2026-11-20", "end_date": "2026-11-24"}
+    assert roundtrip(TripRequest, {**base, "days_per_destination": [2, 3]}).days_per_destination == [2, 3]
+    assert TripRequest.model_validate(base).days_per_destination is None
+    for bad in ([2, 2], [5], [6, -1]):
+        with pytest.raises(ValidationError):
+            TripRequest.model_validate({**base, "days_per_destination": bad})
+    assert roundtrip(ReviseRequest, {"intent": "move_day", "city": "Coorg"}).city == "Coorg"
+    with pytest.raises(ValidationError):
+        ReviseRequest.model_validate({"intent": "move_day"})

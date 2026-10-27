@@ -1145,14 +1145,15 @@
       "enum": [
         "lighter_day",
         "swap_stop",
-        "rain"
+        "rain",
+        "move_day"
       ],
       "title": "ReviseIntent",
       "type": "string"
     },
     "ReviseRequest": {
       "additionalProperties": false,
-      "description": "Body of POST /plan/{plan_id}/revise. lighter_day needs day; swap_stop needs place_id; rain takes\nan optional day (all days when missing). The response streams PlanEvents like /plan.",
+      "description": "Body of POST /plan/{plan_id}/revise. lighter_day needs day; swap_stop needs place_id; rain takes\nan optional day (all days when missing); move_day needs city (the destination that gains a day from a\nneighbour). The response streams PlanEvents like /plan.",
       "properties": {
         "intent": {
           "$ref": "#/$defs/ReviseIntent"
@@ -1181,6 +1182,18 @@
           ],
           "default": null,
           "title": "Place Id"
+        },
+        "city": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "City"
         },
         "lang": {
           "anyOf": [
@@ -1516,6 +1529,21 @@
           ],
           "default": null,
           "title": "Notes"
+        },
+        "days_per_destination": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Days Per Destination"
         }
       },
       "required": [
