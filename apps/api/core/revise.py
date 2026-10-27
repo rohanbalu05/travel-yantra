@@ -14,7 +14,7 @@ from .repair import check_and_repair
 from .solver import Limits, Travel, build_day, fits, limits
 
 # Categories that keep you dry. Everything else (beach, viewpoint, neighbourhood walks, forts) is outdoor.
-INDOOR = {"museum", "gallery", "heritage", "temple", "church", "market", "palace", "aquarium", "mall"}
+INDOOR = {"museum", "gallery", "heritage", "temple", "church", "market", "palace", "aquarium", "mall", "food"}
 
 
 class ReviseError(ValueError):
@@ -22,9 +22,12 @@ class ReviseError(ValueError):
 
 
 def candidates(it: Itinerary) -> list[Place]:
-    """Places the planner could use that this plan does not."""
+    """Places the planner could use that this plan does not: TY2's corpus, then the samples."""
+    from guide.planner import places_for
+
     used = {p.id for d in it.days for p in d.stops}
-    pool = [*fakes.places(it.request), *fakes.alternatives(it.request)]
+    corpus = [p for city in it.request.destinations for p in places_for(city, exclude=frozenset(used))]
+    pool = [*corpus, *fakes.places(it.request), *fakes.alternatives(it.request)]
     return [p for p in {p.id: p for p in pool}.values() if p.id not in used]
 
 

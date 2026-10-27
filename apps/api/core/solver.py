@@ -18,6 +18,8 @@ ELDERLY_AGE = 60
 REST_AFTER_MIN = 180
 REST_MIN = 45
 REST_NOTE = "Rest break"
+# When filling a day, each step down the planner's ranking counts as this many minutes of extra travel.
+RANK_MINUTES = 6
 
 
 @dataclass(frozen=True)
@@ -187,6 +189,7 @@ def solve(request: TripRequest, places: list[Place], travel: Travel | None = Non
     travel = travel or Travel()
     lim = limits(request)
     left = list({p.id: p for p in places}.values())  # planner order, one entry per id
+    rank = {p.id: i for i, p in enumerate(left)}
     dates = trip_days(request)
     days: list[DayPlan] = []
     for n, d in enumerate(dates):
@@ -194,7 +197,8 @@ def solve(request: TripRequest, places: list[Place], travel: Travel | None = Non
         seed = next((p for p in left if fits(d, [p], travel, lim)), None)
         chosen = [seed] if seed and share else []
         while chosen and len(chosen) < share:
-            near = sorted(left, key=lambda p: (min(travel.minutes(c, p) for c in chosen), p.id))
+            # Near the day's stops, but a much more popular place is worth a short detour.
+            near = sorted(left, key=lambda p: (min(travel.minutes(c, p) for c in chosen) + RANK_MINUTES * rank[p.id], p.id))
             added = next((p for p in near if p not in chosen and fits(d, [*chosen, p], travel, lim)), None)
             if added is None:
                 break

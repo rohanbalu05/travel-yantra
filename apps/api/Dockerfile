@@ -16,6 +16,8 @@ COPY apps/api/main.py ./
 COPY apps/api/core core
 COPY apps/api/guide guide
 COPY apps/api/routes routes
+# TY2's corpus (places planner, guide seed): guide reads <repo>/data, which is /app/data here.
+COPY data /app/data
 # Offline at runtime: the model comes from the image, never from the network.
 ENV PATH="/app/apps/api/.venv/bin:$PATH" PORT=8080 HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 CMD ["sh", "-c", "exec uvicorn main:app --host 0.0.0.0 --port ${PORT}"]

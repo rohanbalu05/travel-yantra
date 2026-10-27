@@ -84,11 +84,17 @@ async def transport(state: dict, model: Model):
     return {"transport": _dump(options)}, f"Found {len(options)} ways to travel"
 
 
-# Places are sample-backed until TY2 exposes a places planner.
+
+
+def place_options(request: TripRequest) -> list[Place]:
+    """Ranked places from TY2's corpus planner (Karnataka); sample places for cities it does not cover."""
+    from guide.planner import places_for_request
+
+    return places_for_request(request) or fakes.places(request)
 
 
 async def places(state: dict, model: Model):
-    found = fakes.places(_request(state))
+    found = place_options(_request(state))
     return {"places": _dump(found)}, f"Found {len(found)} places to see"
 
 
@@ -114,7 +120,7 @@ async def stays(state: dict, model: Model):
 
 async def story(state: dict, model: Model):
     r = _request(state)
-    found = fakes.places(r)
+    found = place_options(r)
     subject = found[0].name if found else r.destinations[0]
     text = await model.text(
         f"Tell a short, warm story (about 120 words) about {subject} for a family visiting it. "
@@ -134,8 +140,8 @@ async def solver(state: dict, model: Model):
         transport=[TransportOption.model_validate(t) for t in state["transport"]],
         stays=[Stay.model_validate(s) for s in state["stays"]],
         budget={"transport_inr": 0, "stay_inr": 0, "total_inr": 0},
-        warnings=[f"No time left for {p.name}" for p in left]
-        + ([] if pool else [f"No places found yet for {', '.join(r.destinations)}"]),
+        # Unused candidates are not a problem (the planner offers more than a trip holds); an empty pool is.
+        warnings=[] if pool else [f"No places found yet for {', '.join(r.destinations)}"],
     )
     it.budget = budget(it)
     stops = sum(len(d.stops) for d in days)

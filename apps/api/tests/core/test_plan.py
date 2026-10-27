@@ -187,3 +187,11 @@ def test_first_event_is_instant_and_names_the_trip(monkeypatch):
 
     event = asyncio.run(first())
     assert event.stage is PlanStage.intake and event.message == "Planning Bengaluru to Goa…"
+
+
+def test_mysuru_plan_uses_the_corpus_and_keeps_its_top_sights():
+    final = Itinerary.model_validate(frames(client.post("/plan", json=MYSURU))[-1]["partial"])
+    stops = [p for d in final.days for p in d.stops]
+    assert all(p.source == "travel_yantra_corpus" for p in stops)
+    assert {"Mysore Palace", "Chamundeshwari Temple"} <= {p.name for p in stops}
+    assert not any(w.startswith("No time left") for w in final.warnings)
