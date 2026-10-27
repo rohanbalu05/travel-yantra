@@ -318,3 +318,21 @@ async def test_cloud_sender_sends_audio_by_link(monkeypatch):
     await CloudApiSender().send_audio(USER, "https://audio.example/1.mp3")
     body = json.loads(seen[0].content)
     assert body["type"] == "audio" and body["audio"] == {"link": "https://audio.example/1.mp3"}
+
+
+async def test_network_error_on_send_is_logged_not_raised(monkeypatch, caplog):
+    monkeypatch.setenv("WHATSAPP_TOKEN", "fake-token")
+    monkeypatch.setenv("WHATSAPP_PHONE_NUMBER_ID", "100000000000001")
+    monkeypatch.setenv("WHATSAPP_ALLOWED_RECIPIENTS", USER)
+
+    def boom(req):
+        raise httpx.ConnectTimeout("slow", request=req)
+
+    real = httpx.AsyncClient
+    monkeypatch.setattr(
+        sender_mod.httpx,
+        "AsyncClient",
+        lambda **kw: real(transport=httpx.MockTransport(boom), **kw),
+    )
+    await CloudApiSender().send_text(USER, "hello")
+    assert "send failed: ConnectTimeout" in caplog.text

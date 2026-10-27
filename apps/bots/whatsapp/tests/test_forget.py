@@ -2,7 +2,7 @@ import httpx
 import pytest
 from test_brain import done, fake_http, sse, text
 
-from app.brain import CONTACT, FORGOTTEN, HELP, Brain
+from app.brain import CONTACT, FORGOTTEN, FORGOTTEN_KEPT, FORGOTTEN_NONE, HELP, Brain
 
 API = "http://api.test"
 USER = "15550001111"
@@ -34,7 +34,7 @@ async def test_delete_my_data_forgets_the_user(monkeypatch, msg):
     await brain.handle(text("Plan Bengaluru to Goa 11-14 Dec"))
     await brain.handle(text("rain day 1"))
     reply = await brain.handle(text(msg))
-    assert reply == FORGOTTEN
+    assert reply == FORGOTTEN.format(n="2 of 2 saved plans")
     assert USER not in brain.users
     assert deleted == ["/plan/p1", "/plan/p2"]
     # A fresh start afterwards: no plan to revise, English help.
@@ -60,7 +60,8 @@ async def test_plans_the_api_cannot_delete_point_to_email(monkeypatch, status, b
     brain = Brain(base=API)
     await brain.handle(text("Plan Bengaluru to Goa 11-14 Dec"))
     reply = await brain.handle(text("delete my data"))
-    assert reply.startswith(FORGOTTEN) and CONTACT in reply
+    assert reply == FORGOTTEN.format(n="0 of 1 saved plans") + " " + FORGOTTEN_KEPT
+    assert CONTACT in reply
     assert USER not in brain.users
 
 
@@ -69,14 +70,24 @@ async def test_a_plan_already_gone_counts_as_deleted(monkeypatch):
     fake_http(monkeypatch, handler)
     brain = Brain(base=API)
     await brain.handle(text("Plan Bengaluru to Goa 11-14 Dec"))
-    assert await brain.handle(text("delete my data")) == FORGOTTEN
+    assert await brain.handle(text("delete my data")) == FORGOTTEN.format(n="1 of 1 saved plans")
 
 
 async def test_delete_without_any_state_still_confirms():
-    assert await Brain(base="").handle(text("delete my data")) == FORGOTTEN
+    # After a restart the bot holds no plan ids: it says so and points to the email.
+    reply = await Brain(base="").handle(text("delete my data"))
+    assert reply == FORGOTTEN_NONE + " " + FORGOTTEN_KEPT
 
 
-@pytest.mark.parametrize("msg", ["how do I delete photos from my phone?", "remove Se Cathedral"])
+@pytest.mark.parametrize(
+    "msg",
+    [
+        "how do I delete photos from my phone?",
+        "remove Se Cathedral",
+        "forget history, show me food",
+        "delete everything on day 2",
+    ],
+)
 def test_not_a_delete_request(msg):
     from app.brain import FORGET
 

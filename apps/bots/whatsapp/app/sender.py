@@ -90,12 +90,18 @@ class CloudApiSender:
             "type": kind,
             kind: content,
         }
-        async with httpx.AsyncClient(timeout=20) as client:
-            r = await client.post(
-                f"{GRAPH}/{self.phone_id}/messages",
-                json=payload,
-                headers={"Authorization": f"Bearer {self.token}"},
-            )
+        try:
+            async with httpx.AsyncClient(timeout=20) as client:
+                r = await client.post(
+                    f"{GRAPH}/{self.phone_id}/messages",
+                    json=payload,
+                    headers={"Authorization": f"Bearer {self.token}"},
+                )
+        except httpx.HTTPError as e:
+            log.error(
+                "send failed: %s", type(e).__name__
+            )  # the URL holds no number; skip it anyway
+            return
         if r.is_error:
             log.error("send failed: %s", graph_error(r))
         else:

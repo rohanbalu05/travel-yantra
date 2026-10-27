@@ -52,14 +52,15 @@ LOCATION_OK = "Got your location. Ask me, for example: nearest hospital or pharm
 ASKING = "To plan this I need a little more:"
 PLANNING = "Working on your plan now; this takes about a minute."
 CONTACT = "rohan@aizyantra.com"
-FORGOTTEN = "Done. I have forgotten your plans, your language and your location."
+FORGOTTEN = "Done. I have forgotten your plans, your language and your location, and deleted {n}."
+FORGOTTEN_NONE = "Done. I have forgotten your language and your location; I hold no plans of yours."
 FORGOTTEN_KEPT = (
-    "Saved copies of your plans (behind their share links) could not be deleted from here; "
-    f"email {CONTACT} and we will remove them."
+    "If a plan link of yours still opens (for example from before a restart of this service), "
+    f"email {CONTACT} with it and we will delete it."
 )
 FORGET = re.compile(
-    r"^\s*(?:please\s+)?(?:delete|erase|remove|forget)\s+(?:all\s+)?(?:my\s+)?"
-    r"(?:data|details|chats?|history|everything|me)\b"
+    r"^\s*(?:please\s+)?(?:delete|erase|remove|forget)\s+"
+    r"(?:(?:all\s+)?my\s+(?:data|details|chats?|history)|me|everything\s+about\s+me)\b"
     r"|डेटा\s*(?:हटा|मिटा|डिलीट)",
     re.IGNORECASE,
 )
@@ -360,10 +361,17 @@ class Brain:
     async def forget(self, who: str, lang: Lang) -> str:
         """Drop everything kept for this sender and delete the plans they made through the API."""
         user = self.users.pop(who, None) or User()
-        failed = 0
-        for plan_id in dict.fromkeys(user.plan_ids):
-            failed += not await self.delete_plan(plan_id)
-        english = FORGOTTEN + (" " + FORGOTTEN_KEPT if failed else "")
+        ids = list(dict.fromkeys(user.plan_ids))
+        deleted = 0
+        for plan_id in ids:
+            deleted += await self.delete_plan(plan_id)
+        if ids:
+            english = FORGOTTEN.format(n=f"{deleted} of {len(ids)} saved plans")
+        else:
+            english = FORGOTTEN_NONE
+        # Plan ids live in memory only: after a restart, or on a failure, point to the email.
+        if deleted < len(ids) or not ids:
+            english += " " + FORGOTTEN_KEPT
         return await self.say(User(lang=lang), english, keep=[CONTACT])
 
     async def delete_plan(self, plan_id: str) -> bool:
