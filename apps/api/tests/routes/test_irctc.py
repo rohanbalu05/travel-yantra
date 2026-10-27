@@ -125,6 +125,21 @@ def test_card_on_the_real_timetable_from_compare_station_names(monkeypatch):
     assert "datameet" in card.notes[0]
 
 
+@pytest.mark.parametrize("src,dst,train,stations,departs", [
+    ("Bengaluru", "Mysuru", "16731", ("SBC", "MYS"), "07:00"),  # not Bangalore Cant at 05:43
+    ("Mysuru", "Bengaluru", "16232", ("MYS", "BNC"), "15:45"),  # not Naganahalli further on
+    ("Bengaluru", "Goa", "17309", ("YPR", "VSG"), "15:15"),
+])
+def test_card_from_a_plans_city_names_and_train(monkeypatch, src, dst, train, stations, departs):
+    # a plan's journey leg names cities; with its train number the card finds the stations compare uses
+    monkeypatch.delenv("ROUTES_RAIL")
+    card = irctc_card(src, dst, dt.date(2026, 10, 31), "SL", "mysuru_weekend", train, travellers=3)
+    assert (card.from_.code, card.to.code, card.departs) == (*stations, departs)
+    assert card.train.number == train and len(card.passengers) == 3
+    with pytest.raises(NotFound):  # a city name needs the train
+        irctc_card(src, dst, dt.date(2026, 10, 31))
+
+
 def test_every_sample_pnr_names_a_real_train_that_runs_between_its_stations(monkeypatch):
     monkeypatch.delenv("ROUTES_RAIL")
     from routes.irctc import _find_run, _pnrs

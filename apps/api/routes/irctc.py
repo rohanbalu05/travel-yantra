@@ -16,6 +16,8 @@ from .graph import (
     DATA_DIR,
     RAIL_DETOUR,
     RAIL_INR_PER_KM,
+    ROAD_DETOUR,
+    ROAD_KMH,
     SAMPLE_RAIL_DIR,
     _read_json,
     haversine_km,
@@ -138,6 +140,45 @@ def resolve_station(value: str, data_dir: Path | None = None) -> dict:
     raise NotFound(f"unknown station {value!r}")
 
 
+def _station_for(value: str, train: str | None, data_dir: Path | None, board: bool) -> dict:
+    """A station by code or name; or, for a city name (as on a plan's journey leg) and a
+    train number, the stop the planner uses among compare's stations for the city:
+    boarding, the one you can leave the city latest for (departure less the drive there);
+    getting off, the one nearest the city."""
+    try:
+        return resolve_station(value, data_dir)
+    except NotFound:
+        if not train:
+            raise
+    from .compare import (  # compare imports the timetable
+        STATION_K,
+        STATION_KM,
+        UnknownPlace,
+        resolve_city,
+    )
+    from .timetable import get_timetable
+
+    try:
+        city = resolve_city(value)
+    except UnknownPlace as exc:
+        raise NotFound(f"unknown station or city {value!r}") from exc
+    stations, trains = _rail(data_dir)
+    t = next((t for t in trains if t["number"] == train), None)
+    served = dict(get_timetable(data_dir).near(city.lat, city.lon, STATION_KM, STATION_K))  # compare's stations
+    near = [(s, km) for s in (t["stops"] if t else []) if (km := served.get(s["code"])) is not None]
+    if not near:
+        raise NotFound(f"train {train} does not stop near {city.name}")
+    if not board:
+        return stations[min(near, key=lambda n: n[1])[0]["code"]]
+
+    def leave(n: tuple[dict, float]) -> float:  # minutes from the run's day 1 midnight
+        s, km = n
+        dep = s["dep"] if s["dep"] is not None else s["arr"]
+        return (s["day"] - 1) * 1440 + (dep or 0) - km * ROAD_DETOUR / ROAD_KMH * 60
+
+    return stations[max(near, key=leave)[0]["code"]]
+
+
 def _hhmm(minutes: int) -> str:
     return f"{minutes // 60:02d}:{minutes % 60:02d}"
 
@@ -165,7 +206,7 @@ def irctc_card(src: str, dst: str, date: dt.date, travel_class: TravelClass = "3
                party: Party = "goa_family", train: str | None = None,
                data_dir: Path | None = None, travellers: int | None = None) -> IrctcCard:
     """travellers: the trip's party size (the sample party is made up or cut to it)."""
-    a, b = resolve_station(src, data_dir), resolve_station(dst, data_dir)
+    a, b = _station_for(src, train, data_dir, board=True), _station_for(dst, train, data_dir, board=False)
     t, dep, arr = _find_run(a["code"], b["code"], train, data_dir)
     dep_min = dep["dep"] if dep["dep"] is not None else dep["arr"]
     arr_min = arr["arr"] if arr["arr"] is not None else arr["dep"]
