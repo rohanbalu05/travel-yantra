@@ -1,0 +1,509 @@
+{
+ "_note": "Recorded live from SerpApi on 2026-10-27 by routes/scripts/record_live.py; sanitised (request metadata, phone fields, images dropped) and trimmed.",
+ "_params": {
+  "engine": "google_hotels",
+  "q": "hotels in Coorg",
+  "check_in_date": "2026-12-11",
+  "check_out_date": "2026-12-14",
+  "adults": "2"
+ },
+ "properties": [
+  {
+   "type": "hotel",
+   "name": "Gateway Coorg",
+   "rate_per_night": {
+    "display_price": "₹21,291",
+    "extracted_display_price": 21291,
+    "lowest": "₹21,291",
+    "extracted_lowest": 21291
+   },
+   "total_rate": {
+    "display_price": "₹63,872",
+    "extracted_display_price": 63872,
+    "lowest": "₹63,872",
+    "extracted_lowest": 63872
+   },
+   "overall_rating": 4.6,
+   "reviews": 1084,
+   "hotel_class": "5-star hotel",
+   "property_token": "ChkIvdeW1ZnkzIU7Gg0vZy8xMXF2YzJoaGN0EAE",
+   "gps_coordinates": {
+    "latitude": 12.442446799999999,
+    "longitude": 75.7005281
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Ibnisprings Chalets Madikeri Coorg",
+   "rate_per_night": {
+    "display_price": "₹4,794",
+    "extracted_display_price": 4794,
+    "lowest": "₹4,794",
+    "extracted_lowest": 4794
+   },
+   "total_rate": {
+    "display_price": "₹14,382",
+    "extracted_display_price": 14382,
+    "lowest": "₹14,382",
+    "extracted_lowest": 14382
+   },
+   "overall_rating": 4.6,
+   "reviews": 2031,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChoI29-Xs92z_MH2ARoNL2cvMTFkXzFtd3RyNxAB",
+   "gps_coordinates": {
+    "latitude": 12.4186395,
+    "longitude": 75.7588304
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Hotel Mayura Valley View Madikeri",
+   "rate_per_night": {
+    "display_price": "₹3,667",
+    "extracted_display_price": 3667,
+    "lowest": "₹3,667",
+    "extracted_lowest": 3667
+   },
+   "total_rate": {
+    "display_price": "₹11,001",
+    "extracted_display_price": 11001,
+    "lowest": "₹11,001",
+    "extracted_lowest": 11001
+   },
+   "overall_rating": 4.1,
+   "reviews": 3415,
+   "hotel_class": "2-star hotel",
+   "property_token": "ChgIvLK7nIP2yNHNARoLL2cvMXRmazdmeF8QAQ",
+   "gps_coordinates": {
+    "latitude": 12.416756699999999,
+    "longitude": 75.7344383
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Club Mahindra Resort - Madikeri - Coorg, Karnataka",
+   "rate_per_night": {
+    "display_price": "₹14,129",
+    "extracted_display_price": 14129,
+    "lowest": "₹14,129",
+    "extracted_lowest": 14129
+   },
+   "total_rate": {
+    "display_price": "₹42,386",
+    "extracted_display_price": 42386,
+    "lowest": "₹42,386",
+    "extracted_lowest": 42386
+   },
+   "overall_rating": 4.3,
+   "reviews": 15366,
+   "hotel_class": "5-star hotel",
+   "property_token": "ChcInr2jrv28zoFIGgsvZy8xdGhsM3Z6ehAB",
+   "gps_coordinates": {
+    "latitude": 12.440664199999999,
+    "longitude": 75.71659559999999
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "The Ibnii",
+   "rate_per_night": {
+    "display_price": "₹21,658",
+    "extracted_display_price": 21658,
+    "lowest": "₹21,658",
+    "extracted_lowest": 21658
+   },
+   "total_rate": {
+    "display_price": "₹64,973",
+    "extracted_display_price": 64973,
+    "lowest": "₹64,973",
+    "extracted_lowest": 64973
+   },
+   "overall_rating": 4.5,
+   "reviews": 2663,
+   "hotel_class": "4-star hotel",
+   "property_token": "ChkIx_np1PrPz9stGg0vZy8xMWI2Z2N4djF6EAE",
+   "gps_coordinates": {
+    "latitude": 12.4287421,
+    "longitude": 75.7626022
+   }
+  },
+  {
+   "type": "vacation rental",
+   "name": "Brookfield estate villa 2bhk - Two-Bedroom Villa",
+   "rate_per_night": {
+    "display_price": "₹4,726",
+    "extracted_display_price": 4726,
+    "lowest": "₹4,726",
+    "extracted_lowest": 4726
+   },
+   "total_rate": {
+    "display_price": "₹14,178",
+    "extracted_display_price": 14178,
+    "lowest": "₹14,178",
+    "extracted_lowest": 14178
+   },
+   "property_token": "ChoQx6fyiuuJzqT9ARoNL2cvMTF6eW1xMnEwdBAC",
+   "gps_coordinates": {
+    "latitude": 12.404769897460938,
+    "longitude": 75.7342529296875
+   },
+   "prices": [
+    {
+     "source": "Bluepillow.mx",
+     "num_guests": 2,
+     "rate_per_night": {
+      "display_price": "₹4,726",
+      "extracted_display_price": 4726,
+      "lowest": "₹4,726",
+      "extracted_lowest": 4726
+     }
+    }
+   ]
+  },
+  {
+   "type": "hotel",
+   "name": "Green view homestay coorg",
+   "rate_per_night": {
+    "display_price": "₹1,652",
+    "extracted_display_price": 1652,
+    "lowest": "₹1,652",
+    "extracted_lowest": 1652
+   },
+   "total_rate": {
+    "display_price": "₹4,955",
+    "extracted_display_price": 4955,
+    "lowest": "₹4,955",
+    "extracted_lowest": 4955
+   },
+   "overall_rating": 4.2,
+   "reviews": 1797,
+   "property_token": "ChoIv9uQ3Yf4xbW7ARoNL2cvMTFjNHQ3dDNtaBAB",
+   "gps_coordinates": {
+    "latitude": 12.412168699999999,
+    "longitude": 75.7229485
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Coorg hills resort",
+   "overall_rating": 4.9,
+   "reviews": 504,
+   "property_token": "ChkI5b3Uj-P3u8t-Gg0vZy8xMXg1Z3BxMDMyEAE",
+   "gps_coordinates": {
+    "latitude": 12.420608999999999,
+    "longitude": 75.7053657
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Woodstock Resorts",
+   "rate_per_night": {
+    "display_price": "₹10,876",
+    "extracted_display_price": 10876,
+    "lowest": "₹10,876",
+    "extracted_lowest": 10876
+   },
+   "total_rate": {
+    "display_price": "₹32,627",
+    "extracted_display_price": 32627,
+    "lowest": "₹32,627",
+    "extracted_lowest": 32627
+   },
+   "overall_rating": 4.2,
+   "reviews": 4745,
+   "hotel_class": "4-star hotel",
+   "property_token": "ChoI2MujobzYurKxARoNL2cvMTFiNjNyaHFuOBAB",
+   "gps_coordinates": {
+    "latitude": 12.430733499999999,
+    "longitude": 75.7532272
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Forest Valley Coorg",
+   "rate_per_night": {
+    "display_price": "₹4,687",
+    "extracted_display_price": 4687,
+    "lowest": "₹4,687",
+    "extracted_lowest": 4687
+   },
+   "total_rate": {
+    "display_price": "₹14,062",
+    "extracted_display_price": 14062,
+    "lowest": "₹14,062",
+    "extracted_lowest": 14062
+   },
+   "overall_rating": 4.4,
+   "reviews": 707,
+   "hotel_class": "2-star hotel",
+   "property_token": "ChoIsPCXhunaga7GARoNL2cvMTFieGZyZjltahAB",
+   "gps_coordinates": {
+    "latitude": 12.410241,
+    "longitude": 75.734529
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Coorg Wilderness Resort & Spa",
+   "overall_rating": 4.5,
+   "reviews": 1991,
+   "hotel_class": "5-star hotel",
+   "property_token": "ChoI9Kq71Pmrh6enARoNL2cvMTFoeV9xazNkbBAB",
+   "gps_coordinates": {
+    "latitude": 12.4021645,
+    "longitude": 75.7483342
+   }
+  },
+  {
+   "type": "vacation rental",
+   "name": "WildWood Stay - Three-Bedroom Villa",
+   "rate_per_night": {
+    "display_price": "₹2,595",
+    "extracted_display_price": 2595,
+    "lowest": "₹2,595",
+    "extracted_lowest": 2595
+   },
+   "total_rate": {
+    "display_price": "₹7,786",
+    "extracted_display_price": 7786,
+    "lowest": "₹7,786",
+    "extracted_lowest": 7786
+   },
+   "property_token": "ChkQ8qfFj-P3sMRhGg0vZy8xMW50aGs4N2h6EAI",
+   "gps_coordinates": {
+    "latitude": 12.436599731445312,
+    "longitude": 75.7423324584961
+   },
+   "prices": [
+    {
+     "source": "Bluepillow.mx",
+     "num_guests": 4,
+     "rate_per_night": {
+      "display_price": "₹7,213",
+      "extracted_display_price": 7213,
+      "lowest": "₹7,213",
+      "extracted_lowest": 7213
+     }
+    }
+   ]
+  },
+  {
+   "type": "hotel",
+   "name": "Caligo resorts coorg",
+   "rate_per_night": {
+    "display_price": "₹6,682",
+    "extracted_display_price": 6682,
+    "lowest": "₹6,682",
+    "extracted_lowest": 6682
+   },
+   "total_rate": {
+    "display_price": "₹20,045",
+    "extracted_display_price": 20045,
+    "lowest": "₹20,045",
+    "extracted_lowest": 20045
+   },
+   "overall_rating": 4.7,
+   "reviews": 533,
+   "property_token": "ChkI1pLV1biYuc4FGg0vZy8xMWxubm54OTdxEAE",
+   "gps_coordinates": {
+    "latitude": 12.441915199999999,
+    "longitude": 75.748965
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Ikyam",
+   "rate_per_night": {
+    "display_price": "₹1,487",
+    "extracted_display_price": 1487,
+    "lowest": "₹1,487",
+    "extracted_lowest": 1487
+   },
+   "total_rate": {
+    "display_price": "₹4,462",
+    "extracted_display_price": 4462,
+    "lowest": "₹4,462",
+    "extracted_lowest": 4462
+   },
+   "overall_rating": 4.9,
+   "reviews": 364,
+   "property_token": "ChkI8rfFjoW1nrtbGg0vZy8xMXR5Nnl0MWI2EAE",
+   "gps_coordinates": {
+    "latitude": 12.4247006,
+    "longitude": 75.7274826
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Hotel Coorg International",
+   "rate_per_night": {
+    "display_price": "₹6,527",
+    "extracted_display_price": 6527,
+    "lowest": "₹6,527",
+    "extracted_lowest": 6527
+   },
+   "total_rate": {
+    "display_price": "₹19,581",
+    "extracted_display_price": 19581,
+    "lowest": "₹19,581",
+    "extracted_lowest": 19581
+   },
+   "overall_rating": 4.1,
+   "reviews": 2334,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChgI_4zlj5nTxsyNARoLL2cvMXRkOHhrNjYQAQ",
+   "gps_coordinates": {
+    "latitude": 12.428877199999999,
+    "longitude": 75.73069819999999
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Holidayincoorg Brick Lane",
+   "rate_per_night": {
+    "display_price": "₹1,231",
+    "extracted_display_price": 1231,
+    "lowest": "₹1,231",
+    "extracted_lowest": 1231
+   },
+   "total_rate": {
+    "display_price": "₹3,693",
+    "extracted_display_price": 3693,
+    "lowest": "₹3,693",
+    "extracted_lowest": 3693
+   },
+   "overall_rating": 4.5,
+   "reviews": 71,
+   "property_token": "ChkI29P2w4jw349_Gg0vZy8xMWZsMGpzcDhzEAE",
+   "gps_coordinates": {
+    "latitude": 12.421360799999999,
+    "longitude": 75.7464454
+   }
+  },
+  {
+   "type": "vacation rental",
+   "name": "Coorg Lotus Villa - Two-Bedroom Suite",
+   "rate_per_night": {
+    "display_price": "₹6,595",
+    "extracted_display_price": 6595,
+    "lowest": "₹6,595",
+    "extracted_lowest": 6595
+   },
+   "total_rate": {
+    "display_price": "₹19,785",
+    "extracted_display_price": 19785,
+    "lowest": "₹19,785",
+    "extracted_lowest": 19785
+   },
+   "property_token": "ChoQydjtyJOm68S_ARoNL2cvMTFudzU2NjRkbRAC",
+   "gps_coordinates": {
+    "latitude": 12.414299964904785,
+    "longitude": 75.74665832519531
+   },
+   "prices": [
+    {
+     "source": "Bluepillow.mx",
+     "num_guests": 2,
+     "rate_per_night": {
+      "display_price": "₹6,595",
+      "extracted_display_price": 6595,
+      "lowest": "₹6,595",
+      "extracted_lowest": 6595
+     }
+    }
+   ]
+  },
+  {
+   "type": "vacation rental",
+   "name": "Coorg Hidden Valley Estate Stay - Double Room",
+   "rate_per_night": {
+    "display_price": "₹2,782",
+    "extracted_display_price": 2782,
+    "lowest": "₹2,782",
+    "extracted_lowest": 2782
+   },
+   "total_rate": {
+    "display_price": "₹8,346",
+    "extracted_display_price": 8346,
+    "lowest": "₹8,346",
+    "extracted_lowest": 8346
+   },
+   "property_token": "ChoQltaCytnYwuqBARoNL2cvMTFudnhyMzE4OBAC",
+   "gps_coordinates": {
+    "latitude": 12.424420356750488,
+    "longitude": 75.73818969726562
+   },
+   "prices": [
+    {
+     "source": "Bluepillow.mx",
+     "num_guests": 2,
+     "rate_per_night": {
+      "display_price": "₹2,782",
+      "extracted_display_price": 2782,
+      "lowest": "₹2,782",
+      "extracted_lowest": 2782
+     }
+    }
+   ]
+  },
+  {
+   "type": "hotel",
+   "name": "Ila Homestay",
+   "rate_per_night": {
+    "display_price": "₹1,725",
+    "extracted_display_price": 1725,
+    "lowest": "₹1,725",
+    "extracted_lowest": 1725
+   },
+   "total_rate": {
+    "display_price": "₹5,175",
+    "extracted_display_price": 5175,
+    "lowest": "₹5,175",
+    "extracted_lowest": 5175
+   },
+   "overall_rating": 4.6,
+   "reviews": 81,
+   "property_token": "ChoIzqioyZGftZaSARoNL2cvMTFmNHd2YmxkMBAB",
+   "gps_coordinates": {
+    "latitude": 12.4299815,
+    "longitude": 75.74616259999999
+   }
+  },
+  {
+   "type": "vacation rental",
+   "name": "Chesna Cottage - Two-Bedroom Apartment",
+   "rate_per_night": {
+    "display_price": "₹3,065",
+    "extracted_display_price": 3065,
+    "lowest": "₹3,065",
+    "extracted_lowest": 3065
+   },
+   "total_rate": {
+    "display_price": "₹9,196",
+    "extracted_display_price": 9196,
+    "lowest": "₹9,196",
+    "extracted_lowest": 9196
+   },
+   "overall_rating": 4.95,
+   "reviews": 8,
+   "property_token": "ChkQ6oWu8ojVr6IPGg0vZy8xMXpreWJybDI1EAI",
+   "gps_coordinates": {
+    "latitude": 12.433609962463379,
+    "longitude": 75.73229217529297
+   },
+   "prices": [
+    {
+     "source": "Bluepillow.mx",
+     "num_guests": 2,
+     "rate_per_night": {
+      "display_price": "₹3,065",
+      "extracted_display_price": 3065,
+      "lowest": "₹3,065",
+      "extracted_lowest": 3065
+     }
+    }
+   ]
+  }
+ ]
+}

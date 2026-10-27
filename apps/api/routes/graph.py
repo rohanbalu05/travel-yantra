@@ -90,6 +90,8 @@ AIRPORTS = [
     ("HYD", "Hyderabad", 17.2403, 78.4294),
     ("VGA", "Vijayawada", 16.5304, 80.7968),
     ("IXE", "Mangaluru", 12.9613, 74.8901),
+    ("GOX", "Goa (Mopa)", 15.7444, 73.8606),
+    ("VDY", "Vidyanagar (Ballari)", 15.1750, 76.6349),
 ]
 
 

@@ -1,0 +1,369 @@
+{
+ "_note": "Recorded live from SerpApi on 2026-10-27 by routes/scripts/record_live.py; sanitised (request metadata, phone fields, images dropped) and trimmed.",
+ "_params": {
+  "engine": "google_flights",
+  "departure_id": "BLR",
+  "arrival_id": "GOX",
+  "outbound_date": "2026-12-11",
+  "type": "2",
+  "adults": "1",
+  "travel_class": "1"
+ },
+ "best_flights": [
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 11:25"
+     },
+     "arrival_airport": {
+      "name": "Rajiv Gandhi International Airport",
+      "id": "HYD",
+      "time": "2026-12-11 12:45"
+     },
+     "duration": 80,
+     "airline": "IndiGo",
+     "flight_number": "6E 6178",
+     "travel_class": "Economy"
+    },
+    {
+     "departure_airport": {
+      "name": "Rajiv Gandhi International Airport",
+      "id": "HYD",
+      "time": "2026-12-11 15:00"
+     },
+     "arrival_airport": {
+      "name": "Manohar International Airport (GOX) - Goa",
+      "id": "GOX",
+      "time": "2026-12-11 16:10"
+     },
+     "duration": 70,
+     "airline": "IndiGo",
+     "flight_number": "6E 946",
+     "travel_class": "Economy"
+    }
+   ],
+   "layovers": [
+    {
+     "duration": 135,
+     "name": "Rajiv Gandhi International Airport",
+     "id": "HYD"
+    }
+   ],
+   "total_duration": 285,
+   "price": 5720,
+   "type": "One way",
+   "booking_token": "WyJDalJJVWpabWRqSlRXVTFJVm5OQlEzbHhVVUZDUnkwdExTMHRMUzB0ZVd4eE5TMXVNVUZCUVVGQlIzSm5NMDg0UTFSMloxZEJFZ3cyUlRZeE56aDhOa1U1TkRZYUNnallMQkFBR2dOSlRsSTRISENHTHc9PSIsW1siQkxSIiwiMjAyNi0xMi0xMSIsIkhZRCIsbnVsbCwiNkUiLCI2MTc4Il0sWyJIWUQiLCIyMDI2LTEyLTExIiwiR09YIixudWxsLCI2RSIsIjk0NiJdXV0="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 16:45"
+     },
+     "arrival_airport": {
+      "name": "Rajiv Gandhi International Airport",
+      "id": "HYD",
+      "time": "2026-12-11 18:00"
+     },
+     "duration": 75,
+     "airline": "IndiGo",
+     "flight_number": "6E 6067",
+     "travel_class": "Economy"
+    },
+    {
+     "departure_airport": {
+      "name": "Rajiv Gandhi International Airport",
+      "id": "HYD",
+      "time": "2026-12-11 20:05"
+     },
+     "arrival_airport": {
+      "name": "Manohar International Airport (GOX) - Goa",
+      "id": "GOX",
+      "time": "2026-12-11 21:10"
+     },
+     "duration": 65,
+     "airline": "IndiGo",
+     "flight_number": "6E 2552",
+     "travel_class": "Economy"
+    }
+   ],
+   "layovers": [
+    {
+     "duration": 125,
+     "name": "Rajiv Gandhi International Airport",
+     "id": "HYD"
+    }
+   ],
+   "total_duration": 265,
+   "price": 6062,
+   "type": "One way",
+   "booking_token": "WyJDalJJVWpabWRqSlRXVTFJVm5OQlEzbHhVVUZDUnkwdExTMHRMUzB0ZVd4eE5TMXVNVUZCUVVGQlIzSm5NMDg0UTFSMloxZEJFZzAyUlRZd05qZDhOa1V5TlRVeUdnb0lyaThRQUJvRFNVNVNPQnh3N2pFPSIsW1siQkxSIiwiMjAyNi0xMi0xMSIsIkhZRCIsbnVsbCwiNkUiLCI2MDY3Il0sWyJIWUQiLCIyMDI2LTEyLTExIiwiR09YIixudWxsLCI2RSIsIjI1NTIiXV1d"
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 15:30"
+     },
+     "arrival_airport": {
+      "name": "Manohar International Airport (GOX) - Goa",
+      "id": "GOX",
+      "time": "2026-12-11 16:50"
+     },
+     "duration": 80,
+     "airline": "IndiGo",
+     "flight_number": "6E 309",
+     "travel_class": "Economy"
+    }
+   ],
+   "total_duration": 80,
+   "price": 6712,
+   "type": "One way",
+   "booking_token": "WyJDalJJVWpabWRqSlRXVTFJVm5OQlEzbHhVVUZDUnkwdExTMHRMUzB0ZVd4eE5TMXVNVUZCUVVGQlIzSm5NMDg0UTFSMloxZEJFZ1UyUlRNd09Sb0tDTGcwRUFBYUEwbE9VamdjY0pzMyIsW1siQkxSIiwiMjAyNi0xMi0xMSIsIkdPWCIsbnVsbCwiNkUiLCIzMDkiXV1d"
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 07:15"
+     },
+     "arrival_airport": {
+      "name": "Manohar International Airport (GOX) - Goa",
+      "id": "GOX",
+      "time": "2026-12-11 08:35"
+     },
+     "duration": 80,
+     "airline": "IndiGo",
+     "flight_number": "6E 6003",
+     "travel_class": "Economy"
+    }
+   ],
+   "total_duration": 80,
+   "price": 9337,
+   "type": "One way",
+   "booking_token": "WyJDalJJVWpabWRqSlRXVTFJVm5OQlEzbHhVVUZDUnkwdExTMHRMUzB0ZVd4eE5TMXVNVUZCUVVGQlIzSm5NMDg0UTFSMloxZEJFZ1kyUlRZd01ETWFDZ2o1U0JBQUdnTkpUbEk0SEhEblRBPT0iLFtbIkJMUiIsIjIwMjYtMTItMTEiLCJHT1giLG51bGwsIjZFIiwiNjAwMyJdXV0="
+  }
+ ],
+ "other_flights": [
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 07:30"
+     },
+     "arrival_airport": {
+      "name": "Rajiv Gandhi International Airport",
+      "id": "HYD",
+      "time": "2026-12-11 08:45"
+     },
+     "duration": 75,
+     "airline": "IndiGo",
+     "flight_number": "6E 484",
+     "travel_class": "Economy"
+    },
+    {
+     "departure_airport": {
+      "name": "Rajiv Gandhi International Airport",
+      "id": "HYD",
+      "time": "2026-12-11 11:10"
+     },
+     "arrival_airport": {
+      "name": "Manohar International Airport (GOX) - Goa",
+      "id": "GOX",
+      "time": "2026-12-11 12:30"
+     },
+     "duration": 80,
+     "airline": "IndiGo",
+     "flight_number": "6E 905",
+     "travel_class": "Economy"
+    }
+   ],
+   "layovers": [
+    {
+     "duration": 145,
+     "name": "Rajiv Gandhi International Airport",
+     "id": "HYD"
+    }
+   ],
+   "total_duration": 300,
+   "price": 8957,
+   "type": "One way",
+   "booking_token": "WyJDalJJVWpabWRqSlRXVTFJVm5OQlEzbHhVVUZDUnkwdExTMHRMUzB0ZVd4eE5TMXVNVUZCUVVGQlIzSm5NMDg0UTFSMloxZEJFZ3MyUlRRNE5IdzJSVGt3TlJvS0NQMUZFQUFhQTBsT1VqZ2NjTlpKIixbWyJCTFIiLCIyMDI2LTEyLTExIiwiSFlEIixudWxsLCI2RSIsIjQ4NCJdLFsiSFlEIiwiMjAyNi0xMi0xMSIsIkdPWCIsbnVsbCwiNkUiLCI5MDUiXV1d"
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 08:30"
+     },
+     "arrival_airport": {
+      "name": "Rajiv Gandhi International Airport",
+      "id": "HYD",
+      "time": "2026-12-11 09:55"
+     },
+     "duration": 85,
+     "airline": "Air India Express",
+     "flight_number": "IX 1251",
+     "travel_class": "Economy"
+    },
+    {
+     "departure_airport": {
+      "name": "Rajiv Gandhi International Airport",
+      "id": "HYD",
+      "time": "2026-12-11 15:25"
+     },
+     "arrival_airport": {
+      "name": "Manohar International Airport (GOX) - Goa",
+      "id": "GOX",
+      "time": "2026-12-11 16:45"
+     },
+     "duration": 80,
+     "airline": "Air India Express",
+     "flight_number": "IX 1289",
+     "travel_class": "Economy"
+    }
+   ],
+   "layovers": [
+    {
+     "duration": 330,
+     "name": "Rajiv Gandhi International Airport",
+     "id": "HYD"
+    }
+   ],
+   "total_duration": 495,
+   "price": 10642,
+   "type": "One way",
+   "booking_token": "WyJDalJJVWpabWRqSlRXVTFJVm5OQlEzbHhVVUZDUnkwdExTMHRMUzB0ZVd4eE5TMXVNVUZCUVVGQlIzSm5NMDg0UTFSMloxZEJFZzFKV0RFeU5URjhTVmd4TWpnNUdnb0lrbE1RQUJvRFNVNVNPQnh3eFZjPSIsW1siQkxSIiwiMjAyNi0xMi0xMSIsIkhZRCIsbnVsbCwiSVgiLCIxMjUxIl0sWyJIWUQiLCIyMDI2LTEyLTExIiwiR09YIixudWxsLCJJWCIsIjEyODkiXV1d"
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 17:30"
+     },
+     "arrival_airport": {
+      "name": "Rajiv Gandhi International Airport",
+      "id": "HYD",
+      "time": "2026-12-11 18:55"
+     },
+     "duration": 85,
+     "airline": "Air India Express",
+     "flight_number": "IX 2841",
+     "travel_class": "Economy"
+    },
+    {
+     "departure_airport": {
+      "name": "Rajiv Gandhi International Airport",
+      "id": "HYD",
+      "time": "2026-12-11 21:45"
+     },
+     "arrival_airport": {
+      "name": "Manohar International Airport (GOX) - Goa",
+      "id": "GOX",
+      "time": "2026-12-11 23:05"
+     },
+     "duration": 80,
+     "airline": "Air India Express",
+     "flight_number": "IX 2986",
+     "travel_class": "Economy"
+    }
+   ],
+   "layovers": [
+    {
+     "duration": 170,
+     "name": "Rajiv Gandhi International Airport",
+     "id": "HYD"
+    }
+   ],
+   "total_duration": 335,
+   "price": 10847,
+   "type": "One way",
+   "booking_token": "WyJDalJJVWpabWRqSlRXVTFJVm5OQlEzbHhVVUZDUnkwdExTMHRMUzB0ZVd4eE5TMXVNVUZCUVVGQlIzSm5NMDg0UTFSMloxZEJFZzFKV0RJNE5ERjhTVmd5T1RnMkdnb0kzMVFRQUJvRFNVNVNPQnh3bkZrPSIsW1siQkxSIiwiMjAyNi0xMi0xMSIsIkhZRCIsbnVsbCwiSVgiLCIyODQxIl0sWyJIWUQiLCIyMDI2LTEyLTExIiwiR09YIixudWxsLCJJWCIsIjI5ODYiXV1d"
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 12:05"
+     },
+     "arrival_airport": {
+      "name": "Manohar International Airport (GOX) - Goa",
+      "id": "GOX",
+      "time": "2026-12-11 13:35"
+     },
+     "duration": 90,
+     "airline": "Air India Express",
+     "flight_number": "IX 1303",
+     "travel_class": "Economy"
+    }
+   ],
+   "total_duration": 90,
+   "price": 13696,
+   "type": "One way",
+   "booking_token": "WyJDalJJVWpabWRqSlRXVTFJVm5OQlEzbHhVVUZDUnkwdExTMHRMUzB0ZVd4eE5TMXVNVUZCUVVGQlIzSm5NMDg0UTFSMloxZEJFZ1pKV0RFek1ETWFDZ2lBYXhBQUdnTkpUbEk0SEhEVWNBPT0iLFtbIkJMUiIsIjIwMjYtMTItMTEiLCJHT1giLG51bGwsIklYIiwiMTMwMyJdXV0="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 19:00"
+     },
+     "arrival_airport": {
+      "name": "Chhatrapati Shivaji Maharaj International Airport Mumbai",
+      "id": "BOM",
+      "time": "2026-12-11 21:05"
+     },
+     "duration": 125,
+     "airline": "Air India",
+     "flight_number": "AI 2610",
+     "travel_class": "Economy"
+    },
+    {
+     "departure_airport": {
+      "name": "Chhatrapati Shivaji Maharaj International Airport Mumbai",
+      "id": "BOM",
+      "time": "2026-12-11 22:10"
+     },
+     "arrival_airport": {
+      "name": "Manohar International Airport (GOX) - Goa",
+      "id": "GOX",
+      "time": "2026-12-11 23:20"
+     },
+     "duration": 70,
+     "airline": "Air India Express",
+     "flight_number": "IX 1242",
+     "travel_class": "Economy"
+    }
+   ],
+   "layovers": [
+    {
+     "duration": 65,
+     "name": "Chhatrapati Shivaji Maharaj International Airport Mumbai",
+     "id": "BOM"
+    }
+   ],
+   "total_duration": 260,
+   "type": "One way",
+   "booking_token": "WyJDalJJVWpabWRqSlRXVTFJVm5OQlEzbHhVVUZDUnkwdExTMHRMUzB0ZVd4eE5TMXVNVUZCUVVGQlIzSm5NMDg0UTFSMloxZEJFZzFCU1RJMk1UQjhTVmd4TWpReU9Cdz0iLFtbIkJMUiIsIjIwMjYtMTItMTEiLCJCT00iLG51bGwsIkFJIiwiMjYxMCJdLFsiQk9NIiwiMjAyNi0xMi0xMSIsIkdPWCIsbnVsbCwiSVgiLCIxMjQyIl1dXQ=="
+  }
+ ]
+}

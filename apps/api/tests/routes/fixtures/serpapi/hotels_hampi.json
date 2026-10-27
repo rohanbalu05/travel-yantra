@@ -1,0 +1,464 @@
+{
+ "_note": "Recorded live from SerpApi on 2026-10-27 by routes/scripts/record_live.py; sanitised (request metadata, phone fields, images dropped) and trimmed.",
+ "_params": {
+  "engine": "google_hotels",
+  "q": "hotels in Hampi",
+  "check_in_date": "2026-12-11",
+  "check_out_date": "2026-12-14",
+  "adults": "2"
+ },
+ "properties": [
+  {
+   "type": "hotel",
+   "name": "Hampi Delmont Resort",
+   "rate_per_night": {
+    "display_price": "₹2,835",
+    "extracted_display_price": 2835,
+    "lowest": "₹2,835",
+    "extracted_lowest": 2835
+   },
+   "total_rate": {
+    "display_price": "₹8,505",
+    "extracted_display_price": 8505,
+    "lowest": "₹8,505",
+    "extracted_lowest": 8505
+   },
+   "overall_rating": 4.5,
+   "reviews": 2023,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChkIyr3ttNmJzqo6Gg0vZy8xMXMzN2I1bW45EAE",
+   "gps_coordinates": {
+    "latitude": 15.348789300000002,
+    "longitude": 76.4669134
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Hampi Heartland Heritage Resort",
+   "rate_per_night": {
+    "display_price": "₹2,665",
+    "extracted_display_price": 2665,
+    "lowest": "₹2,665",
+    "extracted_lowest": 2665
+   },
+   "total_rate": {
+    "display_price": "₹7,994",
+    "extracted_display_price": 7994,
+    "lowest": "₹7,994",
+    "extracted_lowest": 7994
+   },
+   "overall_rating": 4.4,
+   "reviews": 254,
+   "property_token": "ChoIi537-_X8mpqEARoNL2cvMTFtNnhmenRoYhAB",
+   "gps_coordinates": {
+    "latitude": 15.349144899999999,
+    "longitude": 76.46885139999999
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Sugriva's Kingdom",
+   "rate_per_night": {
+    "display_price": "₹5,774",
+    "extracted_display_price": 5774,
+    "lowest": "₹5,774",
+    "extracted_lowest": 5774
+   },
+   "total_rate": {
+    "display_price": "₹17,322",
+    "extracted_display_price": 17322,
+    "lowest": "₹17,322",
+    "extracted_lowest": 17322
+   },
+   "overall_rating": 4.6,
+   "reviews": 280,
+   "property_token": "ChkIwu7Mi9KBjv0YGg0vZy8xMXg2aHJtNnl6EAE",
+   "gps_coordinates": {
+    "latitude": 15.349010199999999,
+    "longitude": 76.46863379999999
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Wild Stone Hampi restaurant and guest house",
+   "rate_per_night": {
+    "display_price": "₹1,566",
+    "extracted_display_price": 1566,
+    "lowest": "₹1,566",
+    "extracted_lowest": 1566
+   },
+   "total_rate": {
+    "display_price": "₹4,698",
+    "extracted_display_price": 4698,
+    "lowest": "₹4,698",
+    "extracted_lowest": 4698
+   },
+   "overall_rating": 4.5,
+   "reviews": 275,
+   "property_token": "ChkIwIXtif6nuJd1Gg0vZy8xMXJnZ3BkbGhyEAE",
+   "gps_coordinates": {
+    "latitude": 15.3492705,
+    "longitude": 76.44113650000001
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Arjun Homestay",
+   "rate_per_night": {
+    "display_price": "₹4,400",
+    "extracted_display_price": 4400,
+    "lowest": "₹4,400",
+    "extracted_lowest": 4400
+   },
+   "total_rate": {
+    "display_price": "₹13,200",
+    "extracted_display_price": 13200,
+    "lowest": "₹13,200",
+    "extracted_lowest": 13200
+   },
+   "overall_rating": 4.8,
+   "reviews": 870,
+   "property_token": "ChkItYXv14HN-7JNGg0vZy8xMWhfN2x0ZHowEAE",
+   "gps_coordinates": {
+    "latitude": 15.312335699999998,
+    "longitude": 76.44666649999999
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "LAKSHMI HERITAGE TOURIST HOME",
+   "rate_per_night": {
+    "display_price": "₹2,510",
+    "extracted_display_price": 2510,
+    "lowest": "₹2,510",
+    "extracted_lowest": 2510
+   },
+   "total_rate": {
+    "display_price": "₹7,530",
+    "extracted_display_price": 7530,
+    "lowest": "₹7,530",
+    "extracted_lowest": 7530
+   },
+   "overall_rating": 4.4,
+   "reviews": 810,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChkI9pvSg66X_9GhARoML2cvMXlmanZubmYyEAE",
+   "gps_coordinates": {
+    "latitude": 15.336265599999999,
+    "longitude": 76.46033030000001
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Saptami Hampi",
+   "rate_per_night": {
+    "display_price": "₹4,839",
+    "extracted_display_price": 4839,
+    "lowest": "₹4,839",
+    "extracted_lowest": 4839
+   },
+   "total_rate": {
+    "display_price": "₹14,517",
+    "extracted_display_price": 14517,
+    "lowest": "₹14,517",
+    "extracted_lowest": 14517
+   },
+   "overall_rating": 4.9,
+   "reviews": 593,
+   "property_token": "ChoIi-rXw_fS85PWARoNL2cvMTFzMHowczFnahAB",
+   "gps_coordinates": {
+    "latitude": 15.3164481,
+    "longitude": 76.45553699999999
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Adhya Home stay Hampi",
+   "rate_per_night": {
+    "display_price": "₹1,513",
+    "extracted_display_price": 1513,
+    "lowest": "₹1,513",
+    "extracted_lowest": 1513
+   },
+   "total_rate": {
+    "display_price": "₹4,539",
+    "extracted_display_price": 4539,
+    "lowest": "₹4,539",
+    "extracted_lowest": 4539
+   },
+   "overall_rating": 4.9,
+   "reviews": 129,
+   "property_token": "ChkIyND81_ekvrJsGg0vZy8xMXZ3Z2MwYjhiEAE",
+   "gps_coordinates": {
+    "latitude": 15.318539999999999,
+    "longitude": 76.45569669999999
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Waterfall Guesthouse",
+   "rate_per_night": {
+    "display_price": "₹4,558",
+    "extracted_display_price": 4558,
+    "lowest": "₹4,558",
+    "extracted_lowest": 4558
+   },
+   "total_rate": {
+    "display_price": "₹13,673",
+    "extracted_display_price": 13673,
+    "lowest": "₹13,673",
+    "extracted_lowest": 13673
+   },
+   "overall_rating": 4.3,
+   "reviews": 647,
+   "hotel_class": "2-star hotel",
+   "property_token": "ChgIj6yEzNytrakHGgwvZy8xcHR4OWs4MzEQAQ",
+   "gps_coordinates": {
+    "latitude": 15.3475117,
+    "longitude": 76.439174
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Hampi's Dream Cottage",
+   "rate_per_night": {
+    "display_price": "₹1,814",
+    "extracted_display_price": 1814,
+    "lowest": "₹1,814",
+    "extracted_lowest": 1814
+   },
+   "total_rate": {
+    "display_price": "₹5,441",
+    "extracted_display_price": 5441,
+    "lowest": "₹5,441",
+    "extracted_lowest": 5441
+   },
+   "overall_rating": 4.3,
+   "reviews": 16,
+   "property_token": "ChoIhprZ3qOC1KKxARoNL2cvMTF6amw3ZzNzNRAB",
+   "gps_coordinates": {
+    "latitude": 15.335970500000002,
+    "longitude": 76.4610783
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Wanderlust Hampi",
+   "overall_rating": 4.6,
+   "reviews": 911,
+   "property_token": "ChkI7O_ewtzSvpV3Gg0vZy8xMXF2ZDB0MzZ6EAE",
+   "gps_coordinates": {
+    "latitude": 15.347222299999997,
+    "longitude": 76.46709709999999
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "3Season Resort Hampi.",
+   "overall_rating": 4.3,
+   "reviews": 810,
+   "property_token": "ChoIhPTNlOb5souJARoNL2cvMTFyODg3YmdsehAB",
+   "gps_coordinates": {
+    "latitude": 15.350277099999998,
+    "longitude": 76.469304
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Archana Guesthouse riverview & Roof Restaurant",
+   "rate_per_night": {
+    "display_price": "₹5,317",
+    "extracted_display_price": 5317,
+    "lowest": "₹5,317",
+    "extracted_lowest": 5317
+   },
+   "total_rate": {
+    "display_price": "₹15,951",
+    "extracted_display_price": 15951,
+    "lowest": "₹15,951",
+    "extracted_lowest": 15951
+   },
+   "overall_rating": 4.2,
+   "reviews": 575,
+   "hotel_class": "2-star hotel",
+   "property_token": "ChoI0Mbm1tms3ZWIARoNL2cvMTFmOWY5OG1fbBAB",
+   "gps_coordinates": {
+    "latitude": 15.33639,
+    "longitude": 76.4602669
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Aras Homestays Hampi",
+   "rate_per_night": {
+    "display_price": "₹2,716",
+    "extracted_display_price": 2716,
+    "lowest": "₹2,716",
+    "extracted_lowest": 2716
+   },
+   "total_rate": {
+    "display_price": "₹8,147",
+    "extracted_display_price": 8147,
+    "lowest": "₹8,147",
+    "extracted_lowest": 8147
+   },
+   "overall_rating": 4.9,
+   "reviews": 129,
+   "property_token": "ChkIytaC0-aTk5MpGg0vZy8xMXd3emRnYmh0EAE",
+   "gps_coordinates": {
+    "latitude": 15.314269800000002,
+    "longitude": 76.4519202
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Ranjana guest house",
+   "rate_per_night": {
+    "display_price": "₹3,341",
+    "extracted_display_price": 3341,
+    "lowest": "₹3,341",
+    "extracted_lowest": 3341
+   },
+   "total_rate": {
+    "display_price": "₹10,022",
+    "extracted_display_price": 10022,
+    "lowest": "₹10,022",
+    "extracted_lowest": 10022
+   },
+   "overall_rating": 4.6,
+   "reviews": 322,
+   "property_token": "ChoInZ6H85en_6rPARoNL2cvMTFoOTRkbGRkNxAB",
+   "gps_coordinates": {
+    "latitude": 15.3343386,
+    "longitude": 76.4615128
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Hampi Trails",
+   "rate_per_night": {
+    "display_price": "₹4,698",
+    "extracted_display_price": 4698,
+    "lowest": "₹4,698",
+    "extracted_lowest": 4698
+   },
+   "total_rate": {
+    "display_price": "₹14,095",
+    "extracted_display_price": 14095,
+    "lowest": "₹14,095",
+    "extracted_lowest": 14095
+   },
+   "overall_rating": 5,
+   "reviews": 28,
+   "property_token": "ChoImNqZ_dOvkKzqARoNL2cvMTF6eXB2MWdsMBAB",
+   "gps_coordinates": {
+    "latitude": 15.3492551,
+    "longitude": 76.4690423
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Gopi Guesthouse And Roof Restaurant",
+   "rate_per_night": {
+    "display_price": "₹3,989",
+    "extracted_display_price": 3989,
+    "lowest": "₹3,989",
+    "extracted_lowest": 3989
+   },
+   "total_rate": {
+    "display_price": "₹11,967",
+    "extracted_display_price": 11967,
+    "lowest": "₹11,967",
+    "extracted_lowest": 11967
+   },
+   "overall_rating": 4.2,
+   "reviews": 921,
+   "property_token": "ChoI8IeMruryseO0ARoNL2cvMTFiNnR6bHRjZxAB",
+   "gps_coordinates": {
+    "latitude": 15.336162199999999,
+    "longitude": 76.4602589
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "LOTUS RIYA",
+   "overall_rating": 4.5,
+   "reviews": 270,
+   "property_token": "ChkIv7uHv9ba-fBUGg0vZy8xMWd0NjRzY3ljEAE",
+   "gps_coordinates": {
+    "latitude": 15.317680399999999,
+    "longitude": 76.455401
+   }
+  },
+  {
+   "type": "vacation rental",
+   "name": "Archana Guest House River View - Deluxe Double or Twin Room with River View",
+   "rate_per_night": {
+    "display_price": "₹5,853",
+    "extracted_display_price": 5853,
+    "lowest": "₹5,853",
+    "extracted_lowest": 5853
+   },
+   "total_rate": {
+    "display_price": "₹17,560",
+    "extracted_display_price": 17560,
+    "lowest": "₹17,560",
+    "extracted_lowest": 17560
+   },
+   "overall_rating": 4.95,
+   "reviews": 8,
+   "property_token": "ChkQ5Yyz0-KQqJZuGg0vZy8xMXp5d3pncjAyEAI",
+   "gps_coordinates": {
+    "latitude": 15.336409568786621,
+    "longitude": 76.46025848388672
+   },
+   "prices": [
+    {
+     "source": "Bluepillow.id",
+     "num_guests": 2,
+     "rate_per_night": {
+      "display_price": "₹5,853",
+      "extracted_display_price": 5853,
+      "lowest": "₹5,853",
+      "extracted_lowest": 5853
+     }
+    }
+   ]
+  },
+  {
+   "type": "vacation rental",
+   "name": "Ranjana Guesthouse - Double Room with Mountain View",
+   "rate_per_night": {
+    "display_price": "₹3,361",
+    "extracted_display_price": 3361,
+    "lowest": "₹3,361",
+    "extracted_lowest": 3361
+   },
+   "total_rate": {
+    "display_price": "₹10,084",
+    "extracted_display_price": 10084,
+    "lowest": "₹10,084",
+    "extracted_lowest": 10084
+   },
+   "overall_rating": 4.95,
+   "reviews": 8,
+   "property_token": "ChkQyYyx95ubx9gNGg0vZy8xMXo1YzhrbTN4EAI",
+   "gps_coordinates": {
+    "latitude": 15.334139823913574,
+    "longitude": 76.46138763427734
+   },
+   "prices": [
+    {
+     "source": "Bluepillow.id",
+     "num_guests": 2,
+     "rate_per_night": {
+      "display_price": "₹3,361",
+      "extracted_display_price": 3361,
+      "lowest": "₹3,361",
+      "extracted_lowest": 3361
+     }
+    }
+   ]
+  }
+ ]
+}

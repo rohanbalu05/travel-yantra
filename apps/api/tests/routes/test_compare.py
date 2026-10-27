@@ -1,3 +1,5 @@
+import datetime as dt
+
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -144,3 +146,17 @@ def test_travellers_scale_tickets_per_person_and_cars_per_four(service):
     assert four[Mode.air].total_cost_inr > 3 * one[Mode.air].total_cost_inr
     assert all(o.option.total_cost_inr == sum(leg.cost_inr for leg in o.option.legs)
                for o in service.compare(CompareRequest(origin="Bengaluru", destination="Goa", travellers=4)).options)
+
+
+@pytest.mark.parametrize("dest,modes,missing", [
+    ("Hampi", {"rail", "road", "air"}, set()),
+    ("Coorg", {"road"}, {"rail", "air"}),
+    ("Madikeri", {"road"}, {"rail", "air"}),
+    ("Chikmagalur", {"rail", "road"}, {"air"}),
+])
+def test_karnataka_destinations_for_planner(dest, modes, missing):
+    svc = CompareService(road=HaversineRoadProvider(), live=False)
+    resp = svc.compare(CompareRequest(origin="Bengaluru", destination=dest, date=dt.date(2026, 12, 11)))
+    assert {o.option.mode.value for o in resp.options} == modes
+    assert {u.mode.value for u in resp.unavailable} == missing
+    assert [o.rank for o in resp.options] == list(range(1, len(modes) + 1))

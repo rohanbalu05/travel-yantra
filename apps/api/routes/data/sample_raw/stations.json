@@ -255,6 +255,40 @@
     "zone": "SAMPLE",
     "address": ""
    }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     76.3909,
+     15.2689
+    ]
+   },
+   "properties": {
+    "code": "HPT",
+    "name": "Hosapete Jn",
+    "state": "Karnataka",
+    "zone": "SAMPLE",
+    "address": ""
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     75.7754,
+     13.3153
+    ]
+   },
+   "properties": {
+    "code": "CMGR",
+    "name": "Chikkamagaluru",
+    "state": "Karnataka",
+    "zone": "SAMPLE",
+    "address": ""
+   }
   }
  ]
 }

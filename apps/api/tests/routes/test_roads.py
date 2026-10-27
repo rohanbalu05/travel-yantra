@@ -33,11 +33,13 @@ def test_uses_routes_api_response_and_sends_essentials_request():
     p = RoutesApiRoadProvider(transport=t, api_key="test-key")
     e = p.road_edge(BLR, GOA)
     assert e.ref == REF and e.mode == "road"
-    assert e.minutes == pytest.approx(590.0)
-    assert e.cost_inr == pytest.approx(561 * 6.0)
+    # recorded live: 591.8 km in 11 h 7 min, Bengaluru to Panaji centres
+    assert e.minutes == pytest.approx(40021 / 60)
+    assert e.cost_inr == pytest.approx(591.834 * 6.0)
     url, headers, body, _ = t.calls[0]
     assert url == URL and headers["X-Goog-FieldMask"] == FIELD_MASK
     assert body["travelMode"] == "DRIVE" and body["routingPreference"] == "TRAFFIC_UNAWARE"
+    assert body == FIXTURE["_request"]  # the fixture answers exactly the request compare sends
 
 
 def test_caches_so_a_repeat_pair_costs_no_call():

@@ -1,0 +1,489 @@
+{
+ "_note": "Recorded live from SerpApi on 2026-10-27 by routes/scripts/record_live.py; sanitised (request metadata, phone fields, images dropped) and trimmed.",
+ "_params": {
+  "engine": "google_hotels",
+  "q": "hotels in Chikkamagaluru",
+  "check_in_date": "2026-12-11",
+  "check_out_date": "2026-12-14",
+  "adults": "2"
+ },
+ "properties": [
+  {
+   "type": "hotel",
+   "name": "Global Village Luxury Resort",
+   "rate_per_night": {
+    "display_price": "₹12,341",
+    "extracted_display_price": 12341,
+    "lowest": "₹12,341",
+    "extracted_lowest": 12341
+   },
+   "total_rate": {
+    "display_price": "₹37,023",
+    "extracted_display_price": 37023,
+    "lowest": "₹37,023",
+    "extracted_lowest": 37023
+   },
+   "overall_rating": 4.4,
+   "reviews": 2085,
+   "property_token": "ChkI2pvZlKuw3_w-Gg0vZy8xMXJzZzk3ODQ5EAE",
+   "gps_coordinates": {
+    "latitude": 13.359235,
+    "longitude": 75.75802469999999
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Trippr Chikkamagaluru",
+   "rate_per_night": {
+    "display_price": "₹839",
+    "extracted_display_price": 839,
+    "lowest": "₹839",
+    "extracted_lowest": 839
+   },
+   "total_rate": {
+    "display_price": "₹2,517",
+    "extracted_display_price": 2517,
+    "lowest": "₹2,517",
+    "extracted_lowest": 2517
+   },
+   "overall_rating": 4.5,
+   "reviews": 3122,
+   "property_token": "ChoI35yz-PeAqJCyARoNL2cvMTFjMXA1ajR6MhAB",
+   "gps_coordinates": {
+    "latitude": 13.3589495,
+    "longitude": 75.7636248
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "VIVIDUS Sleek CN Windsor",
+   "rate_per_night": {
+    "display_price": "₹4,405",
+    "extracted_display_price": 4405,
+    "lowest": "₹4,405",
+    "extracted_lowest": 4405
+   },
+   "total_rate": {
+    "display_price": "₹13,216",
+    "extracted_display_price": 13216,
+    "lowest": "₹13,216",
+    "extracted_lowest": 13216
+   },
+   "overall_rating": 4.1,
+   "reviews": 409,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChoI54mZgJC9lc_nARoNL2cvMTF2ajdyeGRneRAB",
+   "gps_coordinates": {
+    "latitude": 13.3371339,
+    "longitude": 75.7982698
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Punam Paravasha Resort",
+   "rate_per_night": {
+    "display_price": "₹4,542",
+    "extracted_display_price": 4542,
+    "lowest": "₹4,542",
+    "extracted_lowest": 4542
+   },
+   "total_rate": {
+    "display_price": "₹13,626",
+    "extracted_display_price": 13626,
+    "lowest": "₹13,626",
+    "extracted_lowest": 13626
+   },
+   "overall_rating": 4.5,
+   "reviews": 660,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChkI19GD44TZp_pIGg0vZy8xMXd4Nnh2NzB3EAE",
+   "gps_coordinates": {
+    "latitude": 13.3362459,
+    "longitude": 75.75753499999999
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Rangi Taranga",
+   "rate_per_night": {
+    "display_price": "₹6,285",
+    "extracted_display_price": 6285,
+    "lowest": "₹6,285",
+    "extracted_lowest": 6285
+   },
+   "total_rate": {
+    "display_price": "₹18,855",
+    "extracted_display_price": 18855,
+    "lowest": "₹18,855",
+    "extracted_lowest": 18855
+   },
+   "overall_rating": 4.6,
+   "reviews": 682,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChkInIy9nuvBlcMuGg0vZy8xMXZ0NTk2c3liEAE",
+   "gps_coordinates": {
+    "latitude": 13.355814299999999,
+    "longitude": 75.7636624
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "MOUNTAIN VALLEY HOMESTAY",
+   "rate_per_night": {
+    "display_price": "₹3,675",
+    "extracted_display_price": 3675,
+    "lowest": "₹3,675",
+    "extracted_lowest": 3675
+   },
+   "total_rate": {
+    "display_price": "₹11,025",
+    "extracted_display_price": 11025,
+    "lowest": "₹11,025",
+    "extracted_lowest": 11025
+   },
+   "overall_rating": 4.2,
+   "reviews": 1116,
+   "property_token": "ChcI_fuftr6Z2MMEGgsvZy8xdmJsNjBmdxAB",
+   "gps_coordinates": {
+    "latitude": 13.353019199999999,
+    "longitude": 75.764273
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Maharaja INN Chikmagalur",
+   "rate_per_night": {
+    "display_price": "₹2,005",
+    "extracted_display_price": 2005,
+    "lowest": "₹2,005",
+    "extracted_lowest": 2005
+   },
+   "total_rate": {
+    "display_price": "₹6,015",
+    "extracted_display_price": 6015,
+    "lowest": "₹6,015",
+    "extracted_lowest": 6015
+   },
+   "overall_rating": 4,
+   "reviews": 887,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChoIiLKF5LaUru7BARoNL2cvMTFjbG1mNGoyZhAB",
+   "gps_coordinates": {
+    "latitude": 13.321328099999999,
+    "longitude": 75.7721607
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Crystal Inn",
+   "rate_per_night": {
+    "display_price": "₹2,347",
+    "extracted_display_price": 2347,
+    "lowest": "₹2,347",
+    "extracted_lowest": 2347
+   },
+   "total_rate": {
+    "display_price": "₹7,041",
+    "extracted_display_price": 7041,
+    "lowest": "₹7,041",
+    "extracted_lowest": 7041
+   },
+   "overall_rating": 4.1,
+   "reviews": 2286,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChkIu63xgNfPrpwFGg0vZy8xMWI1cXRzMjBsEAE",
+   "gps_coordinates": {
+    "latitude": 13.3281849,
+    "longitude": 75.7744558
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Binary Exotica Luxury Hotels & Resorts",
+   "rate_per_night": {
+    "display_price": "₹4,838",
+    "extracted_display_price": 4838,
+    "lowest": "₹4,838",
+    "extracted_lowest": 4838
+   },
+   "total_rate": {
+    "display_price": "₹14,514",
+    "extracted_display_price": 14514,
+    "lowest": "₹14,514",
+    "extracted_lowest": 14514
+   },
+   "overall_rating": 4,
+   "reviews": 2196,
+   "property_token": "ChoImKKwstyKne-tARoNL2cvMTF2MHA3c3N5axAB",
+   "gps_coordinates": {
+    "latitude": 13.351151,
+    "longitude": 75.7640921
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Olive Hotel Chikkamagalur by Embassy Group",
+   "rate_per_night": {
+    "display_price": "₹2,144",
+    "extracted_display_price": 2144,
+    "lowest": "₹2,144",
+    "extracted_lowest": 2144
+   },
+   "total_rate": {
+    "display_price": "₹6,431",
+    "extracted_display_price": 6431,
+    "lowest": "₹6,431",
+    "extracted_lowest": 6431
+   },
+   "overall_rating": 4.7,
+   "reviews": 122,
+   "property_token": "ChkIydrky9OI9ZM4Gg0vZy8xMXhmYjBncHdfEAE",
+   "gps_coordinates": {
+    "latitude": 13.3320721,
+    "longitude": 75.7721179
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "TRESCA A LUXURY HOTEL",
+   "rate_per_night": {
+    "display_price": "₹3,114",
+    "extracted_display_price": 3114,
+    "lowest": "₹3,114",
+    "extracted_lowest": 3114
+   },
+   "total_rate": {
+    "display_price": "₹9,342",
+    "extracted_display_price": 9342,
+    "lowest": "₹9,342",
+    "extracted_lowest": 9342
+   },
+   "overall_rating": 4.6,
+   "reviews": 991,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChkInNTOwKXA1JMdGg0vZy8xMWoydzlkaDgzEAE",
+   "gps_coordinates": {
+    "latitude": 13.3307722,
+    "longitude": 75.77317409999999
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Silver Suite Hotel",
+   "rate_per_night": {
+    "display_price": "₹1,537",
+    "extracted_display_price": 1537,
+    "lowest": "₹1,537",
+    "extracted_lowest": 1537
+   },
+   "total_rate": {
+    "display_price": "₹4,611",
+    "extracted_display_price": 4611,
+    "lowest": "₹4,611",
+    "extracted_lowest": 4611
+   },
+   "overall_rating": 4.1,
+   "reviews": 1815,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChkIpZ3_3IeflOUQGg0vZy8xMWRfOWt3YjZ0EAE",
+   "gps_coordinates": {
+    "latitude": 13.3229651,
+    "longitude": 75.77187339999999
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Gateway Chikmagalur",
+   "rate_per_night": {
+    "display_price": "₹17,579",
+    "extracted_display_price": 17579,
+    "lowest": "₹17,579",
+    "extracted_lowest": 17579
+   },
+   "total_rate": {
+    "display_price": "₹52,737",
+    "extracted_display_price": 52737,
+    "lowest": "₹52,737",
+    "extracted_lowest": 52737
+   },
+   "overall_rating": 4.3,
+   "reviews": 2184,
+   "hotel_class": "4-star hotel",
+   "property_token": "ChcIhdj0jc_t_-NWGgsvZy8xdGtsbl9jahAB",
+   "gps_coordinates": {
+    "latitude": 13.33668,
+    "longitude": 75.8177276
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "The Bee Hive Homestay",
+   "rate_per_night": {
+    "display_price": "₹6,510",
+    "extracted_display_price": 6510,
+    "lowest": "₹6,510",
+    "extracted_lowest": 6510
+   },
+   "total_rate": {
+    "display_price": "₹19,530",
+    "extracted_display_price": 19530,
+    "lowest": "₹19,530",
+    "extracted_lowest": 19530
+   },
+   "overall_rating": 4.4,
+   "reviews": 518,
+   "property_token": "ChkIktjI_IuAr-5tGg0vZy8xMWc2OThkejZ6EAE",
+   "gps_coordinates": {
+    "latitude": 13.2943617,
+    "longitude": 75.805294
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Hotel Aadrika, Chikmagalur",
+   "overall_rating": 4.2,
+   "reviews": 2961,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChkIwpCHvZ-Br6NDGg0vZy8xMWM2NTB0djFtEAE",
+   "gps_coordinates": {
+    "latitude": 13.3171954,
+    "longitude": 75.7710901
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Bougainvillea Homestay",
+   "rate_per_night": {
+    "display_price": "₹3,301",
+    "extracted_display_price": 3301,
+    "lowest": "₹3,301",
+    "extracted_lowest": 3301
+   },
+   "total_rate": {
+    "display_price": "₹9,902",
+    "extracted_display_price": 9902,
+    "lowest": "₹9,902",
+    "extracted_lowest": 9902
+   },
+   "overall_rating": 4.2,
+   "reviews": 1162,
+   "property_token": "ChoIhe6oi96itryEARoNL2cvMTFnNnhoMzJmaxAB",
+   "gps_coordinates": {
+    "latitude": 13.345644199999999,
+    "longitude": 75.7840027
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "The Pentouz Hillside Chikmagalur",
+   "rate_per_night": {
+    "display_price": "₹7,718",
+    "extracted_display_price": 7718,
+    "lowest": "₹7,718",
+    "extracted_lowest": 7718
+   },
+   "total_rate": {
+    "display_price": "₹23,153",
+    "extracted_display_price": 23153,
+    "lowest": "₹23,153",
+    "extracted_lowest": 23153
+   },
+   "overall_rating": 4.3,
+   "reviews": 49,
+   "property_token": "ChkI57GemLHA1ulJGg0vZy8xMXo1cXg0ejV0EAE",
+   "gps_coordinates": {
+    "latitude": 13.3581621,
+    "longitude": 75.76726889999999
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Chirooss Homestay",
+   "rate_per_night": {
+    "display_price": "₹4,527",
+    "extracted_display_price": 4527,
+    "lowest": "₹4,527",
+    "extracted_lowest": 4527
+   },
+   "total_rate": {
+    "display_price": "₹13,580",
+    "extracted_display_price": 13580,
+    "lowest": "₹13,580",
+    "extracted_lowest": 13580
+   },
+   "overall_rating": 4.3,
+   "reviews": 1691,
+   "property_token": "ChkIt7-G4sPzjbhYGg0vZy8xMWY3cHY1MXdtEAE",
+   "gps_coordinates": {
+    "latitude": 13.357104099999999,
+    "longitude": 75.7637307
+   }
+  },
+  {
+   "type": "vacation rental",
+   "name": "Crystal Stay Villa - Double Room",
+   "rate_per_night": {
+    "display_price": "₹1,470",
+    "extracted_display_price": 1470,
+    "lowest": "₹1,470",
+    "extracted_lowest": 1470
+   },
+   "total_rate": {
+    "display_price": "₹4,411",
+    "extracted_display_price": 4411,
+    "lowest": "₹4,411",
+    "extracted_lowest": 4411
+   },
+   "property_token": "ChoQhfi4_uDk0cn9ARoNL2cvMTF4Nng0N2gxehAC",
+   "gps_coordinates": {
+    "latitude": 13.330659866333008,
+    "longitude": 75.75943756103516
+   },
+   "prices": [
+    {
+     "source": "Bluepillow.mx",
+     "num_guests": 2,
+     "rate_per_night": {
+      "display_price": "₹1,470",
+      "extracted_display_price": 1470,
+      "lowest": "₹1,470",
+      "extracted_lowest": 1470
+     }
+    }
+   ]
+  },
+  {
+   "type": "vacation rental",
+   "name": "Malgudi Mane Homestay - Two-Bedroom House",
+   "rate_per_night": {
+    "display_price": "₹2,347",
+    "extracted_display_price": 2347,
+    "lowest": "₹2,347",
+    "extracted_lowest": 2347
+   },
+   "total_rate": {
+    "display_price": "₹7,040",
+    "extracted_display_price": 7040,
+    "lowest": "₹7,040",
+    "extracted_lowest": 7040
+   },
+   "property_token": "ChkQvL-1obLvpYdxGg0vZy8xMXhjX3ZqMDk4EAI",
+   "gps_coordinates": {
+    "latitude": 13.343449592590332,
+    "longitude": 75.76378631591797
+   },
+   "prices": [
+    {
+     "source": "Bluepillow.mx",
+     "num_guests": 2,
+     "rate_per_night": {
+      "display_price": "₹2,347",
+      "extracted_display_price": 2347,
+      "lowest": "₹2,347",
+      "extracted_lowest": 2347
+     }
+    }
+   ]
+  }
+ ]
+}

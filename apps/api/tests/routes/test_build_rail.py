@@ -11,4 +11,4 @@ def test_build_filters_states(tmp_path):
     stations = json.loads((tmp_path / "rail_stations.json").read_text())
     codes = {s["code"] for s in stations}
     assert "DEL" not in codes and {"SBC", "MAO"} <= codes
-    assert counts == {"stations": 14, "trains": 10}
+    assert counts == {"stations": 16, "trains": 14}

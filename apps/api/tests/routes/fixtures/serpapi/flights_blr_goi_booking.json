@@ -1,0 +1,25 @@
+{
+ "_note": "Recorded live from SerpApi on 2026-10-27 by routes/scripts/record_live.py; sanitised (request metadata, phone fields, images dropped) and trimmed.",
+ "_params": {
+  "engine": "google_flights",
+  "departure_id": "BLR",
+  "arrival_id": "GOI",
+  "outbound_date": "2026-12-11",
+  "type": "2",
+  "adults": "1",
+  "travel_class": "1",
+  "booking_token": "WyJDalJJYmxndFEwMXRUek5pU0dkQlNGcHVTRkZDUnkwdExTMHRMUzB0TFc5NVltc3hOVUZCUVVGQlIzSm5NMDluU21WVVYwVkJFZ1kyUlRZMk5UTWFDZ2loUVJBQUdnTkpUbEk0SEhEYlJBPT0iLFtbIkJMUiIsIjIwMjYtMTItMTEiLCJHT0kiLG51bGwsIjZFIiwiNjY1MyJdXV0="
+ },
+ "booking_options": [
+  {
+   "together": {
+    "book_with": "IndiGo",
+    "airline": true,
+    "marketed_as": [
+     "6E 6653"
+    ],
+    "price": 8353
+   }
+  }
+ ]
+}

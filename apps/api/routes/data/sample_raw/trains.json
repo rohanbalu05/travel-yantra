@@ -80,6 +80,38 @@
     "name": "Sample Vasco-Bengaluru Express",
     "number": "90010"
    }
+  },
+  {
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "name": "Sample Bengaluru-Chikkamagaluru Express",
+    "number": "90011"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "name": "Sample Chikkamagaluru-Bengaluru Express",
+    "number": "90012"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "name": "Sample Bengaluru-Hosapete Express",
+    "number": "90013"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "name": "Sample Hosapete-Bengaluru Express",
+    "number": "90014"
+   }
   }
  ]
 }

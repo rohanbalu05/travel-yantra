@@ -1,0 +1,511 @@
+{
+ "_note": "Recorded live from SerpApi on 2026-10-27 by routes/scripts/record_live.py; sanitised (request metadata, phone fields, images dropped) and trimmed.",
+ "_params": {
+  "engine": "google_hotels",
+  "q": "hotels in Panaji",
+  "check_in_date": "2026-12-11",
+  "check_out_date": "2026-12-14",
+  "adults": "2"
+ },
+ "properties": [
+  {
+   "type": "hotel",
+   "name": "Metropolis Business Hotel",
+   "rate_per_night": {
+    "display_price": "₹2,102",
+    "extracted_display_price": 2102,
+    "lowest": "₹2,102",
+    "extracted_lowest": 2102
+   },
+   "total_rate": {
+    "display_price": "₹6,305",
+    "extracted_display_price": 6305,
+    "lowest": "₹6,305",
+    "extracted_lowest": 6305
+   },
+   "overall_rating": 4.4,
+   "reviews": 1260,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChoIqaLj57SGtK3xARoNL2cvMTFzMXEwMWprZBAB",
+   "gps_coordinates": {
+    "latitude": 15.495935000000001,
+    "longitude": 73.822454
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "The Crown Goa",
+   "rate_per_night": {
+    "display_price": "₹6,585",
+    "extracted_display_price": 6585,
+    "lowest": "₹6,585",
+    "extracted_lowest": 6585
+   },
+   "total_rate": {
+    "display_price": "₹19,755",
+    "extracted_display_price": 19755,
+    "lowest": "₹19,755",
+    "extracted_lowest": 19755
+   },
+   "overall_rating": 4.3,
+   "reviews": 2082,
+   "hotel_class": "5-star hotel",
+   "property_token": "ChcI67z406SHjMg2GgsvZy8xdGN4bjNnbhAB",
+   "gps_coordinates": {
+    "latitude": 15.4995055,
+    "longitude": 73.830606
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "River Side Suites at Panjim Gymkhana",
+   "rate_per_night": {
+    "display_price": "₹3,716",
+    "extracted_display_price": 3716,
+    "lowest": "₹3,716",
+    "extracted_lowest": 3716
+   },
+   "total_rate": {
+    "display_price": "₹11,147",
+    "extracted_display_price": 11147,
+    "lowest": "₹11,147",
+    "extracted_lowest": 11147
+   },
+   "overall_rating": 4.8,
+   "reviews": 304,
+   "property_token": "ChkI-_fTid-0w64aGg0vZy8xMW1jYnJka3ZmEAE",
+   "gps_coordinates": {
+    "latitude": 15.4917427,
+    "longitude": 73.8149942
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Hotel Arcadia",
+   "rate_per_night": {
+    "display_price": "₹2,325",
+    "extracted_display_price": 2325,
+    "lowest": "₹2,325",
+    "extracted_lowest": 2325
+   },
+   "total_rate": {
+    "display_price": "₹6,975",
+    "extracted_display_price": 6975,
+    "lowest": "₹6,975",
+    "extracted_lowest": 6975
+   },
+   "overall_rating": 4.4,
+   "reviews": 931,
+   "hotel_class": "2-star hotel",
+   "property_token": "ChgIrovEmemgzfKbARoLL2cvMXRkbWh5NF8QAQ",
+   "gps_coordinates": {
+    "latitude": 15.4981858,
+    "longitude": 73.8246143
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Regenta Inn , Palacio de goa",
+   "rate_per_night": {
+    "display_price": "₹4,174",
+    "extracted_display_price": 4174,
+    "lowest": "₹4,174",
+    "extracted_lowest": 4174
+   },
+   "total_rate": {
+    "display_price": "₹12,523",
+    "extracted_display_price": 12523,
+    "lowest": "₹12,523",
+    "extracted_lowest": 12523
+   },
+   "overall_rating": 4.1,
+   "reviews": 3321,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChgI9a6Xw7yPxpvpARoLL2cvMXRjeHNwbjEQAQ",
+   "gps_coordinates": {
+    "latitude": 15.494399,
+    "longitude": 73.822144
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "The Grand Central Goa",
+   "rate_per_night": {
+    "display_price": "₹5,474",
+    "extracted_display_price": 5474,
+    "lowest": "₹5,474",
+    "extracted_lowest": 5474
+   },
+   "total_rate": {
+    "display_price": "₹16,422",
+    "extracted_display_price": 16422,
+    "lowest": "₹16,422",
+    "extracted_lowest": 16422
+   },
+   "overall_rating": 4.8,
+   "reviews": 266,
+   "property_token": "ChoI57rtv4v2697XARoNL2cvMTF3dHBkcXlseBAB",
+   "gps_coordinates": {
+    "latitude": 15.457047699999999,
+    "longitude": 73.803842
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Park Prime Goa",
+   "rate_per_night": {
+    "display_price": "₹5,835",
+    "extracted_display_price": 5835,
+    "lowest": "₹5,835",
+    "extracted_lowest": 5835
+   },
+   "total_rate": {
+    "display_price": "₹17,506",
+    "extracted_display_price": 17506,
+    "lowest": "₹17,506",
+    "extracted_lowest": 17506
+   },
+   "overall_rating": 4.4,
+   "reviews": 1588,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChgIufTGzsGbkLywARoLL2cvMXRkNzlsdjIQAQ",
+   "gps_coordinates": {
+    "latitude": 15.498277499999999,
+    "longitude": 73.8347996
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Minimalist Panjim",
+   "rate_per_night": {
+    "display_price": "₹6,164",
+    "extracted_display_price": 6164,
+    "lowest": "₹6,164",
+    "extracted_lowest": 6164
+   },
+   "total_rate": {
+    "display_price": "₹18,491",
+    "extracted_display_price": 18491,
+    "lowest": "₹18,491",
+    "extracted_lowest": 18491
+   },
+   "overall_rating": 4.6,
+   "reviews": 1096,
+   "property_token": "ChoI7q-B693I4JnjARoNL2cvMTF2XzVybXBubhAB",
+   "gps_coordinates": {
+    "latitude": 15.488054400000001,
+    "longitude": 73.8161082
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Palm Air by Goa Signature Stays",
+   "rate_per_night": {
+    "display_price": "₹3,499",
+    "extracted_display_price": 3499,
+    "lowest": "₹3,499",
+    "extracted_lowest": 3499
+   },
+   "total_rate": {
+    "display_price": "₹10,496",
+    "extracted_display_price": 10496,
+    "lowest": "₹10,496",
+    "extracted_lowest": 10496
+   },
+   "overall_rating": 4.5,
+   "reviews": 2146,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChoInuWCj7ihkazxARoNL2cvMTFnNmx5cDgzMxAB",
+   "gps_coordinates": {
+    "latitude": 15.4843666,
+    "longitude": 73.8131399
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Panaji Residency",
+   "rate_per_night": {
+    "display_price": "₹4,099",
+    "extracted_display_price": 4099,
+    "lowest": "₹4,099",
+    "extracted_lowest": 4099
+   },
+   "total_rate": {
+    "display_price": "₹12,296",
+    "extracted_display_price": 12296,
+    "lowest": "₹12,296",
+    "extracted_lowest": 12296
+   },
+   "overall_rating": 4.2,
+   "reviews": 1042,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChcIzduV_eaMpdwhGgsvZy8xdGRtY2JtMBAB",
+   "gps_coordinates": {
+    "latitude": 15.500173100000001,
+    "longitude": 73.8309463
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Ginger Goa, Panjim",
+   "rate_per_night": {
+    "display_price": "₹4,992",
+    "extracted_display_price": 4992,
+    "lowest": "₹4,992",
+    "extracted_lowest": 4992
+   },
+   "total_rate": {
+    "display_price": "₹14,977",
+    "extracted_display_price": 14977,
+    "lowest": "₹14,977",
+    "extracted_lowest": 14977
+   },
+   "overall_rating": 4,
+   "reviews": 5949,
+   "hotel_class": "4-star hotel",
+   "property_token": "ChgItPuYxOWd0KmRARoLL2cvMXZmd2I4cjEQAQ",
+   "gps_coordinates": {
+    "latitude": 15.4949219,
+    "longitude": 73.8343431
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Mateus Boutique Hotel",
+   "rate_per_night": {
+    "display_price": "₹4,936",
+    "extracted_display_price": 4936,
+    "lowest": "₹4,936",
+    "extracted_lowest": 4936
+   },
+   "total_rate": {
+    "display_price": "₹14,808",
+    "extracted_display_price": 14808,
+    "lowest": "₹14,808",
+    "extracted_lowest": 14808
+   },
+   "overall_rating": 4.3,
+   "reviews": 482,
+   "hotel_class": "3-star hotel",
+   "property_token": "ChkI39DJlLmIlM5JGg0vZy8xMWMxdHlqcHQ1EAE",
+   "gps_coordinates": {
+    "latitude": 15.4987457,
+    "longitude": 73.8315729
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Swimsea Beach Resort",
+   "rate_per_night": {
+    "display_price": "₹3,358",
+    "extracted_display_price": 3358,
+    "lowest": "₹3,358",
+    "extracted_lowest": 3358
+   },
+   "total_rate": {
+    "display_price": "₹10,073",
+    "extracted_display_price": 10073,
+    "lowest": "₹10,073",
+    "extracted_lowest": 10073
+   },
+   "overall_rating": 3.8,
+   "reviews": 2118,
+   "hotel_class": "2-star hotel",
+   "property_token": "ChcI-I_i_cyom9pKGgsvZy8xdG5iamxiZBAB",
+   "gps_coordinates": {
+    "latitude": 15.463834700000001,
+    "longitude": 73.804688
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Novotel Goa Panjim",
+   "rate_per_night": {
+    "display_price": "₹16,086",
+    "extracted_display_price": 16086,
+    "lowest": "₹16,086",
+    "extracted_lowest": 16086
+   },
+   "total_rate": {
+    "display_price": "₹48,258",
+    "extracted_display_price": 48258,
+    "lowest": "₹48,258",
+    "extracted_lowest": 48258
+   },
+   "overall_rating": 4.7,
+   "reviews": 1574,
+   "hotel_class": "5-star hotel",
+   "property_token": "ChkIj_7Zr7rhl9ooGg0vZy8xMXdmaGI4MWwxEAE",
+   "gps_coordinates": {
+    "latitude": 15.494667,
+    "longitude": 73.8338285
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Prazeres Boutique Hotel",
+   "rate_per_night": {
+    "display_price": "₹4,961",
+    "extracted_display_price": 4961,
+    "lowest": "₹4,961",
+    "extracted_lowest": 4961
+   },
+   "total_rate": {
+    "display_price": "₹14,882",
+    "extracted_display_price": 14882,
+    "lowest": "₹14,882",
+    "extracted_lowest": 14882
+   },
+   "overall_rating": 4,
+   "reviews": 260,
+   "hotel_class": "4-star hotel",
+   "property_token": "ChoI5fLny_KDv7adARoNL2cvMTFoYnYzX25oOBAB",
+   "gps_coordinates": {
+    "latitude": 15.471106899999997,
+    "longitude": 73.8137601
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Taj Cidade De Goa Horizon, Goa",
+   "rate_per_night": {
+    "display_price": "₹36,996",
+    "extracted_display_price": 36996,
+    "lowest": "₹36,996",
+    "extracted_lowest": 36996
+   },
+   "total_rate": {
+    "display_price": "₹1,10,987",
+    "extracted_display_price": 110987,
+    "lowest": "₹1,10,987",
+    "extracted_lowest": 110987
+   },
+   "overall_rating": 4.8,
+   "reviews": 6406,
+   "hotel_class": "5-star hotel",
+   "property_token": "ChoIqby8-7Hu6PLXARoNL2cvMTFoZjI2eWg3NRAB",
+   "gps_coordinates": {
+    "latitude": 15.457189399999997,
+    "longitude": 73.81169659999999
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "Fortune Miramar, Goa - Member ITC hotels' group",
+   "rate_per_night": {
+    "display_price": "₹17,515",
+    "extracted_display_price": 17515,
+    "lowest": "₹17,515",
+    "extracted_lowest": 17515
+   },
+   "total_rate": {
+    "display_price": "₹52,545",
+    "extracted_display_price": 52545,
+    "lowest": "₹52,545",
+    "extracted_lowest": 52545
+   },
+   "overall_rating": 4.2,
+   "reviews": 3939,
+   "hotel_class": "5-star hotel",
+   "property_token": "ChgIkqOXn_G2lSwaDS9nLzExYzJsOV9neHoQAQ",
+   "gps_coordinates": {
+    "latitude": 15.484555700000001,
+    "longitude": 73.81059499999999
+   }
+  },
+  {
+   "type": "hotel",
+   "name": "KAMAT'S HILLTOP LEISURE",
+   "rate_per_night": {
+    "display_price": "₹2,770",
+    "extracted_display_price": 2770,
+    "lowest": "₹2,770",
+    "extracted_lowest": 2770
+   },
+   "total_rate": {
+    "display_price": "₹8,309",
+    "extracted_display_price": 8309,
+    "lowest": "₹8,309",
+    "extracted_lowest": 8309
+   },
+   "overall_rating": 4.1,
+   "reviews": 79,
+   "hotel_class": "2-star hotel",
+   "property_token": "ChoI0rKIsIPZ-cT0ARoNL2cvMTFzdHZrZzZfeRAB",
+   "gps_coordinates": {
+    "latitude": 15.4587244,
+    "longitude": 73.809775
+   }
+  },
+  {
+   "type": "vacation rental",
+   "name": "Serene Homestay",
+   "rate_per_night": {
+    "display_price": "₹4,405",
+    "extracted_display_price": 4405,
+    "lowest": "₹4,405",
+    "extracted_lowest": 4405
+   },
+   "total_rate": {
+    "display_price": "₹13,215",
+    "extracted_display_price": 13215,
+    "lowest": "₹13,215",
+    "extracted_lowest": 13215
+   },
+   "overall_rating": 4.6935897,
+   "reviews": 78,
+   "property_token": "ChkQsr2f-9T4uMJ2Gg0vZy8xMW45YzRqZHpjEAI",
+   "gps_coordinates": {
+    "latitude": 15.480500221252441,
+    "longitude": 73.8119125366211
+   },
+   "prices": [
+    {
+     "source": "Booking.com",
+     "num_guests": 6,
+     "rate_per_night": {
+      "display_price": "₹4,489",
+      "extracted_display_price": 4489,
+      "lowest": "₹4,489",
+      "extracted_lowest": 4489
+     }
+    }
+   ]
+  },
+  {
+   "type": "vacation rental",
+   "name": "Praia Miramar - Villa in Miramar, Panaji with free Parking - Three-Bedroom Villa",
+   "rate_per_night": {
+    "display_price": "₹13,734",
+    "extracted_display_price": 13734,
+    "lowest": "₹13,734",
+    "extracted_lowest": 13734
+   },
+   "total_rate": {
+    "display_price": "₹41,202",
+    "extracted_display_price": 41202,
+    "lowest": "₹41,202",
+    "extracted_lowest": 41202
+   },
+   "overall_rating": 4.5,
+   "reviews": 6,
+   "property_token": "ChoQr9HPybmBs-PNARoNL2cvMTF2OV9mX3B2ahAC",
+   "gps_coordinates": {
+    "latitude": 15.480239868164062,
+    "longitude": 73.81104278564453
+   },
+   "prices": [
+    {
+     "source": "Bluepillow.mx",
+     "num_guests": 3,
+     "rate_per_night": {
+      "display_price": "₹14,874",
+      "extracted_display_price": 14874,
+      "lowest": "₹14,874",
+      "extracted_lowest": 14874
+     }
+    }
+   ]
+  }
+ ]
+}

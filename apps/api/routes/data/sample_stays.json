@@ -1,5 +1,5 @@
 {
-  "_note": "Fictional sample stays (names, rates and ratings are made up). Replaced by SerpApi Hotels in P2.",
+  "_note": "Fictional sample stays (names, rates and ratings are made up). Used when SerpApi Hotels is off (no SERPAPI_API_KEY, cap reached or an error).",
   "panaji": [
     {"name": "Sample Mandovi Riverside Inn", "area": "Panaji", "room_inr": 4200, "rating": 4.3, "sleeps": 3},
     {"name": "Sample Fontainhas Heritage Stay", "area": "Fontainhas", "room_inr": 5600, "rating": 4.6, "sleeps": 3},
@@ -14,6 +14,21 @@
     {"name": "Sample Palace View Residency", "area": "Mysuru", "room_inr": 3600, "rating": 4.4, "sleeps": 3},
     {"name": "Sample Chamundi Hills Retreat", "area": "Chamundi Hills", "room_inr": 6900, "rating": 4.7, "sleeps": 3},
     {"name": "Sample Devaraja Market Rooms", "area": "Devaraja Mohalla", "room_inr": 1600, "rating": 3.7, "sleeps": 2}
+  ],
+  "coorg": [
+    {"name": "Sample Madikeri Coffee Estate Stay", "area": "Madikeri", "room_inr": 4800, "rating": 4.5, "sleeps": 3},
+    {"name": "Sample Abbey Falls Homestay", "area": "Madikeri", "room_inr": 2600, "rating": 4.3, "sleeps": 3},
+    {"name": "Sample Kushalnagar Riverside Lodge", "area": "Kushalnagar", "room_inr": 1800, "rating": 3.9, "sleeps": 2}
+  ],
+  "hampi": [
+    {"name": "Sample Virupapur Gadde Guest House", "area": "Hampi", "room_inr": 1500, "rating": 4.0, "sleeps": 2},
+    {"name": "Sample Tungabhadra Heritage Resort", "area": "Kamalapura", "room_inr": 5400, "rating": 4.4, "sleeps": 3},
+    {"name": "Sample Hosapete Station Hotel", "area": "Hosapete", "room_inr": 2300, "rating": 3.8, "sleeps": 3}
+  ],
+  "chikkamagaluru": [
+    {"name": "Sample Mullayanagiri View Homestay", "area": "Chikkamagaluru", "room_inr": 3200, "rating": 4.4, "sleeps": 3},
+    {"name": "Sample Baba Budangiri Plantation Bungalow", "area": "Baba Budangiri", "room_inr": 6200, "rating": 4.6, "sleeps": 4},
+    {"name": "Sample Town Centre Rooms", "area": "Chikkamagaluru", "room_inr": 1700, "rating": 3.7, "sleeps": 2}
   ],
   "bengaluru": [
     {"name": "Sample MG Road Business Hotel", "area": "MG Road", "room_inr": 5200, "rating": 4.3, "sleeps": 2},

@@ -1,0 +1,115 @@
+{
+ "_note": "Recorded live from SerpApi on 2026-10-27 by routes/scripts/record_live.py; sanitised (request metadata, phone fields, images dropped) and trimmed.",
+ "_params": {
+  "engine": "google_hotels",
+  "q": "hotels in Panaji",
+  "check_in_date": "2026-12-11",
+  "check_out_date": "2026-12-14",
+  "adults": "2",
+  "property_token": "ChkI-_fTid-0w64aGg0vZy8xMW1jYnJka3ZmEAE"
+ },
+ "type": "hotel",
+ "name": "River Side Suites at Panjim Gymkhana",
+ "rate_per_night": {
+  "display_price": "₹3,716",
+  "extracted_display_price": 3716,
+  "lowest": "₹3,716",
+  "extracted_lowest": 3716
+ },
+ "total_rate": {
+  "display_price": "₹11,147",
+  "extracted_display_price": 11147,
+  "lowest": "₹11,147",
+  "extracted_lowest": 11147
+ },
+ "overall_rating": 4.8,
+ "featured_prices": [
+  {
+   "source": "Booking.com",
+   "link": "https://www.google.com/aclk?sa=l&ai=DChsSEwiq3I-o2tqXAxUqvQMAHYizCloYACICCAEQBRoCb2E&co=1&gclid=EAIaIQobChMIqtyPqNralwMVKr0DAB2IswpaEAoYASABEgJMUvD_BwE&cid=CAASugHkaNzTU6-7KUtMxSAKsDf17STq3svLJOhAWrL0DhXyyxbzt9MChq144sW7yxXZ9EynWKssak30SYbwEhlgjb0-vPjj1n6NGyuGrX0dIhLfKDnBYwspvlvhAFrGQsEaf0eg9c1O46TIGgmt6YN-_Lbad2Qs7hWIRlC_ebdnhEEnb0dtyxhucG5bIyv2XX0RHs4IOwWNtScACACk5oO1k7WY29ImqXpRj314x0Z95xYuUWwPnQbZV2KSA3c&sig=AOD64_1yYMl3rgbHRarYO-90Db9X3iFWLA&adurl",
+   "num_guests": 2,
+   "rate_per_night": {
+    "display_price": "₹3,720",
+    "extracted_display_price": 3720,
+    "lowest": "₹3,720",
+    "extracted_lowest": 3720
+   },
+   "total_rate": {
+    "display_price": "₹11,160",
+    "extracted_display_price": 11160,
+    "lowest": "₹11,160",
+    "extracted_lowest": 11160
+   }
+  },
+  {
+   "source": "Agoda",
+   "link": "https://www.google.com/aclk?sa=l&ai=DChsSEwiq3I-o2tqXAxUqvQMAHYizCloYACICCAEQARoCb2E&co=1&gclid=EAIaIQobChMIqtyPqNralwMVKr0DAB2IswpaEAoYAiABEgJmk_D_BwE&cid=CAASugHkaNzTU6-7KUtMxSAKsDf17STq3svLJOhAWrL0DhXyyxbzt9MChq144sW7yxXZ9EynWKssak30SYbwEhlgjb0-vPjj1n6NGyuGrX0dIhLfKDnBYwspvlvhAFrGQsEaf0eg9c1O46TIGgmt6YN-_Lbad2Qs7hWIRlC_ebdnhEEnb0dtyxhucG5bIyv2XX0RHs4IOwWNtScACACk5oO1k7WY29ImqXpRj314x0Z95xYuUWwPnQbZV2KSA3c&sig=AOD64_3yU5x3MAsIZCQ2IxjETiDdwVIwKA&adurl",
+   "num_guests": 2,
+   "rate_per_night": {
+    "display_price": "₹3,716",
+    "extracted_display_price": 3716,
+    "lowest": "₹3,716",
+    "extracted_lowest": 3716
+   },
+   "total_rate": {
+    "display_price": "₹11,147",
+    "extracted_display_price": 11147,
+    "lowest": "₹11,147",
+    "extracted_lowest": 11147
+   }
+  }
+ ],
+ "prices": [
+  {
+   "source": "Booking.com",
+   "link": "https://www.google.com/travel/lodging/clk?pc=AJ0xEygRmBcRFfR7Xb6NZlrmTjL4jQ6qjojxD6c-GT6liCnqfNnrn4K4i7zuysiaLErnKqUgT9ynfcMvEHgAaGzAppw72b4KMeM5RcaVkjVDoSknXzdrdOZQc0h2fJjFGwXGqW4CeL-5n-Z3FnfFt1AT-_5k8oBDBVMFkQEIjG32Z4mIEMCfB54bvX61IzluqVrRVSMBpg&pcurl=https://www.booking.com/searchresults.en.html?dest_id%3D13963866%26highlighted_hotels%3D13963866%26dest_type%3Dhotel%26checkin%3D2026-12-11%26checkout%3D2026-12-14%26group_adults%3D2%26req_adults%3D2%26show_room%3D1396386601_411550042_2_0_0%26lang%3Den%26selected_currency%3DINR%26exrt%3D1.00000000%26ext_price_total%3D11160.00%26ext_price_tax%3D600.00%26xfc%3DINR%26hca%3Dm%26group_children%3D0%26req_children%3D0%26%26no_rooms%3D1%26ts%3D1793081248%26edgtid%3Dj5JVTm2PTkuDF_OmeoSqug%26efpc%3DEFYLAKERYLAKEw%26utm_source%3Dmetagha%26utm_medium%3Dlocaluniversal%26utm_campaign%3DMX%26utm_term%3Dhotel-13963866%26utm_content%3Ddev-desktop_los-3_bw-45_dow-Friday_defdate-0_room-0_gstadt-2_rateid-public_aud-0_gacid-_mcid-50_bc-ANUSWg_ppa-0_clrid-0_ad-0_gstkid-0_checkin-20261211_ppt-B%26aid%3D2127720%26label%3Dmetagha-link-LUMX-hotel-13963866_dev-desktop_los-3_bw-45_dow-Friday_defdate-0_room-0_gstadt-2_rateid-public_aud-0_gacid-_mcid-50_bc-ANUSWg_ppa-0_clrid-0_ad-0_gstkid-0_checkin-20261211_ppt-B&s=ALZo0YKdGhMk12X56eZtEnylW2w9&ap=1",
+   "num_guests": 2,
+   "rate_per_night": {
+    "display_price": "₹3,720",
+    "extracted_display_price": 3720,
+    "lowest": "₹3,720",
+    "extracted_lowest": 3720
+   },
+   "total_rate": {
+    "display_price": "₹11,160",
+    "extracted_display_price": 11160,
+    "lowest": "₹11,160",
+    "extracted_lowest": 11160
+   }
+  },
+  {
+   "source": "Agoda",
+   "link": "https://www.google.com/travel/lodging/clk?pc=AJ0xEygiM1R0yDl6o3Grx1ZqYLpMYAasbj_77AIIfyty0yH5Mha4OyocGe53K3aW9PWivp6jU0Qgc2t-gl3FzSXnwrMoWfRBQVaNYHKY40hZjfJgm5fHwU3sFARIKYziUlKNOaffRc0wq7zxjforavyjUK1Y2nPLzW9m2M3DDk76yCRNWJEik22O5fvkzjqKkw&pcurl=https://www.agoda.com/partners/partnersearch.aspx?site_id%3D1917614%26CkInDay%3D11%26CkInMonth%3D12%26CkInYear%3D2026%26CkOutDay%3D14%26campaignid%3D%26CkOutMonth%3D12%26CkOutYear%3D2026%26SearchDateType%3Dselected%26NumberOfAdults%3D2%26LT%3D45%26NumberOfChildren%3D0%26childages%3D%26NumberOfRooms%3D1%26gsite%3Dlocaluniversal%26los%3D3%26PartnerCurrency%3DINR%26hid%3D89036835%26RoomID%3D1397786754%26masterRoomId%3D1397786754%26PriceTotal%3D11147.00%26PriceTax%3D675.00%26PriceFee%3D0.00%26RatePlan%3D5909994f-3eeb-4364-5394-fb5fa5b478b8%26UserCountry%3DMX%26Currency%3DINR%26UserDevice%3Ddesktop%26Verif%3Dfalse%26rr%3Drow_desktop%26audience_list%3D%26mcid%3D332%26booking_source%3Dcpc%26adType%3D0%26mpt%3DSWRVQWUveCtqM1NibHkwMnB3TFdIL1lWOThqOXVERkxpTm1ad2Vlb25kNVZJTmdTUXBXUVNqR1NpRlVMZlgzdXQwVzg5Q1dyQk1YU0Y0aUw%26original_rr%3Dnon20_0c41a3519d%26gaClickSrc%3D%26clickType%3Dhotel%26lang%3Den%26pkgId%3DBreakfast_NoDinner_true&s=ALZo0YKFA2sRAA53EoNUNbwH88be&ap=1",
+   "num_guests": 2,
+   "rate_per_night": {
+    "display_price": "₹3,716",
+    "extracted_display_price": 3716,
+    "lowest": "₹3,716",
+    "extracted_lowest": 3716
+   },
+   "total_rate": {
+    "display_price": "₹11,147",
+    "extracted_display_price": 11147,
+    "lowest": "₹11,147",
+    "extracted_lowest": 11147
+   }
+  },
+  {
+   "source": "Reserving",
+   "link": "https://www.google.com/travel/lodging/clk?pc=AJ0xEyhJy62r31a8Al8aA5QMWzmer20oI0I2kzEfWkcEGGGlVZtIYA3PP07Ci0Qv50eB8_Dh3_Y4-s2d4TsS8Y-pKa9EPrttPeBl5YoR-vGJWld6-p7trouVdj63umJUYtxIyTUtzRVYnHQybMh8aahTQjAXlR-WVkISPDYv67Mq5ai1SPrlZNyn29iHdSd3xlACWA&pcurl=https://h-en.reserving.com/search?i%3D7103%26rf%3DGOOGLEHOTELS%26portal%3Drsvcom%26lang%3Den%26auto%3D1%26tipo%3DS%26id%3D1389400%26numero_habs%3D1%26no_adultos_hab1%3D2%26no_ninos_hab1%3D0%26fecha_entrada%3D11%252F12%252F2026%26fecha_salida%3D14%252F12%252F2026%26refp%3D12600.00%26campaing-id%3D%26tp%3D%26moneda%3DINR%26device%3Ddesktop%26pais_dom%3DMX%26sg%3Db%3D118.89,b$%3DINR,bhab%3D17,big%3D2026-10-27T14:28:00%2B01:00,bmid%3D100,bpd%3Des,breg%3D12,bwp%3Dgh7HnlKuNtE,ts%3D2026-10-27T14:28:46%2B01:00/B:13516817371B574C59672FBF5A61CEB05D8A1060FC478E8B0BFAC5D0%26c3%3Dmode%3DP,d%3D2,ts_id%3D107726946774252%26r%3DCAMPAIGN-ID%3D;TRACKING-PARAM%3D;CUSTOM1%3D;PRICE-DISPLAYED-TOTAL%3D12600.00;DEFAULT-DATE%3D0;CLICK-TYPE%3Dhotel;USER-COUNTRY%3DMX;DEVICE%3Ddesktop;SITE%3Dlocaluniversal;USER-LANGUAGE%3Den;USER-CURRENCY%3DINR;POS%3DALL-ALL-ALL-RSVCOM;AD-CLICK%3D0;PAYMENT-ID%3Dfree;C2%3Db%3D118.89,b$%3DINR,bhab%3D17,big%3D2026-10-27T14:28:00%2B01:00,bmid%3D100,bpd%3Des,breg%3D12,bwp%3Dgh7HnlKuNtE,ts%3D2026-10-27T14:28:46%2B01:00/B:13516817371B574C59672FBF5A61CEB05D8A1060FC478E8B0BFAC5D0;C3%3Dmode%3DP,d%3D2,ts_id%3D107726946774252&s=ALZo0YLeGdjrR6eMhh6_FwkRAuHY&ap=1",
+   "num_guests": 2,
+   "rate_per_night": {
+    "display_price": "₹4,200",
+    "extracted_display_price": 4200,
+    "lowest": "₹4,200",
+    "extracted_lowest": 4200
+   },
+   "total_rate": {
+    "display_price": "₹12,600",
+    "extracted_display_price": 12600,
+    "lowest": "₹12,600",
+    "extracted_lowest": 12600
+   }
+  }
+ ]
+}

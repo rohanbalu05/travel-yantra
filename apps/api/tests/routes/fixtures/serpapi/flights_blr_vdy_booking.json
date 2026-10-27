@@ -1,0 +1,61 @@
+{
+ "_note": "Recorded live from SerpApi on 2026-10-27 by routes/scripts/record_live.py; sanitised (request metadata, phone fields, images dropped) and trimmed.",
+ "_params": {
+  "engine": "google_flights",
+  "departure_id": "BLR",
+  "arrival_id": "VDY",
+  "outbound_date": "2026-12-11",
+  "type": "2",
+  "adults": "1",
+  "travel_class": "1",
+  "booking_token": "WyJDalJJV21sb1RVSjBOVTAwU25kQlEzWk5SR2RDUnkwdExTMHRMUzE1Ykc0eE5DMXVNa0ZCUVVGQlIzSm5NMUZKU0RSaVZUQkJFZ1ZUTlRjd01Sb0tDSk1sRUFBYUEwbE9VamdjY0k0biIsW1siQkxSIiwiMjAyNi0xMi0xMSIsIlZEWSIsbnVsbCwiUzUiLCI3MDEiXV1d"
+ },
+ "booking_options": [
+  {
+   "together": {
+    "book_with": "Star Air",
+    "airline": true,
+    "marketed_as": [
+     "S5 701"
+    ],
+    "price": 4755
+   }
+  },
+  {
+   "together": {
+    "book_with": "Cleartrip",
+    "marketed_as": [
+     "S5 701"
+    ],
+    "price": 4752
+   }
+  },
+  {
+   "together": {
+    "book_with": "EaseMyTrip",
+    "marketed_as": [
+     "S5 701"
+    ],
+    "price": 4755
+   }
+  },
+  {
+   "together": {
+    "book_with": "Gotogate",
+    "marketed_as": [
+     "S5 701"
+    ],
+    "price": 6871
+   }
+  },
+  {
+   "together": {
+    "book_with": "Kiwi.com",
+    "marketed_as": [
+     "S5 701"
+    ],
+    "price": 5132
+   }
+  }
+ ]
+}

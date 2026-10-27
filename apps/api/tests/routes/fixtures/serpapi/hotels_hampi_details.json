@@ -1,0 +1,98 @@
+{
+ "_note": "Recorded live from SerpApi on 2026-10-27 by routes/scripts/record_live.py; sanitised (request metadata, phone fields, images dropped) and trimmed.",
+ "_params": {
+  "engine": "google_hotels",
+  "q": "hotels in Hampi",
+  "check_in_date": "2026-12-11",
+  "check_out_date": "2026-12-14",
+  "adults": "2",
+  "property_token": "ChoImNqZ_dOvkKzqARoNL2cvMTF6eXB2MWdsMBAB"
+ },
+ "type": "hotel",
+ "name": "Hampi Trails",
+ "rate_per_night": {
+  "display_price": "₹4,698",
+  "extracted_display_price": 4698,
+  "lowest": "₹4,698",
+  "extracted_lowest": 4698
+ },
+ "total_rate": {
+  "display_price": "₹14,095",
+  "extracted_display_price": 14095,
+  "lowest": "₹14,095",
+  "extracted_lowest": 14095
+ },
+ "overall_rating": 5,
+ "featured_prices": [
+  {
+   "source": "Booking.com",
+   "link": "https://www.google.com/aclk?sa=l&ai=DChsSEwiS1J6u2tqXAxXBlFAGHTl2HhQYACICCAEQARoCZGc&co=1&ase=2&gclid=EAIaIQobChMIktSertralwMVwZRQBh05dh4UEAoYASABEgKcmfD_BwE&cid=CAASlwHkaPIUHhdegETC-FGyIbHEOuIBzrLfPwrIotgEUeTetoK2YqTkJ_1cRoMvpEZmx8AXrIZtHW_9-3hZoHijHB-orpli_JCFbtAFVrVvPaZUUDou7L_16DvJw1Oh-obeF7jT53nDSE29RAeoOTbhFvhVfCFcyXMYh75zmcBJINQBbn8kFEV2KgDXzOpF3919A18UreOKfy4g&category=acrcp_v1_48&sig=AOD64_2cCgs_-VSfQ7eac6_73KU_Rlzueg&adurl",
+   "num_guests": 2,
+   "rate_per_night": {
+    "display_price": "₹4,725",
+    "extracted_display_price": 4725,
+    "lowest": "₹4,725",
+    "extracted_lowest": 4725
+   },
+   "total_rate": {
+    "display_price": "₹14,175",
+    "extracted_display_price": 14175,
+    "lowest": "₹14,175",
+    "extracted_lowest": 14175
+   }
+  }
+ ],
+ "prices": [
+  {
+   "source": "Booking.com",
+   "link": "https://www.google.com/travel/lodging/clk?pc=AJ0xEyi7ROdOvy6gpI4_-F-CJCdrRykElq_0yKEWLgq64YIVlEACe3afqe-0I3tcIXnWdQgSbCql1EIxiY5OjFykbMcmIYPHPToB7VZaQI9NiwkC7PaBmNvKM5A0dapGdVpkTBBWw5nlMKAtzm3ljob1PsUBGs-vAAubH4l6ryGRELh9_cRKOr3ilSBcHjW7C5DTA23ylg&pcurl=https://www.booking.com/searchresults.en.html?dest_id%3D17295058%26highlighted_hotels%3D17295058%26dest_type%3Dhotel%26checkin%3D2026-12-11%26checkout%3D2026-12-14%26group_adults%3D2%26req_adults%3D2%26show_room%3D1729505801_444599533_2_1_0%26lang%3Den%26selected_currency%3DINR%26exrt%3D1.00000000%26ext_price_total%3D14175.00%26ext_price_tax%3D675.00%26xfc%3DINR%26hca%3Dm%26group_children%3D0%26req_children%3D0%26%26ts%3D1793112809%26no_rooms%3D1%26edgtid%3DRBBdhfJVQx2_NH9PHLkQcg%26efpc%3DE1ALAKFBdbAKEw%26utm_source%3Dmetagha%26utm_medium%3Dlocaluniversal%26utm_campaign%3DGB%26utm_term%3Dhotel-17295058%26utm_content%3Ddev-desktop_los-3_bw-45_dow-Friday_defdate-0_room-0_gstadt-2_rateid-public_aud-0_gacid-_mcid-10_ppa-0_clrid-0_ad-0_gstkid-0_checkin-20261211_ppt-0%26aid%3D2127493%26label%3Dmetagha-link-LUGB-hotel-17295058_dev-desktop_los-3_bw-45_dow-Friday_defdate-0_room-0_gstadt-2_rateid-public_aud-0_gacid-_mcid-10_ppa-0_clrid-0_ad-0_gstkid-0_checkin-20261211_ppt-0&s=ALZo0YL54uOYk9Qb3tsB-Qk4I9fo&ap=1",
+   "num_guests": 2,
+   "rate_per_night": {
+    "display_price": "₹4,725",
+    "extracted_display_price": 4725,
+    "lowest": "₹4,725",
+    "extracted_lowest": 4725
+   },
+   "total_rate": {
+    "display_price": "₹14,175",
+    "extracted_display_price": 14175,
+    "lowest": "₹14,175",
+    "extracted_lowest": 14175
+   }
+  },
+  {
+   "source": "Travelmyth.co.uk",
+   "link": "https://www.google.com/travel/lodging/clk?pc=AJ0xEyheNtvsOoqLBqX1uCuaeD3hGaK2dSxwzPaM2_HAZsPAtttVl1wwUeiYhJAdhTcNHP1cU-zCO7Jr_1Vi9CVz2VAzV7YaGCX5hSc9IW3IYW25rhYL8LJATkrX8r-Ex1-xiPeS8_XId7GUuhEqZYA1qoyZ7LE4APO3HVvimz_fg_zjnFKDMC4Xzq7O4A&pcurl=https://www.travelmyth.co.uk/entertravelmyth?source%3DGoogle%26h%3D12055471%26checkin_day%3D11%26checkin_month%3D12%26checkin_year%3D2026%26checkout_day%3D14%26checkout_month%3D12%26checkout_year%3D2026%26lengthOfStay%3D3%26checkin_day_of_week%3DFriday%26bookingWindow%3D45%26adults%3D2%26children%3D0%26packageId%3D07d9502f75430ef95c43c6b5f9caf156%26device%3Ddesktop%26gsite%3Dlocaluniversal%26prTax%3D0.00%26prTotal%3D14094.79%26ratePlanId%3DcmFdTDvGNJ4%26rateRuleId%3Dtaxesincl%26userCountry%3DGB%26userLang%3Den%26cId%3D%26currency%3DINR%26dateType%3Dselected%26aId%3D80%26aLabel%3D8007&s=ALZo0YLGkWGHr6NOiTUf9jGwxMuS&ap=1",
+   "num_guests": 2,
+   "rate_per_night": {
+    "display_price": "₹4,698",
+    "extracted_display_price": 4698,
+    "lowest": "₹4,698",
+    "extracted_lowest": 4698
+   },
+   "total_rate": {
+    "display_price": "₹14,095",
+    "extracted_display_price": 14095,
+    "lowest": "₹14,095",
+    "extracted_lowest": 14095
+   }
+  },
+  {
+   "source": "priceline.com",
+   "link": "https://www.google.com/travel/lodging/clk?pc=AJ0xEyjXscDbeNSASMBk7IsOU_S-DkR31abWwl7Gg2u56BM1UhviBHrFuAbbnuip1Ytzhpw9Uh2Yyt2kGH-R6_0bErWS79Udd_IdAhiBVPlS4X8tyvteZcfAYDYPPHA7Z3UFahyQ583qS3hU9dPxDQo-wBpZDY1E-8dYb7ZvucKqjQwrHA5-Tasq4xk5DJd90VdG&pcurl=http://h.priceline.com/hotel/in/hampi-trails.html?aid%3D946468%26label%3Dotapcln-link-localuniversalGB-hotel-17295058_dev-desktop_los-3_room-0_lang-en_curr-INR_checkin-20261211_ddf-N_camp-%26checkin%3D2026-12-11%26checkout%3D2026-12-14%26group_adults%3D2%26show_room%3D1729505801%26lang%3Den%26selected_currency%3DINR%26exrt%3D1.00000000%26xfc%3DINR%26utm_source%3Dotapcln%26utm_medium%3Dlocaluniversal%26utm_campaign%3DGB%26utm_term%3Dhotel-17295058%26utm_content%3Dlos-3_lang-en_curr-INR&s=ALZo0YIAj4OS9_K6W7S7Ezb5KQdz&ap=1",
+   "num_guests": 2,
+   "rate_per_night": {
+    "display_price": "₹4,725",
+    "extracted_display_price": 4725,
+    "lowest": "₹4,725",
+    "extracted_lowest": 4725
+   },
+   "total_rate": {
+    "display_price": "₹14,175",
+    "extracted_display_price": 14175,
+    "lowest": "₹14,175",
+    "extracted_lowest": 14175
+   }
+  }
+ ]
+}

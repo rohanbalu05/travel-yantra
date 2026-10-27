@@ -1,4 +1,29 @@
 {
-  "_note": "Hand-written sample in the computeRoutes response shape (field mask routes.duration,routes.distanceMeters). Not a recorded live response.",
-  "routes": [{"distanceMeters": 561000, "duration": "35400s"}]
+ "_note": "Recorded live from the Routes API on 2026-10-27 (field mask routes.duration,routes.distanceMeters), Bengaluru -> Panaji city centres.",
+ "_request": {
+  "origin": {
+   "location": {
+    "latLng": {
+     "latitude": 12.9716,
+     "longitude": 77.5946
+    }
+   }
+  },
+  "destination": {
+   "location": {
+    "latLng": {
+     "latitude": 15.4909,
+     "longitude": 73.8278
+    }
+   }
+  },
+  "travelMode": "DRIVE",
+  "routingPreference": "TRAFFIC_UNAWARE"
+ },
+ "routes": [
+  {
+   "distanceMeters": 591834,
+   "duration": "40021s"
+  }
+ ]
 }

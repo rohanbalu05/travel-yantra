@@ -1,0 +1,46 @@
+{
+ "_note": "Recorded live from SerpApi on 2026-10-27 by routes/scripts/record_live.py; sanitised (request metadata, phone fields, images dropped) and trimmed.",
+ "_params": {
+  "engine": "google_hotels",
+  "q": "hotels in Coorg",
+  "check_in_date": "2026-12-11",
+  "check_out_date": "2026-12-14",
+  "adults": "2",
+  "property_token": "ChkQ6oWu8ojVr6IPGg0vZy8xMXpreWJybDI1EAI"
+ },
+ "type": "vacation rental",
+ "name": "Chesna Cottage - Two-Bedroom Apartment",
+ "rate_per_night": {
+  "display_price": "₹3,065",
+  "extracted_display_price": 3065,
+  "lowest": "₹3,065",
+  "extracted_lowest": 3065
+ },
+ "total_rate": {
+  "display_price": "₹9,196",
+  "extracted_display_price": 9196,
+  "lowest": "₹9,196",
+  "extracted_lowest": 9196
+ },
+ "overall_rating": 4.95,
+ "featured_prices": [],
+ "prices": [
+  {
+   "source": "Bluepillow.mx",
+   "link": "https://www.google.com/travel/lodging/clk?pc=AJ0xEyhGoTXhcbx1DrqQ7l_P66PATNqLYZrrG4HcNIk6nfEZ_rzjsNiEt7mTNygJ8ib8GsmJZRBPt8Yy4GCFI9o4YwKMn1llw6sRndb8yEJDCdYGYxM9vSETRMHXhCKug-Pwnz-sM1smWcMCzVbSFVe2I2dHgGqyvQVBba0Ultg5jbVVhgQ60aDiDEppjXvIrA&pcurl=https://mx.bluepillow.com/search/648622da7f7e24c1923235eb?begin%3D2026-12-11%26end%3D2026-12-14%26block_id%3D-b,Rg5u2FP6p_26xPrkAKQuCWLmAFFivO_corlnl9ATfpJkKCIY_kgFX0_4lGzOla4x,-bkng-apartment%26adults%3D2%26childs%3D0%26infants%3D0%26childrens%3D0%26country%3DMX%26currency%3DINR%26language%3Den%26source%3Dlocaluniversal%26utm_campaign%3Dvr%26prid%3D&s=ALZo0YKkNtKIm1qeodOTeETZGsEi&ap=1",
+   "num_guests": 2,
+   "rate_per_night": {
+    "display_price": "₹3,065",
+    "extracted_display_price": 3065,
+    "lowest": "₹3,065",
+    "extracted_lowest": 3065
+   },
+   "total_rate": {
+    "display_price": "₹9,196",
+    "extracted_display_price": 9196,
+    "lowest": "₹9,196",
+    "extracted_lowest": 9196
+   }
+  }
+ ]
+}

@@ -1,0 +1,115 @@
+{
+ "_note": "Recorded live from SerpApi on 2026-10-27 by routes/scripts/record_live.py; sanitised (request metadata, phone fields, images dropped) and trimmed.",
+ "_params": {
+  "engine": "google_hotels",
+  "q": "hotels in Chikkamagaluru",
+  "check_in_date": "2026-12-11",
+  "check_out_date": "2026-12-14",
+  "adults": "2",
+  "property_token": "ChkIydrky9OI9ZM4Gg0vZy8xMXhmYjBncHdfEAE"
+ },
+ "type": "hotel",
+ "name": "Olive Hotel Chikkamagalur by Embassy Group",
+ "rate_per_night": {
+  "display_price": "₹2,144",
+  "extracted_display_price": 2144,
+  "lowest": "₹2,144",
+  "extracted_lowest": 2144
+ },
+ "total_rate": {
+  "display_price": "₹6,431",
+  "extracted_display_price": 6431,
+  "lowest": "₹6,431",
+  "extracted_lowest": 6431
+ },
+ "overall_rating": 4.7,
+ "featured_prices": [
+  {
+   "source": "Booking.com",
+   "link": "https://www.google.com/aclk?sa=l&ai=DChsSEwiGgeOv2tqXAxU8VX8AHbUZIw8YACICCAEQARoCb2E&co=1&ase=2&gclid=EAIaIQobChMIhoHjr9ralwMVPFV_AB21GSMPEAoYASABEgL1OPD_BwE&cid=CAASugHkaP6Dm3tGlBVB9Ytu0kQ9DwHkuiQVd4cBeJ_rmyCuXiymzswRnsIdw5hehTjf9KBczNkJ_lCf9TTX0aWKzRttKL-f6tzq9lhUR9C3xwvLEpLNZHbcc3SGgR99E9wuDT824XHxDZbDhLZvvx-TBs5KPIC-dncWYg8ez3y7jamcp_pkj_sfRSS0Q5fRZijvB5WW99gfrAoxpFyhj7xCUOuImfPIxwnrwAFIuXPAQ6UwVM9sN-FvQNnnxM8&category=acrcp_v1_48&sig=AOD64_3ZBGMnEMjr9fSa7YNHVPC52nVLXg&adurl",
+   "num_guests": 2,
+   "rate_per_night": {
+    "display_price": "₹2,144",
+    "extracted_display_price": 2144,
+    "lowest": "₹2,144",
+    "extracted_lowest": 2144
+   },
+   "total_rate": {
+    "display_price": "₹6,431",
+    "extracted_display_price": 6431,
+    "lowest": "₹6,431",
+    "extracted_lowest": 6431
+   }
+  },
+  {
+   "source": "Agoda",
+   "link": "https://www.google.com/aclk?sa=l&ai=DChsSEwiGgeOv2tqXAxU8VX8AHbUZIw8YACICCAEQBhoCb2E&co=1&ase=2&gclid=EAIaIQobChMIhoHjr9ralwMVPFV_AB21GSMPEAoYAiABEgLmRvD_BwE&cid=CAASugHkaP6Dm3tGlBVB9Ytu0kQ9DwHkuiQVd4cBeJ_rmyCuXiymzswRnsIdw5hehTjf9KBczNkJ_lCf9TTX0aWKzRttKL-f6tzq9lhUR9C3xwvLEpLNZHbcc3SGgR99E9wuDT824XHxDZbDhLZvvx-TBs5KPIC-dncWYg8ez3y7jamcp_pkj_sfRSS0Q5fRZijvB5WW99gfrAoxpFyhj7xCUOuImfPIxwnrwAFIuXPAQ6UwVM9sN-FvQNnnxM8&category=acrcp_v1_48&sig=AOD64_1RgV9PxAwi6RLnq0HdH5bWXKnVBg&adurl",
+   "num_guests": 2,
+   "rate_per_night": {
+    "display_price": "₹2,366",
+    "extracted_display_price": 2366,
+    "lowest": "₹2,366",
+    "extracted_lowest": 2366
+   },
+   "total_rate": {
+    "display_price": "₹7,099",
+    "extracted_display_price": 7099,
+    "lowest": "₹7,099",
+    "extracted_lowest": 7099
+   }
+  }
+ ],
+ "prices": [
+  {
+   "source": "Booking.com",
+   "link": "https://www.google.com/travel/lodging/clk?pc=AJ0xEygCTK-7bRz2fR-qFGy5v_jxlNoFiCHMUvvLd3OCKcxZb7he7bS2fmbNeVye1rUQE5kq-dBguzKvw7o7vPJiu2i81CG7bV3ItMNRWHBgCug512vGjGOIfntkI_Pnb010Norkl56hXQMiRTQUpp7ES3zBhUOTwJA90ZYMia1P_kYnOMdzzMVIaPN-E-VKo8GD-o_FYg&pcurl=https://www.booking.com/searchresults.en.html?dest_id%3D14314786%26highlighted_hotels%3D14314786%26dest_type%3Dhotel%26checkin%3D2026-12-11%26checkout%3D2026-12-14%26group_adults%3D2%26req_adults%3D2%26show_room%3D1431478601_437124749_0_0_0_1134446%26lang%3Den%26selected_currency%3DINR%26exrt%3D1.00000000%26ext_price_total%3D6431.00%26ext_price_tax%3D345.75%26xfc%3DINR%26hca%3Dm%26group_children%3D0%26req_children%3D0%26%26no_rooms%3D1%26ts%3D1793047685%26edgtid%3DrugVjEdBSv2CW9gQiXEThg%26efpc%3DYIWzemQxsToT%26utm_source%3Dmetagha%26utm_medium%3Dlocaluniversal%26utm_campaign%3DMX%26utm_term%3Dhotel-14314786%26utm_content%3Ddev-desktop_los-3_bw-45_dow-Friday_defdate-0_room-0_gstadt-2_rateid-ig_aud-0_gacid-_mcid-50_bc-ANptIg_ppa-0_clrid-0_ad-0_gstkid-0_checkin-20261211_ppt-GBdB%26aid%3D2127720%26label%3Dmetagha-link-LUMX-hotel-14314786_dev-desktop_los-3_bw-45_dow-Friday_defdate-0_room-0_gstadt-2_rateid-ig_aud-0_gacid-_mcid-50_bc-ANptIg_ppa-0_clrid-0_ad-0_gstkid-0_checkin-20261211_ppt-GBdB&s=ALZo0YKft1iPRNky_XrRIkzloeOT&ap=1",
+   "num_guests": 2,
+   "rate_per_night": {
+    "display_price": "₹2,144",
+    "extracted_display_price": 2144,
+    "lowest": "₹2,144",
+    "extracted_lowest": 2144
+   },
+   "total_rate": {
+    "display_price": "₹6,431",
+    "extracted_display_price": 6431,
+    "lowest": "₹6,431",
+    "extracted_lowest": 6431
+   }
+  },
+  {
+   "source": "HomeToGo",
+   "link": "https://www.google.com/travel/lodging/clk?pc=AJ0xEyiTRke0ND7vgggTm-ukpsrwxG3F86nAsKhcJBu1fQLYvS0kGeXDiOFAj-IDAJfXU8mm6TnCiAyMr4qYRwi5Vejz-NpD1VOFgY_teqqB1r_9PYq-IodwqxzoO3ZccxkgROy_W1s9MaUYegqr2Jmt9ZwWHxno7AesDcj8Nm9KNOwSHWofw5xb22s&pcurl=https://www.hometogo.com/search/5c18a92a40676?arrival%3D2026-12-11%26duration%3D3%26id%3Dz6c4cf55638e21b2e%2540f%2540s%26adults%3D2%26tpp%3Dbsluhfq.6adfd7a9%26adword%3Dghf/us/z6c4cf55638e21b2e/ct%3Dhs/n-a/n-a/5c18a92a40676%26utm_source%3Dghf%26hl%3Den_MX%26ghf_acc%3Dhtg_ghf%26c%3DINR%26gValidation%3Dfalse%26gSite%3Dlocaluniversal&s=ALZo0YIwg-13Oi0J5DfudjxOJivJ&ap=1",
+   "num_guests": 2,
+   "rate_per_night": {
+    "display_price": "₹2,361",
+    "extracted_display_price": 2361,
+    "lowest": "₹2,361",
+    "extracted_lowest": 2361
+   },
+   "total_rate": {
+    "display_price": "₹7,084",
+    "extracted_display_price": 7084,
+    "lowest": "₹7,084",
+    "extracted_lowest": 7084
+   }
+  },
+  {
+   "source": "Bluepillow.mx",
+   "link": "https://www.google.com/travel/lodging/clk?pc=AJ0xEyj0ivC0s7jUElSW1X9B1GkRwJgXh1FEasBynPkKCDlTlakwhX5vNYo2-HzzMBSQKFUaV9aMEgd8gZvbnB9t9-Z-HptWktDsMqmDk6tG92gW30rjXIoyNqWO2-8f88Keg1JvtgVZ3TGJkA9bgLdd1nUQXXLn3NcjJn7J2mOtxLGbcYhxgJ81Iq9H9g&pcurl=https://mx.bluepillow.com/search/69e120697e3dbcd1cc3a71cb?begin%3D2026-12-11%26end%3D2026-12-14%26block_id%3D-b,6IKdrUKortJ2E63YA0LYInhqsfVBiDQEXgEdZ0FJKWc,-bpag-Hotel%26fees%3D338.00%26tax%3D338.00%26total%3D7083.61%26adults%3D2%26childs%3D0%26infants%3D0%26childrens%3D0%26country%3DMX%26currency%3DINR%26language%3Den%26source%3Dlocaluniversal%26utm_campaign%3Dhotel%26prid%3D&s=ALZo0YKOHLL0txNm0Rx6c6_DcIaQ&ap=1",
+   "num_guests": 2,
+   "rate_per_night": {
+    "display_price": "₹2,361",
+    "extracted_display_price": 2361,
+    "lowest": "₹2,361",
+    "extracted_lowest": 2361
+   },
+   "total_rate": {
+    "display_price": "₹7,084",
+    "extracted_display_price": 7084,
+    "lowest": "₹7,084",
+    "extracted_lowest": 7084
+   }
+  }
+ ]
+}

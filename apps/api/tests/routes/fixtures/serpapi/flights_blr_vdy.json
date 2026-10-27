@@ -1,0 +1,39 @@
+{
+ "_note": "Recorded live from SerpApi on 2026-10-27 by routes/scripts/record_live.py; sanitised (request metadata, phone fields, images dropped) and trimmed.",
+ "_params": {
+  "engine": "google_flights",
+  "departure_id": "BLR",
+  "arrival_id": "VDY",
+  "outbound_date": "2026-12-11",
+  "type": "2",
+  "adults": "1",
+  "travel_class": "1"
+ },
+ "best_flights": [],
+ "other_flights": [
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 10:25"
+     },
+     "arrival_airport": {
+      "name": "Jindal Vijaynagar Airport",
+      "id": "VDY",
+      "time": "2026-12-11 11:15"
+     },
+     "duration": 50,
+     "airline": "Star Air",
+     "flight_number": "S5 701",
+     "travel_class": "Economy"
+    }
+   ],
+   "total_duration": 50,
+   "price": 4755,
+   "type": "One way",
+   "booking_token": "WyJDalJJV21sb1RVSjBOVTAwU25kQlEzWk5SR2RDUnkwdExTMHRMUzE1Ykc0eE5DMXVNa0ZCUVVGQlIzSm5NMUZKU0RSaVZUQkJFZ1ZUTlRjd01Sb0tDSk1sRUFBYUEwbE9VamdjY0k0biIsW1siQkxSIiwiMjAyNi0xMi0xMSIsIlZEWSIsbnVsbCwiUzUiLCI3MDEiXV1d"
+  }
+ ]
+}

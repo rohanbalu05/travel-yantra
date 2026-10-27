@@ -1,0 +1,397 @@
+{
+ "_note": "Recorded live from SerpApi on 2026-10-27 by routes/scripts/record_live.py; sanitised (request metadata, phone fields, images dropped) and trimmed.",
+ "_params": {
+  "engine": "google_flights",
+  "departure_id": "BLR",
+  "arrival_id": "GOI",
+  "outbound_date": "2026-12-11",
+  "type": "2",
+  "adults": "1",
+  "travel_class": "1"
+ },
+ "best_flights": [
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 19:00"
+     },
+     "arrival_airport": {
+      "name": "Goa Dabolim International Airport",
+      "id": "GOI",
+      "time": "2026-12-11 20:20"
+     },
+     "duration": 80,
+     "airline": "IndiGo",
+     "flight_number": "6E 6554",
+     "travel_class": "Economy"
+    }
+   ],
+   "total_duration": 80,
+   "price": 5413,
+   "type": "One way",
+   "booking_token": "WyJDalJJYmxndFEwMXRUek5pU0dkQlNGcHVTRkZDUnkwdExTMHRMUzB0TFc5NVltc3hOVUZCUVVGQlIzSm5NMDluU21WVVYwVkJFZ1kyUlRZMU5UUWFDZ2lsS2hBQUdnTkpUbEk0SEhERExBPT0iLFtbIkJMUiIsIjIwMjYtMTItMTEiLCJHT0kiLG51bGwsIjZFIiwiNjU1NCJdXV0="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 21:00"
+     },
+     "arrival_airport": {
+      "name": "Goa Dabolim International Airport",
+      "id": "GOI",
+      "time": "2026-12-11 22:15"
+     },
+     "duration": 75,
+     "airline": "IndiGo",
+     "flight_number": "6E 977",
+     "travel_class": "Economy"
+    }
+   ],
+   "total_duration": 75,
+   "price": 5413,
+   "type": "One way",
+   "booking_token": "WyJDalJJYmxndFEwMXRUek5pU0dkQlNGcHVTRkZDUnkwdExTMHRMUzB0TFc5NVltc3hOVUZCUVVGQlIzSm5NMDluU21WVVYwVkJFZ1UyUlRrM054b0tDS1VxRUFBYUEwbE9VamdjY01NcyIsW1siQkxSIiwiMjAyNi0xMi0xMSIsIkdPSSIsbnVsbCwiNkUiLCI5NzciXV1d"
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 05:20"
+     },
+     "arrival_airport": {
+      "name": "Goa Dabolim International Airport",
+      "id": "GOI",
+      "time": "2026-12-11 06:50"
+     },
+     "duration": 90,
+     "airline": "Air India Express",
+     "flight_number": "IX 1353",
+     "travel_class": "Economy"
+    }
+   ],
+   "total_duration": 90,
+   "price": 7749,
+   "type": "One way",
+   "booking_token": "WyJDalJJYmxndFEwMXRUek5pU0dkQlNGcHVTRkZDUnkwdExTMHRMUzB0TFc5NVltc3hOVUZCUVVGQlIzSm5NMDluU21WVVYwVkJFZ1pKV0RFek5UTWFDZ2pGUEJBQUdnTkpUbEk0SEhEZlB3PT0iLFtbIkJMUiIsIjIwMjYtMTItMTEiLCJHT0kiLG51bGwsIklYIiwiMTM1MyJdXV0="
+  }
+ ],
+ "other_flights": [
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 17:10"
+     },
+     "arrival_airport": {
+      "name": "Goa Dabolim International Airport",
+      "id": "GOI",
+      "time": "2026-12-11 18:25"
+     },
+     "duration": 75,
+     "airline": "IndiGo",
+     "flight_number": "6E 6168",
+     "travel_class": "Economy"
+    }
+   ],
+   "total_duration": 75,
+   "price": 6358,
+   "type": "One way",
+   "booking_token": "WyJDalJJYmxndFEwMXRUek5pU0dkQlNGcHVTRkZDUnkwdExTMHRMUzB0TFc5NVltc3hOVUZCUVVGQlIzSm5NMDluU21WVVYwVkJFZ1kyUlRZeE5qZ2FDZ2pXTVJBQUdnTkpUbEk0SEhDbU5BPT0iLFtbIkJMUiIsIjIwMjYtMTItMTEiLCJHT0kiLG51bGwsIjZFIiwiNjE2OCJdXV0="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 07:05"
+     },
+     "arrival_airport": {
+      "name": "Cochin International Airport",
+      "id": "COK",
+      "time": "2026-12-11 08:10"
+     },
+     "duration": 65,
+     "airline": "IndiGo",
+     "flight_number": "6E 6445",
+     "travel_class": "Economy"
+    },
+    {
+     "departure_airport": {
+      "name": "Cochin International Airport",
+      "id": "COK",
+      "time": "2026-12-11 13:20"
+     },
+     "arrival_airport": {
+      "name": "Goa Dabolim International Airport",
+      "id": "GOI",
+      "time": "2026-12-11 14:35"
+     },
+     "duration": 75,
+     "airline": "IndiGo",
+     "flight_number": "6E 211",
+     "travel_class": "Economy"
+    }
+   ],
+   "layovers": [
+    {
+     "duration": 310,
+     "name": "Cochin International Airport",
+     "id": "COK"
+    }
+   ],
+   "total_duration": 450,
+   "price": 6392,
+   "type": "One way",
+   "booking_token": "WyJDalJJYmxndFEwMXRUek5pU0dkQlNGcHVTRkZDUnkwdExTMHRMUzB0TFc5NVltc3hOVUZCUVVGQlIzSm5NMDluU21WVVYwVkJFZ3cyUlRZME5EVjhOa1V5TVRFYUNnajRNUkFBR2dOSlRsSTRISERLTkE9PSIsW1siQkxSIiwiMjAyNi0xMi0xMSIsIkNPSyIsbnVsbCwiNkUiLCI2NDQ1Il0sWyJDT0siLCIyMDI2LTEyLTExIiwiR09JIixudWxsLCI2RSIsIjIxMSJdXV0="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 16:10"
+     },
+     "arrival_airport": {
+      "name": "Goa Dabolim International Airport",
+      "id": "GOI",
+      "time": "2026-12-11 17:30"
+     },
+     "duration": 80,
+     "airline": "IndiGo",
+     "flight_number": "6E 6753",
+     "travel_class": "Economy"
+    }
+   ],
+   "total_duration": 80,
+   "price": 6673,
+   "type": "One way",
+   "booking_token": "WyJDalJJYmxndFEwMXRUek5pU0dkQlNGcHVTRkZDUnkwdExTMHRMUzB0TFc5NVltc3hOVUZCUVVGQlIzSm5NMDluU21WVVYwVkJFZ1kyUlRZM05UTWFDZ2lSTkJBQUdnTkpUbEk0SEhEeU5nPT0iLFtbIkJMUiIsIjIwMjYtMTItMTEiLCJHT0kiLG51bGwsIjZFIiwiNjc1MyJdXV0="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 06:10"
+     },
+     "arrival_airport": {
+      "name": "Goa Dabolim International Airport",
+      "id": "GOI",
+      "time": "2026-12-11 07:30"
+     },
+     "duration": 80,
+     "airline": "IndiGo",
+     "flight_number": "6E 194",
+     "travel_class": "Economy"
+    }
+   ],
+   "total_duration": 80,
+   "price": 8353,
+   "type": "One way",
+   "booking_token": "WyJDalJJYmxndFEwMXRUek5pU0dkQlNGcHVTRkZDUnkwdExTMHRMUzB0TFc5NVltc3hOVUZCUVVGQlIzSm5NMDluU21WVVYwVkJFZ1UyUlRFNU5Cb0tDS0ZCRUFBYUEwbE9VamdjY050RSIsW1siQkxSIiwiMjAyNi0xMi0xMSIsIkdPSSIsbnVsbCwiNkUiLCIxOTQiXV1d"
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 12:25"
+     },
+     "arrival_airport": {
+      "name": "Goa Dabolim International Airport",
+      "id": "GOI",
+      "time": "2026-12-11 13:45"
+     },
+     "duration": 80,
+     "airline": "IndiGo",
+     "flight_number": "6E 6653",
+     "travel_class": "Economy"
+    }
+   ],
+   "total_duration": 80,
+   "price": 8353,
+   "type": "One way",
+   "booking_token": "WyJDalJJYmxndFEwMXRUek5pU0dkQlNGcHVTRkZDUnkwdExTMHRMUzB0TFc5NVltc3hOVUZCUVVGQlIzSm5NMDluU21WVVYwVkJFZ1kyUlRZMk5UTWFDZ2loUVJBQUdnTkpUbEk0SEhEYlJBPT0iLFtbIkJMUiIsIjIwMjYtMTItMTEiLCJHT0kiLG51bGwsIjZFIiwiNjY1MyJdXV0="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 11:20"
+     },
+     "arrival_airport": {
+      "name": "Goa Dabolim International Airport",
+      "id": "GOI",
+      "time": "2026-12-11 12:40"
+     },
+     "duration": 80,
+     "airline": "IndiGo",
+     "flight_number": "6E 6583",
+     "travel_class": "Economy"
+    }
+   ],
+   "total_duration": 80,
+   "price": 10243,
+   "type": "One way",
+   "booking_token": "WyJDalJJYmxndFEwMXRUek5pU0dkQlNGcHVTRkZDUnkwdExTMHRMUzB0TFc5NVltc3hOVUZCUVVGQlIzSm5NMDluU21WVVYwVkJFZ1kyUlRZMU9ETWFDZ2lEVUJBQUdnTkpUbEk0SEhDZ1ZBPT0iLFtbIkJMUiIsIjIwMjYtMTItMTEiLCJHT0kiLG51bGwsIjZFIiwiNjU4MyJdXV0="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 17:45"
+     },
+     "arrival_airport": {
+      "name": "Goa Dabolim International Airport",
+      "id": "GOI",
+      "time": "2026-12-11 19:10"
+     },
+     "duration": 85,
+     "airline": "Air India Express",
+     "flight_number": "IX 1386",
+     "travel_class": "Economy"
+    }
+   ],
+   "total_duration": 85,
+   "price": 11611,
+   "type": "One way",
+   "booking_token": "WyJDalJJYmxndFEwMXRUek5pU0dkQlNGcHVTRkZDUnkwdExTMHRMUzB0TFc5NVltc3hOVUZCUVVGQlIzSm5NMDluU21WVVYwVkJFZ1pKV0RFek9EWWFDZ2piV2hBQUdnTkpUbEk0SEhEQlh3PT0iLFtbIkJMUiIsIjIwMjYtMTItMTEiLCJHT0kiLG51bGwsIklYIiwiMTM4NiJdXV0="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 11:05"
+     },
+     "arrival_airport": {
+      "name": "Goa Dabolim International Airport",
+      "id": "GOI",
+      "time": "2026-12-11 12:30"
+     },
+     "duration": 85,
+     "airline": "Air India Express",
+     "flight_number": "IX 1539",
+     "travel_class": "Economy"
+    }
+   ],
+   "total_duration": 85,
+   "price": 13817,
+   "type": "One way",
+   "booking_token": "WyJDalJJYmxndFEwMXRUek5pU0dkQlNGcHVTRkZDUnkwdExTMHRMUzB0TFc5NVltc3hOVUZCUVVGQlIzSm5NMDluU21WVVYwVkJFZ1pKV0RFMU16a2FDZ2o1YXhBQUdnTkpUbEk0SEhEVGNRPT0iLFtbIkJMUiIsIjIwMjYtMTItMTEiLCJHT0kiLG51bGwsIklYIiwiMTUzOSJdXV0="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 16:25"
+     },
+     "arrival_airport": {
+      "name": "Chhatrapati Shivaji Maharaj International Airport Mumbai",
+      "id": "BOM",
+      "time": "2026-12-11 18:30"
+     },
+     "duration": 125,
+     "airline": "Air India",
+     "flight_number": "AI 2622",
+     "travel_class": "Economy"
+    },
+    {
+     "departure_airport": {
+      "name": "Chhatrapati Shivaji Maharaj International Airport Mumbai",
+      "id": "BOM",
+      "time": "2026-12-11 21:20"
+     },
+     "arrival_airport": {
+      "name": "Goa Dabolim International Airport",
+      "id": "GOI",
+      "time": "2026-12-11 22:35"
+     },
+     "duration": 75,
+     "airline": "Air India",
+     "flight_number": "AI 2505",
+     "travel_class": "Economy"
+    }
+   ],
+   "layovers": [
+    {
+     "duration": 170,
+     "name": "Chhatrapati Shivaji Maharaj International Airport Mumbai",
+     "id": "BOM"
+    }
+   ],
+   "total_duration": 370,
+   "price": 14624,
+   "type": "One way",
+   "booking_token": "WyJDalJJYmxndFEwMXRUek5pU0dkQlNGcHVTRkZDUnkwdExTMHRMUzB0TFc5NVltc3hOVUZCUVVGQlIzSm5NMDluU21WVVYwVkJFZzFCU1RJMk1qSjhRVWt5TlRBMUdnb0lvSElRQUJvRFNVNVNPQnh3cFhnPSIsW1siQkxSIiwiMjAyNi0xMi0xMSIsIkJPTSIsbnVsbCwiQUkiLCIyNjIyIl0sWyJCT00iLCIyMDI2LTEyLTExIiwiR09JIixudWxsLCJBSSIsIjI1MDUiXV1d"
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Kempegowda International Airport Bengaluru",
+      "id": "BLR",
+      "time": "2026-12-11 10:20"
+     },
+     "arrival_airport": {
+      "name": "Chhatrapati Shivaji Maharaj International Airport Mumbai",
+      "id": "BOM",
+      "time": "2026-12-11 12:25"
+     },
+     "duration": 125,
+     "airline": "Air India",
+     "flight_number": "AI 2852",
+     "travel_class": "Economy"
+    },
+    {
+     "departure_airport": {
+      "name": "Chhatrapati Shivaji Maharaj International Airport Mumbai",
+      "id": "BOM",
+      "time": "2026-12-11 13:25"
+     },
+     "arrival_airport": {
+      "name": "Goa Dabolim International Airport",
+      "id": "GOI",
+      "time": "2026-12-11 14:40"
+     },
+     "duration": 75,
+     "airline": "Air India",
+     "flight_number": "AI 2477",
+     "travel_class": "Economy"
+    }
+   ],
+   "layovers": [
+    {
+     "duration": 60,
+     "name": "Chhatrapati Shivaji Maharaj International Airport Mumbai",
+     "id": "BOM"
+    }
+   ],
+   "total_duration": 260,
+   "price": 19549,
+   "type": "One way",
+   "booking_token": "WyJDalJJYmxndFEwMXRUek5pU0dkQlNGcHVTRkZDUnkwdExTMHRMUzB0TFc5NVltc3hOVUZCUVVGQlIzSm5NMDluU21WVVYwVkJFZzFCU1RJNE5USjhRVWt5TkRjM0dnc0kzWmdCRUFBYUEwbE9VamdjY09hZ0FRPT0iLFtbIkJMUiIsIjIwMjYtMTItMTEiLCJCT00iLG51bGwsIkFJIiwiMjg1MiJdLFsiQk9NIiwiMjAyNi0xMi0xMSIsIkdPSSIsbnVsbCwiQUkiLCIyNDc3Il1dXQ=="
+  }
+ ]
+}
