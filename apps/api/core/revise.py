@@ -20,6 +20,7 @@ from .solver import (
     limits,
     out_of,
     rebuild_day,
+    split_days,
 )
 
 # Categories that keep you dry. Everything else (beach, viewpoint, neighbourhood walks, forts) is outdoor.
@@ -114,7 +115,33 @@ def revise(it: Itinerary, req: ReviseRequest, travel: Travel | None = None) -> t
         what = lighter_day(it, req.day, travel, lim)
     elif req.intent is ReviseIntent.swap_stop:
         what = swap_stop(it, req.place_id, travel, lim)
+    elif req.intent is ReviseIntent.move_day:
+        it, what = move_day(it, req.city)
     else:
         what = rain(it, req.day, travel, lim)
     it, rounds = check_and_repair(it, travel)
     return it, what, rounds
+
+
+def move_day(it: Itinerary, city: str) -> tuple[Itinerary, str]:
+    """Give `city` one more day, taken from the neighbouring city (in trip order) that has more days, the
+    earlier one on a tie and never its last day; then re-plan the trip around the new split."""
+    from .steps import replan
+
+    req = it.request
+    names = [d.lower() for d in req.destinations]
+    if city.lower() not in names:
+        raise ReviseError(f"{city} is not a destination of this trip")
+    if len(names) < 2:
+        raise ReviseError("move_day needs a trip with more than one destination")
+    i = names.index(city.lower())
+    counts = [len(dates) for _, dates in split_days(req)]
+    donors = [j for j in (i - 1, i + 1) if 0 <= j < len(counts) and counts[j] > 1]
+    if not donors:
+        raise ReviseError(f"no city next to {req.destinations[i]} has a day to spare")
+    donor = max(donors, key=lambda j: (counts[j], -j))
+    counts[donor] -= 1
+    counts[i] += 1
+    moved = replan(req.model_copy(update={"days_per_destination": counts}))
+    moved.lang = it.lang
+    return moved, f"Moved a day from {req.destinations[donor]} to {req.destinations[i]}"

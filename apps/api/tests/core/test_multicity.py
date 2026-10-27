@@ -133,3 +133,43 @@ def test_visits_past_the_departure_home_are_flagged():
     late = it.model_copy(deep=True)
     late.days[-1] = last.model_copy(update={"legs": [*last.legs[:-1], early]})
     assert any(v.code is ViolationCode.long_day and "home leaves" in v.message for v in check(late)) == bool(last.stops)
+
+
+def test_move_day_gives_a_city_a_day_from_its_neighbour_and_replans():
+    it = plan()
+    out, what, _ = revise(it, ReviseRequest(intent="move_day", city="Coorg"))
+    assert what == "Moved a day from Mysuru to Coorg"
+    assert out.request.days_per_destination == [2, 3]
+    assert [city_of(out.request, d.date) for d in out.days] == ["Mysuru"] * 2 + ["Coorg"] * 3
+    switch = out.days[2]
+    assert hop_of(switch).from_ == "Mysuru" and hop_of(switch).to == "Coorg"
+    assert out_of(out.days[-1]).from_ == "Coorg"
+    assert check(out) == []
+    # And back again: Mysuru takes the day back from Coorg.
+    back, what, _ = revise(out, ReviseRequest(intent="move_day", city="mysuru"))
+    assert back.request.days_per_destination == [3, 2] and what == "Moved a day from Coorg to Mysuru"
+
+
+def test_move_day_errors():
+    import pytest
+
+    from core.revise import ReviseError
+
+    it = plan()
+    with pytest.raises(ReviseError):
+        revise(it, ReviseRequest(intent="move_day", city="Goa"))
+    one = plan({**TRIP, "destinations": ["Mysuru"]})
+    with pytest.raises(ReviseError):
+        revise(one, ReviseRequest(intent="move_day", city="Mysuru"))
+    short = plan({**TRIP, "end_date": "2026-11-21"})  # one day each: nothing to spare
+    with pytest.raises(ReviseError):
+        revise(short, ReviseRequest(intent="move_day", city="Coorg"))
+
+
+def test_move_day_through_the_endpoint():
+    events = [json.loads(line[6:]) for line in client.post("/plan", json=TRIP).text.splitlines() if line.startswith("data: ")]
+    pid = events[-1]["plan_id"]
+    r = client.post(f"/plan/{pid}/revise", json={"intent": "move_day", "city": "Coorg"})
+    done = [json.loads(line[6:]) for line in r.text.splitlines() if line.startswith("data: ")][-1]
+    assert done["stage"] == "done" and done["partial"]["request"]["days_per_destination"] == [2, 3]
+    assert client.post(f"/plan/{pid}/revise", json={"intent": "move_day", "city": "Paris"}).status_code == 422

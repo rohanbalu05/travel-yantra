@@ -220,24 +220,41 @@ def _missing_stays(request: TripRequest, stays: list[dict]) -> list[str]:
             if (n < len(split) - 1 or len(split) == 1 or len(dates) > 1) and dates[0] not in check_ins]
 
 
-async def solver(state: dict, model: Model):
-    r = _request(state)
-    pools = {c: [Place.model_validate(p) for p in v] for c, v in state["pools"].items()}
-    between = {c: Leg.model_validate(v) for c, v in state.get("hops", {}).items()}
-    back = Leg.model_validate(state["home"]) if state.get("home") else None
-    days, _ = solve_trip(r, pools, between, home=back)
+def assemble(r: TripRequest, pools: dict[str, list[Place]], options: list[TransportOption], journeys: dict[str, Leg],
+             back: Leg | None, stays_found: list[Stay]) -> Itinerary:
+    """Solve the days and put the itinerary together with its budget and warnings."""
+    days, _ = solve_trip(r, pools, journeys, home=back)
     empty = [c for c, v in pools.items() if not v]
     it = Itinerary(
-        request=r, days=days, lang=r.lang,
-        transport=[TransportOption.model_validate(t) for t in state["transport"]],
-        stays=[Stay.model_validate(s) for s in state["stays"]],
+        request=r, days=days, lang=r.lang, transport=options, stays=stays_found,
         budget={"transport_inr": 0, "stay_inr": 0, "total_inr": 0},
         # Unused candidates are not a problem (the planner offers more than a trip holds); an empty pool is.
-        warnings=[f"No places found yet for {c}" for c in empty] + _missing_stays(r, state["stays"]),
+        warnings=[f"No places found yet for {c}" for c in empty]
+        + _missing_stays(r, [s.model_dump(mode="json") for s in stays_found]),
     )
     it.budget = budget(it)
-    stops = sum(len(d.stops) for d in days)
-    return {"itinerary": it.model_dump(mode="json", by_alias=True)}, f"Planned {stops} stops over {len(days)} days"
+    return it
+
+
+def replan(r: TripRequest) -> Itinerary:
+    """The whole deterministic plan for a request, without the agents (revise uses it)."""
+    options = transport_options(r)
+    pools = {city: city_places(r, city) for city in r.destinations}
+    return assemble(r, pools, options, hops(r, options), home(r), stay_options(r))
+
+
+async def solver(state: dict, model: Model):
+    r = _request(state)
+    it = assemble(
+        r,
+        {c: [Place.model_validate(p) for p in v] for c, v in state["pools"].items()},
+        [TransportOption.model_validate(t) for t in state["transport"]],
+        {c: Leg.model_validate(v) for c, v in state.get("hops", {}).items()},
+        Leg.model_validate(state["home"]) if state.get("home") else None,
+        [Stay.model_validate(s) for s in state["stays"]],
+    )
+    stops = sum(len(d.stops) for d in it.days)
+    return {"itinerary": it.model_dump(mode="json", by_alias=True)}, f"Planned {stops} stops over {len(it.days)} days"
 
 
 async def checker(state: dict, model: Model):
