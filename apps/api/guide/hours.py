@@ -26,7 +26,10 @@ from .places import PgCache, PlacesClient
 from .planner import place_ids
 
 log = logging.getLogger(__name__)
-DAILY_CAP = 300  # Enterprise Details is free to 1,000 a month; the 7-day cache keeps reuse cheap
+#: Enterprise Details is free to 1,000 calls a month: 30 a day stays under it even if the
+#: cache fails all month (one instance; ty-api runs one at demo load). The 7-day cache
+#: means real use is about 10 calls a week for Goa.
+DAILY_CAP = 30
 WORKERS = 6
 _spent: dict[str, int] = {}  # UTC date -> live calls this instance made
 
