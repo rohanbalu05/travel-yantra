@@ -103,3 +103,10 @@ def test_pg_store_round_trip():
     s = PgStore(os.environ["DATABASE_URL"])
     e = record(s, MetricEvent(session_id="pgtest-0001", task="pg_round_trip", arm="ty", event="start"))
     assert any(x.session_id == e.session_id and x.task == "pg_round_trip" for x in s.all())
+
+
+def test_memory_store_is_bounded():
+    s = MemoryStore(max_rows=2)
+    for secs in range(3):
+        s.add(ev("sessaaaa", "start", secs))
+    assert [e.at for e in s.all()] == [T0 + dt.timedelta(seconds=1), T0 + dt.timedelta(seconds=2)]

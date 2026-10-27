@@ -11,7 +11,7 @@ import os
 import re
 import statistics
 import threading
-from collections import defaultdict
+from collections import defaultdict, deque
 from functools import lru_cache
 from typing import Literal, Protocol
 
@@ -20,6 +20,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 Arm = Literal["ty", "baseline"]
 EventName = Literal["start", "plan_shown", "booking_chosen"]
 MAX_BODY_BYTES = 2048
+MAX_MEMORY_ROWS = 50_000  # oldest dropped first; keeps an unauthenticated endpoint bounded
 _PHONE_LIKE = re.compile(r"^\+?\d{10,}$")
 
 
@@ -59,8 +60,8 @@ class Store(Protocol):
 
 
 class MemoryStore:
-    def __init__(self) -> None:
-        self._rows: list[MetricEvent] = []
+    def __init__(self, max_rows: int = MAX_MEMORY_ROWS) -> None:
+        self._rows: deque[MetricEvent] = deque(maxlen=max_rows)
         self._lock = threading.Lock()
 
     def add(self, e: MetricEvent) -> None:
