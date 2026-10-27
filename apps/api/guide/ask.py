@@ -25,7 +25,7 @@ from .places import PlacesClient
 from .retrieval.retrieve import Filters, Hit, TripContext, search
 
 K = 6  # sources handed to the model
-MAX_TOKENS = 400  # thinking plus a two-to-four-sentence answer
+MAX_TOKENS = 800  # an answer is about 100 tokens; the rest is headroom
 EMERGENCY_NUMBER = "112"  # India's single emergency number: police, fire, ambulance
 REFUSAL = (
     "I don't have a sourced answer to that yet, so I won't guess. "
@@ -211,12 +211,12 @@ class ModelAnswerer:
     async def __call__(self, question: str, sources: list[Hit]) -> str:
         from core.llm import get_model
 
-        # Low thinking and a short cap: thinking tokens count toward the cap, and the
-        # guide's budget is 3 s for an answer of two to four sentences.
+        # Minimal thinking: on Flash even "low" spent ~380 tokens thinking and the
+        # answer was cut off at the cap. The sources already hold the reasoning.
         return await get_model().text(
             build_prompt(question, sources),
             tier="flash",
-            thinking="low",
+            thinking="minimal",
             max_output_tokens=MAX_TOKENS,
             temperature=0.2,
         )
