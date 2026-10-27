@@ -136,6 +136,7 @@ def test_city_and_day_stories(db) -> None:
 
 
 def test_a_second_request_is_served_from_the_cache(db) -> None:
+    db.execute("DELETE FROM katha_cache WHERE story->>'subject' = 'Devaraja Market'")
     first = Counting()
     a = run(db, first, subject_kind="place", subject="Devaraja Market", length_min=2)
     assert first.calls == 3  # outline, draft, critique
