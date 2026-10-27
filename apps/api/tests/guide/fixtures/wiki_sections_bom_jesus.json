@@ -1,0 +1,16 @@
+{
+ "url": "https://en.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=1&redirects=1&exsectionformat=wiki&titles=Basilica+of+Bom+Jesus&format=json&formatversion=2",
+ "payload": {
+  "batchcomplete": true,
+  "query": {
+   "pages": [
+    {
+     "pageid": 1688078,
+     "ns": 0,
+     "title": "Basilica of Bom Jesus",
+     "extract": "The Basilica of Bom Jesus (Portuguese: Basílica do Bom Jesus; Goan Konkani: Borea Jezuchi Bajilika) is a Catholic basilica in Goa, in the Konkan region of India. The church is a pilgrimage centre and recognised by UNESCO as a World Heritage Site. The basilica is located in Old Goa, the former capital of Portuguese India, and holds the body of St Francis Xavier.\nBom Jesus (meaning, \"Good Jesus\" in Portuguese) is the name used for the Ecce Homo in Portuguese speaking countries. It is one of the Seven Wonders of Portuguese Origin in the World. It was made a basilica in the pontifical decree “Priscam Goae” on 20 March 1946.\n\n\n== History ==\nConstruction work on the church began in 1594. The church was consecrated in May 1605 by the archbishop, Aleixo de Menezes. This world heritage monument has emerged as a landmark in the history of Christianity. It contains the Catholic saint Francis Xavier's body.\nThe Basilica and its outbuildings were the venue for the 2nd National Eucharistic Congress whose attendees included the Bishop of Dhaka, Peter Joseph Hurth.\nArchitectural historian Vishvesh Prabhakar Kandolkar's 2025 book Goa's Bom Jesus as Visual Culture: The Basilica's Architecture, Image, History and Identity chronicles the long history of this church. As Kandolkar and others note, the church is in need of significant intervention to maintain its structural upkeep.\n\n\n== Gallery ==\n\n\n== See also ==\nSe Cathedral\nEcce Homo\nList of Jesuit sites\n\n\n== References ==\n\n\n== External links ==\n Media related to Basilica of Bom Jesus (Goa) at Wikimedia Commons\nOfficial website"
+    }
+   ]
+  }
+ }
+}

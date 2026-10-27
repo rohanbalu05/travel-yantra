@@ -1,0 +1,56 @@
+{
+ "url": "https://en.wikipedia.org/api/rest_v1/page/summary/Mysore_Palace",
+ "payload": {
+  "type": "standard",
+  "title": "Mysore Palace",
+  "displaytitle": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Mysore Palace</span></span>",
+  "namespace": {
+   "id": 0,
+   "text": ""
+  },
+  "wikibase_item": "Q456575",
+  "titles": {
+   "canonical": "Mysore_Palace",
+   "normalized": "Mysore Palace",
+   "display": "<span lang=\"en\" dir=\"ltr\"><span class=\"mw-page-title-main\">Mysore Palace</span></span>"
+  },
+  "pageid": 1502289,
+  "thumbnail": {
+   "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a4/Mysore_Palace_Morning.jpg/330px-Mysore_Palace_Morning.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+   "width": 330,
+   "height": 161
+  },
+  "originalimage": {
+   "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a4/Mysore_Palace_Morning.jpg/3840px-Mysore_Palace_Morning.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+   "width": 4407,
+   "height": 2148
+  },
+  "lang": "en",
+  "dir": "ltr",
+  "revision": "1381188391",
+  "tid": "77ac35ee-cc9a-11f1-9b5e-d276c4980ca1",
+  "timestamp": "2026-10-20T15:25:23Z",
+  "description": "Historical palace in Mysore, Karnataka, India",
+  "description_source": "local",
+  "coordinates": {
+   "lat": 12.30388889,
+   "lon": 76.65444444
+  },
+  "content_urls": {
+   "desktop": {
+    "page": "https://en.wikipedia.org/wiki/Mysore_Palace",
+    "revisions": "https://en.wikipedia.org/wiki/Mysore_Palace?action=history",
+    "edit": "https://en.wikipedia.org/wiki/Mysore_Palace?action=edit",
+    "talk": "https://en.wikipedia.org/wiki/Talk:Mysore_Palace"
+   },
+   "mobile": {
+    "page": "https://en.wikipedia.org/wiki/Mysore_Palace",
+    "revisions": "https://en.wikipedia.org/wiki/Special:History/Mysore_Palace",
+    "edit": "https://en.wikipedia.org/wiki/Mysore_Palace?action=edit",
+    "talk": "https://en.wikipedia.org/wiki/Talk:Mysore_Palace"
+   }
+  },
+  "extract": "Mysore Palace, also known as Amba Vilas Palace, is a historic palace and royal residence located in Mysore, Karnataka, India. It served as the official residence of the Wadiyar dynasty and the seat of the Kingdom of Mysore, and was commissioned by Krishnaraja Wodeyar IV in August 1897 following the destruction of the previous structure in a fire. The design of the palace is attributed to Henry Irwin, a British architect who had earlier designed the Madras High Court, and Edwin Wolleston Fritchley, who would later design the Lalitha Mahal. Construction of the current structure began in 1897 and was completed in 1912. It is one of the largest palaces in India, and is a prominent example of Indo-Saracenic architecture, combining Indo-Islamic, Rajput, Hoysala and Gothic architectural styles.",
+  "extract_html": "<p><b>Mysore Palace</b>, also known as <b>Amba Vilas Palace</b>, is a historic palace and royal residence located in Mysore, Karnataka, India. It served as the official residence of the Wadiyar dynasty and the seat of the Kingdom of Mysore, and was commissioned by Krishnaraja Wodeyar IV in August 1897 following the destruction of the previous structure in a fire. The design of the palace is attributed to Henry Irwin, a British architect who had earlier designed the Madras High Court, and Edwin Wolleston Fritchley, who would later design the Lalitha Mahal. Construction of the current structure began in 1897 and was completed in 1912. It is one of the largest palaces in India, and is a prominent example of Indo-Saracenic architecture, combining Indo-Islamic, Rajput, Hoysala and Gothic architectural styles.</p>"
+ }
+}

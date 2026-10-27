@@ -1,0 +1,852 @@
+{
+ "url": "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=Mysore+Palace&props=labels%7Cclaims&languages=en%7Chi%7Ckn%7Cta%7Cte%7Cbn&format=json&redirects=yes",
+ "payload": {
+  "entities": {
+   "Q456575": {
+    "type": "item",
+    "id": "Q456575",
+    "labels": {
+     "en": {
+      "language": "en",
+      "value": "Mysore Palace"
+     },
+     "kn": {
+      "language": "kn",
+      "value": "ಮೈಸೂರು ಅರಮನೆ"
+     },
+     "hi": {
+      "language": "hi",
+      "value": "अम्बा विलास महल"
+     },
+     "te": {
+      "language": "te",
+      "value": "మైసూర్ రాజభవనం"
+     },
+     "ta": {
+      "language": "ta",
+      "value": "மைசூர் அரண்மனை"
+     },
+     "bn": {
+      "language": "bn",
+      "value": "মাইসোর প্যালেস"
+     }
+    },
+    "claims": {
+     "P373": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P373",
+        "hash": "7aa224beaf42ee3fa6f42f8912df3d8d1f37bc55",
+        "datavalue": {
+         "value": "Mysore Palace",
+         "type": "string"
+        },
+        "datatype": "string"
+       },
+       "type": "statement",
+       "id": "q456575$6C24A022-06BB-486F-A3D7-F0023C4F113A",
+       "rank": "normal",
+       "references": [
+        {
+         "hash": "fa278ebfc458360e5aed63d5058cca83c46134f1",
+         "snaks": {
+          "P143": [
+           {
+            "snaktype": "value",
+            "property": "P143",
+            "hash": "e4f6d9441d0600513c4533c672b5ab472dc73694",
+            "datavalue": {
+             "value": {
+              "entity-type": "item",
+              "numeric-id": 328,
+              "id": "Q328"
+             },
+             "type": "wikibase-entityid"
+            },
+            "datatype": "wikibase-item"
+           }
+          ]
+         },
+         "snaks-order": [
+          "P143"
+         ]
+        }
+       ]
+      }
+     ],
+     "P625": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P625",
+        "hash": "2bcd316ccc426c5f1999d64181e742e7299aaed4",
+        "datavalue": {
+         "value": {
+          "latitude": 12.303888888889,
+          "longitude": 76.654444444444,
+          "altitude": null,
+          "precision": 0.00027777777777778,
+          "globe": "http://www.wikidata.org/entity/Q2"
+         },
+         "type": "globecoordinate"
+        },
+        "datatype": "globe-coordinate"
+       },
+       "type": "statement",
+       "id": "q456575$1F6BB017-0222-4781-9C94-FCC5621217C2",
+       "rank": "normal",
+       "references": [
+        {
+         "hash": "288ab581e7d2d02995a26dfa8b091d96e78457fc",
+         "snaks": {
+          "P143": [
+           {
+            "snaktype": "value",
+            "property": "P143",
+            "hash": "6a164248fc96bfa583bbb495cb63ae6401ec203c",
+            "datavalue": {
+             "value": {
+              "entity-type": "item",
+              "numeric-id": 206855,
+              "id": "Q206855"
+             },
+             "type": "wikibase-entityid"
+            },
+            "datatype": "wikibase-item"
+           }
+          ]
+         },
+         "snaks-order": [
+          "P143"
+         ]
+        }
+       ]
+      }
+     ],
+     "P17": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P17",
+        "hash": "18fb076bdc1c07e578546d1670ba193b768531ac",
+        "datavalue": {
+         "value": {
+          "entity-type": "item",
+          "numeric-id": 668,
+          "id": "Q668"
+         },
+         "type": "wikibase-entityid"
+        },
+        "datatype": "wikibase-item"
+       },
+       "type": "statement",
+       "id": "q456575$99979EB4-6102-40CD-805F-6CF430A995E4",
+       "rank": "normal",
+       "references": [
+        {
+         "hash": "288ab581e7d2d02995a26dfa8b091d96e78457fc",
+         "snaks": {
+          "P143": [
+           {
+            "snaktype": "value",
+            "property": "P143",
+            "hash": "6a164248fc96bfa583bbb495cb63ae6401ec203c",
+            "datavalue": {
+             "value": {
+              "entity-type": "item",
+              "numeric-id": 206855,
+              "id": "Q206855"
+             },
+             "type": "wikibase-entityid"
+            },
+            "datatype": "wikibase-item"
+           }
+          ]
+         },
+         "snaks-order": [
+          "P143"
+         ]
+        }
+       ]
+      }
+     ],
+     "P646": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P646",
+        "hash": "e600a382d1d5d2276f78894a7ffdfea26e5140c2",
+        "datavalue": {
+         "value": "/m/056cl_",
+         "type": "string"
+        },
+        "datatype": "external-id"
+       },
+       "type": "statement",
+       "id": "Q456575$6CFDFF9A-62E4-4795-9D23-FDB8DF4E9E66",
+       "rank": "normal",
+       "references": [
+        {
+         "hash": "2b00cb481cddcac7623114367489b5c194901c4a",
+         "snaks": {
+          "P248": [
+           {
+            "snaktype": "value",
+            "property": "P248",
+            "hash": "a94b740202b097dd33355e0e6c00e54b9395e5e0",
+            "datavalue": {
+             "value": {
+              "entity-type": "item",
+              "numeric-id": 15241312,
+              "id": "Q15241312"
+             },
+             "type": "wikibase-entityid"
+            },
+            "datatype": "wikibase-item"
+           }
+          ],
+          "P577": [
+           {
+            "snaktype": "value",
+            "property": "P577",
+            "hash": "fde79ecb015112d2f29229ccc1ec514ed3e71fa2",
+            "datavalue": {
+             "value": {
+              "time": "+2013-10-28T00:00:00Z",
+              "timezone": 0,
+              "before": 0,
+              "after": 0,
+              "precision": 11,
+              "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+             },
+             "type": "time"
+            },
+            "datatype": "time"
+           }
+          ]
+         },
+         "snaks-order": [
+          "P248",
+          "P577"
+         ]
+        }
+       ]
+      }
+     ],
+     "P31": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P31",
+        "hash": "a9269c53b6be27acc2f06780b28d0bcf4b794bbb",
+        "datavalue": {
+         "value": {
+          "entity-type": "item",
+          "numeric-id": 16560,
+          "id": "Q16560"
+         },
+         "type": "wikibase-entityid"
+        },
+        "datatype": "wikibase-item"
+       },
+       "type": "statement",
+       "id": "Q456575$d3cd73a1-4199-b348-199c-b84d5c0d2525",
+       "rank": "normal"
+      }
+     ],
+     "P1566": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P1566",
+        "hash": "7cbb92c73365043cd8f68f3fbb2537ed73e77867",
+        "datavalue": {
+         "value": "7284522",
+         "type": "string"
+        },
+        "datatype": "external-id"
+       },
+       "type": "statement",
+       "id": "Q456575$9260F8B6-6739-4C0D-BBBB-7CDD9A1A81FA",
+       "rank": "normal",
+       "references": [
+        {
+         "hash": "88694a0f4d1486770c269f7db16a1982f74da69d",
+         "snaks": {
+          "P248": [
+           {
+            "snaktype": "value",
+            "property": "P248",
+            "hash": "1b3ef912a2bd61e18dd43abd184337eb010b2e96",
+            "datavalue": {
+             "value": {
+              "entity-type": "item",
+              "numeric-id": 830106,
+              "id": "Q830106"
+             },
+             "type": "wikibase-entityid"
+            },
+            "datatype": "wikibase-item"
+           }
+          ]
+         },
+         "snaks-order": [
+          "P248"
+         ]
+        }
+       ]
+      }
+     ],
+     "P84": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P84",
+        "hash": "cfb12c0e0e836a0995f2ed33e8d0f9390cd3d88a",
+        "datavalue": {
+         "value": {
+          "entity-type": "item",
+          "numeric-id": 16031767,
+          "id": "Q16031767"
+         },
+         "type": "wikibase-entityid"
+        },
+        "datatype": "wikibase-item"
+       },
+       "type": "statement",
+       "id": "Q456575$E1556EFA-1FF8-4A3C-8769-DC2B8C5AB222",
+       "rank": "normal",
+       "references": [
+        {
+         "hash": "fa278ebfc458360e5aed63d5058cca83c46134f1",
+         "snaks": {
+          "P143": [
+           {
+            "snaktype": "value",
+            "property": "P143",
+            "hash": "e4f6d9441d0600513c4533c672b5ab472dc73694",
+            "datavalue": {
+             "value": {
+              "entity-type": "item",
+              "numeric-id": 328,
+              "id": "Q328"
+             },
+             "type": "wikibase-entityid"
+            },
+            "datatype": "wikibase-item"
+           }
+          ]
+         },
+         "snaks-order": [
+          "P143"
+         ]
+        }
+       ]
+      }
+     ],
+     "P131": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P131",
+        "hash": "7e9099725a3c6a89460b4772a97c1e0878aeef89",
+        "datavalue": {
+         "value": {
+          "entity-type": "item",
+          "numeric-id": 10086,
+          "id": "Q10086"
+         },
+         "type": "wikibase-entityid"
+        },
+        "datatype": "wikibase-item"
+       },
+       "type": "statement",
+       "id": "Q456575$6788EF98-F4DD-4265-9822-BD05013DB4A0",
+       "rank": "normal",
+       "references": [
+        {
+         "hash": "fa278ebfc458360e5aed63d5058cca83c46134f1",
+         "snaks": {
+          "P143": [
+           {
+            "snaktype": "value",
+            "property": "P143",
+            "hash": "e4f6d9441d0600513c4533c672b5ab472dc73694",
+            "datavalue": {
+             "value": {
+              "entity-type": "item",
+              "numeric-id": 328,
+              "id": "Q328"
+             },
+             "type": "wikibase-entityid"
+            },
+            "datatype": "wikibase-item"
+           }
+          ]
+         },
+         "snaks-order": [
+          "P143"
+         ]
+        }
+       ]
+      }
+     ],
+     "P18": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P18",
+        "hash": "3dbc401781a658292d7eb89b419f7d043a0919c2",
+        "datavalue": {
+         "value": "Mysore Palace Morning.jpg",
+         "type": "string"
+        },
+        "datatype": "commonsMedia"
+       },
+       "type": "statement",
+       "id": "Q456575$3216C2D9-31FE-476C-A66C-102EDB2A7033",
+       "rank": "normal",
+       "references": [
+        {
+         "hash": "fa278ebfc458360e5aed63d5058cca83c46134f1",
+         "snaks": {
+          "P143": [
+           {
+            "snaktype": "value",
+            "property": "P143",
+            "hash": "e4f6d9441d0600513c4533c672b5ab472dc73694",
+            "datavalue": {
+             "value": {
+              "entity-type": "item",
+              "numeric-id": 328,
+              "id": "Q328"
+             },
+             "type": "wikibase-entityid"
+            },
+            "datatype": "wikibase-item"
+           }
+          ]
+         },
+         "snaks-order": [
+          "P143"
+         ]
+        }
+       ]
+      },
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P18",
+        "hash": "346223a24e3f8963e177c34c94de7b72210b304b",
+        "datavalue": {
+         "value": "মহীশূর প্রাসাদ সিড়ির গোড়ায় রক্ষিত স্ট্যাচু.jpg",
+         "type": "string"
+        },
+        "datatype": "commonsMedia"
+       },
+       "type": "statement",
+       "qualifiers": {
+        "P2096": [
+         {
+          "snaktype": "value",
+          "property": "P2096",
+          "hash": "25775964c060dd6f1ecf1b0c7e207ad6fcf6e8d3",
+          "datavalue": {
+           "value": {
+            "text": "মহীশূর প্রাসাদ সিড়ির গোড়ায় রক্ষিত স্ট্যাচু",
+            "language": "bn"
+           },
+           "type": "monolingualtext"
+          },
+          "datatype": "monolingualtext"
+         }
+        ]
+       },
+       "qualifiers-order": [
+        "P2096"
+       ],
+       "id": "Q456575$e1755ec3-0fc3-4f97-9822-fa624a7f7844",
+       "rank": "normal"
+      },
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P18",
+        "hash": "c52edf96ba92b7cf18796b2d54dd75a88872b557",
+        "datavalue": {
+         "value": "মহীশূর প্রাসাদের দুটি গম্বুজ চ.jpg",
+         "type": "string"
+        },
+        "datatype": "commonsMedia"
+       },
+       "type": "statement",
+       "qualifiers": {
+        "P2096": [
+         {
+          "snaktype": "value",
+          "property": "P2096",
+          "hash": "ba6923c6f217c2f8cdd11bbaaf75f4def9e383a9",
+          "datavalue": {
+           "value": {
+            "text": "মহীশূর প্রাসাদের দুটি গম্বুজ চ",
+            "language": "bn"
+           },
+           "type": "monolingualtext"
+          },
+          "datatype": "monolingualtext"
+         }
+        ]
+       },
+       "qualifiers-order": [
+        "P2096"
+       ],
+       "id": "Q456575$c258494b-9aa7-4831-a168-0acc56df1e81",
+       "rank": "normal"
+      },
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P18",
+        "hash": "e8b50ace73787914866e9686edce3c4ad1378633",
+        "datavalue": {
+         "value": "মহীশূর প্রাসাদের হাতি ফটক.jpg",
+         "type": "string"
+        },
+        "datatype": "commonsMedia"
+       },
+       "type": "statement",
+       "qualifiers": {
+        "P2096": [
+         {
+          "snaktype": "value",
+          "property": "P2096",
+          "hash": "c170787c335fb0c17b9e3a2aa783f24ff0b1661f",
+          "datavalue": {
+           "value": {
+            "text": "মহীশূর প্রাসাদের হাতি ফটক",
+            "language": "bn"
+           },
+           "type": "monolingualtext"
+          },
+          "datatype": "monolingualtext"
+         }
+        ]
+       },
+       "qualifiers-order": [
+        "P2096"
+       ],
+       "id": "Q456575$48202429-25be-4965-b614-010b346581fa",
+       "rank": "normal"
+      }
+     ],
+     "P149": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P149",
+        "hash": "88ea9c3ba73c709ba4b1fb09e46a4cab1bbc2f7c",
+        "datavalue": {
+         "value": {
+          "entity-type": "item",
+          "numeric-id": 3374557,
+          "id": "Q3374557"
+         },
+         "type": "wikibase-entityid"
+        },
+        "datatype": "wikibase-item"
+       },
+       "type": "statement",
+       "id": "Q456575$C7B606D8-C163-47BC-A4B1-C2B87C6DF237",
+       "rank": "normal",
+       "references": [
+        {
+         "hash": "fa278ebfc458360e5aed63d5058cca83c46134f1",
+         "snaks": {
+          "P143": [
+           {
+            "snaktype": "value",
+            "property": "P143",
+            "hash": "e4f6d9441d0600513c4533c672b5ab472dc73694",
+            "datavalue": {
+             "value": {
+              "entity-type": "item",
+              "numeric-id": 328,
+              "id": "Q328"
+             },
+             "type": "wikibase-entityid"
+            },
+            "datatype": "wikibase-item"
+           }
+          ]
+         },
+         "snaks-order": [
+          "P143"
+         ]
+        }
+       ]
+      }
+     ],
+     "P856": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P856",
+        "hash": "018072a51c3780b6f4350bb7a48cf2d1a48585c1",
+        "datavalue": {
+         "value": "https://mysorepalace.gov.in",
+         "type": "string"
+        },
+        "datatype": "url"
+       },
+       "type": "statement",
+       "id": "Q456575$052AE020-2FBC-41AD-8B3E-A177413FBB04",
+       "rank": "normal",
+       "references": [
+        {
+         "hash": "fa278ebfc458360e5aed63d5058cca83c46134f1",
+         "snaks": {
+          "P143": [
+           {
+            "snaktype": "value",
+            "property": "P143",
+            "hash": "e4f6d9441d0600513c4533c672b5ab472dc73694",
+            "datavalue": {
+             "value": {
+              "entity-type": "item",
+              "numeric-id": 328,
+              "id": "Q328"
+             },
+             "type": "wikibase-entityid"
+            },
+            "datatype": "wikibase-item"
+           }
+          ]
+         },
+         "snaks-order": [
+          "P143"
+         ]
+        }
+       ]
+      }
+     ],
+     "P571": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P571",
+        "hash": "c2e846c0ef9d68328fa5ad1a226594e0f1c8c9b1",
+        "datavalue": {
+         "value": {
+          "time": "+1912-00-00T00:00:00Z",
+          "timezone": 0,
+          "before": 0,
+          "after": 0,
+          "precision": 9,
+          "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+         },
+         "type": "time"
+        },
+        "datatype": "time"
+       },
+       "type": "statement",
+       "id": "Q456575$CFE08DFD-8B46-4064-80D3-D67D031A504C",
+       "rank": "normal",
+       "references": [
+        {
+         "hash": "898005b4da63fb4df6838955f03c9520b707268e",
+         "snaks": {
+          "P143": [
+           {
+            "snaktype": "value",
+            "property": "P143",
+            "hash": "e4f6d9441d0600513c4533c672b5ab472dc73694",
+            "datavalue": {
+             "value": {
+              "entity-type": "item",
+              "numeric-id": 328,
+              "id": "Q328"
+             },
+             "type": "wikibase-entityid"
+            },
+            "datatype": "wikibase-item"
+           }
+          ],
+          "P4656": [
+           {
+            "snaktype": "value",
+            "property": "P4656",
+            "hash": "8f74de9ced29150df4eb0e09d555f324a055f40a",
+            "datavalue": {
+             "value": "https://en.wikipedia.org/w/index.php?title=Mysore_Palace&oldid=850692745",
+             "type": "string"
+            },
+            "datatype": "url"
+           }
+          ]
+         },
+         "snaks-order": [
+          "P143",
+          "P4656"
+         ]
+        }
+       ]
+      }
+     ],
+     "P402": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P402",
+        "hash": "1ecc333cdd54192059d1b5d0610cc259381be543",
+        "datavalue": {
+         "value": "5367659",
+         "type": "string"
+        },
+        "datatype": "external-id"
+       },
+       "type": "statement",
+       "id": "Q456575$21c7528a-4623-9115-1b55-f5d1b01c6adb",
+       "rank": "normal"
+      }
+     ],
+     "P7561": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P7561",
+        "hash": "68ecc224db307a63fbe72e763f1a427c01a95437",
+        "datavalue": {
+         "value": {
+          "entity-type": "item",
+          "numeric-id": 86117278,
+          "id": "Q86117278"
+         },
+         "type": "wikibase-entityid"
+        },
+        "datatype": "wikibase-item"
+       },
+       "type": "statement",
+       "id": "Q456575$128B1725-2A28-4EEC-A823-A09665EA97C9",
+       "rank": "normal"
+      }
+     ],
+     "P7772": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P7772",
+        "hash": "fad9fdd175d3e4c56d93597092dc55a78ac361cf",
+        "datavalue": {
+         "value": "the-majestic-mysore-palace-mysore-india",
+         "type": "string"
+        },
+        "datatype": "external-id"
+       },
+       "type": "statement",
+       "id": "Q456575$A793CB14-F41A-453E-8634-BD19E325805C",
+       "rank": "normal"
+      }
+     ],
+     "P8596": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P8596",
+        "hash": "78c1d762b43d6360358cc0ddb6eb21ed5f62826c",
+        "datavalue": {
+         "value": {
+          "entity-type": "item",
+          "numeric-id": 104580102,
+          "id": "Q104580102"
+         },
+         "type": "wikibase-entityid"
+        },
+        "datatype": "wikibase-item"
+       },
+       "type": "statement",
+       "id": "Q456575$c3bcdf2a-f0db-4227-ac1b-a95a807823ce",
+       "rank": "normal"
+      }
+     ],
+     "P5008": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P5008",
+        "hash": "b4abe241eb64eca08dc6f3037f03b0858fdc8ea3",
+        "datavalue": {
+         "value": {
+          "entity-type": "item",
+          "numeric-id": 73852346,
+          "id": "Q73852346"
+         },
+         "type": "wikibase-entityid"
+        },
+        "datatype": "wikibase-item"
+       },
+       "type": "statement",
+       "id": "Q456575$21d503f6-486c-2786-816e-a4f365b850dc",
+       "rank": "normal"
+      }
+     ],
+     "P6375": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P6375",
+        "hash": "3ca703bbade5c9a718b067fca5d873ddc3c0a6da",
+        "datavalue": {
+         "value": {
+          "text": "Sayyaji Rao Rd, Agrahara, Chamrajpura, Mysuru, Karnataka 570001",
+          "language": "en"
+         },
+         "type": "monolingualtext"
+        },
+        "datatype": "monolingualtext"
+       },
+       "type": "statement",
+       "id": "Q456575$b6679526-4063-1389-ef65-43f52fe9adb5",
+       "rank": "normal"
+      }
+     ],
+     "P5775": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P5775",
+        "hash": "5d0d38bc016b1cf15532b21af37841eb081fe4d9",
+        "datavalue": {
+         "value": "Chandelier Hall Mysore Palace Dec23 A7C 08289.jpg",
+         "type": "string"
+        },
+        "datatype": "commonsMedia"
+       },
+       "type": "statement",
+       "id": "Q456575$4d741f19-4bea-b0c5-e6a0-b1462f30ee3c",
+       "rank": "normal"
+      }
+     ],
+     "P4839": [
+      {
+       "mainsnak": {
+        "snaktype": "value",
+        "property": "P4839",
+        "hash": "26c1043011565e601a2fcc3a5555f3138f01235d",
+        "datavalue": {
+         "value": "Entity[\"Building\", \"MysorePalace::fm265\"]",
+         "type": "string"
+        },
+        "datatype": "external-id"
+       },
+       "type": "statement",
+       "id": "Q456575$0FD4BD50-1A32-4F6D-A200-EBDEFA754E1B",
+       "rank": "normal"
+      }
+     ]
+    }
+   }
+  },
+  "success": 1
+ }
+}
