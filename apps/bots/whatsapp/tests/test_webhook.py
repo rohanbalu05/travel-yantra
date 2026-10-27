@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 
 from app import sender as sender_mod
 from app.brain import NOT_TEXT, VOICE, Brain
-from app.main import SORRY, create_app
+from app.main import SORRY, create_app, split
 from app.sender import CloudApiSender, FakeSender
 from app.translate import Translator
 
@@ -336,3 +336,31 @@ async def test_network_error_on_send_is_logged_not_raised(monkeypatch, caplog):
     )
     await CloudApiSender().send_text(USER, "hello")
     assert "send failed: ConnectTimeout" in caplog.text
+
+
+def test_split_keeps_short_replies_whole():
+    assert split("hello") == ["hello"]
+    assert split("") == [""]
+
+
+def test_split_breaks_at_paragraphs_then_lines_then_spaces():
+    days = "\n\n".join(f"Day {i}: " + "stop, " * 30 for i in range(1, 6))
+    parts = split(days, limit=400)
+    assert all(len(p) <= 400 for p in parts) and len(parts) > 1
+    assert all(p.startswith("Day ") for p in parts)  # whole days per message
+    assert split("a\nb c", limit=3) == ["a", "b c"]
+    assert split("aaaa bbbb", limit=6) == ["aaaa", "bbbb"]
+    assert split("x" * 10, limit=4) == ["xxxx", "xxxx", "xx"]
+
+
+def test_long_reply_goes_out_in_parts(monkeypatch):
+    monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
+
+    class Long(Brain):
+        async def _handle(self, msg):
+            return "\n\n".join(["p" * 3000] * 3)
+
+    fake = FakeSender()
+    with TestClient(create_app(brain=Long(base=""), sender=fake)) as client:
+        post(client, load("text_en.json"))
+    assert [len(b) for _, b in fake.sent] == [3000, 3000, 3000]

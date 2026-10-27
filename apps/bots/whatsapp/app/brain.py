@@ -32,6 +32,7 @@ from .translate import Translator
 SAMPLE = Path(__file__).parent / "samples/goa_family.json"
 SAMPLE_PLAN_ID = "sample-goa"
 MAX_REPLY = 4000  # WhatsApp text bodies are capped at 4096 characters
+MAX_TOTAL = 3 * MAX_REPLY  # a reply longer than one message goes out in parts (main.split)
 PENDING_SECONDS = 30 * 60  # how long the planner's follow-up questions stay open
 LOCATION_SECONDS = 60 * 60  # how long a shared location is used for guide questions
 
@@ -295,7 +296,7 @@ def _detail(r: httpx.Response) -> str:
     return detail if isinstance(detail, str) and detail else f"HTTP {r.status_code}"
 
 
-def _cap(text: str, limit: int = MAX_REPLY) -> str:
+def _cap(text: str, limit: int = MAX_TOTAL) -> str:
     return text if len(text) <= limit else text[: max(limit - 1, 0)] + "…"
 
 
@@ -400,7 +401,7 @@ class Brain:
         if not body:
             return _cap(tail)
         # Cap the body, not the sources: [n] markers must keep their list.
-        return _cap(_cap(body, MAX_REPLY - len(tail) - 2) + "\n\n" + tail)
+        return _cap(_cap(body, MAX_TOTAL - len(tail) - 2) + "\n\n" + tail)
 
     async def reply(self, user: User, text: str) -> str:
         text = text.strip()
@@ -578,7 +579,7 @@ class Brain:
         if told.lang == user.lang:
             body = told.text
             text = (
-                _cap(_cap(body, MAX_REPLY - len(tail) - 2) + "\n\n" + tail) if tail else _cap(body)
+                _cap(_cap(body, MAX_TOTAL - len(tail) - 2) + "\n\n" + tail) if tail else _cap(body)
             )
         else:
             text = await self.say(user, told.text, keep=[told.subject], tail=tail)

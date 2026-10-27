@@ -6,7 +6,7 @@ from ty_contracts import Lang
 
 from app import brain as brain_mod
 from app import translate as translate_mod
-from app.brain import ASKING, HELP, MAX_REPLY, SAMPLE, ApiError, Brain, User, detect_lang, is_trip
+from app.brain import ASKING, HELP, MAX_TOTAL, SAMPLE, ApiError, Brain, User, detect_lang, is_trip
 from app.translate import Translator
 
 ITINERARY = json.loads(SAMPLE.read_text(encoding="utf-8"))["itinerary"]
@@ -55,7 +55,12 @@ def tagging_translate(req: httpx.Request) -> httpx.Response:
     outs = [f"<{body['target']}>{t}" for t in body["texts"]]
     return httpx.Response(
         200,
-        json={"translations": outs, "target": body["target"], "via": [], "flags": [[] for _ in outs]},
+        json={
+            "translations": outs,
+            "target": body["target"],
+            "via": [],
+            "flags": [[] for _ in outs],
+        },
     )
 
 
@@ -140,11 +145,15 @@ async def test_pending_questions_expire(monkeypatch):
     clock = Clock()
     seen = fake_http(
         monkeypatch,
-        lambda req: httpx.Response(
-            200, text=sse({"stage": "needs_input", "message": "q", "questions": ["When?"]})
-        )
-        if req.url.path == "/plan"
-        else httpx.Response(200, json={"text": "Fish curry [1].", "citations": [{"title": "S"}]}),
+        lambda req: (
+            httpx.Response(
+                200, text=sse({"stage": "needs_input", "message": "q", "questions": ["When?"]})
+            )
+            if req.url.path == "/plan"
+            else httpx.Response(
+                200, json={"text": "Fish curry [1].", "citations": [{"title": "S"}]}
+            )
+        ),
     )
     brain = Brain(base=API, clock=clock)
     await brain.handle(text("Plan a trip to Goa"))
@@ -223,7 +232,12 @@ async def test_flagged_translation_stays_english(monkeypatch):
             n = len(json.loads(req.content)["texts"])
             return httpx.Response(
                 200,
-                json={"translations": ["x"] * n, "target": "hi", "via": [], "flags": [["length"]] * n},
+                json={
+                    "translations": ["x"] * n,
+                    "target": "hi",
+                    "via": [],
+                    "flags": [["length"]] * n,
+                },
             )
         return httpx.Response(200, json={"text": "Fish curry.", "lang": "en"})
 
@@ -250,7 +264,11 @@ async def test_location_is_sent_with_emergency_questions(monkeypatch):
     }
     seen = fake_http(monkeypatch, lambda req: httpx.Response(200, json=answer))
     brain = Brain(base=API, clock=clock)
-    loc = {"from": "15550001111", "type": "location", "location": {"latitude": 15.5, "longitude": 73.8}}
+    loc = {
+        "from": "15550001111",
+        "type": "location",
+        "location": {"latitude": 15.5, "longitude": 73.8},
+    }
     assert (await brain.handle(loc)).startswith("Got your location")
     reply = await brain.handle(text("nearest hospital"))
     body = json.loads(seen[0].content)
@@ -295,9 +313,9 @@ async def test_long_lines_are_split_for_translate(monkeypatch):
 
 
 async def test_long_answers_are_capped(monkeypatch):
-    fake_http(monkeypatch, lambda req: httpx.Response(200, json={"text": "x" * 5000}))
+    fake_http(monkeypatch, lambda req: httpx.Response(200, json={"text": "x" * 13000}))
     reply = await Brain(base=API).handle(text("Tell me everything about Hampi"))
-    assert len(reply) == MAX_REPLY
+    assert len(reply) == MAX_TOTAL
 
 
 async def test_plan_error_event_raises(monkeypatch):
@@ -371,10 +389,10 @@ async def test_failed_plan_keeps_the_pending_text(monkeypatch):
 
 
 async def test_long_answer_keeps_its_sources(monkeypatch):
-    answer = {"text": "x" * 5000 + " [1]", "citations": [{"title": "Goan food"}]}
+    answer = {"text": "x" * 13000 + " [1]", "citations": [{"title": "Goan food"}]}
     fake_http(monkeypatch, lambda req: httpx.Response(200, json=answer))
     reply = await Brain(base=API).handle(text("Tell me everything about Goa"))
-    assert len(reply) <= MAX_REPLY and reply.endswith("\n\n[1] Goan food")
+    assert len(reply) <= MAX_TOTAL and reply.endswith("\n\n[1] Goan food")
 
 
 @pytest.mark.parametrize("body", [{"oops": 1}, [], {"translations": ["a"], "flags": []}])

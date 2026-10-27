@@ -12,7 +12,7 @@ from collections import OrderedDict
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import PlainTextResponse
 
-from .brain import Brain
+from .brain import MAX_REPLY, Brain
 from .sender import CloudApiSender, Sender
 
 log = logging.getLogger(__name__)
@@ -51,6 +51,22 @@ def failed_statuses(payload: dict) -> list[str]:
     return out
 
 
+def split(text: str, limit: int = MAX_REPLY) -> list[str]:
+    """WhatsApp-sized parts: break at a blank line, else a line, else a space; never mid-word
+    unless one word is longer than a message."""
+    parts = []
+    while len(text) > limit:
+        for sep in ("\n\n", "\n", " "):
+            cut = text.rfind(sep, 0, limit + 1)
+            if cut > 0:
+                break
+        else:
+            cut = limit
+        parts.append(text[:cut].rstrip())
+        text = text[cut:].lstrip()
+    return [*parts, text] if text or not parts else parts
+
+
 class Seen:
     """Message ids already handled; Meta retries a webhook until it gets a 200."""
 
@@ -85,7 +101,8 @@ def create_app(brain: Brain | None = None, sender: Sender | None = None) -> Fast
         except Exception:
             log.exception("reply failed for a %s message", msg.get("type"))
             reply, audio = SORRY, []
-        await sender.send_text(to, reply)
+        for part in split(reply):
+            await sender.send_text(to, part)
         for url in audio:  # Katha chapters, in order, after their text
             await sender.send_audio(to, url)
 
