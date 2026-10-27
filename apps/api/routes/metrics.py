@@ -2,8 +2,14 @@
 (start, plan shown, booking chosen) per session, and median times per task and
 arm. Session ids are random strings from the browser; no personal data.
 
-Stored in Postgres (table routes_metric_events) when DATABASE_URL is set,
-otherwise in memory (lost on restart; fine for local runs and tests)."""
+Stored in Postgres (table routes_metric_events, at most MAX_PG_ROWS rows; new
+events are refused once full, so collected data is never overwritten) when
+DATABASE_URL is set, otherwise in memory (oldest dropped; lost on restart).
+
+The endpoint is public and unauthenticated by design (a token in the browser
+bundle would be visible to anyone), so it is bounded instead: a body size
+limit, a per-IP rate limit (RATE_PER_MIN events a minute, per instance) and
+the row cap."""
 from __future__ import annotations
 
 import datetime as dt
@@ -11,7 +17,8 @@ import os
 import re
 import statistics
 import threading
-from collections import defaultdict, deque
+import time
+from collections import OrderedDict, defaultdict, deque
 from functools import lru_cache
 from typing import Literal, Protocol
 
@@ -21,6 +28,9 @@ Arm = Literal["ty", "baseline"]
 EventName = Literal["start", "plan_shown", "booking_chosen"]
 MAX_BODY_BYTES = 2048
 MAX_MEMORY_ROWS = 50_000  # oldest dropped first; keeps an unauthenticated endpoint bounded
+MAX_PG_ROWS = 200_000  # a study needs a few thousand; refuse new events past this
+RATE_PER_MIN = 60  # events a minute from one IP
+MAX_TRACKED_IPS = 10_000  # least recently seen IPs are forgotten first
 _PHONE_LIKE = re.compile(r"^\+?\d{10,}$")
 
 
@@ -54,8 +64,12 @@ class TaskSummary(BaseModel):
     median_s_to_booking: float | None
 
 
+class StoreFull(RuntimeError):
+    pass
+
+
 class Store(Protocol):
-    def add(self, e: MetricEvent) -> None: ...
+    def add(self, e: MetricEvent) -> None: ...  # raises StoreFull when at the row cap
     def all(self) -> list[MetricEvent]: ...
 
 
@@ -85,9 +99,10 @@ DDL = """create table if not exists routes_metric_events (
 
 
 class PgStore:
-    def __init__(self, url: str) -> None:
+    def __init__(self, url: str, max_rows: int = MAX_PG_ROWS) -> None:
         self._url = url
         self._ready = False
+        self.max_rows = max_rows
 
     def _conn(self):
         import psycopg
@@ -100,13 +115,56 @@ class PgStore:
 
     def add(self, e: MetricEvent) -> None:
         with self._conn() as conn:
-            conn.execute("insert into routes_metric_events (session_id, task, arm, event, at)"
-                         " values (%s, %s, %s, %s, %s)", (e.session_id, e.task, e.arm, e.event, e.at))
+            cur = conn.execute(
+                "insert into routes_metric_events (session_id, task, arm, event, at)"
+                " select %s, %s, %s, %s, %s where (select count(*) from routes_metric_events) < %s",
+                (e.session_id, e.task, e.arm, e.event, e.at, self.max_rows))
+        if cur.rowcount == 0:
+            raise StoreFull("metrics store is full")
 
     def all(self) -> list[MetricEvent]:
         with self._conn() as conn:
             rows = conn.execute("select session_id, task, arm, event, at from routes_metric_events").fetchall()
         return [MetricEvent(session_id=s, task=t, arm=a, event=ev, at=at) for s, t, a, ev, at in rows]
+
+
+class RateLimiter:
+    """Sliding one-minute window per key (client IP), in memory per instance."""
+
+    def __init__(self, per_min: int = RATE_PER_MIN, max_keys: int = MAX_TRACKED_IPS,
+                 clock=time.monotonic) -> None:
+        self.per_min, self.max_keys, self._clock = per_min, max_keys, clock
+        self._hits: OrderedDict[str, deque[float]] = OrderedDict()
+        self._lock = threading.Lock()
+
+    def allow(self, key: str) -> bool:
+        now = self._clock()
+        with self._lock:
+            hits = self._hits.pop(key, None) or deque()
+            while hits and hits[0] <= now - 60:
+                hits.popleft()
+            ok = len(hits) < self.per_min
+            if ok:
+                hits.append(now)
+            self._hits[key] = hits  # most recent last
+            while len(self._hits) > self.max_keys:
+                self._hits.popitem(last=False)
+            return ok
+
+
+def client_ip(forwarded_for: str | None, peer: str | None) -> str:
+    """Cloud Run appends the caller's address to X-Forwarded-For, so the last
+    entry is the one a client cannot forge; the peer address otherwise."""
+    if forwarded_for:
+        last = forwarded_for.split(",")[-1].strip()
+        if last:
+            return last
+    return peer or "unknown"
+
+
+@lru_cache(maxsize=1)
+def get_limiter() -> RateLimiter:
+    return RateLimiter()
 
 
 def record(store: Store, e: MetricEvent, now: dt.datetime | None = None) -> MetricEvent:

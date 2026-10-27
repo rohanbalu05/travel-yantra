@@ -6,11 +6,17 @@ Multimodal transport graph, Dijkstra and A*, Routes API, SerpApi flights and hot
 
 - `graph.py`: stations, airports and city points joined by rail, road, air and walk edges; offline fakes for road and air.
 - `search.py`: Dijkstra and A* with a time, cost and transfer objective.
-- `roads.py`: road edges from the Google Routes API (`GOOGLE_MAPS_API_KEY`), cached, capped at 100 live calls per process, haversine fallback.
+- `roads.py`: road edges from the Google Routes API (`GOOGLE_MAPS_API_KEY`), cached in the shared store, capped at 100 live calls per process and `ROUTES_MONTHLY_CAP` (default 2000) for all instances, haversine fallback.
+- `apicache.py`: the shared response cache and live-call counters (Postgres tables `routes_api_cache` and `routes_api_calls` when `DATABASE_URL` is set, else the JSON file `ROUTES_CACHE_FILE`, default in the temp dir).
+- `serpapi.py`: SerpApi client (`SERPAPI_API_KEY`): cache first, then one live call if `SERPAPI_DAILY_CAP` (default 20) and `SERPAPI_MONTHLY_CAP` (default 100) allow, then the stale cached answer, then None. Responses are sanitised before caching; a failed call is not retried for 10 minutes.
+- `flights.py`: Google Flights (one way, economy, one adult; cached 6 hours) and booking options (prices by seller).
+- `hotels.py`: Google Hotels (two adults a room; cached 12 hours) and property details (prices by source, top stay only).
+- `sellers.py`: seller registry. Deep links for Booking.com, Airbnb, MakeMyTrip; "Check price" links for Goibibo, Cleartrip, ixigo; SerpApi quotes merged in; unknown sellers get a Google search link.
 - `compare.py`: `POST /routes/compare`.
 - `irctc.py`: `GET /routes/irctc-card` and `GET /routes/pnr-mock` (sample data only; there is no IRCTC API and we never scrape it).
 - `metrics.py`: `POST /routes/metrics/event`, `GET /routes/metrics/summary` (user-study timing).
-- `stays.py`: `rank_stays(...)` for TY1's planner (sample stays until SerpApi Hotels).
+- `stays.py`: `rank_stays(...)` for TY1's planner: Google Hotels when `SERPAPI_API_KEY` is set, else fictional sample stays; every stay has `offers`.
+- `scripts/record_live.py`: the live smoke and fixture recorder (never run by tests; `--no-road` makes no Routes API call).
 
 ## POST /routes/compare
 
@@ -22,7 +28,8 @@ Request:
 ```
 
 Only `origin` and `destination` are required. Cities come from a sample table in
-`compare.py` (`CITIES`, `ALIASES`); an unknown city or the same city twice gives 422.
+`compare.py` (`CITIES`, `ALIASES`; includes Coorg/Madikeri, Hampi and
+Chikmagalur); an unknown city or the same city twice gives 422.
 `rank_by` is `balanced` (time and cost relative to the best, plus a quarter per
 change), `time`, `cost` or `changes`.
 
@@ -32,6 +39,15 @@ is `{id, rank, changes, score, sources, option}`, where `option` is the contract
 `TransportOption`. Legs are one per vehicle, with readable names in `from`/`to`.
 Walk legs use mode `road` (the contract has no walk mode). Costs are for the
 whole party: rail and air per person, road per car of four.
+
+Air: with `SERPAPI_API_KEY` set, each airport pair within 60 km of the two cities
+gets one live flight: of those you can reach (ground transfer plus 60 min at the
+airport after `depart_time`), the best on arrival time plus fare (Rs 10 a
+minute). The flight leg starts 60 min before take-off, so the option may leave
+later than `depart_time`. Estimated connections through other airports are
+dropped; a pair with no live answer keeps its estimate (`fake_air`). The air
+option's `offers[]` lists every seller (prices for the whole party, cheapest
+first). `sources` may include `serpapi_flights`.
 
 In process (no HTTP): `routes.compare.get_service().compare(CompareRequest(...))`.
 
@@ -57,13 +73,18 @@ start|plan_shown|booking_chosen, at?}`. The body is parsed as JSON whatever the
 Content-Type, so `navigator.sendBeacon` (text/plain) works. `session_id` is a
 random id (8-64 of `[A-Za-z0-9_-]`); phone-like ids and extra fields are
 rejected. Stored in Postgres (`routes_metric_events`, created if missing) when
-`DATABASE_URL` is set, else in memory. `GET /routes/metrics/summary` gives,
+`DATABASE_URL` is set (at most 200,000 rows, then 503 and nothing is
+overwritten), else in memory. At most 60 events a minute per client IP (the
+last `X-Forwarded-For` entry), per instance; more get 429. No token: anything
+in the browser bundle is public. `GET /routes/metrics/summary` gives,
 per task and arm, sessions and the median seconds from a session's first
 `start` to its first `plan_shown` and `booking_chosen`.
 
 ## Known limits
 
 - Rail is the sample timetable subset (fictional trains); waits for departures are not modelled, so legs run back to back from `depart_time`.
-- Air is the fake network until SerpApi flights (P2); `offers` is empty until the seller registry lands.
-- Road uses the haversine fake unless `GOOGLE_MAPS_API_KEY` is set. `default_road_provider()` is one shared instance per process: 100 live calls, then haversine. The cap and the 7-day cache are per instance, not shared.
+- Air is the fake network unless `SERPAPI_API_KEY` is set. Live flight booking links need a POST, so seller offers for flights link to each seller's search, not the exact fare.
+- Hotel rates assume two adults a room; the party price is rooms x the room rate. Only the top stay gets per-source prices (one details call); the others show registry links.
+- Road uses the haversine fake unless `GOOGLE_MAPS_API_KEY` is set. Cache and monthly cap are shared through the store; the 100-call cap is per process.
+- The metrics rate limit is per instance, in memory.
 - IRCTC fares are an estimate (class multipliers on a per-km rate), not IRCTC's fare table.

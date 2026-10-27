@@ -24,8 +24,12 @@ from .irctc import (
 from .metrics import (
     MAX_BODY_BYTES,
     MetricEvent,
+    RateLimiter,
     Store,
+    StoreFull,
     TaskSummary,
+    client_ip,
+    get_limiter,
     get_store,
     record,
     summarise,
@@ -66,7 +70,11 @@ def get_pnr_mock(pnr: str = Query(pattern=r"^\d{10}$"), at: dt.datetime | None =
 
 
 @router.post("/metrics/event", status_code=201)
-async def post_metric_event(request: Request, store: Store = Depends(get_store)) -> dict:
+async def post_metric_event(request: Request, store: Store = Depends(get_store),
+                            limiter: RateLimiter = Depends(get_limiter)) -> dict:
+    ip = client_ip(request.headers.get("x-forwarded-for"), request.client.host if request.client else None)
+    if not limiter.allow(ip):
+        raise HTTPException(status_code=429, detail="too many events; try again in a minute")
     # Parse JSON whatever the content type: navigator.sendBeacon sends text/plain.
     body = await request.body()
     if len(body) > MAX_BODY_BYTES:
@@ -77,7 +85,10 @@ async def post_metric_event(request: Request, store: Store = Depends(get_store))
         raise HTTPException(status_code=422, detail="body must be JSON") from exc
     except ValidationError as exc:
         raise RequestValidationError(exc.errors(include_url=False, include_context=False)) from exc
-    record(store, event)
+    try:
+        record(store, event)
+    except StoreFull as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
     return {"ok": True}
 
 
