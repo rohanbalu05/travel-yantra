@@ -1,4 +1,5 @@
 import datetime as dt
+from dataclasses import replace
 
 import pytest
 from fastapi import FastAPI
@@ -10,6 +11,7 @@ from routes.compare import (
     CompareService,
     Found,
     UnknownPlace,
+    at_night,
     get_service,
     rank,
     resolve_city,
@@ -239,3 +241,29 @@ def test_overnight_penalty_rules():
     assert rank([night, other_night], "balanced", 1)[0].option.mode is Mode.rail
     # other rank_by orders are left alone
     assert rank([night, short_day], "cost", 1)[0].option.mode is Mode.rail
+
+
+class _GoaRoads(HaversineRoadProvider):
+    """Haversine, with the drive times the Routes API gives from Panaji to its stations."""
+
+    MINUTES = {"ST:KRMI": 20, "ST:VSG": 45, "ST:DBM": 38}
+
+    def road_edge(self, a, b):
+        e = super().road_edge(a, b)
+        hit = next((self.MINUTES[n] for n in (a.id, b.id) if n in self.MINUTES), None)
+        return e if e is None or hit is None else replace(e, minutes=float(hit))
+
+
+@pytest.mark.parametrize("start", ["06:00", "14:00"])
+def test_goa_rail_is_the_direct_night_train_not_a_change_at_2am(start):
+    # QA #100: with real road times a 01:58 change at Tinai Ghat once hid the direct 17309, so the pick
+    # was the next day's 12:40 arrival; no change of trains happens between midnight and 05:00
+    svc = CompareService(road=_GoaRoads(), live=False)
+    r = svc.compare(CompareRequest(origin="Bengaluru", destination="Goa", date="2026-12-11",
+                                   depart_time=start, modes=["rail"], travellers=4))
+    trains = [leg for leg in r.options[0].option.legs if leg.mode is Mode.rail]
+    assert [(t.ref, t.depart.strftime("%H:%M")) for t in trains] == [("17309", "15:15")]
+    assert not at_night(r.options[0].option)
+    for opt in svc.rail_departures("Bengaluru", "Goa", dt.date(2026, 12, 11), earliest=dt.time(6, 0), limit=30):
+        rails = [leg for leg in opt.legs if leg.mode is Mode.rail]
+        assert all(a.arrive.hour >= 5 and b.depart.hour >= 5 for a, b in zip(rails, rails[1:], strict=False))

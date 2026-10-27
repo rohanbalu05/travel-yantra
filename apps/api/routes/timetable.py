@@ -93,11 +93,14 @@ class Timetable:
         return out
 
     def earliest(self, access: dict[str, int], egress: dict[str, int], t0: int,
-                 horizon: int = HORIZON_MIN) -> tuple[list[tuple[int, int, Conn]], int] | None:
+                 horizon: int = HORIZON_MIN, night_end: int | None = None) -> tuple[list[tuple[int, int, Conn]], int] | None:
         """Connection scan. access: station -> minute you can board there (from the
         travel day's midnight); egress: station -> minutes on to the destination.
+        night_end: no change of trains (getting off to change, or boarding the next
+        train) from midnight to this minute of the day; None allows any.
         Returns the rides as (board index, alight index, ...) resolved to
         [(dep, arr, conn) per ride], and the arrival at the destination."""
+        night = (lambda m: m % 1440 < night_end) if night_end else (lambda m: False)
         conns = self._window(t0, horizon)
         reach = dict(access)  # station -> earliest time you can board a train there
         boarded: dict[tuple[str, int], int] = {}  # (train, run) -> index of the boarding connection
@@ -110,8 +113,10 @@ class Timetable:
             if trip not in boarded:
                 if reach.get(c.a, 1 << 30) > dep:
                     continue
+                if night(dep) and not access.get(c.a, 1 << 30) <= dep:
+                    continue  # a change onto this train in the night
                 boarded[trip] = i
-            if arr + CHANGE_MIN < reach.get(c.b, 1 << 30):
+            if not night(arr) and arr + CHANGE_MIN < reach.get(c.b, 1 << 30):
                 reach[c.b] = arr + CHANGE_MIN
                 came[c.b] = (boarded[trip], i)
             if c.b in egress and (best is None or arr + egress[c.b] < best):
@@ -133,10 +138,10 @@ class Timetable:
         return [(b[0], a[1], b[2], a[2]) for b, a in rides], best
 
     def journey(self, access: dict[str, int], egress: dict[str, int], day: dt.date, start: dt.time,
-                horizon: int = HORIZON_MIN) -> Journey | None:
+                horizon: int = HORIZON_MIN, night_end: int | None = None) -> Journey | None:
         midnight = dt.datetime.combine(day, dt.time())
         t0 = start.hour * 60 + start.minute
-        found = self.earliest(access, egress, t0, horizon)
+        found = self.earliest(access, egress, t0, horizon, night_end)
         if found is None:
             return None
         rides = []

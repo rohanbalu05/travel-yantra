@@ -220,7 +220,8 @@ class CompareService:
         board = {c: t0 + round(e.minutes) + BOARD_MIN for c, e in access.items()}
         # stay on the train to the station nearest the destination rather than race a cab from an earlier stop
         off = {c: round(e.minutes * (EGRESS_WEIGHT if e.mode == "road" else 1)) for c, e in egress.items()}
-        j = self.timetable.journey(board, off, start.date(), start.time()) if board and off else None
+        j = (self.timetable.journey(board, off, start.date(), start.time(), night_end=NIGHT_END_HOUR * 60)
+             if board and off else None)
         if j is None:
             return None
         # a first hop to a station you could reach by road anyway is just an early start
