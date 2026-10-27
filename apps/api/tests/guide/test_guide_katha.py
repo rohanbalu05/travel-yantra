@@ -303,3 +303,18 @@ def test_a_trim_that_misses_the_band_is_never_shipped() -> None:
     with pytest.raises(KathaFailed) as e:
         asyncio.run(write(LongWinded(trims=False), subject, 2, long_facts()))
     assert any("length" in p for p in e.value.problems)
+
+
+def test_cache_key_hashes_exactly_its_logged_inputs() -> None:
+    import hashlib
+
+    from guide.katha import PIPELINE_VERSION, cache_key, key_inputs
+
+    req = KathaRequest(subject_kind="place", subject="mysore palace ", length_min=2)
+    inputs = key_inputs(req, "Mysore Palace", [3, 1])
+    assert inputs == [PIPELINE_VERSION, "place", "Mysore Palace", 2, [3, 1]]
+    assert cache_key(req, "Mysore Palace", [3, 1]) == hashlib.sha256(
+        json.dumps(inputs, sort_keys=True).encode()).hexdigest()  # fmt: skip
+    # the request's spelling never reaches the key; the resolved name does
+    other = KathaRequest(subject_kind="place", subject="Mysore Palace", length_min=2)
+    assert cache_key(other, "Mysore Palace", [3, 1]) == cache_key(req, "Mysore Palace", [3, 1])

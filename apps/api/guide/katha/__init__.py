@@ -27,9 +27,13 @@ def katha_model() -> Any:
     return get_model()
 
 
+def key_inputs(req: KathaRequest, subject_name: str, chunk_ids: list[int]) -> list:
+    """What the cache key hashes; kept in katha_cache.notes so two keys can be compared."""
+    return [PIPELINE_VERSION, req.subject_kind, subject_name, req.length_min, chunk_ids]
+
+
 def cache_key(req: KathaRequest, subject_name: str, chunk_ids: list[int]) -> str:
-    raw = json.dumps([PIPELINE_VERSION, req.subject_kind, subject_name, req.length_min,
-                      chunk_ids], sort_keys=True)  # fmt: skip
+    raw = json.dumps(key_inputs(req, subject_name, chunk_ids), sort_keys=True)
     # No lang yet: every story is written in English, so one cached copy serves all.
     return hashlib.sha256(raw.encode()).hexdigest()
 
@@ -46,6 +50,7 @@ async def katha(req: KathaRequest, db: Any, model: Any) -> KathaStory:
     db.execute(
         "INSERT INTO katha_cache (key, story, notes) VALUES (%s, %s::jsonb, %s::jsonb) "
         "ON CONFLICT (key) DO NOTHING",
-        (key, story.model_dump_json(), json.dumps(notes)),
+        (key, story.model_dump_json(), json.dumps(notes | {"key_inputs": key_inputs(
+            req, subject.name, [f.chunk_id for f in facts])})),  # fmt: skip
     )
     return story
