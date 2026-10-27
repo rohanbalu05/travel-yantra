@@ -73,6 +73,9 @@ def main() -> None:
         except v.BudgetSpent as e:
             print(f"stop: {e}")
             break
+        except RuntimeError as e:  # TTS or upload failed for this story: the others still run,
+            print(f"FAILED {spec}: {e}")  # and a re-run resumes it from the chapters stored
+            continue
         line = f"{story.subject} {story.length_min}min {story.lang} {chosen} {len(audio)} chapters {sent} chars"
         print(line)
         with (OUT / "calls.log").open("a", encoding="utf-8") as f:

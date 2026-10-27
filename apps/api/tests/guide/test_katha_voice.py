@@ -43,7 +43,11 @@ class MemoryStorage:
     def get(self, name):
         return self.objects.get(name)
 
+    def exists(self, name):
+        return f"https://example.org/bucket/{name}" if name in self.objects else None
+
     def put(self, name, data, content_type):
+        assert name not in self.objects, "objectCreator cannot overwrite"
         self.objects[name] = data
         return f"https://example.org/bucket/{name}"
 
@@ -114,7 +118,9 @@ def test_attach_reads_the_manifest_and_never_fails(monkeypatch):
     seen = []
     got = v.attach(s, fetch=lambda url: seen.append(url) or json.dumps(manifest).encode())
     assert seen == [f"https://example.org/bucket/{v.prefix(s)}/audio.json"] and got[0].characters == 120
+    v._seen.clear()
     assert v.attach(s, fetch=lambda url: None) == []
+    v._seen.clear()
 
     def broken(url):
         raise OSError("sample: network down")
@@ -166,6 +172,7 @@ def test_the_endpoint_attaches_stored_audio(monkeypatch):
     req = KathaRequest(subject_kind="place", subject="Mysore Palace", length_min=2)
     out = asyncio.run(guide.post_katha(req, db=None, model=None))
     assert [a.url for a in out.audio] == ["https://example.org/bucket/ch1.mp3"] and out.text == s.text
+    v._seen.clear()
     monkeypatch.setattr(v, "_fetch", lambda url: None)  # not read aloud yet
     assert asyncio.run(guide.post_katha(req, db=None, model=None)).audio == []
 
@@ -197,3 +204,46 @@ def test_a_freshly_enabled_api_is_retried_and_billed_once(monkeypatch):
     assert mp3 == b"One line." and budget.used == len("One line.")
     status, _ = v._with_retry(lambda *a: (403, b"denied: no permission"), "GET", "u", None, None, {})
     assert status == 403  # a real permission error is not retried
+
+
+@pytest.fixture(autouse=True)
+def fresh_manifest_cache(monkeypatch):
+    monkeypatch.setattr(v, "_seen", {})
+
+
+def test_a_run_that_died_resumes_without_reading_stored_chapters_again():
+    http, store = FakeHttp(), MemoryStorage()
+    s = story(length=5, paras=4, words=30)
+    groups = v.chapters(s)
+    first = v.characters(v.requests_for(groups[0], True, last=False))
+    with pytest.raises(v.BudgetSpent):  # enough for chapter 1, not chapter 2
+        v.read_aloud(s, "en-IN-Chirp3-HD-Charon", http, store, v.Budget(first + 5))
+    assert set(store.objects) == {f"{v.prefix(s)}/ch1.mp3"}
+    calls = len(http.synth())
+    audio, sent = v.read_aloud(s, "en-IN-Chirp3-HD-Charon", http, store, v.Budget(100_000))
+    assert [a.chapter for a in audio] == [1, 2] and audio[0].characters == first
+    assert sent == audio[1].characters  # only chapter 2 was read and billed
+    assert len(http.synth()) == calls + 1 and f"{v.prefix(s)}/audio.json" in store.objects
+
+
+def test_an_endless_sentence_is_cut_at_spaces_under_the_limit():
+    endless = " ".join(["मैसूर"] * 1200)  # ~19,000 bytes, no full stop
+    inputs = v.requests_for([endless], chirp=True, last=True)
+    assert len(inputs) >= 4 and all(len(i["markup"].encode()) <= v.MAX_BYTES for i in inputs)
+    escaped = v.requests_for(["a & b " * 900], chirp=False, last=True)  # grows when escaped
+    assert all(len(i["ssml"].encode()) <= v.MAX_BYTES for i in escaped)
+
+
+def test_manifest_lookups_are_remembered():
+    import os
+
+    os.environ["KATHA_AUDIO_BASE_URL"] = "https://example.org/bucket"
+    try:
+        seen = []
+        manifest = json.dumps([{"chapter": 1, "url": "u", "voice": "x", "characters": 1}]).encode()
+        s = story()
+        assert v.attach(s, fetch=lambda u: seen.append(u) or manifest)
+        assert v.attach(s, fetch=lambda u: seen.append(u) or manifest)
+        assert len(seen) == 1
+    finally:
+        del os.environ["KATHA_AUDIO_BASE_URL"]

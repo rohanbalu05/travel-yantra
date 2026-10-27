@@ -23,6 +23,7 @@ import re
 import time
 from collections.abc import Callable
 from typing import Any, Protocol
+from urllib.parse import quote
 
 from ty_contracts import KathaAudio, KathaStory
 
@@ -61,6 +62,7 @@ class Budget:
 
 class Storage(Protocol):
     def get(self, name: str) -> bytes | None: ...
+    def exists(self, name: str) -> str | None: ...  # the object's URL, or None
     def put(self, name: str, data: bytes, content_type: str) -> str: ...
 
 
@@ -86,21 +88,27 @@ def adc_http() -> Http:
 
 
 class GcsStorage:
-    """A bucket over the JSON API; objects are read back through their public URL."""
+    """A bucket over the JSON API. Objects are read back through their public URL, so the
+    bucket must be public-read by name (TY6's katha-audio bucket is); otherwise nothing
+    looks stored and a re-run would try to write again (and objectCreator refuses that)."""
 
     def __init__(self, bucket: str, http: Http, base_url: str | None = None):
         self.bucket, self.http = bucket, http
         self.base = (base_url or f"https://storage.googleapis.com/{bucket}").rstrip("/")
 
     def url(self, name: str) -> str:
-        return f"{self.base}/{name}"
+        return f"{self.base}/{quote(name)}"
 
     def get(self, name):
         status, body = self.http("GET", self.url(name), None, None, {})
         return body if status == 200 else None
 
+    def exists(self, name):
+        status, _ = self.http("HEAD", self.url(name), None, None, {})
+        return self.url(name) if status == 200 else None
+
     def put(self, name, data, content_type):
-        url = GCS_UPLOAD.format(bucket=self.bucket) + f"?uploadType=media&name={name}"
+        url = GCS_UPLOAD.format(bucket=self.bucket) + f"?uploadType=media&name={quote(name, safe='')}"
         status, body = self.http("POST", url, None, data, {"Content-Type": content_type})
         if status != 200:
             raise RuntimeError(f"upload {name}: HTTP {status} {body[:200]!r}")
@@ -168,16 +176,18 @@ def requests_for(paras: list[str], chirp: bool, *, last: bool) -> list[dict]:
     """TTS inputs for one chapter, each under MAX_BYTES, paragraphs never split unless a
     single one is too long (then at sentence ends). Pauses: short between paragraphs,
     long at the chapter's end."""
+    limit = MAX_BYTES - 40  # room for the joiner, the closing pause and <speak></speak>
     pieces: list[str] = []
     for p in paras:
-        if len(p.encode()) <= MAX_BYTES - 40:
+        p = p if chirp else _xml(p)  # measure what is sent, escapes included
+        if len(p.encode()) <= limit:
             pieces.append(p)
-        else:
-            pieces += [s for s in re.split(r"(?<=[.!?।])\s+", p) if s]
+            continue
+        for s in (s for s in re.split(r"(?<=[.!?।])\s+", p) if s):
+            pieces += _hard_split(s, limit)
     joiner, end = ("\n[pause]\n", "\n[pause long]") if chirp else ('<break time="700ms"/>', '<break time="1800ms"/>')
     out, cur = [], ""
     for piece in pieces:
-        piece = piece if chirp else _xml(piece)
         cand = f"{cur}{joiner}{piece}" if cur else piece
         if len(cand.encode()) + 40 > MAX_BYTES and cur:
             out.append(cur)
@@ -186,6 +196,20 @@ def requests_for(paras: list[str], chirp: bool, *, last: bool) -> list[dict]:
     if cur:
         out.append(cur + ("" if last else end))
     return [{"markup": t} if chirp else {"ssml": f"<speak>{t}</speak>"} for t in out]
+
+
+def _hard_split(sentence: str, limit: int) -> list[str]:
+    """A sentence too long for one request, cut at spaces (never inside a word or an escape)."""
+    if len(sentence.encode()) <= limit:
+        return [sentence]
+    out, cur = [], ""
+    for word in sentence.split(" "):
+        cand = f"{cur} {word}" if cur else word
+        if len(cand.encode()) > limit and cur:
+            out.append(cur)
+            cand = word
+        cur = cand
+    return [*out, cur] if cur else out
 
 
 def _xml(text: str) -> str:
@@ -230,19 +254,22 @@ def read_aloud(
     budget: Budget,
     starts: list[int] | None = None,
 ) -> tuple[list[KathaAudio], int]:
-    """(the chapters' audio, characters sent now). Audio already stored costs nothing."""
+    """(the chapters' audio, characters sent now). Audio already stored costs nothing, and
+    a run that died part-way resumes: a chapter whose MP3 is already there is not read
+    again (its characters are recomputed from the same inputs, not billed)."""
     where = prefix(story)
     if (manifest := storage.get(f"{where}/audio.json")) is not None:
         return [KathaAudio(**a) for a in json.loads(manifest)], 0
     chirp, groups, out, sent = "-Chirp3-HD-" in voice, chapters(story, starts), [], 0
     for n, paras in enumerate(groups, start=1):
         inputs = requests_for(paras, chirp, last=n == len(groups))
-        mp3 = synthesize(http, inputs, voice, story.lang, budget)
-        chars = characters(inputs)
-        url = storage.put(f"{where}/ch{n}.mp3", mp3, "audio/mpeg")
+        chars, name = characters(inputs), f"{where}/ch{n}.mp3"
+        if not (url := storage.exists(name)):
+            mp3 = synthesize(http, inputs, voice, story.lang, budget)
+            url = storage.put(name, mp3, "audio/mpeg")
+            sent += chars
+            log.warning("katha audio: %s %s ch%d %d chars", story.subject, story.lang, n, chars)
         out.append(KathaAudio(chapter=n, url=url, voice=voice, characters=chars))
-        sent += chars
-        log.warning("katha audio: %s %s ch%d %d chars", story.subject, story.lang, n, chars)
     storage.put(f"{where}/audio.json", json.dumps([a.model_dump() for a in out]).encode(),
                 "application/json")  # fmt: skip
     return out, sent
@@ -254,12 +281,23 @@ def attach(story: KathaStory, fetch: Callable[[str], Any] | None = None) -> list
     base = os.environ.get("KATHA_AUDIO_BASE_URL")
     if not base:
         return []
+    url = f"{base.rstrip('/')}/{prefix(story)}/audio.json"
+    if (hit := _seen.get(url)) and hit[0] > time.monotonic():
+        return hit[1]
     try:
-        raw = (fetch or _fetch)(f"{base.rstrip('/')}/{prefix(story)}/audio.json")
-        return [KathaAudio(**a) for a in json.loads(raw)] if raw else []
+        raw = (fetch or _fetch)(url)
+        audio = [KathaAudio(**a) for a in json.loads(raw)] if raw else []
     except Exception:
         log.warning("katha audio manifest unreadable for %s", story.subject, exc_info=True)
-        return []
+        return []  # not remembered: the next request tries again
+    _seen[url] = (time.monotonic() + (SEEN_TTL_S if audio else MISS_TTL_S), audio)
+    return audio
+
+
+#: Manifest lookups remembered per instance: audio once stored never changes (the key is
+#: the story's text), and a story not yet read aloud is asked about again after a while.
+SEEN_TTL_S, MISS_TTL_S = 3600, 120
+_seen: dict[str, tuple[float, list[KathaAudio]]] = {}
 
 
 def _fetch(url: str) -> bytes | None:
