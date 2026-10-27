@@ -4,7 +4,7 @@ import httpx
 import pytest
 from test_brain import ITINERARY, done, fake_http, sse, text
 
-from app.brain import EXPIRED, PLANNING, WHICH_DAY, Brain, parse_followup
+from app.brain import EXPIRED, NO_PLAN, PLANNING, WHICH_DAY, Brain, parse_followup
 
 API = "http://api.test"
 STOPS = [p for d in ITINERARY["days"] for p in d["stops"]]
@@ -133,9 +133,20 @@ async def test_revise_422_detail_is_shown(monkeypatch):
     assert await brain.handle(text("rain day 1")) == "stop not in plan"
 
 
-async def test_followups_only_after_a_plan(monkeypatch):
+@pytest.mark.parametrize(
+    "msg", ["share", "rain day 2", "make day 2 lighter", "swap Miramar", "extra day in Coorg"]
+)
+async def test_followups_without_a_plan_ask_for_a_trip(monkeypatch, msg):
+    # WA-35: no guide call, no revise call
     seen = fake_http(monkeypatch, lambda req: httpx.Response(200, json={"text": "Here."}))
-    await Brain(base=API).handle(text("share"))
+    assert await Brain(base=API).handle(text(msg)) == NO_PLAN
+    assert seen == []
+
+
+@pytest.mark.parametrize("msg", ["change my dates to 12 Dec", "is it raining in Goa?"])
+async def test_questions_without_a_plan_still_go_to_the_guide(monkeypatch, msg):
+    seen = fake_http(monkeypatch, lambda req: httpx.Response(200, json={"text": "Here."}))
+    assert await Brain(base=API).handle(text(msg)) == "Here."
     assert seen[0].url.path == "/guide/ask"
 
 

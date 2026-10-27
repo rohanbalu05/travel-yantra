@@ -179,6 +179,10 @@ DAY_N = re.compile(
 )
 NEXT = "Reply share for a link, or: lighter day 2 · rain day 3 · swap <place>"
 NEXT_KEEP = ["share", "lighter day 2", "rain day 3", "swap <place>"]
+NO_PLAN = (
+    "You have no plan yet. Send your trip first, for example: "
+    "Plan Bengaluru to Mysuru, 31 Oct to 1 Nov, 2 of us"
+)
 EXPIRED = "That plan has expired. Send your trip again and I will plan it afresh."
 WHICH_DAY = "Which day? For example: lighter day 2"
 
@@ -426,12 +430,16 @@ class Brain:
         if story := parse_story(text):
             log.info("route: story (%d min, lang %s)", story[1], (story[2] or user.lang).value)
             return await self.story(user, *story)
-        follow = parse_followup(text) if user.itinerary is not None else None
+        follow = parse_followup(text)
         if follow and follow[0] == "swap_stop" and not text.lower().lstrip().startswith("swap"):
             # "change my dates", "replace the hotel": a swap only if it names a stop in the plan
-            stops = [p.name.casefold() for d in user.itinerary.days for p in d.stops]
+            its = user.itinerary.days if user.itinerary is not None else []
+            stops = [p.name.casefold() for d in its for p in d.stops]
             if not any(follow[2] and follow[2].casefold() in s for s in stops):
                 follow = None
+        if follow and user.itinerary is None:
+            log.info("route: follow-up %s without a plan", follow[0])
+            return await self.say(user, NO_PLAN)
         if follow:
             log.info("route: follow-up %s", follow[0])
             return await self.followup(user, *follow)
