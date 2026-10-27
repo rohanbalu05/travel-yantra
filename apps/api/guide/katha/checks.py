@@ -62,7 +62,8 @@ _COMMON_ADJ = {
 }  # fmt: skip
 #: A citation: [3], or several in one bracket the way the model writes them: [1, 17],
 #: [7, 11, 12], [3-5], [3–5]. Adjacent brackets ([2][3]) are separate matches.
-MARKER = re.compile(r"\[(\d+(?:\s*[,–-]\s*\d+)*)\]")
+#: One or two digits: facts cap at 24, so "[1990-1995]" or "[1897]" is prose, not a citation.
+MARKER = re.compile(r"\[(\d{1,2}(?:\s*[,–-]\s*\d{1,2})*)\]")
 _RANGE_MAX = 10  # a "range" wider than this is two numbers joined by mistake, not a span
 
 

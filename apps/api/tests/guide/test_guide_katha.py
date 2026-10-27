@@ -416,3 +416,8 @@ def test_lang_sample_facts_come_from_the_seed_in_story_order() -> None:
     assert subject.city == "Mysuru" and 2 <= len(facts) <= CAP[2]
     assert [f.n for f in facts] == list(range(1, len(facts) + 1))
     assert not any("ticket" in (f.title or "").lower() for f in facts)  # practical rows left out
+
+
+def test_a_bracketed_year_range_is_prose_not_a_citation() -> None:
+    assert checks.citations("Built between [1990-1995] by the city [2].") == [2]
+    assert checks.problems([("history", " ".join(["word"] * 250) + " in [1897] [1].")], 1, 2) == []
