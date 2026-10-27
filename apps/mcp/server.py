@@ -38,10 +38,19 @@ SAMPLE_PLAN_ID = "sample-goa"
 
 
 class PlannedTrip(BaseModel):
-    """A plan and its id; pass plan_id to revise_trip (ids last until the API restarts)."""
+    """A plan and its id; pass plan_id to revise_trip. share_url is a read-only link to it."""
 
     plan_id: str | None
     itinerary: Itinerary
+    share_url: str | None = None
+
+
+def share_url(token: str | None) -> str | None:
+    """TY4's web page {SHARE_BASE_URL}/t/{token}/, else the API's JSON for the same plan."""
+    if not token:
+        return None
+    web = os.environ.get("SHARE_BASE_URL", "").rstrip("/")
+    return f"{web}/t/{quote(token, safe='')}/" if web else f"{_base()}/trips/{quote(token, safe='')}"
 
 
 mcp = FastMCP("travel-yantra", host="0.0.0.0", port=int(os.environ.get("PORT", "8080")))
@@ -82,7 +91,7 @@ def _raise_for_detail(resp: httpx.Response) -> None:
 
 
 async def _stream_plan(path: str, body: Any) -> PlannedTrip:
-    final, plan_id = None, None
+    final, plan_id, token = None, None, None
     async with (
         httpx.AsyncClient(timeout=120) as client,
         client.stream("POST", f"{_base()}{path}", json=body) as resp,
@@ -101,11 +110,11 @@ async def _stream_plan(path: str, body: Any) -> PlannedTrip:
             if event.partial is not None:
                 final = event.partial
             if event.stage == PlanStage.done:
-                plan_id = event.plan_id
+                plan_id, token = event.plan_id, event.share_token
                 break
     if final is None:
         raise RuntimeError("plan finished without an itinerary")
-    return PlannedTrip(plan_id=plan_id, itinerary=final)
+    return PlannedTrip(plan_id=plan_id, itinerary=final, share_url=share_url(token))
 
 
 @mcp.tool()

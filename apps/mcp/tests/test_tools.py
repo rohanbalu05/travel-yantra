@@ -286,3 +286,31 @@ async def test_revise_422_messages_are_joined(monkeypatch):
     async with connect(server.mcp._mcp_server) as client:
         res = await client.call_tool("revise_trip", CALLS["revise_trip"])
     assert res.isError and "lighter_day needs day; day not in plan" in res.content[0].text
+
+
+def _sse_shared(itinerary):
+    done = {
+        "stage": "done",
+        "message": "d",
+        "partial": itinerary,
+        "plan_id": "p2",
+        "share_token": "s 2",
+    }
+    return "data: " + json.dumps(done) + "\n\n"
+
+
+async def test_plan_trip_returns_web_share_url(monkeypatch):
+    monkeypatch.setenv("SHARE_BASE_URL", "https://web.example/")
+    _fake_api(monkeypatch, lambda req: httpx.Response(200, text=_sse_shared(SAMPLE)))
+    out = await _call("plan_trip")
+    assert out["share_url"] == "https://web.example/t/s%202/"
+
+
+async def test_revise_share_url_falls_back_to_api_json(monkeypatch):
+    _fake_api(monkeypatch, lambda req: httpx.Response(200, text=_sse_shared(SAMPLE)))
+    out = await _call("revise_trip")
+    assert out["share_url"] == "http://api.test/trips/s%202"
+
+
+async def test_offline_plan_has_no_share_url(monkeypatch):
+    assert (await _call("plan_trip"))["share_url"] is None

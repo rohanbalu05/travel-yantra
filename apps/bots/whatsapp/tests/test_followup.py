@@ -154,3 +154,23 @@ async def test_needs_input_echoes_the_draft(monkeypatch):
     reply = await Brain(base=API).handle(text("Plan Bengaluru to Goa for 4"))
     assert reply.split("\n")[0] == "So far: Goa from Bengaluru, 4 travellers"
     assert reply.endswith("- Which dates?")
+
+
+@pytest.mark.parametrize("msg", ["change my dates to 12 Dec", "replace the hotel"])
+async def test_loose_swap_words_without_a_stop_are_not_a_swap(monkeypatch, msg):
+    plan = plan_then()
+
+    def handler(req):
+        if req.url.path == "/guide/ask":
+            return httpx.Response(200, json={"text": "Guide reply."})
+        return plan(req)
+
+    brain, seen = await planned(monkeypatch, handler)
+    assert await brain.handle(text(msg)) == "Guide reply."
+    assert seen[-1].url.path == "/guide/ask"
+
+
+async def test_replace_with_a_real_stop_is_a_swap(monkeypatch):
+    brain, seen = await planned(monkeypatch, plan_then())
+    await brain.handle(text(f"replace {STOPS[0]['name']}"))
+    assert seen[-1].url.path == "/plan/p1/revise"

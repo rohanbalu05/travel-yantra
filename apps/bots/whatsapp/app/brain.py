@@ -270,7 +270,13 @@ class Brain:
         if text.lower() in CANCEL:
             user.pending = None
             return await self.say(user, HELP)
-        if user.itinerary is not None and (follow := parse_followup(text)):
+        follow = parse_followup(text) if user.itinerary is not None else None
+        if follow and follow[0] == "swap_stop" and not text.lower().lstrip().startswith("swap"):
+            # "change my dates", "replace the hotel": a swap only if it names a stop in the plan
+            stops = [p.name.casefold() for d in user.itinerary.days for p in d.stops]
+            if not any(follow[2] and follow[2].casefold() in s for s in stops):
+                follow = None
+        if follow:
             return await self.followup(user, *follow)
         if is_trip(text):
             return await self.trip(user, text)  # a fresh trip replaces any open questions

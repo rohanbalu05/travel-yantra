@@ -150,4 +150,6 @@ class GeminiTranslator:
             or not all(isinstance(o, str) for o in out)
         ):
             raise ValueError(f"gemini returned {type(out).__name__} for {len(texts)} texts")
+        # Lost XQnZ tokens and [n] markers are not checked here: TranslationService.restore flags a
+        # lost entity, the clients drop a reply whose markers changed, and QA falls back to English.
         return [normalise(o, target) for o in out]

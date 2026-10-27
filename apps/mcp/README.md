@@ -4,9 +4,9 @@ FastMCP server over streamable HTTP at `/mcp`. Six tools:
 
 | Tool | API call | Returns |
 | --- | --- | --- |
-| `plan_trip(request)` | `POST /plan` (SSE PlanEvents) | `{plan_id, itinerary}` |
+| `plan_trip(request)` | `POST /plan` (SSE PlanEvents) | `{plan_id, itinerary, share_url}` |
 | `compare_transport(origin, destination, on?, rank_by, travellers)` | `POST /routes/compare` | `CompareResponse` |
-| `revise_trip(plan_id, intent, day?, place_id?, lang)` | `POST /plan/{id}/revise` (SSE) | `{plan_id, itinerary}` |
+| `revise_trip(plan_id, intent, day?, place_id?, lang)` | `POST /plan/{id}/revise` (SSE) | `{plan_id, itinerary, share_url}` |
 | `get_katha(subject, subject_kind, length_min, lang, places?)` | `POST /guide/katha` | `KathaStory` |
 | `ask_guide(question, lang, lat?, lng?)` | `POST /guide/ask` | `GuideAnswer` |
 | `track_booking(pnr)` | `GET /routes/pnr-mock` | PNR timeline (mock) |
