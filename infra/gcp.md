@@ -98,10 +98,46 @@ Not deployed yet:
 - ty-bots, ty-mcp: P2.
 - ty-translate: waiting on HQ's IndicTrans2 or Gemini decision.
 
+More services (P2):
+
+| Service | Runtime SA | Memory | Public |
+| --- | --- | --- | --- |
+| ty-translate | ty-translate-run (aiplatform.user) | 512 MiB | no; run.invoker for ty-bots-run and ty-mcp-run |
+| ty-bots | ty-bots-run (reads the WHATSAPP_* secrets) | 512 MiB | needed for Meta's webhook (Rohan's grant) |
+| ty-mcp | ty-mcp-run (no roles) | 512 MiB | no (pending HQ) |
+
+ty-api now runs with 2 GiB, `EMBEDDER=e5` and the Cloud SQL connector, and
+mounts `DATABASE_URL`.
+
+Corpus load: Cloud Run job `ty-load-seed` runs the ty-api image with
+`python -m guide.scripts.load_seed`. It runs as ty-api-run with the same
+secret and connector, so the DB password never leaves Google Cloud:
+`gcloud run jobs update ty-load-seed --image <new ty-api image>` then
+`gcloud run jobs execute ty-load-seed --wait`.
+
 ## Cloud SQL
 
-Not created. It waits for Rohan's yes on the proposal: ty-pg, Postgres 16,
-Enterprise, db-f1-micro, 10 GB HDD, zonal.
+Approved by Rohan (V3-V).
+
+- Instance `ty-pg`: Postgres 16, Enterprise, db-f1-micro, 10 GB HDD, no
+  auto-increase, zonal, asia-south1. Backups at 20:30 UTC, keeping 7.
+- Connection name `project-cea09bbb-b5f7-4fc4-95b:asia-south1:ty-pg`.
+- Network: public IP with no authorized networks; TLS required. It's
+  reachable only through the Cloud SQL connector or Auth Proxy, with IAM.
+- Database `travelyantra`, user `ty` (cloudsqlsuperuser, so the guide
+  migration can `create extension vector`).
+- The password is in `TY_DB_PASSWORD`, and `DATABASE_URL` is
+  `postgresql://ty:…@/travelyantra?host=/cloudsql/<connection name>`. Both
+  were generated in the shell and never printed.
+
+## Monitoring
+
+`infra/monitoring/setup.sh`:
+- Uptime checks `ty-api-health` (`/health`) and `ty-web-home` (`/`), every
+  minute from asia-pacific, europe and usa-oregon, 10 s timeout.
+- Dashboard "Travel Yantra latency (O3)" (`latency-dashboard.json`): p95
+  per service against 3 s, uptime latency and pass rate, requests by class,
+  instances.
 
 ## Budget
 
