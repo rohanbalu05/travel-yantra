@@ -8,7 +8,7 @@ import type { Lang, TripDraft } from "@/lib/contracts";
 import { LANGS, useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { savePlanInput } from "@/lib/plan";
-import { FOODS, INTERESTS, PACES, formFromDraft, formProblems, goaForm, toTripRequest, type TripForm } from "@/lib/tripForm";
+import { FOODS, INTERESTS, PACES, destinationsOf, formFromDraft, formProblems, goaForm, splitOf, toTripRequest, tripDays, type TripForm } from "@/lib/tripForm";
 import "../plan.css";
 
 const PLAN_LANGS: [Lang, string][] = LANGS.map((l) => [l.code, l.native]);
@@ -41,6 +41,8 @@ function PlanStart() {
   const [tried, setTried] = useState(false);
 
   const set = <K extends keyof TripForm>(k: K, v: TripForm[K]) => setForm((f) => ({ ...f, [k]: v }));
+  const cities = destinationsOf(form);
+  const split = splitOf(form);
   const problems = mode === "form" ? formProblems(form) : text.trim().length < 1 ? ["Tell us about the trip first."] : text.length > 4000 ? ["Keep it under 4,000 characters."] : [];
 
   const submit = () => {
@@ -122,6 +124,26 @@ function PlanStart() {
                 <div className="field"><label htmlFor="start">First day</label><input className="input" id="start" type="date" value={form.start} onChange={(e) => set("start", e.target.value)} /></div>
                 <div className="field"><label htmlFor="end">Last day</label><input className="input" id="end" type="date" value={form.end} min={form.start} onChange={(e) => set("end", e.target.value)} /></div>
               </div>
+              {cities.length > 1 && tripDays(form) > 0 && (
+                <div className="field">
+                  <span className="label">{t("Days in each city")}</span>
+                  {cities.map((c, i) => (
+                    <div className="stepper" key={`${c}-${i}`}>
+                      <div><b>{c}</b></div>
+                      <div className="step-ctl">
+                        <button type="button" className="iconbtn round" aria-label={`One day less in ${c}`} disabled={split[i] < 1} onClick={() => set("split", split.map((d, j) => (j === i ? d - 1 : d)))}>
+                          <svg className="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12" /></svg>
+                        </button>
+                        <output aria-label={`Days in ${c}`}>{split[i]}</output>
+                        <button type="button" className="iconbtn round" aria-label={`One day more in ${c}`} onClick={() => set("split", split.map((d, j) => (j === i ? d + 1 : d)))}>
+                          <svg className="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12" /><path d="M12 6v12" /></svg>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  <span className="hint">{split.reduce((a, b) => a + b, 0)} {t("of")} {tripDays(form)} {t("days")}</span>
+                </div>
+              )}
             </section>
 
             <section className="panel panel-pad fsec" aria-labelledby="f2">

@@ -4,7 +4,7 @@ import { GOA_ITINERARY, goaEvents, revisedItinerary } from "@/lib/mockPlan";
 import { PlanHttpError, streamPlan, streamRevise } from "@/lib/plan";
 import { initialPlanState, planReducer } from "@/lib/planState";
 import { dayRows, pickIndex, tripCost } from "@/lib/planView";
-import { formFromDraft, formProblems, goaForm, toTripRequest } from "@/lib/tripForm";
+import { formFromDraft, formProblems, goaForm, splitOf, toTripRequest, tripDays } from "@/lib/tripForm";
 
 const sse = (evs: PlanEvent[]) => evs.map((e) => `: ping\n\ndata: ${JSON.stringify(e)}\n\n`).join("");
 
@@ -138,6 +138,27 @@ describe("form from intake's draft", () => {
     expect(formProblems(f)).toEqual(["Pick the first and last day."]);
     const r = toTripRequest({ ...f, start: "2026-12-11", end: "2026-12-14" });
     expect(r.constraints?.travellers?.map((t) => t.name)).toEqual(["You", "Father"]);
+  });
+});
+
+describe("days per destination", () => {
+  const two = { ...goaForm(), from: "Bengaluru", to: "Mysuru, Coorg", start: "2026-10-30", end: "2026-11-03" };
+
+  it("splits evenly like TY1 until the traveller changes it, and sends only a chosen split", () => {
+    expect(tripDays(two)).toBe(5);
+    expect(splitOf(two)).toEqual([3, 2]);
+    expect(toTripRequest(two).days_per_destination).toBeNull();
+    const chosen = { ...two, split: [2, 3] };
+    expect(formProblems(chosen)).toEqual([]);
+    expect(toTripRequest(chosen).days_per_destination).toEqual([2, 3]);
+  });
+
+  it("says when the days do not add up", () => {
+    expect(formProblems({ ...two, split: [2, 2] })).toEqual(["The days in each city should add up to 5."]);
+  });
+
+  it("ignores an old split once the cities change", () => {
+    expect(splitOf({ ...two, to: "Mysuru, Coorg, Hampi", split: [2, 3] })).toEqual([2, 2, 1]);
   });
 });
 

@@ -13,6 +13,9 @@
 .btn-danger{background:#9B2F17;color:#FBF6EE;border-color:#9B2F17}
 .btn-danger:disabled{opacity:.5;cursor:not-allowed}
 .st-done{margin:0;padding:12px 14px;border-radius:4px;background:#E5EEE9;color:#1B4539}
+.study{max-width:860px}
+.study-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px}
+.study-cols ul{margin:6px 0 0;padding-left:20px;display:grid;gap:4px;line-height:1.5}
 .trips-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:12px}
 .trip-card{display:flex;flex-direction:column;gap:8px;padding:18px;border:1px solid #D8CFBF;border-radius:4px;background:#FAF7F1}
 .trip-card b{font-family:var(--f-display);font-size:20px;letter-spacing:-0.01em}

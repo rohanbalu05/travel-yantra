@@ -16,7 +16,30 @@ export type TripForm = {
   budget: string;
   /** The travellers the form started from (sample or intake's draft); kept while the counts match. */
   people?: Traveller[];
+  /** Days in each destination, in order, when the traveller changed TY1's even split. */
+  split?: number[] | null;
 };
+
+export const destinationsOf = (f: TripForm) => f.to.split(",").map((s) => s.trim()).filter(Boolean);
+
+/** Days in the trip, first and last included; 0 until both dates are set and in order. */
+export function tripDays(f: TripForm): number {
+  if (!f.start || !f.end || f.end < f.start) return 0;
+  return Math.round((Date.parse(`${f.end}T00:00:00Z`) - Date.parse(`${f.start}T00:00:00Z`)) / 86_400_000) + 1;
+}
+
+/** TY1's default: as even as possible, earlier cities get the spare days. */
+export function evenSplit(days: number, cities: number): number[] {
+  if (cities < 1) return [];
+  const base = Math.floor(days / cities);
+  return Array.from({ length: cities }, (_, i) => base + (i < days % cities ? 1 : 0));
+}
+
+/** The split shown in the form: the traveller's when it still fits the cities, else the even one. */
+export function splitOf(f: TripForm): number[] {
+  const n = destinationsOf(f).length;
+  return f.split && f.split.length === n ? f.split : evenSplit(tripDays(f), n);
+}
 
 export const INTERESTS = ["Churches", "Temples", "Beaches", "Forts and palaces", "Food", "Nature and waterfalls", "Museums", "Markets"];
 export const PACES: [Pace, string][] = [["relaxed", "Gentle"], ["balanced", "Balanced"], ["packed", "Packed"]];
@@ -93,6 +116,9 @@ export function formProblems(f: TripForm): string[] {
   else if (f.end < f.start) p.push("The last day is before the first.");
   if (f.adults + f.seniors + f.kids < 1) p.push("Add at least one traveller.");
   if (f.budget && !/^\d+$/.test(f.budget.replace(/,/g, ""))) p.push("Write the budget as a number of rupees.");
+  const days = tripDays(f);
+  const split = splitOf(f);
+  if (days && split.length > 1 && split.reduce((a, b) => a + b, 0) !== days) p.push(`The days in each city should add up to ${days}.`);
   return p;
 }
 
@@ -113,5 +139,7 @@ export function toTripRequest(f: TripForm, lang: TripRequest["lang"] = "en"): Tr
     },
     lang,
     notes: f.interests.length ? `Interests: ${f.interests.join(", ")}.` : null,
+    // Only a split the traveller chose; otherwise TY1 splits evenly.
+    days_per_destination: f.split && f.split.length === destinationsOf(f).length && f.split.length > 1 ? f.split : null,
   };
 }

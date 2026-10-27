@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { layoutPins } from "@/lib/map";
-import { track } from "@/lib/metrics";
+import { startStudy, track } from "@/lib/metrics";
 import { GOA_ITINERARY } from "@/lib/mockPlan";
 import { compareRoutes, irctcCard, partyFor, pnrStatus } from "@/lib/routes";
 
@@ -72,6 +72,20 @@ describe("metrics beacon", () => {
     const body = JSON.parse(await blob.text());
     expect(Object.keys(body).sort()).toEqual(["arm", "event", "session_id", "task"]);
     expect(body.session_id).toMatch(/^[A-Za-z0-9_-]{8,64}$/);
+  });
+
+  it("measures a study session after its one-screen consent, with the study's task and arm", async () => {
+    withStorage();
+    consent(false);
+    const ss = new Map<string, string>();
+    vi.stubGlobal("sessionStorage", { getItem: (k: string) => ss.get(k) ?? null, setItem: (k: string, v: string) => void ss.set(k, v), removeItem: (k: string) => void ss.delete(k) });
+    const beacon = vi.fn<(url: string, data: Blob) => boolean>(() => true);
+    vi.stubGlobal("navigator", { ...navigator, sendBeacon: beacon });
+    expect(track("start", undefined, "http://api.test")).toBe(false);
+    startStudy({ task: "plan_mysuru", arm: "baseline" });
+    expect(track("start", undefined, "http://api.test")).toBe(true);
+    const body = JSON.parse(await beacon.mock.calls[0][1].text());
+    expect([body.task, body.arm, body.event]).toEqual(["plan_mysuru", "baseline", "start"]);
   });
 
   it("does nothing without an API", () => {

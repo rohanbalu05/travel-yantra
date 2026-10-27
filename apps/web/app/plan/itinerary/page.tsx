@@ -192,6 +192,13 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
                   onClick={() => revise({ intent: "rain", day: day.date }, `${weekday(day.date)} is planned for rain`)}>
                   Plan {weekday(day.date)} for rain
                 </button>
+                {/* Multi-city: TY1's move_day takes a day from the neighbouring city and re-plans the whole trip. */}
+                {it.request.destinations.length > 1 && it.request.destinations.map((c) => (
+                  <button key={c} type="button" className="btn btn-quiet" disabled={!!busy}
+                    onClick={() => revise({ intent: "move_day", city: c }, `one more day in ${c}`)}>
+                    {t("One more day in")} {c}
+                  </button>
+                ))}
                 <p role="status" className={said?.bad ? "rev-msg bad" : "rev-msg"} hidden={!busy && !said}>
                   {busy ? "Rebuilding the day…" : said?.text}
                 </p>
