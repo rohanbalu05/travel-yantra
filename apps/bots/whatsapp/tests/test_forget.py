@@ -92,3 +92,15 @@ def test_not_a_delete_request(msg):
     from app.brain import FORGET
 
     assert not FORGET.search(msg)
+
+
+async def test_routes_are_logged_without_the_text(caplog):
+    import logging
+
+    caplog.set_level(logging.INFO, logger="app.brain")
+    brain = Brain(base="")
+    await brain.handle(text("Delete my data."))
+    await brain.handle(text("what is the secret recipe?"))
+    assert "route: delete my data" in caplog.text
+    assert "route: guide (26 characters, lang en)" in caplog.text
+    assert "secret recipe" not in caplog.text

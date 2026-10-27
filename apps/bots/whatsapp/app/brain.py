@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 import time
@@ -29,6 +30,7 @@ from ty_contracts import (
 
 from .translate import Translator
 
+log = logging.getLogger(__name__)
 SAMPLE = Path(__file__).parent / "samples/goa_family.json"
 SAMPLE_PLAN_ID = "sample-goa"
 MAX_REPLY = 4000  # WhatsApp text bodies are capped at 4096 characters
@@ -348,10 +350,12 @@ class Brain:
         who, kind = msg.get("from", ""), msg.get("type")
         body = msg.get("text", {}).get("body", "") if kind == "text" else ""
         if FORGET.search(body):
+            log.info("route: delete my data")
             return await self.forget(who, detect_lang(body))
         user = self.users.setdefault(who, User())
         if kind == "text":
             return await self.reply(user, body)
+        log.info("route: %s message", kind)
         if kind == "location":
             loc = msg.get("location", {})
             user.lat, user.lng = loc.get("latitude"), loc.get("longitude")
@@ -417,6 +421,7 @@ class Brain:
             user.pending = None
             return await self.say(user, HELP)
         if story := parse_story(text):
+            log.info("route: story (%d min, lang %s)", story[1], (story[2] or user.lang).value)
             return await self.story(user, *story)
         follow = parse_followup(text) if user.itinerary is not None else None
         if follow and follow[0] == "swap_stop" and not text.lower().lstrip().startswith("swap"):
@@ -425,11 +430,15 @@ class Brain:
             if not any(follow[2] and follow[2].casefold() in s for s in stops):
                 follow = None
         if follow:
+            log.info("route: follow-up %s", follow[0])
             return await self.followup(user, *follow)
         if is_trip(text):
+            log.info("route: plan")
             return await self.trip(user, text)  # a fresh trip replaces any open questions
         if waiting and not text.endswith(("?", "？")):
+            log.info("route: plan answer")
             return await self.trip(user, user.pending + "\n" + text)
+        log.info("route: guide (%d characters, lang %s)", len(text), user.lang.value)
         answer = await self.ask(user, text)  # questions still go to the guide mid-plan
         return await self.say(user, answer.text, tail=sources(answer))
 
