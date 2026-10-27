@@ -205,6 +205,16 @@ class BudgetSummary(_Model):
     within_budget: bool | None = None
 
 
+class SeasonNote(_Model):
+    """A sentence quoted from a source about the season at a destination (TY2's season scout)."""
+
+    city: str
+    text: str
+    source_url: str
+    # "month": the source names a month of the trip; "general": the destination's climate.
+    kind: Literal["month", "general"]
+
+
 class Itinerary(_Model):
     request: TripRequest
     days: list[DayPlan]
@@ -213,6 +223,8 @@ class Itinerary(_Model):
     budget: BudgetSummary
     warnings: list[str] = Field(default_factory=list)
     lang: Lang = Lang.en
+    # Quoted, sourced season notes for the trip's cities and months; empty when the sources say nothing.
+    season_notes: list[SeasonNote] = Field(default_factory=list)
 
 
 class StorySegment(_Model):

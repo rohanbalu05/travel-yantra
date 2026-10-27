@@ -171,3 +171,13 @@ def test_days_per_destination_and_move_day():
     assert roundtrip(ReviseRequest, {"intent": "move_day", "city": "Coorg"}).city == "Coorg"
     with pytest.raises(ValidationError):
         ReviseRequest.model_validate({"intent": "move_day"})
+
+
+def test_season_notes_on_an_itinerary():
+    data = json.loads(SAMPLES[0].read_text(encoding="utf-8"))["itinerary"]
+    assert Itinerary.model_validate(data).season_notes == []
+    note = {"city": "Goa", "text": "The best time to visit is mid-November to mid-February.",
+            "source_url": "https://en.wikivoyage.org/wiki/Goa", "kind": "month"}
+    assert roundtrip(Itinerary, {**data, "season_notes": [note]}).season_notes[0].kind == "month"
+    with pytest.raises(ValidationError):
+        Itinerary.model_validate({**data, "season_notes": [{**note, "kind": "guess"}]})

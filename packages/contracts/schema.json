@@ -542,6 +542,13 @@
         "lang": {
           "$ref": "#/$defs/Lang",
           "default": "en"
+        },
+        "season_notes": {
+          "items": {
+            "$ref": "#/$defs/SeasonNote"
+          },
+          "title": "Season Notes",
+          "type": "array"
         }
       },
       "required": [
@@ -1211,6 +1218,40 @@
         "intent"
       ],
       "title": "ReviseRequest",
+      "type": "object"
+    },
+    "SeasonNote": {
+      "additionalProperties": false,
+      "description": "A sentence quoted from a source about the season at a destination (TY2's season scout).",
+      "properties": {
+        "city": {
+          "title": "City",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        },
+        "source_url": {
+          "title": "Source Url",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "month",
+            "general"
+          ],
+          "title": "Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "city",
+        "text",
+        "source_url",
+        "kind"
+      ],
+      "title": "SeasonNote",
       "type": "object"
     },
     "SellerOffer": {

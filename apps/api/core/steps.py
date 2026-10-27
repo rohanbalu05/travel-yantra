@@ -16,6 +16,7 @@ from ty_contracts import (
     Mode,
     Place,
     PlanText,
+    SeasonNote,
     Stay,
     TransportOption,
     TripDraft,
@@ -231,9 +232,26 @@ def assemble(r: TripRequest, pools: dict[str, list[Place]], options: list[Transp
         # Unused candidates are not a problem (the planner offers more than a trip holds); an empty pool is.
         warnings=[f"No places found yet for {c}" for c in empty]
         + _missing_stays(r, [s.model_dump(mode="json") for s in stays_found]),
+        season_notes=season_notes(r),
     )
     it.budget = budget(it)
     return it
+
+
+def season_notes(r: TripRequest) -> list[SeasonNote]:
+    """TY2's quoted season notes for each city and each month the trip spends there. Nothing is added when
+    the sources say nothing (no guessing)."""
+    from guide.season import notes_for
+
+    out: list[SeasonNote] = []
+    seen: set[tuple[str, str]] = set()
+    for city, dates in split_days(r):
+        for month in dict.fromkeys(d.month for d in dates):
+            for n in notes_for(city, next(d for d in dates if d.month == month)):
+                if (city, n["text"]) not in seen:
+                    seen.add((city, n["text"]))
+                    out.append(SeasonNote(city=city, text=n["text"], source_url=n["source_url"], kind=n["kind"]))
+    return out
 
 
 def replan(r: TripRequest) -> Itinerary:

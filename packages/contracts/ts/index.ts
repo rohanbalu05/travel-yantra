@@ -94,6 +94,7 @@ export interface Itinerary {
   budget: BudgetSummary;
   warnings?: string[];
   lang?: Lang;
+  season_notes?: SeasonNote[];
 }
 
 export interface KathaRequest {
@@ -203,6 +204,13 @@ export interface ReviseRequest {
   place_id?: string | null;
   city?: string | null;
   lang?: Lang | null;
+}
+
+export interface SeasonNote {
+  city: string;
+  text: string;
+  source_url: string;
+  kind: "month" | "general";
 }
 
 export interface SellerOffer {
