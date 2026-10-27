@@ -37,7 +37,7 @@ def base() -> str:
 
 def share_url(token: str | None) -> str | None:
     web = os.environ.get("TRAVEL_YANTRA_WEB", WEB).rstrip("/")
-    return f"{web}/t/{token}/" if token else None
+    return f"{web}/t/{urllib.parse.quote(token, safe='')}/" if token else None
 
 
 def _detail(e: urllib.error.HTTPError) -> str:
@@ -167,7 +167,7 @@ def parser() -> argparse.ArgumentParser:
     s.add_argument("--rank-by", choices=["balanced", "time", "cost", "changes"], default="balanced")
     s.add_argument("--travellers", type=int, default=1)
 
-    s = sub.add_parser("katha", help="the story of a place, a city or a day")
+    s = sub.add_parser("katha", help="the story of a place or a city")
     s.add_argument("subject")
     s.add_argument("--kind", choices=["place", "city"], default="place")
     s.add_argument("--minutes", type=int, choices=[2, 5, 10], default=2)
@@ -190,6 +190,10 @@ def main(argv: list[str] | None = None, opener=None) -> int:
         out, code = run(args, opener), 0
     except ApiError as e:
         out, code = {"error": str(e)}, 1
+    except TimeoutError:
+        out, code = {"error": "the API took too long; try again in a minute"}, 1
+    except (OSError, ValueError) as e:  # a dropped connection, or a reply that is not JSON
+        out, code = {"error": f"bad reply from the API ({type(e).__name__})"}, 1
     sys.stdout.reconfigure(encoding="utf-8")
     print(json.dumps(out, ensure_ascii=False))
     return code

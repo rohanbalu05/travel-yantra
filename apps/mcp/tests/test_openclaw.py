@@ -163,3 +163,20 @@ def test_api_error_detail_is_printed_and_exits_1(capsys, monkeypatch):
 def test_bad_arguments_are_refused_before_any_call(monkeypatch):
     with pytest.raises(SystemExit):
         ty.main(["katha", "Hampi", "--minutes", "7"], opener=Fake(lambda req: (200, b"{}")))
+
+
+def test_timeouts_and_bad_replies_still_print_json(capsys, monkeypatch):
+    def slow(req):
+        raise TimeoutError("read timed out")
+
+    code, out, _ = run(["plan", "Goa trip"], slow, capsys, monkeypatch)
+    assert code == 1 and out == {"error": "the API took too long; try again in a minute"}
+    code, out, _ = run(
+        ["plan", "Goa trip"], lambda req: (200, b"data: {not json\n\n"), capsys, monkeypatch
+    )
+    assert code == 1 and out == {"error": "bad reply from the API (JSONDecodeError)"}
+
+
+def test_share_token_is_quoted(monkeypatch):
+    monkeypatch.setenv("TRAVEL_YANTRA_WEB", "http://web.test")
+    assert ty.share_url("a/b?c") == "http://web.test/t/a%2Fb%3Fc/"
