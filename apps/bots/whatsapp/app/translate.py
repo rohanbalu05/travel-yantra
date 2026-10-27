@@ -1,0 +1,67 @@
+"""Reply translation through services/translate (TRANSLATE_URL); English when it can't help."""
+
+from __future__ import annotations
+
+import logging
+import os
+import re
+
+import httpx
+from ty_contracts import Lang
+
+log = logging.getLogger(__name__)
+MARKER = re.compile(r"\[\d+\]")  # guide citation markers, kept as they are
+SENTENCE = re.compile(r"(?<=[.!?।])\s+")
+MAX_TEXT = 1000  # per-text cap of POST /translate
+MAX_ENTITIES = 50
+
+
+def sentences(line: str) -> list[str]:
+    """Split a long line so each piece fits the translate service's per-text cap."""
+    return SENTENCE.split(line) if len(line) > MAX_TEXT else [line]
+
+
+class Translator:
+    def __init__(self, base: str | None = None) -> None:
+        base = base if base is not None else os.environ.get("TRANSLATE_URL", "")
+        self.base = base.rstrip("/")
+
+    async def texts(self, texts: list[str], lang: Lang, keep: list[str] = ()) -> list[str]:
+        """Translate each text to `lang`. `keep` (place names) and [n] markers are not translated.
+
+        A text the service flags (wrong script, length, lost name) stays English.
+        """
+        if lang == Lang.en or not self.base:
+            return texts
+        # Empty texts need nothing; a single sentence over the cap stays English, never cut.
+        todo = [i for i, t in enumerate(texts) if t.strip() and len(t) <= MAX_TEXT]
+        if not todo:
+            return texts
+        markers = {m for i in todo for m in MARKER.findall(texts[i])}
+        entities = sorted(markers) + [k for k in dict.fromkeys(keep) if k]
+        body = {
+            "texts": [texts[i] for i in todo],
+            "target": lang.value,
+            "entities": entities[:MAX_ENTITIES],
+        }
+        try:
+            async with httpx.AsyncClient(timeout=60) as client:
+                r = await client.post(f"{self.base}/translate", json=body)
+                r.raise_for_status()
+                data = r.json()
+        except (httpx.HTTPError, ValueError):
+            log.exception("translate failed; replying in English")
+            return texts
+        out = list(texts)
+        for i, text, flags in zip(todo, data["translations"], data["flags"]):
+            if not flags and MARKER.findall(text) == MARKER.findall(texts[i]):
+                out[i] = text
+        return out
+
+    async def text(self, text: str, lang: Lang, keep: list[str] = ()) -> str:
+        """Translate a multi-line reply line by line (long lines by sentence)."""
+        if lang == Lang.en or not self.base:
+            return text
+        lines = [sentences(line) for line in text.split("\n")]
+        outs = iter(await self.texts([p for line in lines for p in line], lang, keep))
+        return "\n".join(" ".join(next(outs) for _ in line) for line in lines)

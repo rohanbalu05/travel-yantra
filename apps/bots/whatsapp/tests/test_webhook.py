@@ -1,7 +1,6 @@
 import hashlib
 import hmac
 import json
-from datetime import date
 from pathlib import Path
 
 import httpx
@@ -12,6 +11,7 @@ from app import sender as sender_mod
 from app.brain import NOT_TEXT, VOICE, Brain
 from app.main import SORRY, create_app
 from app.sender import CloudApiSender, FakeSender
+from app.translate import Translator
 
 PAYLOADS = Path(__file__).parent / "payloads"
 SECRET = "test-app-secret"  # fake, used only by these tests
@@ -31,7 +31,7 @@ def bot(monkeypatch):
     monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
     monkeypatch.setenv("WHATSAPP_VERIFY_TOKEN", "test-verify-token")
     fake = FakeSender()
-    app = create_app(brain=Brain(base="", today=date(2026, 10, 27)), sender=fake)
+    app = create_app(brain=Brain(base="", translator=Translator(base="")), sender=fake)
     with TestClient(app) as client:
         yield client, fake
 
@@ -128,6 +128,13 @@ def test_other_media_gets_text_only_reply(bot):
     assert fake.sent == [(USER, NOT_TEXT)]
 
 
+def test_location_is_acknowledged(bot):
+    client, fake = bot
+    post(client, load("location.json"))
+    [(_, reply)] = fake.sent
+    assert reply.startswith("Got your location")
+
+
 def test_status_updates_send_nothing(bot):
     client, fake = bot
     assert post(client, load("status.json")).status_code == 200
@@ -146,7 +153,7 @@ def test_brain_failure_sends_sorry(monkeypatch):
     monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
 
     class Broken(Brain):
-        async def reply(self, text):
+        async def handle(self, msg):
             raise RuntimeError("api down")
 
     fake = FakeSender()
