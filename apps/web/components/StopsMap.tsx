@@ -20,7 +20,7 @@ export function StopsMap({ pins, caption }: { pins: Pin[]; caption: string }) {
           {route.includes(" ") && <polyline points={route} fill="none" stroke="#13212B" strokeWidth=".6" strokeDasharray="1.6 1.6" vectorEffect="non-scaling-stroke" />}
         </svg>
         {placed.map((p) => (
-          <a key={p.id} className={`smap-pin ${p.kind}`} style={{ left: `${p.x}%`, top: `${p.y}%` }} href={osmLink(p.lat, p.lng)} target="_blank" rel="noopener noreferrer" title={`${p.name} on OpenStreetMap`} aria-label={`${p.name} on OpenStreetMap`}>
+          <a key={p.id} className={`smap-pin smap-${p.kind}`} style={{ left: `${p.x}%`, top: `${p.y}%` }} href={osmLink(p.lat, p.lng)} target="_blank" rel="noopener noreferrer" title={`${p.name} on OpenStreetMap`} aria-label={`${p.name} on OpenStreetMap`}>
             {p.label}
           </a>
         ))}

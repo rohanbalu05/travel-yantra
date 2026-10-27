@@ -207,7 +207,7 @@ function PnrTrack() {
           </div>
           <p className="hint" style={{ margin: 0 }}>{s.from.name} to {s.to.name}{s.chart_prepared ? " · chart prepared" : ""}</p>
           <ol className="timeline">
-            {s.timeline.map((t) => (
+            {[...s.timeline].sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).map((t) => (
               <li key={t.at + t.status}><time dateTime={t.at}>{dayLabel(t.at)} {t.at.slice(11, 16)}</time><i /><span><b>{t.status}</b> {t.note}</span></li>
             ))}
           </ol>
