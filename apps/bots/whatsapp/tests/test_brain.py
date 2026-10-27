@@ -374,3 +374,9 @@ async def test_long_answer_keeps_its_sources(monkeypatch):
     fake_http(monkeypatch, lambda req: httpx.Response(200, json=answer))
     reply = await Brain(base=API).handle(text("Tell me everything about Goa"))
     assert len(reply) <= MAX_REPLY and reply.endswith("\n\n[1] Goan food")
+
+
+@pytest.mark.parametrize("body", [{"oops": 1}, [], {"translations": ["a"], "flags": []}])
+async def test_malformed_translate_response_stays_english(monkeypatch, body):
+    fake_http(monkeypatch, lambda req: httpx.Response(200, json=body))
+    assert await Translator(TRANSLATE).text("Hello [1].", Lang.hi) == "Hello [1]."

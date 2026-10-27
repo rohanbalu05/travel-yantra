@@ -53,10 +53,11 @@ class Translator:
                     r = await client.post(f"{self.base}/translate", json=body)
                     r.raise_for_status()
                     data = r.json()
-                except (httpx.HTTPError, ValueError):
+                    pairs = list(zip(data["translations"], data["flags"], strict=True))
+                except (httpx.HTTPError, ValueError, KeyError, TypeError):
                     log.exception("translate failed; this part stays English")
                     continue
-                for i, text, flags in zip(batch, data["translations"], data["flags"]):
+                for i, (text, flags) in zip(batch, pairs):
                     if not flags and MARKER.findall(text) == MARKER.findall(texts[i]):
                         out[i] = text
         return out
