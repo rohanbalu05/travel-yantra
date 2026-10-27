@@ -55,11 +55,19 @@ URGENT_RESULTS = 10
 MAJOR_HOSPITAL = re.compile(
     r"medical college|\bgmc\b|district hospital|civil hospital|government hospital|general hospital"
     r"|sub-?district|multi-?speciality|super-?speciality|multispecialty|trauma|emergency|casualty"
-    r"|heart|cardiac|institute|aiims|esi hospital|manipal|apollo|fortis|narayana|aster|max |kims"
+    r"|heart|cardiac|institute|\b(aiims|esi|manipal|apollo|fortis|narayana|aster|max|kims)\b"
     r"|columbia asia|healthcare city",
     re.I,
 )
-MINOR_CARE = re.compile(r"clinic|health cent|dispensary|\bdr\.?\s|polyclinic|diagnostic|nursing home", re.I)
+#: Small care, even under a big name ("Apollo Clinic", "Heart Clinic", "Max Lab").
+MINOR_CARE = re.compile(
+    r"clinic|health cent|dispensary|\bdr\.?\s|polyclinic|diagnostic|nursing home|\blabs?\b|laborator"
+    r"|pharmac|chemist",
+    re.I,
+)
+#: ...unless the name also says it is a hospital ("Sample Clinic and Hospital").
+HOSPITAL_WORD = re.compile(r"hospital|medical college|trauma", re.I)
+MINOR_TYPES = {"doctor", "medical_clinic", "medical_lab", "dental_clinic", "pharmacy", "drugstore"}
 
 
 class Answerer(Protocol):
@@ -113,12 +121,16 @@ def maps_url(place: Place) -> str:
 
 
 def care_tier(place: Place) -> int:
-    """0 a major hospital, 1 a hospital, 2 a clinic, health centre or doctor."""
-    if MAJOR_HOSPITAL.search(place.name):
+    """0 a major hospital, 1 a hospital, 2 a small one ("X Nursing Home Hospital",
+    "X Clinic and Hospital"), 3 a clinic, health centre, lab or doctor. Small care wins
+    over a big name: "Apollo Clinic" is a clinic."""
+    name = place.name
+    minor = place.category in MINOR_TYPES or bool(MINOR_CARE.search(name))
+    if minor:
+        return 2 if HOSPITAL_WORD.search(name) else 3
+    if MAJOR_HOSPITAL.search(name):
         return 0
-    if place.category == "hospital" and not MINOR_CARE.search(place.name):
-        return 1
-    return 2
+    return 1 if place.category == "hospital" or HOSPITAL_WORD.search(name) else 3
 
 
 def answer_emergency(

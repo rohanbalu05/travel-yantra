@@ -214,6 +214,12 @@ def trim_prompt(subject: Subject, text: str, target: int) -> str:
     )
 
 
+def _chat(para: str) -> bool:
+    """Talk to the user, not story: a chat opening and no citation (story paragraphs cite;
+    "If you'd like a quiet corner, stand by the east gate [3]" is story)."""
+    return bool(CHAT.match(para)) and not checks.MARKER.search(para)
+
+
 def parse(text: str) -> list[tuple[str, str]]:
     """[(label, paragraph)] from the labelled format; text before the first label is dropped."""
     parts = LABEL_LINE.split(text)
@@ -221,7 +227,7 @@ def parse(text: str) -> list[tuple[str, str]]:
     for label, body in zip(parts[1::2], parts[2::2], strict=True):
         for para in re.split(r"\n\s*\n", body.strip()):
             # Lists, headings, separators and chat to the user are notes the model left, not story.
-            if para.strip() and not re.match(r"\s*([-*#•]|={3,}|\d+\.\s)", para) and not CHAT.match(para):
+            if para.strip() and not re.match(r"\s*([-*#•]|={3,}|\d+\.\s)", para) and not _chat(para):
                 out.append((label.lower(), " ".join(para.split())))
     return out
 

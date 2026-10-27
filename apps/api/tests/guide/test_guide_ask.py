@@ -327,8 +327,14 @@ def test_care_tier_reads_names_and_primary_type() -> None:
     assert care_tier(p("Sample District Hospital")) == 0
     assert care_tier(p("Sample Multispeciality Hospital")) == 0
     assert care_tier(p("Sample Town Hospital")) == 1
-    assert care_tier(p("Sample Urban Health Centre")) == 2
-    assert care_tier(p("Dr. Sample", "doctor")) == 2 and care_tier(p("Sample Clinic")) == 2
+    assert care_tier(p("Sample Nursing Home Hospital")) == 2
+    assert care_tier(p("Sample Urban Health Centre")) == 3
+    assert care_tier(p("Dr. Sample", "doctor")) == 3 and care_tier(p("Sample Clinic")) == 3
+    # a big name on small care is still small care; short chain names match whole words only
+    assert care_tier(p("Apollo Clinic", "medical_clinic")) == 3
+    assert care_tier(p("Sample Heart Clinic")) == 3 and care_tier(p("Max Lab", "medical_lab")) == 3
+    assert care_tier(p("Apollo Hospitals")) == 0 and care_tier(p("Sample Masters Hospital")) == 1
+    assert care_tier(p("Sample Clinic and Hospital")) == 2
 
 
 def test_chest_pain_ranks_full_hospitals_above_nearer_clinics() -> None:
@@ -338,7 +344,7 @@ def test_chest_pain_ranks_full_hospitals_above_nearer_clinics() -> None:
     answer = asyncio.run(ask(req, NoRows(), Spy(), client))
     names = [p.name for p in answer.emergency_places]
     assert names == ["Sample Medical College and Hospital", "Sample Town Hospital",
-                     "Sample Urban Health Centre"]  # fmt: skip
+                     "Sample Nursing Home Hospital"]  # fmt: skip
     assert "full hospital" in answer.text and "7.0 km [1]" in answer.text and "112" in answer.text
     assert t.bodies[0]["maxResultCount"] == 10 and t.bodies[0]["locationRestriction"]["circle"]["radius"] == 15000
 

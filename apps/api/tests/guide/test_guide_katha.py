@@ -431,9 +431,11 @@ def test_chat_to_the_user_is_not_story() -> None:
     text = ("[HISTORY]\nThe palace burned in 1897 [1].\n\n"
             "Would you like a summary of the next segment of the city's history?\n\n"
             "[HISTORY]\nHere's the strange part: Irwin drew a new plan [2].\n\n"
-            "Here is the rest of the story, told plainly [2].\n\nShall I continue with chapter 3?")  # fmt: skip
+            "Here is the rest of the story, told plainly.\n\nShall I continue with chapter 3?\n\n"
+            "If you'd like a quiet corner, stand by the east gate [3].")  # fmt: skip
     assert parse(text) == [("history", "The palace burned in 1897 [1]."),
-                           ("history", "Here's the strange part: Irwin drew a new plan [2].")]  # fmt: skip
+                           ("history", "Here's the strange part: Irwin drew a new plan [2]."),
+                           ("history", "If you'd like a quiet corner, stand by the east gate [3].")]  # fmt: skip
     assert parse("[LEGEND]\nShould I stay, the queen asked [1].")[0][1].startswith("Should I stay")
     assert parse("[HISTORY]\nHerein lies the old gate [1].") == [("history", "Herein lies the old gate [1].")]
 

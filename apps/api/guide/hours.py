@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import logging
 import os
+import threading
 import time
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
@@ -31,7 +32,8 @@ log = logging.getLogger(__name__)
 #: means real use is about 10 calls a week for Goa.
 DAILY_CAP = 30
 WORKERS = 6
-_spent: dict[str, int] = {}  # UTC date -> live calls this instance made
+_spent: dict[str, int] = {}  # UTC date -> live calls this instance made (or has reserved)
+_lock = threading.Lock()
 
 
 def _budget_left(today: str) -> int:
@@ -54,10 +56,17 @@ def live_hours(
     if client is None:
         if not os.environ.get("DATABASE_URL") or not os.environ.get("GOOGLE_MAPS_API_KEY"):
             return places
-        conn = (connect or _connect)()
+        try:
+            conn = (connect or _connect)()
+        except Exception:  # Cloud SQL down: no private cache, so no Places calls either
+            log.warning("places hours skipped: no database connection", exc_info=True)
+            return places
         client = PlacesClient(cache=PgCache(conn))
     today = time.strftime("%Y-%m-%d", time.gmtime())
-    todo = todo[: max(_budget_left(today), 0)]  # worst case every one is a cache miss
+    with _lock:  # reserve the worst case (every one a cache miss) before any call
+        reserved = min(len(todo), max(_budget_left(today), 0))
+        _spent[today] = _spent.get(today, 0) + reserved
+    todo = todo[:reserved]
     out, start = list(places), client.calls
 
     def one(item: tuple[int, str]):
@@ -75,7 +84,8 @@ def live_hours(
                 if hours:
                     out[i] = out[i].model_copy(update={"opening_hours": hours})
     finally:
-        _spent[today] = _spent.get(today, 0) + client.calls - start
+        with _lock:  # give back what the cache saved
+            _spent[today] -= max(reserved - (client.calls - start), 0)
         if conn is not None:
             conn.close()
     return out

@@ -80,3 +80,28 @@ def test_without_a_private_cache_or_key_nothing_is_fetched(monkeypatch):
     monkeypatch.setenv("DATABASE_URL", "postgresql://sample")
     monkeypatch.delenv("GOOGLE_MAPS_API_KEY", raising=False)
     assert h.live_hours(goa, connect=lambda: pytest.fail("no connection without a key")) == goa
+
+
+def test_a_failed_database_connection_leaves_hours_unknown(monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", "postgresql://sample")
+    monkeypatch.setenv("GOOGLE_MAPS_API_KEY", "sample-not-a-key")
+
+    def down():
+        raise OSError("sample: database down")
+
+    goa = places_for("Goa")
+    assert h.live_hours(goa, connect=down) == goa
+
+
+def test_concurrent_trips_share_one_daily_budget(monkeypatch):
+    import threading
+
+    monkeypatch.setattr(h, "DAILY_CAP", 3)
+    c, t = client()
+    goa = places_for("Goa")
+    threads = [threading.Thread(target=h.live_hours, args=(goa, c)) for _ in range(4)]
+    for th in threads:
+        th.start()
+    for th in threads:
+        th.join()
+    assert len(t.calls) <= 3  # never more live calls than the day allows, however they race
