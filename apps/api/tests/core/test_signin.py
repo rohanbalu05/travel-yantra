@@ -117,6 +117,9 @@ def test_postgres_link_moves_once():
     assert not acc.linked(anon)
     assert store.reassign_owner(anon, uid) == 1 and acc.link(anon, uid) == 2  # 1 rating + consents
     assert acc.linked(anon) and acc.link(anon, uid) is None
+    assert acc.pending(anon, uid)  # claimed; this test moved the trips by hand, so mark them moved
+    acc.mark_moved(anon)
+    assert not acc.pending(anon, uid)
     assert acc.consents(uid)[0].plan_history and len(store.by_owner(uid)) == 1
     acc.delete(uid)
     store.delete_owner(uid)
@@ -149,3 +152,22 @@ def test_a_second_account_cannot_claim_an_already_linked_browser(memory_accounts
     client.get("/me", headers=bearer("other-token", BROWSER))
     assert client.get("/me/trips", headers=bearer("other-token")).json() == []
     assert len(client.get("/me/trips", headers=bearer("good-token")).json()) == 1
+
+
+def test_a_failed_move_after_the_claim_is_retried_on_the_next_signed_in_call(monkeypatch, memory_trips):
+    anon = {"X-Client-Id": BROWSER}
+    client.put("/me/consents", json={"plan_history": True}, headers=anon)
+    trip = done(client.post("/plan", json=MYSURU, headers=anon))
+    real = memory_trips.reassign_owner
+
+    def broken(old, new):
+        raise RuntimeError("database went away")
+
+    monkeypatch.setattr(memory_trips, "reassign_owner", broken)
+    client.get("/me", headers=bearer("good-token", BROWSER))  # claimed, but the trips did not move
+    assert client.get("/me/trips", headers=bearer("good-token")).json() == []
+    assert accounts.get_accounts().pending(BROWSER, "fb:sample-sub-1")
+    monkeypatch.setattr(memory_trips, "reassign_owner", real)
+    client.get("/me", headers=bearer("good-token", BROWSER))  # retried
+    assert [t["plan_id"] for t in client.get("/me/trips", headers=bearer("good-token")).json()] == [trip["plan_id"]]
+    assert not accounts.get_accounts().pending(BROWSER, "fb:sample-sub-1")

@@ -80,12 +80,20 @@ def link_browser(anon: str, uid: str) -> None:
     once per browser id (recorded); later calls are a cheap lookup."""
     accounts = get_accounts()
     if accounts.linked(anon):
+        if not accounts.pending(anon, uid):
+            return
+        moved = 0  # claimed earlier by this account, but its trips did not move: try again
+    else:
+        # Claim the browser first: if two accounts race, only the one whose claim lands moves the trips.
+        moved = accounts.link(anon, uid)
+        if moved is None:
+            return
+    try:
+        moved += get_store().reassign_owner(anon, uid)
+    except Exception:
+        log.exception("moving a browser's trips failed; will retry on its next signed-in call")
         return
-    # Claim the browser first: if two accounts race, only the one whose claim lands moves the trips.
-    moved = accounts.link(anon, uid)
-    if moved is None:
-        return
-    moved += get_store().reassign_owner(anon, uid)
+    accounts.mark_moved(anon)
     log.warning("linked a browser to an account: %d items moved", moved)  # no ids in the log
 
 
@@ -104,6 +112,8 @@ class AccountStore(Protocol):
     def add_rating(self, rating: Rating) -> None: ...
     def delete(self, uid: str, plan_ids: list[str] | None = None) -> int: ...
     def linked(self, anon: str) -> bool: ...
+    def pending(self, anon: str, uid: str) -> bool: ...
+    def mark_moved(self, anon: str) -> None: ...
     def delete_ratings_for(self, plan_ids: list[str]) -> int: ...
     def link(self, anon: str, uid: str) -> int | None: ...
 
@@ -113,6 +123,7 @@ class MemoryAccounts:
         self._consents: dict[str, tuple[Consents, datetime]] = {}
         self.ratings: list[Rating] = []
         self._links: dict[str, str] = {}
+        self._unmoved: set[str] = set()
         self._lock = threading.Lock()
 
     def consents(self, uid: str) -> tuple[Consents, datetime | None]:
@@ -144,6 +155,12 @@ class MemoryAccounts:
     def linked(self, anon: str) -> bool:
         return anon in self._links
 
+    def pending(self, anon: str, uid: str) -> bool:
+        return self._links.get(anon) == uid and anon in self._unmoved
+
+    def mark_moved(self, anon: str) -> None:
+        self._unmoved.discard(anon)
+
     def delete_ratings_for(self, plan_ids: list[str]) -> int:
         gone = set(plan_ids)
         with self._lock:
@@ -158,6 +175,7 @@ class MemoryAccounts:
             if anon in self._links:
                 return None
             self._links[anon] = uid
+            self._unmoved.add(anon)
             n = 0
             for r in self.ratings:
                 if r.uid == anon:
@@ -217,14 +235,23 @@ class PgAccounts:
         with self._connect() as conn:
             return conn.execute("DELETE FROM ratings WHERE plan_id = ANY(%s)", (list(plan_ids),)).rowcount
 
+    def pending(self, anon: str, uid: str) -> bool:
+        with self._connect() as conn:
+            return conn.execute("SELECT 1 FROM account_links WHERE anon_id = %s AND uid = %s AND NOT moved",
+                                (anon, uid)).fetchone() is not None
+
+    def mark_moved(self, anon: str) -> None:
+        with self._connect() as conn:
+            conn.execute("UPDATE account_links SET moved = true WHERE anon_id = %s", (anon,))
+
     def linked(self, anon: str) -> bool:
         with self._connect() as conn:
             return conn.execute("SELECT 1 FROM account_links WHERE anon_id = %s", (anon,)).fetchone() is not None
 
     def link(self, anon: str, uid: str) -> int | None:
         with self._connect() as conn, conn.transaction():
-            if conn.execute("INSERT INTO account_links (anon_id, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING",
-                            (anon, uid)).rowcount == 0:
+            if conn.execute("INSERT INTO account_links (anon_id, uid, moved) VALUES (%s, %s, false) "
+                            "ON CONFLICT DO NOTHING", (anon, uid)).rowcount == 0:
                 return None  # another request claimed it first
             n = conn.execute("UPDATE ratings SET uid = %s WHERE uid = %s", (uid, anon)).rowcount
             # The account keeps its own choices if it has any; else it takes the browser's.
