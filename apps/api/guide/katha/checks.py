@@ -35,7 +35,26 @@ _COMMON_ADJ = {
     "grand", "ancient", "majestic", "old", "great", "rich", "serene", "lush", "deep",
     "quiet", "warm", "bright", "dark", "vast", "rare", "pure", "fine", "rare", "proud",
 }  # fmt: skip
-MARKER = re.compile(r"\[(\d+)\]")
+#: A citation: [3], or several in one bracket the way the model writes them: [1, 17],
+#: [7, 11, 12], [3-5], [3–5]. Adjacent brackets ([2][3]) are separate matches.
+MARKER = re.compile(r"\[(\d+(?:\s*[,–-]\s*\d+)*)\]")
+_RANGE_MAX = 10  # a "range" wider than this is two numbers joined by mistake, not a span
+
+
+def cited(marker: str) -> list[int]:
+    """The fact numbers in one marker's inside ("1, 17" or "3-5"), in order, no repeats."""
+    out: list[int] = []
+    for part in marker.split(","):
+        ends = [int(n) for n in re.split(r"\s*[–-]\s*", part.strip())]
+        a, b = ends[0], ends[-1]
+        span = range(a, b + 1) if 0 <= b - a <= _RANGE_MAX else ends
+        out += [n for n in span if n not in out]
+    return out
+
+
+def citations(text: str) -> list[int]:
+    """Every fact number cited in text, combined markers expanded."""
+    return [n for m in MARKER.finditer(text) for n in cited(m.group(1))]
 
 
 def words(text: str) -> int:
@@ -69,10 +88,10 @@ def problems(segments: list[tuple[str, str]], n_facts: int, length_min: int) -> 
     if not segments:
         return ["no segments"]
     for label, text in segments:
-        cited = [int(n) for n in MARKER.findall(text)]
-        if bad := [n for n in cited if not 1 <= n <= n_facts]:
+        numbers = citations(text)
+        if bad := [n for n in numbers if not 1 <= n <= n_facts]:
             out.append(f"markers point at no fact: {bad}")
-        if label in ("history", "disputed") and not cited:
+        if label in ("history", "disputed") and not numbers:
             out.append(f"uncited {label} segment: {text[:60]!r}")
         if label == "legend" and not LEGEND_CUES.search(text):
             out.append(f"legend not told as legend: {text[:60]!r}")

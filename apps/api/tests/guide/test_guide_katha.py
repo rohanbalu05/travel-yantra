@@ -77,6 +77,53 @@ def test_parse_and_renumber_share_sources_and_order_markers() -> None:
     assert out[3].label == ("disputed" if "disputed" in CONTRACT_LABELS else "history")
 
 
+# Real sentences from the taste-gate pack (Oct 2026), where combined markers went out
+# unrenumbered: "[6, 14]" in a story with 7 sources pointed at fact numbers.
+REAL = [
+    "The floor beneath you is uneven, laid down in 1886 [1, 2], so watch your step.",
+    "This event ended an empire, and the British took his iron-cased rockets and "
+    "mechanical tiger back to England as trophies [7, 11, 12].",
+    "They pack their remaining garlands under the shadow of the rusting iron pillars [3][4].",
+    "The city's deepest historical wound lies sixteen kilometres north on the island of "
+    "Srirangapatna, where the Kaveri river splits [6, 14].",
+]
+
+
+@pytest.mark.parametrize(
+    ("marker", "numbers"),
+    [("1, 2", [1, 2]), ("7, 11, 12", [7, 11, 12]), ("14, 6", [14, 6]), ("3-5", [3, 4, 5]),
+     ("3–5", [3, 4, 5]), ("2, 4-6", [2, 4, 5, 6]), ("1, 1", [1]), ("1-40", [1, 40])],
+)  # fmt: skip
+def test_combined_markers_expand(marker, numbers) -> None:
+    assert checks.cited(marker) == numbers
+
+
+def test_checks_see_every_number_in_combined_markers() -> None:
+    assert checks.citations(" ".join(REAL)) == [1, 2, 7, 11, 12, 3, 4, 6, 14]
+    assert checks.words("laid down in 1886 [1, 2], so [3-5] watch [2][3]") == 6
+    # [1, 2] is a citation: the history segment is cited, and 9 is out of range
+    assert checks.problems([("history", REAL[0])], 2, 2) == [
+        f"length {checks.words(REAL[0])} words, want 220-400 for 2 min"
+    ]
+    assert "markers point at no fact: [9]" in checks.problems([("history", "Fact [2, 9].")], 2, 2)[0]
+
+
+def test_renumber_splits_combined_markers_into_sources() -> None:
+    facts = [fact(n, "https://a" if n in (11, 12) else None) for n in range(1, 15)]
+    segments = [("history", t) for t in REAL]
+    out, sources = renumber(segments, facts)
+    assert [s.text[-12:] for s in out] == [
+        "[1][2], so watch your step."[-12:],
+        "trophies [3][4]."[-12:],  # 11 and 12 share a source
+        " pillars [5][6]."[-12:],
+        "splits [7][8]."[-12:],
+    ]
+    assert len(sources) == 8 and sources[3] == "https://a"
+    assert renumber([("history", "A [2, 2]. B [3-4][3].")], facts)[0][0].text == "A [1]. B [2][3]."
+    for s in out:  # every number now points at a source
+        assert all(1 <= n <= len(sources) for n in checks.citations(s.text))
+
+
 # --- the taste-gate pack, when it is there: every Katha version passes the checker ---
 
 
@@ -119,7 +166,7 @@ def test_place_stories_fit_their_length_and_label_legends(db, length) -> None:
     assert low <= checks.words(story.text) <= high
     assert story.segments and story.sources
     for s in story.segments:
-        markers = [int(n) for n in checks.MARKER.findall(s.text)]
+        markers = checks.citations(s.text)
         assert all(1 <= n <= len(story.sources) for n in markers)
         if s.label == "legend":
             assert checks.LEGEND_CUES.search(s.text)

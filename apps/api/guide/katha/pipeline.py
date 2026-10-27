@@ -40,6 +40,7 @@ CHAPTERS = {2: 1, 5: 2, 10: 4}
 #: both versions of a disputed claim either way).
 CONTRACT_LABELS = set(typing.get_args(StorySegment.model_fields["label"].annotation))
 LABEL_LINE = re.compile(r"^\s*\[(HISTORY|LEGEND|DISPUTED)\]\s*$", re.M)
+MARKER_RUN = re.compile(rf"{checks.MARKER.pattern}(?:\s*{checks.MARKER.pattern})*")
 SEPARATOR = re.compile(r"^\s*={3,}\s*$", re.M)
 #: A rewrite much shorter than its draft was cut off, not edited; keep the draft.
 MIN_REWRITE_RATIO = 0.85
@@ -169,19 +170,25 @@ def parse(text: str) -> list[tuple[str, str]]:
 
 
 def renumber(segments: list[tuple[str, str]], facts: list[Fact]) -> tuple[list[StorySegment], list[str]]:
-    """Markers in order of first use, sources to match (identical sources share a number)."""
+    """Markers in order of first use, sources to match (identical sources share a number).
+
+    A combined marker ([1, 17], [3-5]) or a run of them ([2][3]) becomes one bracket
+    per source, no repeats ([1][2]): the only form readers of the story parse."""
     sources: list[str] = []
 
     def sub(m: re.Match) -> str:
-        source = facts[int(m.group(1)) - 1].source
-        if source not in sources:
-            sources.append(source)
-        return f"[{sources.index(source) + 1}]"
+        numbers: list[int] = []
+        for n in checks.citations(m.group(0)):
+            source = facts[n - 1].source
+            if source not in sources:
+                sources.append(source)
+            if (i := sources.index(source) + 1) not in numbers:
+                numbers.append(i)
+        return "".join(f"[{i}]" for i in numbers)
 
     out = []
     for label, text in segments:
-        text = re.sub(r"(\[\d+\])(?:\s*\1)+", r"\1", checks.MARKER.sub(sub, text))
-        text = re.sub(r"(\[\d+\])\[\1\]", r"\1", text)
+        text = MARKER_RUN.sub(sub, text)
         label = label if label in CONTRACT_LABELS else "history"
         out.append(StorySegment(label=label, text=text))
     return out, sources
