@@ -90,6 +90,8 @@ jobs:
       id-token: write
     strategy:
       fail-fast: false
+      # Cloud Build allows few build-status reads per minute per project.
+      max-parallel: 3
       matrix:
         service: ${{ fromJSON(needs.plan.outputs.matrix) }}
     steps:
@@ -114,11 +116,22 @@ jobs:
           fi
           # An explicit staging dir skips gcloud's default-bucket ownership check,
           # which needs project-wide storage.buckets.list that ty-deploy lacks.
-          gcloud builds submit . --config infra/cloudbuild/image.yaml \
+          # --async, then poll every 15 s: gcloud's own wait polls each second and
+          # parallel jobs hit Cloud Build's per-minute read quota (429).
+          id=$(gcloud builds submit . --config infra/cloudbuild/image.yaml --async --format 'value(id)' \
             --region asia-south1 --service-account "projects/$PROJECT/serviceAccounts/$DEPLOY_SA" \
             --gcs-source-staging-dir "gs://${PROJECT}_cloudbuild/source" \
             --substitutions "_DOCKERFILE=${{ matrix.service.dockerfile }},_IMAGE=$IMAGE,_API_BASE_URL=$api_url" \
-            --project "$PROJECT"
+            --project "$PROJECT")
+          echo "build $id"
+          while :; do
+            status=$(gcloud builds describe "$id" --region asia-south1 --project "$PROJECT" --format 'value(status)' || echo RETRY)
+            case "$status" in
+              SUCCESS) echo "build $id: SUCCESS"; break ;;
+              FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED) echo "::error::build $id: $status"; exit 1 ;;
+            esac
+            sleep 15
+          done
       - name: Deploy ${{ matrix.service.name }}
         # Only the image and GIT_SHA change here. Runtime service account,
         # secrets and env are set once by infra/gcp/run-services.sh and kept.
