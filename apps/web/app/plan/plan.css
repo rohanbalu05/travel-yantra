@@ -121,6 +121,13 @@
 .it-swap{align-self:center}
 .rev-msg{margin:0;padding:10px 12px;border-radius:4px;background:#E5EEE9;color:#1B4539;font-size:14.5px;line-height:1.5}
 .rev-msg.bad{background:#F6EAD2;color:#5F3D0B}
+.smap{margin:0}
+.smap-box{position:relative;aspect-ratio:4/3;border:1px solid #D8CFBF;border-radius:4px;overflow:hidden;background:#E8E1D2}
+.smap-box svg{position:absolute;inset:0;width:100%;height:100%}
+.smap-pin{position:absolute;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;display:grid;place-items:center;border:2px solid #FFFDF9;background:#13212B;color:#F4EFE6;font-family:var(--f-mono);font-size:12.5px;font-weight:700;text-decoration:none;box-shadow:0 1px 3px #13212B55}
+.smap-pin:hover{background:#E3A33B;color:#13212B}
+.smap-pin.stay{background:#245A4B}
+.map-cap{display:flex;justify-content:space-between;gap:10px;padding:10px 2px 0;font-size:13.5px;color:#56646E}
 .note-list{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14.5px;line-height:1.5}
 .warn-list{margin:0;padding:12px 14px 12px 32px;border-radius:4px;background:#F6EAD2;color:#5F3D0B;font-size:14.5px;line-height:1.5}
 @media (max-width:600px){

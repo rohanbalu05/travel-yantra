@@ -252,3 +252,6 @@ textarea.input{min-height:132px;padding:14px;line-height:1.55;resize:vertical}
   .stop-side{grid-column:3;align-items:flex-start;text-align:left;margin-top:8px}
   .leg{grid-template-columns:52px 28px minmax(0,1fr)}
 }
+
+/* A failed call: the reason, and Try again when it may help (components/Problem.tsx). */
+.problem{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:4px;background:#F6EAD2;color:#5F3D0B;font-size:15px;line-height:1.5}

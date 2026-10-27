@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { NoPlan } from "@/components/NoPlan";
+import { StopsMap } from "@/components/StopsMap";
 import { Trail } from "@/components/Trail";
 import type { DayPlan, Itinerary, ReviseRequest } from "@/lib/contracts";
 import { MODE_NAME, clock, dayLabel, duration, inr, weekday } from "@/lib/format";
@@ -23,8 +24,19 @@ function dayTitle(day: DayPlan): string {
   return names.length > 2 ? `${names[0]} and ${names.length - 1} more` : names.join(" and ");
 }
 
-function Plan({ it, planId }: { it: Itinerary; planId: string | null }) {
+function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null; shareToken: string | null }) {
   const [sel, setSel] = useState(0);
+  const [shared, setShared] = useState<string | null>(null);
+  // The link shows the plan only (TY1's GET /trips/{token}), never bookings or names.
+  const share = async () => {
+    const url = `${window.location.origin}/t/${encodeURIComponent(shareToken!)}/`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setShared("Link copied");
+    } catch {
+      setShared(url);
+    }
+  };
   const choice = useChoice() ?? null;
   const [busy, setBusy] = useState<string | null>(null);
   const [said, setSaid] = useState<{ text: string; bad: boolean } | null>(null);
@@ -86,6 +98,9 @@ function Plan({ it, planId }: { it: Itinerary; planId: string | null }) {
             </div>
           </div>
           <div className="it-actions">
+            {shareToken && (
+              <button type="button" className="btn btn-quiet btn-sm" onClick={share}>{shared ?? "Share with family"}</button>
+            )}
             <Link className="btn btn-primary btn-sm" href="/book/">Book this plan</Link>
           </div>
         </div>
@@ -155,6 +170,12 @@ function Plan({ it, planId }: { it: Itinerary; planId: string | null }) {
         </section>
 
         <aside className="side" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {day && (day.stops ?? []).length > 0 && (
+            <StopsMap
+              pins={(day.stops ?? []).map((s, i) => ({ id: s.id, label: String(i + 1), name: s.name, lat: s.lat, lng: s.lng, kind: "stop" }))}
+              caption={`${dayLabel(day.date)}: ${(day.stops ?? []).length} stop${(day.stops ?? []).length > 1 ? "s" : ""}, numbered in order`}
+            />
+          )}
           {planId && day && (
             <section className="panel" aria-labelledby="ch-h">
               <div className="panel-head"><h2 className="h3" id="ch-h">Change {weekday(day.date)}</h2><span className="hint">Only this day is rebuilt</span></div>
@@ -212,5 +233,5 @@ function Plan({ it, planId }: { it: Itinerary; planId: string | null }) {
 
 export default function ItineraryPage() {
   const res = usePlanResult();
-  return <AppShell>{res === undefined ? null : res ? <div><Plan it={res.itinerary} planId={res.plan_id} /></div> : <NoPlan />}</AppShell>;
+  return <AppShell>{res === undefined ? null : res ? <div><Plan it={res.itinerary} planId={res.plan_id} shareToken={res.share_token ?? null} /></div> : <NoPlan />}</AppShell>;
 }

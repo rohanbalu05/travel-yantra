@@ -4,6 +4,8 @@ import goa from "@/lib/samples/goa_family.json";
 /** The Goa family sample (Arjun Rao and family), from packages/contracts/samples. */
 export const GOA_REQUEST = goa.request as TripRequest;
 export const GOA_ITINERARY = goa.itinerary as Itinerary;
+/** The mock plan's share token; /t/{token} opens it without an API. */
+export const SAMPLE_SHARE_TOKEN = "sample-goa-family";
 
 /** The events TY1's /plan sends for the Goa sample, in the agreed order. */
 export function goaEvents(): PlanEvent[] {
@@ -27,7 +29,7 @@ export function goaEvents(): PlanEvent[] {
     { stage: "repairing", step: "repair", iteration: 1, message: "Moved the sunset stop earlier.", partial: it },
     { stage: "checking", step: "checker", iteration: 2, message: "All checks passed.", violations: [], partial: it },
     { stage: "narrating", step: "narrator", message: "Writing your day-by-day plan.", partial: it },
-    { stage: "done", step: null, message: "Your plan is ready.", partial: it, plan_id: "sample-goa-family" },
+    { stage: "done", step: null, message: "Your plan is ready.", partial: it, plan_id: "sample-goa-family", share_token: SAMPLE_SHARE_TOKEN },
   ];
 }
 
@@ -50,7 +52,7 @@ export function mockReviseBody(req: ReviseRequest, delayMs = 300): ReadableStrea
       { stage: "intake", message: "Revising your plan…" },
       { stage: "solving", step: "solver", message: "Rebuilding that day.", partial: it },
       { stage: "checking", step: "checker", iteration: 1, message: "All checks passed.", violations: [], partial: it },
-      { stage: "done", message: "Your plan is updated.", partial: it, plan_id: "sample-goa-family-r1" },
+      { stage: "done", message: "Your plan is updated.", partial: it, plan_id: "sample-goa-family-r1", share_token: SAMPLE_SHARE_TOKEN },
     ],
     delayMs,
   );

@@ -1,5 +1,12 @@
-import { Placeholder } from "@/components/Placeholder";
+"use client";
+
+import { Suspense } from "react";
+import { KathaSubject } from "@/components/KathaSubject";
 
 export default function Page() {
-  return <Placeholder slug="katha-city" />;
+  return (
+    <Suspense>
+      <KathaSubject kind="city" fallback="Mysuru" />
+    </Suspense>
+  );
 }

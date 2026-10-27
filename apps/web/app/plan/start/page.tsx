@@ -5,6 +5,7 @@ import { Suspense, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Trail } from "@/components/Trail";
 import type { Lang } from "@/lib/contracts";
+import { track } from "@/lib/metrics";
 import { savePlanInput } from "@/lib/plan";
 import { FOODS, INTERESTS, PACES, formProblems, goaForm, toTripRequest, type TripForm } from "@/lib/tripForm";
 import "../plan.css";
@@ -35,6 +36,7 @@ function PlanStart() {
     setTried(true);
     if (problems.length) return;
     savePlanInput(mode === "form" ? toTripRequest(form, lang) : { text: text.trim(), lang });
+    track("start");
     router.push("/plan/thinking/");
   };
 

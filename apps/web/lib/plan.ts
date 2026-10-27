@@ -1,5 +1,6 @@
 import { useMemo, useSyncExternalStore } from "react";
 import { API_BASE_URL } from "@/lib/api";
+import { detailText } from "@/lib/http";
 import type { Itinerary, PlanEvent, PlanStage, PlanText, ReviseRequest, TripRequest } from "@/lib/contracts";
 import { mockPlanBody, mockReviseBody } from "@/lib/mockPlan";
 import { parseSSE } from "@/lib/sse";
@@ -10,14 +11,6 @@ export type PlanBody = TripRequest | PlanText;
 export const TERMINAL: ReadonlySet<PlanStage> = new Set(["done", "needs_input", "error"]);
 
 export class PlanHttpError extends Error {}
-
-/** Short, readable reason from a FastAPI error body (`detail` is a string or a list). */
-function detailText(body: unknown): string {
-  const d = (body as { detail?: unknown } | null)?.detail;
-  if (typeof d === "string") return d;
-  if (Array.isArray(d)) return d.map((x) => (x as { msg?: string }).msg ?? "").filter(Boolean).join("; ");
-  return "";
-}
 
 /**
  * POST /plan and yield its events, stopping after the first terminal one.

@@ -6,6 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { Trail } from "@/components/Trail";
 import type { ViolationCode } from "@/lib/contracts";
 import { inr } from "@/lib/format";
+import { track } from "@/lib/metrics";
 import { GOA_REQUEST } from "@/lib/mockPlan";
 import { PlanHttpError, savePlanInput, savePlanResult, streamPlan, usePlanInput, type PlanBody } from "@/lib/plan";
 import { AGENTS, initialPlanState, planReducer, type Agent, type PlanState } from "@/lib/planState";
@@ -151,7 +152,9 @@ export default function PlanThinking() {
   }, [bodyKey, run]);
 
   useEffect(() => {
-    if (state.status === "done" && state.itinerary) savePlanResult({ itinerary: state.itinerary, plan_id: state.planId, share_token: state.shareToken });
+    if (state.status !== "done" || !state.itinerary) return;
+    savePlanResult({ itinerary: state.itinerary, plan_id: state.planId, share_token: state.shareToken });
+    track("plan_shown");
   }, [state.status, state.itinerary, state.planId, state.shareToken]);
 
   const retry = () => {

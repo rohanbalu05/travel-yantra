@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { PlayIcon, Wave } from "@/components/Wave";
+import { track } from "@/lib/metrics";
 import { savePlanInput } from "@/lib/plan";
 import "./home.css";
 
@@ -35,6 +36,7 @@ export default function HomePage() {
     const text = ask.trim();
     if (!text) return router.push("/plan/start/");
     savePlanInput({ text, lang: "en" });
+    track("start");
     router.push("/plan/thinking/");
   };
   return (
