@@ -25,7 +25,7 @@ from .places import PlacesClient
 from .planner import corpus_city
 from .retrieval.retrieve import Filters, Hit, TripContext, search
 
-K = 6  # sources handed to the model
+K = 5  # sources handed to the model: fewer tokens in, a faster answer (card #40)
 MAX_TOKENS = 800  # an answer is about 100 tokens; the rest is headroom
 EMERGENCY_NUMBER = "112"  # India's single emergency number: police, fire, ambulance
 REFUSAL = (

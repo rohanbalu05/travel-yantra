@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import logging
 import re
+import time
 import typing
 from typing import Any, Literal
 
@@ -30,6 +31,9 @@ TIMEOUT_S = 60  # per call; long-form output does not fit core.llm's 20 s defaul
 #: Thinking tokens count toward the cap: at "low", a long prompt used ~2,900 of 3,000 and
 #: the story was cut at ~100 words. Drafts and rewrites think minimally, with room to spare.
 MAX_TOKENS = 6000
+#: The outline is a plan, not prose: Flash-Lite with brief facts. On Flash with full
+#: facts and low thinking it averaged 18.5 s and twice hit 504 at 60 s (taste gate).
+OUTLINE_TIER = "lite"
 #: The model undershoots long single drafts (~500 of 750 words) and lands chapter-sized ones.
 CHAPTERS = {2: 1, 5: 2, 10: 4}
 #: Labels the contract accepts. Anything else folds into "history" (the text keeps
@@ -103,9 +107,14 @@ Every LEGEND paragraph says in its own words that it is a legend: "People here s
 No title, no headings, no lists, no notes to the editor, nothing before the first label."""
 
 
-def facts_block(facts: list[Fact]) -> str:
+def facts_block(facts: list[Fact], brief: bool = False) -> str:
+    """The numbered facts. brief: the first two sentences only, enough to plan with."""
+
+    def body(text: str) -> str:
+        return " ".join(re.split(r"(?<=[.!?])\s+", text.strip())[:2]) if brief else text
+
     return "\n\n".join(
-        f"[{f.n}]{' (legend)' if f.is_legend else ''} {f.title or ''}\n{f.body}" for f in facts
+        f"[{f.n}]{' (legend)' if f.is_legend else ''} {f.title or ''}\n{body(f.body)}" for f in facts
     )
 
 
@@ -118,7 +127,7 @@ def outline_prompt(subject: Subject, length: int, facts: list[Fact]) -> str:
         f"{f', {subject.city}' if subject.city and subject.city != subject.name else ''}"
         f" for a traveller standing there.\n\n{RULES}\n\n"
         f"Plan it as {shape}. Use only these facts; give each beat the numbers of the facts "
-        f"it uses and label it history, legend or disputed.\n\nFacts:\n\n{facts_block(facts)}"
+        f"it uses and label it history, legend or disputed.\n\nFacts:\n\n{facts_block(facts, brief=True)}"
     )
 
 
@@ -178,15 +187,23 @@ def renumber(segments: list[tuple[str, str]], facts: list[Fact]) -> tuple[list[S
     return out, sources
 
 
+async def _timed(step: str, call):
+    """Await one model call and log it with its time: every Katha call shows in the logs."""
+    start = time.monotonic()
+    try:
+        return await call
+    finally:
+        log.info("katha model call: %s %.1fs", step, time.monotonic() - start)
+
+
 async def _chapter(model: Any, subject, length, outline, i, facts, words) -> tuple[str, str]:
-    log.info("katha model call: draft %s ch%d/%d", subject.name, i + 1, len(outline.chapters))
-    draft = await model.text(draft_prompt(subject, length, outline, i, facts), tier="flash",
-                             thinking="minimal", max_output_tokens=MAX_TOKENS, temperature=0.7,
-                             timeout_s=TIMEOUT_S)  # fmt: skip
-    log.info("katha model call: critique %s ch%d/%d", subject.name, i + 1, len(outline.chapters))
-    reply = await model.text(critique_prompt(subject, outline, draft, words, facts), tier="flash",
-                             thinking="minimal", max_output_tokens=MAX_TOKENS, temperature=0.4,
-                             timeout_s=TIMEOUT_S)  # fmt: skip
+    where = f"{subject.name} ch{i + 1}/{len(outline.chapters)}"
+    draft = await _timed(f"draft {where}", model.text(
+        draft_prompt(subject, length, outline, i, facts), tier="flash", thinking="minimal",
+        max_output_tokens=MAX_TOKENS, temperature=0.7, timeout_s=TIMEOUT_S))  # fmt: skip
+    reply = await _timed(f"critique {where}", model.text(
+        critique_prompt(subject, outline, draft, words, facts), tier="flash", thinking="minimal",
+        max_output_tokens=MAX_TOKENS, temperature=0.4, timeout_s=TIMEOUT_S))  # fmt: skip
     parts = SEPARATOR.split(reply)
     critique, revised = (parts[0], parts[-1]) if len(parts) > 1 else (reply, "")
     # No separator, no labels, or a rewrite that was cut short: keep the draft.
@@ -206,9 +223,9 @@ async def write(model: Any, subject: Subject, length_min: int, facts: list[Fact]
         raise KathaFailed([f"only {len(facts)} sourced facts; too thin for a story"])
     problems: list[str] = []
     for attempt in range(1, ATTEMPTS + 1):
-        log.info("katha model call: outline %s %dmin (attempt %d)", subject.name, length, attempt)
-        outline = await model.json(outline_prompt(subject, length, facts), Outline,
-                                   tier="flash", thinking="low", timeout_s=TIMEOUT_S)  # fmt: skip
+        outline = await _timed(f"outline {subject.name} {length}min", model.json(
+            outline_prompt(subject, length, facts), Outline,
+            tier=OUTLINE_TIER, thinking="minimal", timeout_s=TIMEOUT_S))  # fmt: skip
         low, high = checks.BANDS[length]
         words = low * 11 // 10 // max(len(outline.chapters), 1)
         texts, critiques = [], []
