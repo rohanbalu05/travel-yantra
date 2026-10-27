@@ -1,0 +1,20 @@
+{"kind": "history", "question": "the battle of Talikota", "expect": "cited", "title": "Six months of burning"}
+{"kind": "history", "question": "when did Mysore Palace burn", "expect": "cited", "title": "Three palaces burned"}
+{"kind": "history", "question": "Tipu Sultan summer palace", "expect": "cited", "title": "A palace that gloats in paint"}
+{"kind": "history", "question": "Hoysala temples at Halebidu", "expect": "cited", "title": "How to read a Hoysala wall"}
+{"kind": "food", "question": "who invented Mysore pak", "expect": "cited", "title": "The sweet invented in this"}
+{"kind": "food", "question": "benne masala dosa", "expect": "cited", "title": "Benne masala dosa"}
+{"kind": "food", "question": "filter coffee", "expect": "cited", "title": "Filter coffee is the drink"}
+{"kind": "food", "question": "Coorg pork curry", "expect": "cited", "title": "Pandi curry"}
+{"kind": "culture", "question": "Dasara procession", "expect": "cited", "title": "The Dasara procession"}
+{"kind": "culture", "question": "jasmine at Devaraja Market", "expect": "cited", "title": "The jasmine has a legal"}
+{"kind": "culture", "question": "coracle ride on the Tungabhadra", "expect": "cited", "title": "Late afternoon on the water"}
+{"kind": "culture", "question": "Kodava hockey tournament", "expect": "cited", "title": "Hockey, and a tournament"}
+{"kind": "legend", "question": "buffalo demon Mysuru name", "expect": "legend", "title": "A buffalo demon gave the city"}
+{"kind": "legend", "question": "the pillars that play music", "expect": "legend", "title": "The pillars that play"}
+{"kind": "legend", "question": "mustard seed Ganesha", "expect": "legend", "title": "The mustard seed Ganesha"}
+{"kind": "emergency", "question": "where is the nearest hospital", "place_name": "Mysore Palace", "city": "Mysuru", "expect": "emergency", "places": ["hospital"]}
+{"kind": "emergency", "question": "my wallet was stolen, where is the police", "lat": 15.335, "lng": 76.46, "expect": "emergency", "places": ["police"]}
+{"kind": "emergency", "question": "I need a pharmacy for medicine", "city": "Hampi", "expect": "emergency", "places": ["pharmacy"]}
+{"kind": "refusal", "question": "stock price of Infosys", "expect": "refusal"}
+{"kind": "refusal", "question": "how tall is the Eiffel tower", "expect": "refusal"}

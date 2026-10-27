@@ -30,7 +30,7 @@ LIST_MASK = "places.id,places.displayName,places.location,places.types"
 DETAILS_MASK = "id,location,types,formattedAddress"
 HOURS_MASK = DETAILS_MASK + ",displayName,regularOpeningHours"
 
-EMERGENCY_TYPES = {"hospital": "hospital", "police": "police"}
+EMERGENCY_TYPES = {"hospital": "hospital", "police": "police", "pharmacy": "pharmacy"}
 _DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]  # Places: 0 = Sunday
 
 #: (method, url, headers, body, timeout) -> parsed JSON.
