@@ -9,6 +9,8 @@ PATTERNS = {
     "bearer token": re.compile(r"Bearer\s+[A-Za-z0-9._-]{20,}", re.I),
     "key in url or json": re.compile(r"(api[_-]?key|token|secret)[\"']?\s*[:=]\s*[\"']?[A-Za-z0-9_-]{16,}", re.I),
     "phone number": re.compile(r"(?<!\d)(\+?91[\s-]?)?[6-9]\d{9}(?!\d)"),
+    # Landlines with an STD code, spaced or not: 0832 222 2222, +91 832 2222222.
+    "landline number": re.compile(r"(?<![\d.])(?:0|\+91[\s-]?)[1-9]\d{1,3}[\s-]?\d{3,4}[\s-]?\d{3,4}(?![\d.])"),
 }
 
 

@@ -42,6 +42,9 @@ common=(--region "$R" --project "$P" --min-instances 0 --max-instances 2 --cpu 1
         --concurrency 40 --cpu-throttling --quiet)
 
 CONN=$P:$R:ty-pg
+NUM=$(gcloud projects describe "$P" --format 'value(projectNumber)')
+[ -n "$NUM" ] || { echo "could not read the project number" >&2; exit 1; }
+WEB_URL="https://ty-web-$NUM.$R.run.app"
 VERTEX="GOOGLE_GENAI_USE_VERTEXAI=true@GOOGLE_CLOUD_PROJECT=$P@GOOGLE_CLOUD_LOCATION=global"
 
 url_of() {  # the service's Cloud Run URL, or empty if it doesn't exist yet
@@ -56,10 +59,7 @@ case "${1:-}" in
     # Cloud Run serves a legacy hash URL (status.url) and the project-number URL
     # we hand out; browsers may arrive on either.
     web_url=$(gcloud run services describe ty-web --region "$R" --project "$P" --format 'value(status.url)' 2>/dev/null || true)
-    if [ -n "$web_url" ]; then
-      num=$(gcloud projects describe "$P" --format 'value(projectNumber)')
-      web_url="$web_url,https://ty-web-$num.$R.run.app"
-    fi
+    [ -n "$web_url" ] && web_url="$web_url,$WEB_URL"
     # Gemini models are served at the global location on the trial project.
     # ^@^ makes "@" the list separator so the comma-separated CORS value survives.
     # 2 GiB: the image bakes torch and multilingual-e5-small for /guide/ask (V3-T).
@@ -81,10 +81,13 @@ case "${1:-}" in
     gcloud run deploy ty-translate --image "$R-docker.pkg.dev/$P/ty/ty-translate:$SHA" "${common[@]}" \
       --service-account "ty-translate-run@$P.iam.gserviceaccount.com" --memory 512Mi \
       --set-env-vars "^@^$VERTEX@TY_MODEL_LITE=gemini-3.1-flash-lite@TY_TRANSLATOR=gemini@GIT_SHA=$SHA"
+    granted=0
     for caller in ty-bots-run ty-mcp-run; do
       gcloud run services add-iam-policy-binding ty-translate --region "$R" --project "$P" \
-        --member "serviceAccount:$caller@$P.iam.gserviceaccount.com" --role roles/run.invoker --format none
+        --member "serviceAccount:$caller@$P.iam.gserviceaccount.com" --role roles/run.invoker --format none \
+        && granted=$((granted + 1)) || echo "invoker grant failed for $caller" >&2
     done
+    [ "$granted" -eq 2 ] || exit 1
     ;;
   ty-bots)
     # Public for Meta's webhook (the bot verifies Meta's signature itself); the
@@ -93,7 +96,7 @@ case "${1:-}" in
     sec=$(secrets_flag WHATSAPP_TOKEN WHATSAPP_VERIFY_TOKEN WHATSAPP_APP_SECRET WHATSAPP_PHONE_NUMBER_ID WHATSAPP_ALLOWED_RECIPIENTS)
     gcloud run deploy ty-bots --image "$R-docker.pkg.dev/$P/ty/ty-bots:$SHA" "${common[@]}" \
       --service-account "ty-bots-run@$P.iam.gserviceaccount.com" --memory 512Mi \
-      --set-env-vars "^@^API_BASE_URL=$(url_of ty-api)@TRANSLATE_URL=$(url_of ty-translate)@SHARE_BASE_URL=https://ty-web-$(gcloud projects describe "$P" --format 'value(projectNumber)').$R.run.app@GIT_SHA=$SHA" \
+      --set-env-vars "^@^API_BASE_URL=$(url_of ty-api)@TRANSLATE_URL=$(url_of ty-translate)@SHARE_BASE_URL=$WEB_URL@GIT_SHA=$SHA" \
       ${sec:+"$sec"}
     ;;
   ty-mcp)

@@ -84,7 +84,8 @@ jobs:
     needs: plan
     if: needs.plan.outputs.matrix != '[]'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Build (up to 30 min for ty-api's torch image) + deploy + warm-up.
+    timeout-minutes: 40
     permissions:
       contents: read
       id-token: write
@@ -124,12 +125,22 @@ jobs:
             --substitutions "_DOCKERFILE=${{ matrix.service.dockerfile }},_IMAGE=$IMAGE,_API_BASE_URL=$api_url" \
             --project "$PROJECT")
           echo "build $id"
+          # Give up after 10 failed reads in a row, or 33 min (the build's own
+          # limit is 30), and cancel the build so it doesn't run on unwatched.
+          fails=0 deadline=$((SECONDS + 1980))
           while :; do
             status=$(gcloud builds describe "$id" --region asia-south1 --project "$PROJECT" --format 'value(status)' || echo RETRY)
             case "$status" in
               SUCCESS) echo "build $id: SUCCESS"; break ;;
               FAILURE|INTERNAL_ERROR|TIMEOUT|CANCELLED|EXPIRED) echo "::error::build $id: $status"; exit 1 ;;
+              RETRY) fails=$((fails + 1)) ;;
+              *) fails=0 ;;
             esac
+            if [ "$fails" -ge 10 ] || [ "$SECONDS" -ge "$deadline" ]; then
+              echo "::error::build $id: no result (status $status, $fails failed reads)"
+              gcloud builds cancel "$id" --region asia-south1 --project "$PROJECT" || true
+              exit 1
+            fi
             sleep 15
           done
       - name: Deploy ${{ matrix.service.name }}
@@ -148,7 +159,7 @@ jobs:
         if: matrix.service.name == 'ty-api'
         run: |
           url=$(gcloud run services describe ty-api --region asia-south1 \
-            --project "${{ vars.GCP_PROJECT_ID }}" --format 'value(status.url)')
+            --project "${{ vars.GCP_PROJECT_ID }}" --format 'value(status.url)' || true)
           curl -sS -o /dev/null --max-time 120 -X POST "$url/guide/ask" \
             -H 'content-type: application/json' \
             -d '{"question":"When was Mysore Palace built?","city":"Mysuru"}' \

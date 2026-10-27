@@ -54,6 +54,7 @@ HOTELS = {"panaji": "hotels in Panaji, Goa", "mysuru": "hotels in Mysuru, Karnat
 
 DROP_KEYS = {
     "nationalPhoneNumber", "internationalPhoneNumber", "phone", "phone_number",
+    "phone_numbers", "telephone", "tel", "contact", "contact_phone",
     "reviews", "authorAttribution", "author", "user", "profile_photo_url",
 }
 KEY_PARAM = re.compile(r"([?&])(api_key|key)=[^&\"\s]*")
