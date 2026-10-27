@@ -43,6 +43,8 @@ describe("account without an API (this browser)", () => {
     const { trips, from } = await listTrips();
     expect(from).toBe("browser");
     expect(trips.map((t) => [t.plan_id, t.title])).toEqual([["p1", "Bengaluru to Goa"]]);
+    await saveConsents({ plan_history: false, location: false, analytics: false }); // withdrawing erases them
+    expect((await listTrips()).trips).toEqual([]);
   });
 
   it("deletes the account, trips, plan in progress and study id, but not the language", async () => {
@@ -50,10 +52,12 @@ describe("account without an API (this browser)", () => {
     await saveConsents({ plan_history: true, location: true, analytics: true });
     await rememberTrip(GOA_ITINERARY, "p1", "s1");
     local.m.set("ty.lang", "kn");
+    await rate({ plan_id: "p1", score: 5, comment: "lovely", lang: "en" });
     session.m.set("ty.plan.result", "{}");
     session.m.set("ty.metrics.session", "abc");
     expect(await deleteMyData()).toEqual({ server: null });
     expect(local.m.has("ty.account")).toBe(false);
+    expect(local.m.has("ty.ratings")).toBe(false);
     expect(session.m.has("ty.plan.result")).toBe(false);
     expect(session.m.has("ty.metrics.session")).toBe(false);
     expect(local.m.get("ty.lang")).toBe("kn");

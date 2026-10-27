@@ -135,7 +135,10 @@ const bearer = (token: string | null) => (token ? { Authorization: `Bearer ${tok
 
 export async function saveConsents(next: Consents) {
   await tryApi((token) => apiJSON<unknown>("/me/consents", { method: "PUT", body: next, headers: bearer(token) }));
-  store({ ...load(), consents: next, consents_updated_at: new Date().toISOString() });
+  const a = load();
+  // Withdrawing "Keep my trips" also removes the trips kept under it (DPDP: stop using it, and erase it).
+  const trips = next.plan_history ? a.trips : [];
+  store({ ...a, trips, consents: next, consents_updated_at: new Date().toISOString() });
 }
 
 /** Saves a finished plan to My Trips, only with the plan_history consent. */
@@ -169,8 +172,18 @@ export async function listTrips(): Promise<{ trips: SavedTrip[]; from: "api" | "
  */
 export async function deleteMyData(): Promise<{ server: number | null }> {
   const r = await tryApi((token) => apiJSON<{ deleted: boolean; items: number }>("/me", { method: "DELETE", headers: bearer(token) }));
-  if (firebaseEnabled) await signOut().catch(() => {});
+  if (firebaseEnabled) {
+    // Remove the Google sign-in record too. Firebase may ask for a recent sign-in; then at least sign out.
+    const { auth, instance } = await firebaseAuth();
+    const user = instance.currentUser;
+    await (user ? auth.deleteUser(user) : Promise.resolve()).catch(() => auth.signOut(instance)).catch(() => {});
+  }
   store(null);
+  try {
+    localStorage.removeItem(RATINGS_KEY);
+  } catch {
+    // Nothing stored.
+  }
   try {
     for (const k of ["ty.plan.input", "ty.plan.result", "ty.plan.choice", "ty.metrics.session"]) sessionStorage.removeItem(k);
     window.dispatchEvent(new Event("ty-plan-stored"));
