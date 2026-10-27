@@ -46,3 +46,5 @@
 .timeline i{width:10px;height:10px;margin-top:5px;border-radius:50%;background:#A99E8B}
 .timeline li:first-child i{background:#245A4B}
 @media (max-width:600px){.timeline li{grid-template-columns:92px 14px minmax(0,1fr)}}
+.bk-sec .rev-msg{margin:12px 0 0;padding:10px 12px;border-radius:4px;background:#E5EEE9;color:#1B4539;font-size:14.5px;line-height:1.5}
+.bk-sec .rev-msg.bad{background:#F6EAD2;color:#5F3D0B}

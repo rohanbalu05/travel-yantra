@@ -58,7 +58,7 @@ function Shared({ it }: { it: Itinerary }) {
             <div role="tabpanel">
               {dayRows(day, it).map((r, i) => (
                 <div className="it-row" key={i}>
-                  <span className="it-time">{r.kind === "stop" ? duration(r.place.typical_visit_minutes) : r.kind === "move" ? clock(r.leg.depart) : t("Night")}</span>
+                  <span className="it-time">{r.kind === "stop" ? (r.at ? clock(r.at.start) : duration(r.place.typical_visit_minutes)) : r.kind === "move" ? clock(r.leg.depart) : t("Night")}</span>
                   <span className={r.kind === "stop" ? "mk mk-stop" : r.kind === "move" ? "mk mk-move" : "mk mk-stay"}>{r.kind === "stop" ? r.n : r.kind === "move" ? "→" : "H"}</span>
                   <div className="it-body">
                     <b>{r.kind === "stop" ? r.place.name : r.kind === "move" ? t("{mode} to {place}", { mode: t(MODE_NAME[r.leg.mode]), place: r.leg.to }) : r.name}</b>

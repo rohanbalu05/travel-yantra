@@ -129,7 +129,7 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
                 {rows.map((r, i) =>
                   r.kind === "stop" ? (
                     <div className="it-row" key={i}>
-                      <span className="it-time">{duration(r.place.typical_visit_minutes)}</span>
+                      <span className="it-time">{r.at ? clock(r.at.start) : duration(r.place.typical_visit_minutes)}</span>
                       <span className="mk mk-stop">{r.n}</span>
                       <div className="it-body">
                         <b>{r.place.name}</b>

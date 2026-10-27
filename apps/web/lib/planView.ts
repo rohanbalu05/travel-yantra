@@ -1,14 +1,14 @@
-import type { DayPlan, Itinerary, Leg, Mode, Place, TransportOption } from "@/lib/contracts";
+import type { DayPlan, Itinerary, Leg, Mode, Place, StopTime, TransportOption } from "@/lib/contracts";
 import { daysBetween } from "@/lib/format";
 
-export type DayRow = { kind: "stop"; n: number; place: Place } | { kind: "move"; leg: Leg } | { kind: "stay"; name: string };
+export type DayRow = { kind: "stop"; n: number; place: Place; at?: StopTime } | { kind: "move"; leg: Leg } | { kind: "stay"; name: string };
 
 /** A journey between cities (TY1's Leg.role), as opposed to a hop between two stops. */
 export const isJourney = (leg: Leg) => leg.role === "outbound" || leg.role === "between" || leg.role === "home";
 
 /**
  * Stops in order, each followed by the leg that leaves it; the night's stay last.
- * The journey there (role outbound or between) opens the day and the journey home closes it.
+ * The journey there (role outbound or between) and its transfer open the day; the journey home closes it.
  * Plans from before Leg.role: a leg that leaves no stop opens the day.
  */
 export function dayRows(day: DayPlan, it: Itinerary): DayRow[] {
@@ -17,11 +17,12 @@ export function dayRows(day: DayPlan, it: Itinerary): DayRow[] {
   const legs = [...(day.legs ?? [])];
   const home = legs.filter((l) => l.role === "home");
   const rest = legs.filter((l) => l.role !== "home");
-  while (rest.length && (rest[0].role === "outbound" || rest[0].role === "between" || (rest[0].role == null && !names.has(rest[0].from)))) {
+  // The journey in, then TY1's transfer from the station or centre to the first stop (QA #118).
+  while (rest.length && (rest[0].role === "outbound" || rest[0].role === "between" || rest[0].role === "transfer" || (rest[0].role == null && !names.has(rest[0].from)))) {
     rows.push({ kind: "move", leg: rest.shift()! });
   }
   (day.stops ?? []).forEach((place, i) => {
-    rows.push({ kind: "stop", n: i + 1, place });
+    rows.push({ kind: "stop", n: i + 1, place, at: (day.schedule ?? []).find((x) => x.place_id === place.id) });
     const j = rest.findIndex((l) => l.from === place.name);
     if (j >= 0) rows.push({ kind: "move", leg: rest.splice(j, 1)[0] });
   });
@@ -31,9 +32,14 @@ export function dayRows(day: DayPlan, it: Itinerary): DayRow[] {
   return rows;
 }
 
-/** Whole-trip cost if this way of travel is picked: the plan's other costs plus this option. */
+/**
+ * Whole-trip cost if this way of travel is picked. The option in use is the plan's own total
+ * (TY1's budget counts every journey, home and between cities too); another is an estimate:
+ * the plan's other costs plus that option.
+ */
 export function tripCost(it: Itinerary, opt: TransportOption): number {
   const b = it.budget;
+  if (planMode(it) && opt === (it.transport ?? [])[pickIndex(it)]) return b.total_inr;
   return b.total_inr - b.transport_inr + opt.total_cost_inr;
 }
 
@@ -70,14 +76,11 @@ export function pickIndex(it: Itinerary): number {
   return (ok.length ? ok : fits).sort((a, b) => a.cost - b.cost)[0].i;
 }
 
-/** A leg with TY3's service number (train or flight), once the contract carries it; absent before. */
-export type RefLeg = Leg & { ref?: string | null };
-
 /**
  * The train the plan takes: the first rail journey in the days, else the first
  * rail leg of the option the days follow, else any rail leg.
  */
-export function planRailLeg(it: Itinerary): RefLeg | undefined {
+export function planRailLeg(it: Itinerary): Leg | undefined {
   const inDays = it.days.flatMap((d) => d.legs ?? []).find((l) => l.mode === "rail" && isJourney(l));
   if (inDays) return inDays;
   const opts = it.transport ?? [];

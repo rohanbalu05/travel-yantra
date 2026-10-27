@@ -26,6 +26,7 @@ export type {
   ReviseIntent,
   ReviseRequest,
   Stay,
+  StopTime,
   TransportOption,
   TripDraft,
   Traveller,

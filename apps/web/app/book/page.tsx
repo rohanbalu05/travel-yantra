@@ -6,20 +6,20 @@ import { AppShell } from "@/components/AppShell";
 import { NoPlan } from "@/components/NoPlan";
 import { Problem, problemOf } from "@/components/Problem";
 import { Trail } from "@/components/Trail";
-import type { CompareResponse, Itinerary, Mode, SellerOffer } from "@/lib/contracts";
+import type { Itinerary, Mode, SellerOffer } from "@/lib/contracts";
 import { MODE_ICON, MODE_NAME, clock, dayLabel, duration, inr } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
-import { saveChoice, useChoice, usePlanResult } from "@/lib/plan";
+import { usePlanResult } from "@/lib/plan";
 import { againstBudget, pickIndex, planRailLeg, tripCost } from "@/lib/planView";
-import { SAMPLE_PNRS, compareRoutes, irctcCard, partyFor, pnrStatus, type IrctcCard, type PnrStatus } from "@/lib/routes";
+import { SAMPLE_PNRS, irctcCard, partyFor, pnrStatus, type IrctcCard, type PnrStatus } from "@/lib/routes";
+import { useRevise } from "@/lib/useRevise";
 import "./book.css";
 
 type Load<T> = { data?: T; problem?: { message: string; retryable: boolean } } | null;
 
 // Whole phrases per mode, so each language can word them its own way.
 const CHOOSE: Record<Mode, string> = { rail: "Choose rail", air: "Choose air", road: "Choose road" };
-const NO_MODE: Record<Mode, string> = { rail: "No rail:", air: "No air:", road: "No road:" };
 
 function Offers({ offers }: { offers?: SellerOffer[] }) {
   const { t } = useI18n();
@@ -39,27 +39,14 @@ function Offers({ offers }: { offers?: SellerOffer[] }) {
   );
 }
 
-function Travel({ it }: { it: Itinerary }) {
-  const [cmp, setCmp] = useState<Load<CompareResponse>>(null);
-  const [run, setRun] = useState(0);
-  const stored = useChoice();
+// The plan's own options (TY1's Itinerary.transport), not a fresh compare: one source for Options,
+// Book and the share link (QA #104). The one in use is the mode the days were built with.
+function Travel({ it, planId }: { it: Itinerary; planId: string | null }) {
   const { lang, t } = useI18n();
+  const { busy, said, revise } = useRevise(planId, it.lang);
   const travellers = it.request.constraints?.travellers?.length || 1;
-
-  useEffect(() => {
-    const ctl = new AbortController();
-    compareRoutes(
-      { origin: it.request.origin, destination: it.request.destinations[0] ?? "", date: it.request.start_date, travellers },
-      it,
-      ctl.signal,
-    )
-      .then((data) => setCmp({ data }))
-      .catch((e) => !ctl.signal.aborted && setCmp({ problem: problemOf(e) }));
-    return () => ctl.abort();
-  }, [it, travellers, run]);
-
-  // Keep the mode chosen on PlanOptions highlighted here.
-  const chosenMode = (it.transport ?? [])[stored ?? pickIndex(it)]?.mode;
+  const opts = it.transport ?? [];
+  const inUse = pickIndex(it);
 
   return (
     <section className="bk-sec" aria-labelledby="go-h">
@@ -67,43 +54,33 @@ function Travel({ it }: { it: Itinerary }) {
         <h2 className="h2" id="go-h">{t("Getting there")}</h2>
         <span className="hint">{t("{from} to {to}, {date}, for {n}", { from: it.request.origin, to: it.request.destinations.join(", "), date: dayLabel(it.request.start_date, lang), n: travellers })}</span>
       </div>
-      {!cmp ? (
-        <p className="hint" role="status">{t("Comparing road, rail and air…")}</p>
-      ) : cmp.problem ? (
-        <Problem {...cmp.problem} onRetry={() => { setCmp(null); setRun((r) => r + 1); }} />
-      ) : (
-        <>
-          <div className="opts3">
-            {cmp.data!.options.map((r) => {
-              const o = r.option;
-              const on = o.mode === chosenMode;
-              return (
-                <article key={r.id} className={on ? "o3 on" : "o3"} aria-label={t("{mode} option {rank}", { mode: t(MODE_NAME[o.mode]), rank: r.rank })}>
-                  <div className="o3-top">
-                    <svg className="ic" viewBox="0 0 24 24" aria-hidden="true"><path d={MODE_ICON[o.mode]} /></svg>
-                    <b>{t(MODE_NAME[o.mode])}</b>
-                    {r.rank === 1 && <span className="badge badge-sea">{t("Best match")}</span>}
-                  </div>
-                  <span className="price">{inr(o.total_cost_inr)}</span>
-                  <small>{duration(o.total_minutes)} · {r.changes === 0 ? t("direct") : r.changes > 1 ? t("{n} changes", { n: r.changes }) : t("{n} change", { n: r.changes })} · {o.legs.map((l) => l.to).join(" → ")}</small>
-                  <Offers offers={o.offers} />
-                  {!on && (
-                    <button type="button" className="btn btn-quiet btn-sm" onClick={() => {
-                      const i = (it.transport ?? []).findIndex((x) => x.mode === o.mode);
-                      if (i >= 0) saveChoice(i);
-                      track("booking_chosen");
-                    }}>{t(CHOOSE[o.mode])}</button>
-                  )}
-                </article>
-              );
-            })}
-          </div>
-          {(cmp.data!.unavailable ?? []).map((u) => (
-            <p key={u.mode} className="unavail"><b>{t(NO_MODE[u.mode])}</b> {u.reason}</p>
-          ))}
-          {(cmp.data!.notes ?? []).map((n) => <p key={n} className="hint" style={{ margin: 0 }}>{n}</p>)}
-        </>
-      )}
+      <div className="opts3">
+        {opts.map((o, i) => {
+          const on = i === inUse;
+          const changes = Math.max(0, o.legs.length - 1);
+          return (
+            <article key={`${o.mode}-${i}`} className={on ? "o3 on" : "o3"} aria-label={t(MODE_NAME[o.mode])}>
+              <div className="o3-top">
+                <svg className="ic" viewBox="0 0 24 24" aria-hidden="true"><path d={MODE_ICON[o.mode]} /></svg>
+                <b>{t(MODE_NAME[o.mode])}</b>
+                {on && <span className="badge badge-sea">{t("In your plan")}</span>}
+              </div>
+              <span className="price">{inr(o.total_cost_inr)}</span>
+              <small>{duration(o.total_minutes)} · {changes === 0 ? t("direct") : changes > 1 ? t("{n} changes", { n: changes }) : t("{n} change", { n: changes })} · {o.legs.map((l) => l.to).join(" → ")}</small>
+              <Offers offers={o.offers} />
+              {!on && planId && (
+                <button type="button" className="btn btn-quiet btn-sm" disabled={!!busy}
+                  onClick={() => revise({ intent: "transport", mode: o.mode }, t("Done: the plan now goes by {mode}.", { mode: t(MODE_NAME[o.mode]).toLowerCase() }))}>
+                  {t(CHOOSE[o.mode])}
+                </button>
+              )}
+            </article>
+          );
+        })}
+      </div>
+      <p role="status" className={said?.bad ? "rev-msg bad" : "rev-msg"} hidden={!busy && !said}>
+        {busy ? t("Rebuilding…") : said?.text}
+      </p>
     </section>
   );
 }
@@ -119,9 +96,9 @@ function TrainCard({ it }: { it: Itinerary }) {
   useEffect(() => {
     if (!rail) return;
     const ctl = new AbortController();
-    // TY3 picks the train by number when the leg has one (Leg.ref, asked of TY1); else the first that runs.
+    // TY3 picks the train by number when the leg has one (Leg.ref); else the first that runs. Passenger rows follow the party size.
     const train = rail.ref && /^\d{5}$/.test(rail.ref) ? rail.ref : null;
-    irctcCard({ from: rail.from, to: rail.to, date: rail.depart.slice(0, 10), party: partyFor(it), train }, ctl.signal)
+    irctcCard({ from: rail.from, to: rail.to, date: rail.depart.slice(0, 10), party: partyFor(it), train, travellers: it.request.constraints?.travellers?.length || 1 }, ctl.signal)
       .then((data) => setCard({ data }))
       .catch((e) => !ctl.signal.aborted && setCard({ problem: problemOf(e) }));
     return () => ctl.abort();
@@ -232,9 +209,8 @@ function PnrTrack() {
   );
 }
 
-function Book({ it }: { it: Itinerary }) {
-  const stored = useChoice();
-  const way = (it.transport ?? [])[stored ?? pickIndex(it)];
+function Book({ it, planId }: { it: Itinerary; planId: string | null }) {
+  const way = (it.transport ?? [])[pickIndex(it)];
   const cost = way ? tripCost(it, way) : it.budget.total_inr;
   const vs = againstBudget(it, cost);
   const { lang, t } = useI18n();
@@ -250,7 +226,7 @@ function Book({ it }: { it: Itinerary }) {
         <div><small>{t("Budget")}</small><b>{it.request.constraints?.budget_inr ? inr(it.request.constraints.budget_inr) : t("Not set")}</b></div>
         <div><small>{vs && !vs.ok ? t("Over budget by") : t("Left over")}</small><b>{vs ? inr(vs.diff) : "—"}</b></div>
       </div>
-      <Travel it={it} />
+      <Travel it={it} planId={planId} />
       <TrainCard it={it} />
       <section className="bk-sec" aria-labelledby="stay-h">
         <div className="bk-sec-head"><h2 className="h2" id="stay-h">{t("Where you stay")}</h2></div>
@@ -278,5 +254,5 @@ function Book({ it }: { it: Itinerary }) {
 
 export default function BookPage() {
   const res = usePlanResult();
-  return <AppShell>{res === undefined ? null : res ? <div><Book it={res.itinerary} /></div> : <NoPlan />}</AppShell>;
+  return <AppShell>{res === undefined ? null : res ? <div><Book it={res.itinerary} planId={res.plan_id} /></div> : <NoPlan />}</AppShell>;
 }

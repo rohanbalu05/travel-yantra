@@ -252,3 +252,23 @@ describe("what a revise changed (QA #108)", () => {
     expect(s.solvedNote).toBe(`Dropped ${GOA_ITINERARY.days[1].stops!.at(-1)!.name}`);
   });
 });
+
+describe("TY1's journey day (QA #118, #104)", () => {
+  const out = { from: "Bengaluru", to: "Mysuru", mode: "rail" as const, depart: "2026-10-31T07:00:00", arrive: "2026-10-31T09:44:00", minutes: 164, cost_inr: 1200, role: "outbound" as const, ref: "12613" };
+  const transfer = { from: "Mysuru", to: "Mysore Palace", mode: "road" as const, depart: "2026-10-31T10:00:00", arrive: "2026-10-31T10:15:00", minutes: 15, cost_inr: 150, role: "transfer" as const };
+  const stop = { ...GOA_ITINERARY.days[0].stops![0], id: "palace", name: "Mysore Palace" };
+  const day = { date: "2026-10-31", stops: [stop], legs: [out, transfer], schedule: [{ place_id: "palace", arrive: "2026-10-31T10:15:00", start: "2026-10-31T10:20:00", leave: "2026-10-31T11:50:00" }] };
+  const plan = { ...GOA_ITINERARY, days: [day], stays: [] };
+
+  it("opens the day with the journey, then the transfer, then the stop at its scheduled time", () => {
+    const rows = dayRows(day, plan);
+    expect(rows.map((r) => (r.kind === "move" ? r.leg.role : r.kind))).toEqual(["outbound", "transfer", "stop"]);
+    expect(rows[2].kind === "stop" && rows[2].at?.start).toBe("2026-10-31T10:20:00");
+  });
+
+  it("costs the option in use at the plan's own total", () => {
+    expect(planRailLeg(plan)?.ref).toBe("12613");
+    const used = plan.transport!.find((o) => o.mode === "rail")!;
+    expect(tripCost(plan, used)).toBe(plan.budget.total_inr);
+  });
+});

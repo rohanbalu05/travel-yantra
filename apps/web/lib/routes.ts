@@ -51,7 +51,7 @@ export async function compareRoutes(req: CompareRequest, it: Itinerary, signal?:
   return apiJSON<CompareResponse>("/routes/compare", { body: req, signal, base });
 }
 
-export async function irctcCard(p: { from: string; to: string; date: string; party: Party; travel_class?: string; train?: string | null }, signal?: AbortSignal, base = API_BASE_URL): Promise<IrctcCard> {
+export async function irctcCard(p: { from: string; to: string; date: string; party: Party; travel_class?: string; train?: string | null; travellers?: number }, signal?: AbortSignal, base = API_BASE_URL): Promise<IrctcCard> {
   if (!base) {
     await wait(200);
     return sampleIrctcCard(p);
