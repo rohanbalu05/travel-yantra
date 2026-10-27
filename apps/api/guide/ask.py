@@ -49,7 +49,7 @@ URGENT = re.compile(
     re.I,
 )
 URGENT_RADIUS_M = 15000
-URGENT_RESULTS = 10
+URGENT_RESULTS = 20  # the most Nearby returns; one call either way
 #: Names that mean a hospital with casualty or emergency care. Places has no field for
 #: an emergency department, so this is the best signal it gives: a heuristic, and said so.
 MAJOR_HOSPITAL = re.compile(
@@ -60,14 +60,15 @@ MAJOR_HOSPITAL = re.compile(
     re.I,
 )
 #: Small care, even under a big name ("Apollo Clinic", "Heart Clinic", "Max Lab").
-MINOR_CARE = re.compile(
-    r"clinic|health cent|dispensary|\bdr\.?\s|polyclinic|diagnostic|nursing home|\blabs?\b|laborator"
-    r"|pharmac|chemist",
-    re.I,
-)
+MINOR_CARE = re.compile(r"clinic|health cent|dispensary|\bdr\.?\s|polyclinic|diagnostic|nursing home", re.I)
+#: Small care with beds: a hospital word does not lift these past real hospitals.
+SMALL_WITH_BEDS = re.compile(r"clinic|nursing home|health cent|dispensary", re.I)
+#: Never care for a patient, whatever else the name says ("Pharmax Medical Stores", live).
+NOT_CARE = re.compile(r"pharmac|chemist|medical (store|shop|hall)|medicals\b|\blabs?\b|laborator", re.I)
 #: ...unless the name also says it is a hospital ("Sample Clinic and Hospital").
 HOSPITAL_WORD = re.compile(r"hospital|medical college|trauma", re.I)
-MINOR_TYPES = {"doctor", "medical_clinic", "medical_lab", "dental_clinic", "pharmacy", "drugstore"}
+MINOR_TYPES = {"doctor", "medical_clinic", "dental_clinic"}
+NOT_CARE_TYPES = {"medical_lab", "pharmacy", "drugstore"}
 
 
 class Answerer(Protocol):
@@ -125,12 +126,16 @@ def care_tier(place: Place) -> int:
     "X Clinic and Hospital"), 3 a clinic, health centre, lab or doctor. Small care wins
     over a big name: "Apollo Clinic" is a clinic."""
     name = place.name
-    minor = place.category in MINOR_TYPES or bool(MINOR_CARE.search(name))
-    if minor:
-        return 2 if HOSPITAL_WORD.search(name) else 3
-    if MAJOR_HOSPITAL.search(name):
+    if place.category in NOT_CARE_TYPES or NOT_CARE.search(name):
+        return 3
+    hospital = bool(HOSPITAL_WORD.search(name))
+    if (place.category in MINOR_TYPES or MINOR_CARE.search(name)) and not hospital:
+        return 3
+    if hospital and SMALL_WITH_BEDS.search(name):
+        return 2
+    if MAJOR_HOSPITAL.search(name):  # "Dr. X Memorial Hospital" or "... & Diagnostic Centre" too
         return 0
-    return 1 if place.category == "hospital" or HOSPITAL_WORD.search(name) else 3
+    return 1 if place.category == "hospital" or hospital else 3
 
 
 def answer_emergency(
@@ -149,7 +154,8 @@ def answer_emergency(
     for kind in kinds:
         bigger = urgent and kind == "hospital"
         try:
-            nearby = (places.nearby_emergency(*where, kind, radius_m=URGENT_RADIUS_M, limit=URGENT_RESULTS)
+            nearby = (places.nearby_emergency(*where, kind, radius_m=URGENT_RADIUS_M, limit=URGENT_RESULTS,
+                                              rank="POPULARITY")
                       if bigger else places.nearby_emergency(*where, kind)) if places else []  # fmt: skip
         except Exception:  # no key, quota, network: say so, never fill the gap
             lines.append(f"I couldn't reach Google Maps for {KIND_LABEL[kind]} just now.")

@@ -335,6 +335,11 @@ def test_care_tier_reads_names_and_primary_type() -> None:
     assert care_tier(p("Sample Heart Clinic")) == 3 and care_tier(p("Max Lab", "medical_lab")) == 3
     assert care_tier(p("Apollo Hospitals")) == 0 and care_tier(p("Sample Masters Hospital")) == 1
     assert care_tier(p("Sample Clinic and Hospital")) == 2
+    # seen live near Panaji: a pharmacy typed medical_center ranked first under the old regex
+    assert care_tier(p("Pharmax Medical Stores", "medical_center")) == 3
+    assert care_tier(p("Apollo Hospital Pharmacy")) == 3 and care_tier(p("Sample Lab", "medical_lab")) == 3
+    assert care_tier(p("Dr. Sample Memorial Hospital")) == 1
+    assert care_tier(p("Sample Medical College Hospital & Diagnostic Centre")) == 0
 
 
 def test_chest_pain_ranks_full_hospitals_above_nearer_clinics() -> None:
@@ -346,7 +351,9 @@ def test_chest_pain_ranks_full_hospitals_above_nearer_clinics() -> None:
     assert names == ["Sample Medical College and Hospital", "Sample Town Hospital",
                      "Sample Nursing Home Hospital"]  # fmt: skip
     assert "full hospital" in answer.text and "7.0 km [1]" in answer.text and "112" in answer.text
-    assert t.bodies[0]["maxResultCount"] == 10 and t.bodies[0]["locationRestriction"]["circle"]["radius"] == 15000
+    body = t.bodies[0]
+    assert body["maxResultCount"] == 20 and body["locationRestriction"]["circle"]["radius"] == 15000
+    assert body["rankPreference"] == "POPULARITY"  # big hospitals a few km out, not the nearest 20
 
 
 @pytest.mark.parametrize("question", ["He fell and is bleeding badly", "road accident near us",

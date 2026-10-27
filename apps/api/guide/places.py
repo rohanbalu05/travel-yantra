@@ -183,14 +183,17 @@ class PlacesClient:
         return to_place(raw)
 
     def nearby_emergency(
-        self, lat: float, lng: float, kind: str = "hospital", *, radius_m: float = 10000, limit: int = 5
+        self, lat: float, lng: float, kind: str = "hospital", *, radius_m: float = 10000, limit: int = 5,
+        rank: str = "DISTANCE",
     ) -> list[Place]:
+        """rank DISTANCE: the nearest. POPULARITY: Google's prominence, which surfaces the big
+        hospitals a few km out that the nearest-N list misses."""
         if kind not in EMERGENCY_TYPES:
             raise ValueError(f"kind must be one of {sorted(EMERGENCY_TYPES)}")
         body = {
             "includedTypes": [EMERGENCY_TYPES[kind]],
             "maxResultCount": limit,
-            "rankPreference": "DISTANCE",
+            "rankPreference": rank,
             "locationRestriction": {
                 "circle": {"center": {"latitude": lat, "longitude": lng}, "radius": radius_m}
             },
