@@ -41,3 +41,4 @@ def test_extra_table_parses_both_key_forms():
 def test_web_strings_load():
     total, _ = r.review()
     assert total > 100
+    assert r.load()["Home"][0] == "index.tsx EXTRA"  # the EXTRA table still parses
