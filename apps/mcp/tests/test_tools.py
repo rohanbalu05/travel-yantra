@@ -15,7 +15,7 @@ CALLS = {
     "plan_trip": {"request": SAMPLE["request"]},
     "compare_transport": {"origin": "Bengaluru", "destination": "Panaji", "on": "2026-12-11"},
     "revise_trip": {"plan_id": "p1", "intent": "rain", "day": SAMPLE["days"][0]["date"]},
-    "get_katha": {"place_id": "goa-basilica", "length": 5},
+    "get_katha": {"subject": "goa-basilica", "length_min": 5},
     "ask_guide": {"question": "What should we eat in Panaji?", "lang": "hi"},
     "track_booking": {"pnr": "1234567890"},
 }
@@ -109,12 +109,33 @@ async def test_revise_trip_raises_on_error_event(monkeypatch):
     assert "no indoor stops" in res.content[0].text
 
 
-async def test_get_katha_calls_guide_katha(monkeypatch):
+async def test_get_katha_posts_guide_katha(monkeypatch):
     seen = _fake_api(monkeypatch, lambda req: httpx.Response(200, json=OFFLINE["katha"]))
     story = KathaStory.model_validate(await _call("get_katha"))
-    assert seen[0].url.path == "/guide/katha"
-    assert dict(seen[0].url.params) == {"place_id": "goa-basilica", "length": "5"}
+    assert seen[0].method == "POST" and seen[0].url.path == "/guide/katha"
+    assert json.loads(seen[0].content) == {
+        "subject_kind": "place",
+        "subject": "goa-basilica",
+        "length_min": 5,
+        "lang": "en",
+    }
     assert {s.label for s in story.segments} == {"legend", "history"}
+
+
+async def test_get_katha_for_a_day_sends_places(monkeypatch):
+    seen = _fake_api(monkeypatch, lambda req: httpx.Response(200, json=OFFLINE["katha"]))
+    async with connect(server.mcp._mcp_server) as client:
+        args = {"subject": "Day 1", "subject_kind": "day", "places": ["Se Cathedral"]}
+        res = await client.call_tool("get_katha", args)
+    assert not res.isError
+    assert json.loads(seen[0].content)["places"] == ["Se Cathedral"]
+
+
+async def test_get_katha_503_detail(monkeypatch):
+    _fake_api(monkeypatch, lambda req: httpx.Response(503, json={"detail": "busy"}))
+    async with connect(server.mcp._mcp_server) as client:
+        res = await client.call_tool("get_katha", CALLS["get_katha"])
+    assert res.isError and "busy" in res.content[0].text
 
 
 async def test_ask_guide_calls_guide_ask(monkeypatch):
@@ -236,7 +257,7 @@ async def test_get_katha_translates_text_and_segments(monkeypatch):
         ),
     )
     async with connect(server.mcp._mcp_server) as client:
-        res = await client.call_tool("get_katha", {"place_id": "goa-basilica", "lang": "kn"})
+        res = await client.call_tool("get_katha", {"subject": "goa-basilica", "lang": "kn"})
     assert len(sent) == 1  # text and segments in one translate call
     story = KathaStory.model_validate(res.structuredContent)
     assert story.lang == "kn" and story.text.startswith("<kn>")

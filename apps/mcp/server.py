@@ -59,16 +59,16 @@ def _offline(key: str) -> Any:
     return json.loads(OFFLINE.read_text(encoding="utf-8"))[key]
 
 
-async def _request(method: str, path: str, **kw: Any) -> Any:
-    async with httpx.AsyncClient(timeout=60) as client:
+async def _request(method: str, path: str, timeout: float = 60, **kw: Any) -> Any:
+    async with httpx.AsyncClient(timeout=timeout) as client:
         resp = await client.request(method, f"{_base()}{path}", **kw)
         _raise_for_detail(resp)
         return resp.json()
 
 
 def _raise_for_detail(resp: httpx.Response) -> None:
-    """On a 4xx, raise with the API's own words ("unknown sample PNR", a 422's messages)."""
-    if 400 <= resp.status_code < 500:
+    """On an error, raise with the API's own words ("unknown sample PNR", a 422's messages)."""
+    if resp.status_code >= 400:
         try:
             detail = resp.json().get("detail")
         except ValueError:
@@ -178,15 +178,27 @@ async def revise_trip(
 
 @mcp.tool()
 async def get_katha(
-    place_id: str, length: Literal[2, 5, 10] = 2, lang: Lang = Lang.en
+    subject: str,
+    subject_kind: Literal["place", "city", "day"] = "place",
+    length_min: Literal[2, 5, 10] = 2,
+    lang: Lang = Lang.en,
+    places: list[str] | None = None,
 ) -> KathaStory:
-    """Tell the story (Katha) of a place in 2, 5 or 10 minutes, legend and history labelled."""
+    """Tell the story (Katha) of a place, a city or a trip day in 2, 5 or 10 minutes.
+
+    subject: a place name or id slug (e.g. "mysuru-mysore-palace"), a city name, or for a day a
+    label with its `places`. Segments are labelled legend or history; [n] is sources[n-1].
+    A first telling can take up to a minute.
+    """
     if not _base():
         story = KathaStory.model_validate(_offline("katha"))
     else:
-        # ponytail: assumes GET /guide/katha?place_id=&length= (card #24; TY2 P2 will confirm)
-        params = {"place_id": place_id, "length": length}
-        story = KathaStory.model_validate(await _request("GET", "/guide/katha", params=params))
+        body = {"subject_kind": subject_kind, "subject": subject, "length_min": length_min}
+        body["lang"] = "en"  # the guide writes English; translation happens here
+        if subject_kind == "day":
+            body["places"] = places or []
+        data = await _request("POST", "/guide/katha", timeout=90, json=body)
+        story = KathaStory.model_validate(data)
     # One translate call for the text and every segment; Translator.text keeps the line count.
     items = [story.text, *(s.text for s in story.segments)]
     lines = (await Translator().text("\n".join(items), lang)).split("\n")
