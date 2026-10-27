@@ -37,9 +37,10 @@ const AGENT_INFO: Record<Agent, { name: string; sub: string; icon: React.ReactNo
 const tick = <path d="M5 12.5l4.5 4.5L19 7.5" />;
 const warn = <><circle cx="12" cy="12" r="9" /><path d="M12 7.5v5.5" /><path d="M12 16.5h.01" /></>;
 
-function title(body: PlanBody | null): string {
-  if (body && "destinations" in body && body.destinations.length) return `Planning your ${body.destinations.join(" and ")} trip`;
-  return "Planning your trip";
+/** From the form, or from what intake understood once a partial plan arrives. */
+function title(body: PlanBody | null, s: PlanState): string {
+  const dest = s.itinerary?.request.destinations ?? (body && "destinations" in body ? body.destinations : []);
+  return dest.length ? `Planning your ${dest.join(" and ")} trip` : "Planning your trip";
 }
 
 function AgentCard({ agent, find, planning }: { agent: Agent; find: string | null; planning: boolean }) {
@@ -177,7 +178,7 @@ export default function PlanThinking() {
           <Trail at={2} />
           <div className="pt-titlebar">
             <div className="col-10">
-              <h1 className="page-title">{title(body)}</h1>
+              <h1 className="page-title">{title(body, state)}</h1>
               <p className="page-sub">Four AI specialists work at once. Then a checker tests every stop on every day, and fixes what fails, before you see a thing.</p>
             </div>
             {state.intake && <p className="badge" role="status" style={{ margin: 0 }}>{state.intake}</p>}

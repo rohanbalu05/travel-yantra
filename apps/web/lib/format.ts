@@ -7,6 +7,7 @@ export const inr = (n: number) => `₹${inrFmt.format(Math.round(n))}`;
 
 /** 840 → "14 h", 75 → "1 h 15 m", 20 → "20 m" */
 export function duration(minutes: number): string {
+  if (minutes < 1) return "under a minute";
   const h = Math.floor(minutes / 60);
   const m = Math.round(minutes % 60);
   if (!h) return `${m} m`;

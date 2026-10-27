@@ -19,7 +19,7 @@ function dayTitle(day: DayPlan): string {
   return names.length > 2 ? `${names[0]} and ${names.length - 1} more` : names.join(" and ");
 }
 
-function Plan({ it, planId }: { it: Itinerary; planId: string | null }) {
+function Plan({ it }: { it: Itinerary }) {
   const [sel, setSel] = useState(0);
   const choice = useChoice() ?? null;
 
@@ -52,7 +52,6 @@ function Plan({ it, planId }: { it: Itinerary; planId: string | null }) {
             </div>
           </div>
           <div className="it-actions">
-            {planId && <span className="hint">Plan {planId}</span>}
             <Link className="btn btn-primary btn-sm" href="/book/">Book this plan</Link>
           </div>
         </div>
@@ -155,5 +154,5 @@ function Plan({ it, planId }: { it: Itinerary; planId: string | null }) {
 
 export default function ItineraryPage() {
   const res = usePlanResult();
-  return <AppShell>{res === undefined ? null : res ? <div><Plan it={res.itinerary} planId={res.plan_id} /></div> : <NoPlan />}</AppShell>;
+  return <AppShell>{res === undefined ? null : res ? <div><Plan it={res.itinerary} /></div> : <NoPlan />}</AppShell>;
 }

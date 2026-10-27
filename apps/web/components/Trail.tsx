@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Fragment } from "react";
 
 const STEPS: [string, string | null][] = [
   ["Describe", "/plan/start/"],
@@ -22,14 +23,14 @@ export function Trail({ at }: { at: number }) {
           </>
         );
         return (
-          <span key={label} style={{ display: "contents" }}>
+          <Fragment key={label}>
             {n < at && href ? (
               <Link className="done" href={href}>{inner}</Link>
             ) : (
               <span className={n === at ? "on" : undefined} aria-current={n === at ? "step" : undefined}>{inner}</span>
             )}
             {n < STEPS.length && <span className="sep" />}
-          </span>
+          </Fragment>
         );
       })}
     </nav>
