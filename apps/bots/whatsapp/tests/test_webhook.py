@@ -153,7 +153,7 @@ def test_brain_failure_sends_sorry(monkeypatch):
     monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
 
     class Broken(Brain):
-        async def handle(self, msg):
+        async def handle(self, msg, notify=None):
             raise RuntimeError("api down")
 
     fake = FakeSender()
@@ -204,3 +204,87 @@ async def test_cloud_sender_only_messages_allowed_recipients(monkeypatch, allowe
     seen = _fake_graph(monkeypatch)
     await CloudApiSender().send_text(USER, "hello")
     assert seen == []
+
+
+@pytest.mark.parametrize(
+    "allowed",
+    [
+        f"+{USER}",
+        f" {USER[:1]} {USER[1:5]}-{USER[5:]} ",
+        f"0{USER}",
+        f"x;{USER}",
+        "+1 (555) 000-1111",
+    ],
+)
+async def test_allowed_recipients_ignore_formatting(monkeypatch, allowed):
+    monkeypatch.setenv("WHATSAPP_TOKEN", "fake-token")
+    monkeypatch.setenv("WHATSAPP_PHONE_NUMBER_ID", "100000000000001")
+    monkeypatch.setenv("WHATSAPP_ALLOWED_RECIPIENTS", allowed)
+    seen = _fake_graph(monkeypatch)
+    await CloudApiSender().send_text(USER, "hello")
+    assert len(seen) == 1
+
+
+def test_ten_digit_entry_means_india():
+    allowed = {"9800000000"}  # fictional
+    assert sender_mod.is_allowed("919800000000", allowed)
+    assert not sender_mod.is_allowed("19800000000", allowed)
+    assert not sender_mod.is_allowed("", allowed)
+
+
+async def test_graph_error_logs_code_not_message(monkeypatch, caplog):
+    monkeypatch.setenv("WHATSAPP_TOKEN", "fake-token")
+    monkeypatch.setenv("WHATSAPP_PHONE_NUMBER_ID", "100000000000001")
+    monkeypatch.setenv("WHATSAPP_ALLOWED_RECIPIENTS", USER)
+    err = {"error": {"message": f"bad recipient {USER}", "type": "OAuthException", "code": 190}}
+    real = httpx.AsyncClient
+    monkeypatch.setattr(
+        sender_mod.httpx,
+        "AsyncClient",
+        lambda **kw: real(
+            transport=httpx.MockTransport(lambda r: httpx.Response(401, json=err)), **kw
+        ),
+    )
+    await CloudApiSender().send_text(USER, "hello")
+    assert "send failed: HTTP 401 code=190" in caplog.text and "OAuthException" in caplog.text
+    assert USER not in caplog.text
+
+
+def test_failed_delivery_status_is_logged(bot, caplog):
+    client, fake = bot
+    payload = json.loads(load("status.json"))
+    status = payload["entry"][0]["changes"][0]["value"]["statuses"][0]
+    status.update(
+        status="failed", errors=[{"code": 131030, "title": "Recipient not in allowed list"}]
+    )
+    assert post(client, json.dumps(payload).encode()).status_code == 200
+    assert "131030 Recipient not in allowed list" in caplog.text
+    assert USER not in caplog.text and fake.sent == []
+
+
+def test_planning_note_is_sent_before_the_plan(monkeypatch):
+    monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
+
+    class Slow(Brain):
+        async def _handle(self, msg):
+            from app.brain import NOTIFY
+
+            await NOTIFY.get()("working…")
+            return "the plan"
+
+    fake = FakeSender()
+    with TestClient(create_app(brain=Slow(base=""), sender=fake)) as client:
+        post(client, load("text_en.json"))
+    assert fake.sent == [(USER, "working…"), (USER, "the plan")]
+
+
+def test_verify_token_is_never_logged(bot, caplog):
+    client, _ = bot
+    params = {
+        "hub.mode": "subscribe",
+        "hub.verify_token": "test-verify-token",
+        "hub.challenge": "42",
+    }
+    client.get("/webhook", params=params)
+    client.get("/webhook", params={**params, "hub.verify_token": "guess-token"})
+    assert "test-verify-token" not in caplog.text and "guess-token" not in caplog.text

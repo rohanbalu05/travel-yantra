@@ -4,7 +4,7 @@ import httpx
 import pytest
 from test_brain import ITINERARY, done, fake_http, sse, text
 
-from app.brain import EXPIRED, WHICH_DAY, Brain, parse_followup
+from app.brain import EXPIRED, PLANNING, WHICH_DAY, Brain, parse_followup
 
 API = "http://api.test"
 STOPS = [p for d in ITINERARY["days"] for p in d["stops"]]
@@ -174,3 +174,103 @@ async def test_replace_with_a_real_stop_is_a_swap(monkeypatch):
     brain, seen = await planned(monkeypatch, plan_then())
     await brain.handle(text(f"replace {STOPS[0]['name']}"))
     assert seen[-1].url.path == "/plan/p1/revise"
+
+
+TWO_CITIES = {
+    **ITINERARY,
+    "request": {**ITINERARY["request"], "destinations": ["Mysuru", "Coorg"]},
+}
+
+
+@pytest.mark.parametrize(
+    "msg, city",
+    [
+        ("extra day in Coorg", "Coorg"),
+        ("one more day in Mysuru please", "Mysuru please"),
+        ("more time at Coorg", "Coorg"),
+        ("add a day to Mysuru", "Mysuru"),
+        ("move a day to Coorg.", "Coorg"),
+    ],
+)
+def test_parse_move_day(msg, city):
+    assert parse_followup(msg) == ("move_day", None, city)
+
+
+async def test_extra_day_moves_a_day_to_that_city(monkeypatch):
+    def handler(req):
+        if req.url.path == "/plan":
+            return httpx.Response(200, text=sse(done(TWO_CITIES)))
+        return httpx.Response(200, text=sse({**done(TWO_CITIES), "plan_id": "p2"}))
+
+    brain, seen = await planned(monkeypatch, handler)
+    await brain.handle(text("one more day in mysuru please"))
+    assert seen[-1].url.path == "/plan/p1/revise"
+    assert json.loads(seen[-1].content) == {"intent": "move_day", "lang": "en", "city": "Mysuru"}
+
+
+async def test_extra_day_in_another_city_lists_the_cities(monkeypatch):
+    brain, seen = await planned(
+        monkeypatch, lambda req: httpx.Response(200, text=sse(done(TWO_CITIES)))
+    )
+    reply = await brain.handle(text("extra day in Ooty"))
+    assert reply == "Ooty is not a city of this trip. Cities: Mysuru, Coorg"
+    assert len(seen) == 1
+
+
+async def test_hint_offers_extra_day_only_for_several_cities(monkeypatch):
+    fake_http(monkeypatch, lambda req: httpx.Response(200, text=sse(done(TWO_CITIES))))
+    assert "extra day in Coorg" in await Brain(base=API).handle(text("Plan Mysuru and Coorg trip"))
+    one = await Brain(base="").handle(text("Plan Bengaluru to Goa 11-14 Dec"))
+    assert "extra day in" not in one
+
+
+async def test_season_notes_are_quoted_with_sources(monkeypatch):
+    notes = [
+        {
+            "city": "Goa",
+            "text": "Monsoon ends by October.",
+            "source_url": "https://w.example/g",
+            "kind": "general",
+        },
+        {
+            "city": "Goa",
+            "text": "December is peak season.",
+            "source_url": "https://w.example/d",
+            "kind": "month",
+        },
+        {
+            "city": "Goa",
+            "text": "Third note.",
+            "source_url": "https://w.example/3",
+            "kind": "general",
+        },
+    ]
+    with_notes = {**ITINERARY, "season_notes": notes}
+    fake_http(monkeypatch, lambda req: httpx.Response(200, text=sse(done(with_notes))))
+    reply = await Brain(base=API).handle(text("Plan Bengaluru to Goa 11-14 Dec"))
+    assert "Season, Goa: December is peak season. [1]" in reply  # the trip's month first
+    assert "Season, Goa: Monsoon ends by October. [2]" in reply
+    assert "Third note" not in reply
+    assert reply.endswith("[1] https://w.example/d\n[2] https://w.example/g")
+
+
+async def test_planning_note_goes_out_before_the_plan(monkeypatch):
+    fake_http(monkeypatch, plan_then())
+    notes = []
+
+    async def notify(t):
+        notes.append(t)
+
+    reply = await Brain(base=API).handle(text("Plan Bengaluru to Goa 11-14 Dec"), notify=notify)
+    assert notes == [PLANNING] and "Day 1" in reply
+
+
+async def test_guide_questions_send_no_planning_note(monkeypatch):
+    fake_http(monkeypatch, lambda req: httpx.Response(200, json={"text": "Fish curry."}))
+    notes = []
+
+    async def notify(t):
+        notes.append(t)
+
+    await Brain(base=API).handle(text("What should we eat?"), notify=notify)
+    assert notes == []

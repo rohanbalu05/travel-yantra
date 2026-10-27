@@ -5,13 +5,20 @@ or Indic script:
 
 - `Bengaluru to Goa, 11-14 Dec` (or `Bengaluru se Goa 11 Dec se 14 Dec tak`) → `POST /plan` → day-by-day summary.
 - Anything else → `POST /guide/ask` in the language of the message's script.
-- After a plan: `share` (link), `lighter day 2`, `rain` / `rain day 3`, `swap <place>` → `POST /plan/{id}/revise`.
+- After a plan: `share` (link), `lighter day 2`, `rain` / `rain day 3`, `swap <place>`, `extra day in <city>` (move_day) → `POST /plan/{id}/revise`. Plans quote up to two of TY2's season notes, with their sources.
+- While a plan or revision is being made, a short "working on your plan" note goes out first.
+- `delete my data` (or `forget me`, `मेरा डेटा हटाओ`): forgets the sender's plans, language and location and calls `DELETE /plan/{id}` (TY1) for every plan they made; plans the API could not delete point to the contact email.
 - A shared location is sent with guide questions for an hour (emergencies).
 - Voice notes and other media → a polite text-only reply.
 
 Endpoints: `GET /webhook` (Meta verification), `POST /webhook` (messages; `X-Hub-Signature-256`
-checked against the app secret; answers 200 at once and replies in the background; retried
-message ids are answered once), `GET /health`.
+checked against the app secret; replies are sent inside the request, because Cloud Run throttles CPU
+after a response; retried message ids are answered once), `GET /health`.
+
+Logs (no numbers, no secrets): each POST's message count, refused signatures, `send failed` with
+the Graph error code, and Meta's `failed` delivery reports with their error code and title. The
+image runs uvicorn without an access log: Meta's verification GET carries the verify token in its
+query string.
 
 ## Env vars (names only)
 

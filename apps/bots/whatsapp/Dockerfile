@@ -6,4 +6,5 @@ COPY packages/contracts/src /build/contracts/src
 RUN pip install /build/contracts "fastapi>=0.115" "uvicorn>=0.30" "httpx>=0.27" && rm -rf /build
 WORKDIR /srv
 COPY apps/bots/whatsapp/app ./app
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
+# No access log: Meta's GET /webhook carries hub.verify_token in its query string.
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080} --no-access-log"]

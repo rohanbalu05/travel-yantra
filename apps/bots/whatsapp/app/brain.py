@@ -6,7 +6,9 @@ import json
 import os
 import re
 import time
-from dataclasses import dataclass
+from collections.abc import Awaitable, Callable
+from contextvars import ContextVar
+from dataclasses import dataclass, field
 from pathlib import Path
 from urllib.parse import quote
 
@@ -19,6 +21,7 @@ from ty_contracts import (
     PlanEvent,
     PlanStage,
     PlanText,
+    SeasonNote,
     TripDraft,
 )
 
@@ -34,7 +37,8 @@ HELP = (
     "Namaste! Tell me about your trip, for example:\n"
     "Plan Bengaluru to Goa, 11-14 Dec, 4 of us\n"
     "or ask me anything about a place, its food or its history. "
-    "Share your location for help nearby."
+    "Share your location for help nearby. "
+    "Send delete my data to make me forget you."
 )
 VOICE = (
     "Sorry, I can only read text messages for now. "
@@ -43,6 +47,21 @@ VOICE = (
 NOT_TEXT = "Sorry, I can only read text messages for now. Please type your message."
 LOCATION_OK = "Got your location. Ask me, for example: nearest hospital or pharmacy."
 ASKING = "To plan this I need a little more:"
+PLANNING = "Working on your plan now; this takes about a minute."
+CONTACT = "rohan@aizyantra.com"
+FORGOTTEN = "Done. I have forgotten your plans, your language and your location."
+FORGOTTEN_KEPT = (
+    "Saved copies of your plans (behind their share links) could not be deleted from here; "
+    f"email {CONTACT} and we will remove them."
+)
+FORGET = re.compile(
+    r"^\s*(?:please\s+)?(?:delete|erase|remove|forget)\s+(?:all\s+)?(?:my\s+)?"
+    r"(?:data|details|chats?|history|everything|me)\b"
+    r"|डेटा\s*(?:हटा|मिटा|डिलीट)",
+    re.IGNORECASE,
+)
+# Set per message by the webhook: sends an early note ("working on your plan") before a slow reply.
+NOTIFY: ContextVar[Callable[[str], Awaitable[None]] | None] = ContextVar("notify", default=None)
 GREETINGS = {
     "hi",
     "hello",
@@ -99,6 +118,11 @@ LIGHTER = re.compile(rf"\b(?:lighter|easier|relaxed|halka){_END}|हल्का
 RAIN = re.compile(
     rf"\b(?:rain|raining|rainy|baarish|barish){_END}|बारिश|ಮಳೆ|மழை|వర్షం|বৃষ্টি", re.IGNORECASE
 )
+MOVE = re.compile(
+    r"\b(?:(?:an?\s+)?(?:extra|another|one\s+more)\s+day|more\s+(?:time|days?)|add\s+a\s+day"
+    r"|move\s+a\s+day)\s+(?:in|at|to|for)\s+(?P<city>[^\d?!.,]+)",
+    re.IGNORECASE,
+)
 SWAP = re.compile(r"^\s*(?:swap|replace|skip|change)\s+(?P<what>.+)$", re.IGNORECASE)
 DAY_N = re.compile(
     r"\bday\s*(?P<a>\d{1,2})\b|\b(?P<b>\d{1,2})(?:st|nd|rd|th)?\s+day\b", re.IGNORECASE
@@ -110,11 +134,13 @@ WHICH_DAY = "Which day? For example: lighter day 2"
 
 
 def parse_followup(text: str) -> tuple[str, int | None, str | None] | None:
-    """(intent, day number, stop name) for share / lighter / rain / swap; None for anything else."""
+    """(intent, day number, stop or city) for share / lighter / rain / swap / move_day; else None."""
     if SHARE.search(text):
         return "share", None, None
     if text.rstrip().endswith(("?", "？")):
         return None  # "is it raining in Goa?" is a question for the guide
+    if mv := MOVE.search(text):
+        return "move_day", None, mv["city"].strip()
     m = DAY_N.search(text)
     n = int(m["a"] or m["b"]) if m else None
     if s := SWAP.match(text):
@@ -172,7 +198,25 @@ def summarise(it: Itinerary) -> str:
         lines.append(f"{opt.mode.value.title()}: {hours:.1f} h, ₹{opt.total_cost_inr:,}")
     lines.append(f"Budget: ₹{it.budget.total_inr:,} total")
     lines.extend(f"Note: {w}" for w in it.warnings)
+    lines.extend(f"Season, {n.city}: {n.text} [{i}]" for i, n in enumerate(season(it), 1))
     return "\n".join(lines)
+
+
+def season(it: Itinerary, limit: int = 2) -> list[SeasonNote]:
+    """TY2's quoted season notes, the trip's months first; numbered to match their sources."""
+    return sorted(it.season_notes, key=lambda n: n.kind != "month")[:limit]
+
+
+def season_sources(it: Itinerary) -> str:
+    return "\n".join(f"[{i}] {n.source_url}" for i, n in enumerate(season(it), 1))
+
+
+def next_hint(it: Itinerary) -> tuple[str, list[str]]:
+    """The follow-up keywords, with "extra day in <city>" when the trip has several cities."""
+    if len(it.request.destinations) < 2:
+        return NEXT, NEXT_KEEP
+    extra = f"extra day in {it.request.destinations[-1]}"
+    return f"{NEXT} · {extra}", [*NEXT_KEEP, extra]
 
 
 def names(it: Itinerary) -> list[str]:
@@ -219,6 +263,7 @@ class User:
     itinerary: Itinerary | None = None  # the latest plan, for share and revise
     plan_id: str | None = None
     share_token: str | None = None
+    plan_ids: list[str] = field(default_factory=list)  # every plan made, for delete my data
 
 
 class Brain:
@@ -236,17 +281,58 @@ class Brain:
         self.clock = clock
         self.users: dict[str, User] = {}
 
-    async def handle(self, msg: dict) -> str:
-        user = self.users.setdefault(msg.get("from", ""), User())
-        kind = msg.get("type")
+    async def handle(
+        self, msg: dict, notify: Callable[[str], Awaitable[None]] | None = None
+    ) -> str:
+        """The reply to one message; `notify` sends an early note while a plan is being made."""
+        token = NOTIFY.set(notify)
+        try:
+            return await self._handle(msg)
+        finally:
+            NOTIFY.reset(token)
+
+    async def _handle(self, msg: dict) -> str:
+        who, kind = msg.get("from", ""), msg.get("type")
+        body = msg.get("text", {}).get("body", "") if kind == "text" else ""
+        if FORGET.search(body):
+            return await self.forget(who, detect_lang(body))
+        user = self.users.setdefault(who, User())
         if kind == "text":
-            return await self.reply(user, msg.get("text", {}).get("body", ""))
+            return await self.reply(user, body)
         if kind == "location":
             loc = msg.get("location", {})
             user.lat, user.lng = loc.get("latitude"), loc.get("longitude")
             user.located_at = self.clock()
             return await self.say(user, LOCATION_OK)
         return await self.say(user, VOICE if kind == "audio" else NOT_TEXT)
+
+    async def forget(self, who: str, lang: Lang) -> str:
+        """Drop everything kept for this sender and delete the plans they made through the API."""
+        user = self.users.pop(who, None) or User()
+        failed = 0
+        for plan_id in dict.fromkeys(user.plan_ids):
+            failed += not await self.delete_plan(plan_id)
+        english = FORGOTTEN + (" " + FORGOTTEN_KEPT if failed else "")
+        return await self.say(User(lang=lang), english, keep=[CONTACT])
+
+    async def delete_plan(self, plan_id: str) -> bool:
+        """DELETE /plan/{plan_id} (TY1); a 404 means it is already gone. False when it failed."""
+        if not self.base or plan_id == SAMPLE_PLAN_ID:
+            return True  # offline sample plans are never saved
+        try:
+            async with httpx.AsyncClient(timeout=20) as client:
+                r = await client.delete(f"{self.base}/plan/{quote(plan_id, safe='')}")
+        except httpx.HTTPError:
+            return False
+        if r.status_code == 404:
+            # Already gone, or the endpoint is not deployed yet: then 404 says "Not Found".
+            return _detail(r) != "Not Found"
+        return r.is_success
+
+    async def working(self, user: User) -> None:
+        """Tell the user a slow plan is under way (only against the real API)."""
+        if self.base and (notify := NOTIFY.get()):
+            await notify(await self.tr.text(PLANNING, user.lang))
 
     async def say(self, user: User, english: str, keep: list[str] = (), tail: str = "") -> str:
         body = await self.tr.text(english, user.lang, keep) if english else ""
@@ -288,6 +374,7 @@ class Brain:
     async def trip(self, user: User, text: str) -> str:
         before = user.pending, user.pending_at
         user.pending = None
+        await self.working(user)
         try:
             result = await self.plan(PlanText(text=text[:4000], lang=user.lang))
         except Exception:
@@ -304,7 +391,12 @@ class Brain:
         self, user: User, it: Itinerary, plan_id: str | None, token: str | None
     ) -> str:
         user.itinerary, user.plan_id, user.share_token = it, plan_id, token
-        return await self.say(user, summarise(it) + "\n\n" + NEXT, keep=names(it) + NEXT_KEEP)
+        if plan_id:
+            user.plan_ids.append(plan_id)
+        hint, keep = next_hint(it)
+        return await self.say(
+            user, summarise(it) + "\n\n" + hint, keep=names(it) + keep, tail=season_sources(it)
+        )
 
     async def followup(self, user: User, intent: str, n: int | None, stop: str | None) -> str:
         it = user.itinerary
@@ -325,6 +417,17 @@ class Brain:
         if intent == "lighter_day" and n is None:
             return await self.say(user, WHICH_DAY)
         body: dict = {"intent": intent, "lang": user.lang.value}
+        if intent == "move_day":
+            cities = it.request.destinations
+            found = [c for c in cities if stop and stop.casefold() in c.casefold()]
+            found = found or [c for c in cities if stop and c.casefold() in stop.casefold()]
+            if not found:
+                return await self.say(
+                    user,
+                    f"{stop} is not a city of this trip. Cities: {', '.join(cities)}",
+                    keep=[stop or "", *cities],
+                )
+            body["city"] = found[0]
         if n is not None:
             body["day"] = days[n - 1].date.isoformat()
         if intent == "swap_stop":
@@ -338,6 +441,7 @@ class Brain:
                     keep=[stop or "", *(p.name for p in pool)],
                 )
             body["place_id"] = match[0].id
+        await self.working(user)
         try:
             result = await self.revise(user.plan_id, body)
         except ApiError as e:
