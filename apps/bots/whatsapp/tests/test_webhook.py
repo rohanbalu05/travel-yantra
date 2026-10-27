@@ -378,3 +378,16 @@ def test_split_never_sends_empty_or_padded_parts():
     assert split("\n\n" + "a" * 12, limit=10) == ["aaaaaaaaaa", "aa"]
     assert split("  " + "a" * 12 + "  ", limit=10) == ["aaaaaaaaaa", "aa"]
     assert split("abc\n\n\n\ndef", limit=4) == ["abc", "def"]
+
+
+def test_empty_reply_sends_nothing(monkeypatch):
+    monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
+
+    class Silent(Brain):
+        async def _handle(self, msg):
+            return "  "
+
+    fake = FakeSender()
+    with TestClient(create_app(brain=Silent(base=""), sender=fake)) as client:
+        assert post(client, load("text_en.json")).status_code == 200
+    assert fake.sent == []

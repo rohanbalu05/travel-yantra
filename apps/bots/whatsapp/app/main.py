@@ -103,7 +103,8 @@ def create_app(brain: Brain | None = None, sender: Sender | None = None) -> Fast
             log.exception("reply failed for a %s message", msg.get("type"))
             reply, audio = SORRY, []
         for part in split(reply):
-            await sender.send_text(to, part)
+            if part:  # WhatsApp rejects an empty body
+                await sender.send_text(to, part)
         for url in audio:  # Katha chapters, in order, after their text
             await sender.send_audio(to, url)
 
