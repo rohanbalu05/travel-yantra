@@ -41,6 +41,25 @@ EMERGENCY_WORDS = {
     "police": r"police|stolen|theft|thief|robbed|pickpocket|harass|lost my (passport|wallet|phone)",
 }
 KIND_LABEL = {"hospital": "hospitals", "police": "police stations", "pharmacy": "pharmacies"}
+#: Cardiac or injury: a clinic or a health centre can't treat it, so full hospitals come
+#: first, even a little further away.
+URGENT = re.compile(
+    r"chest pain|heart|cardiac|stroke|unconscious|faint|collapse|not breathing|can'?t breathe"
+    r"|breathless|accident|injur|bleed|fractur|broken (arm|leg|bone|wrist|ankle)|snake ?bite|burn",
+    re.I,
+)
+URGENT_RADIUS_M = 15000
+URGENT_RESULTS = 10
+#: Names that mean a hospital with casualty or emergency care. Places has no field for
+#: an emergency department, so this is the best signal it gives: a heuristic, and said so.
+MAJOR_HOSPITAL = re.compile(
+    r"medical college|\bgmc\b|district hospital|civil hospital|government hospital|general hospital"
+    r"|sub-?district|multi-?speciality|super-?speciality|multispecialty|trauma|emergency|casualty"
+    r"|heart|cardiac|institute|aiims|esi hospital|manipal|apollo|fortis|narayana|aster|max |kims"
+    r"|columbia asia|healthcare city",
+    re.I,
+)
+MINOR_CARE = re.compile(r"clinic|health cent|dispensary|\bdr\.?\s|polyclinic|diagnostic|nursing home", re.I)
 
 
 class Answerer(Protocol):
@@ -93,8 +112,21 @@ def maps_url(place: Place) -> str:
     )
 
 
+def care_tier(place: Place) -> int:
+    """0 a major hospital, 1 a hospital, 2 a clinic, health centre or doctor."""
+    if MAJOR_HOSPITAL.search(place.name):
+        return 0
+    if place.category == "hospital" and not MINOR_CARE.search(place.name):
+        return 1
+    return 2
+
+
 def answer_emergency(
-    kinds: list[str], where: tuple[float, float] | None, places: PlacesClient | None
+    kinds: list[str],
+    where: tuple[float, float] | None,
+    places: PlacesClient | None,
+    *,
+    urgent: bool = False,
 ) -> GuideAnswer:
     lines = [f"In an emergency, call {EMERGENCY_NUMBER} (police, fire and ambulance, all India)."]
     if where is None:
@@ -103,20 +135,29 @@ def answer_emergency(
     found: list[Place] = []
     citations: list[Citation] = []
     for kind in kinds:
+        bigger = urgent and kind == "hospital"
         try:
-            nearby = places.nearby_emergency(*where, kind) if places else []
+            nearby = (places.nearby_emergency(*where, kind, radius_m=URGENT_RADIUS_M, limit=URGENT_RESULTS)
+                      if bigger else places.nearby_emergency(*where, kind)) if places else []  # fmt: skip
         except Exception:  # no key, quota, network: say so, never fill the gap
             lines.append(f"I couldn't reach Google Maps for {KIND_LABEL[kind]} just now.")
             continue
         if not nearby:
             lines.append(f"Google Maps lists no {KIND_LABEL[kind]} within 10 km of you.")
             continue
+        if bigger:
+            nearby = sorted(nearby, key=lambda p: (care_tier(p), _km(*where, p.lat, p.lng)))
         items = []
         for place in nearby[:3]:
             found.append(place)
             citations.append(Citation(title=f"Google Maps: {place.name}", url=maps_url(place)))
             items.append(f"{place.name}, {_km(*where, place.lat, place.lng):.1f} km [{len(citations)}]")
-        lines.append(f"Nearest {KIND_LABEL[kind]}: " + "; ".join(items) + ".")
+        if bigger:
+            lines.append("For this, go to a full hospital, not a clinic. Hospitals, larger ones "
+                         "first (likelier to have an emergency department; call ahead): "
+                         + "; ".join(items) + ".")  # fmt: skip
+        else:
+            lines.append(f"Nearest {KIND_LABEL[kind]}: " + "; ".join(items) + ".")
     return GuideAnswer(text=" ".join(lines), citations=citations, emergency_places=found)
 
 
@@ -180,7 +221,8 @@ async def ask(
     retrieve=None,
 ) -> GuideAnswer:
     if kinds := emergency_kinds(req.question):
-        return answer_emergency(kinds, _locate(db, req), places)
+        urgent = bool(URGENT.search(req.question))
+        return answer_emergency(kinds, _locate(db, req), places, urgent=urgent)
     # place_id is accepted but not matched: the corpus does not store itinerary ids yet.
     poi = _poi(db, req.place_name, req.city)
     # city is a soft hint: the plan's destination, not necessarily what the question is

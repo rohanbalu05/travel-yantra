@@ -285,3 +285,75 @@ def test_goa_questions_answer_from_the_corridor(db) -> None:
     answer = asyncio.run(ask(GuideQuestion(question="Basilica of Bom Jesus Francis Xavier", city="Goa"),
                              db, FakeAnswerer(), places()[0]))  # fmt: skip
     assert answer.citations and all("wikipedia.org" in (c.url or "") for c in answer.citations)
+
+
+# --- cardiac or injury: full hospitals before clinics (sample names, Panaji-like layout) ---
+
+NEAR_PANAJI = [  # (name, primaryType, km north of the traveller), as Places lists them: nearest first
+    ("Sample Urban Health Centre", "hospital", 0.2),
+    ("Sample Nursing Home Hospital", "hospital", 0.3),
+    ("Dr. Sample Clinic", "doctor", 0.4),
+    ("Sample Town Hospital", "hospital", 1.5),
+    ("Sample Medical College and Hospital", "hospital", 7.0),
+]
+
+
+class Crowded:
+    def __init__(self) -> None:
+        self.bodies: list[dict] = []
+
+    def __call__(self, method, url, headers, body, timeout):
+        self.bodies.append(body)
+        c = body["locationRestriction"]["circle"]["center"]
+        return {"places": [{
+            "id": f"sample-{i}", "types": [kind, "health"], "primaryType": kind,
+            "location": {"latitude": c["latitude"] + km / 111.2, "longitude": c["longitude"]},
+            "displayName": {"text": name},
+        } for i, (name, kind, km) in enumerate(NEAR_PANAJI)]}  # fmt: skip
+
+
+def crowded():
+    t = Crowded()
+    return PlacesClient(cache=MemoryCache(), transport=t, api_key="test-key"), t
+
+
+def test_care_tier_reads_names_and_primary_type() -> None:
+    from guide.ask import care_tier
+    from ty_contracts import Place
+
+    def p(name, category="hospital"):
+        return Place(id="x", name=name, lat=0, lng=0, category=category, typical_visit_minutes=0, source="t")
+
+    assert care_tier(p("Sample District Hospital")) == 0
+    assert care_tier(p("Sample Multispeciality Hospital")) == 0
+    assert care_tier(p("Sample Town Hospital")) == 1
+    assert care_tier(p("Sample Urban Health Centre")) == 2
+    assert care_tier(p("Dr. Sample", "doctor")) == 2 and care_tier(p("Sample Clinic")) == 2
+
+
+def test_chest_pain_ranks_full_hospitals_above_nearer_clinics() -> None:
+    client, t = crowded()
+    req = GuideQuestion(question="My father has chest pain, where is the nearest hospital?",
+                        lat=15.4983, lng=73.8294)  # fmt: skip
+    answer = asyncio.run(ask(req, NoRows(), Spy(), client))
+    names = [p.name for p in answer.emergency_places]
+    assert names == ["Sample Medical College and Hospital", "Sample Town Hospital",
+                     "Sample Urban Health Centre"]  # fmt: skip
+    assert "full hospital" in answer.text and "7.0 km [1]" in answer.text and "112" in answer.text
+    assert t.bodies[0]["maxResultCount"] == 10 and t.bodies[0]["locationRestriction"]["circle"]["radius"] == 15000
+
+
+@pytest.mark.parametrize("question", ["He fell and is bleeding badly", "road accident near us",
+                                      "snakebite, which hospital?"])  # fmt: skip
+def test_injuries_are_urgent_too(question) -> None:
+    client, _ = crowded()
+    answer = asyncio.run(ask(GuideQuestion(question=question, lat=15.5, lng=73.8), NoRows(), Spy(), client))
+    assert answer.emergency_places[0].name == "Sample Medical College and Hospital"
+
+
+def test_a_plain_hospital_question_still_lists_the_nearest() -> None:
+    client, t = crowded()
+    answer = asyncio.run(ask(GuideQuestion(question="Where is the nearest hospital?", lat=15.5, lng=73.8),
+                             NoRows(), Spy(), client))  # fmt: skip
+    assert answer.emergency_places[0].name == "Sample Urban Health Centre"
+    assert "full hospital" not in answer.text and t.bodies[0]["maxResultCount"] == 5

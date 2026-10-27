@@ -29,7 +29,7 @@ SEARCH_TTL_S = 24 * 3600
 DETAILS_TTL_S = 7 * 24 * 3600
 
 # Pro SKU: Text Search and Nearby Search only return name and location at Pro.
-LIST_MASK = "places.id,places.displayName,places.location,places.types"
+LIST_MASK = "places.id,places.displayName,places.location,places.types,places.primaryType"
 # Essentials SKU for Details. Opening hours are Enterprise, so opt-in.
 DETAILS_MASK = "id,location,types,formattedAddress"
 HOURS_MASK = DETAILS_MASK + ",displayName,regularOpeningHours"
@@ -114,7 +114,7 @@ def to_place(raw: dict) -> Place:
         name=(raw.get("displayName") or {}).get("text") or raw.get("formattedAddress", ""),
         lat=raw["location"]["latitude"],
         lng=raw["location"]["longitude"],
-        category=types[0] if types else "place",
+        category=raw.get("primaryType") or (types[0] if types else "place"),
         opening_hours=_hours(raw),
         typical_visit_minutes=0,  # Places has no dwell time; the guide corpus supplies it
         source="google_places",
