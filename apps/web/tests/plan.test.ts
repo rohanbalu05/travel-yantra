@@ -4,6 +4,7 @@ import { translate } from "@/lib/i18n";
 import { GOA_ITINERARY, goaEvents, revisedItinerary } from "@/lib/mockPlan";
 import { PlanHttpError, streamPlan, streamRevise } from "@/lib/plan";
 import { initialPlanState, planReducer } from "@/lib/planState";
+import { OSM_ATTRIBUTION, OSM_TILES, pinHtml } from "@/lib/map";
 import { dayRows, pickIndex, planMode, tripCost } from "@/lib/planView";
 import { formFromDraft, formProblems, goaForm, splitOf, toTripRequest, tripDays } from "@/lib/tripForm";
 
@@ -223,5 +224,13 @@ describe("the chosen way to travel", () => {
     expect(r.transport![0].mode).toBe("air");
     expect(r.days[0].legs!.map((l) => l.mode)).toEqual(["air", "road"]);
     expect(pickIndex(r)).toBe(0);
+  });
+});
+
+describe("map pins", () => {
+  it("escapes the label in the Leaflet pin and credits OpenStreetMap", () => {
+    expect(pinHtml({ label: "<b>1</b>", kind: "stop" })).toBe('<span class="smap-pin smap-stop" aria-hidden="true">&#60;b&#62;1&#60;/b&#62;</span>');
+    expect(OSM_ATTRIBUTION).toContain("OpenStreetMap</a> contributors");
+    expect(OSM_TILES).toBe("https://tile.openstreetmap.org/{z}/{x}/{y}.png");
   });
 });

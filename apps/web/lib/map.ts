@@ -2,6 +2,15 @@
 export const osmLink = (lat: number, lng: number, zoom = 17) =>
   `https://www.openstreetmap.org/?mlat=${lat.toFixed(5)}&mlon=${lng.toFixed(5)}#map=${zoom}/${lat.toFixed(5)}/${lng.toFixed(5)}`;
 
+/** OpenStreetMap's standard tiles: free, no key; the tile policy asks for this credit on the map. */
+export const OSM_TILES = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+export const OSM_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors';
+
+const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+/** A numbered pin as HTML for a Leaflet divIcon; the label is escaped. */
+export const pinHtml = (p: Pick<Pin, "label" | "kind">) => `<span class="smap-pin smap-${p.kind}" aria-hidden="true">${esc(p.label)}</span>`;
+
 export type Pin = { id: string; label: string; name: string; lat: number; lng: number; kind: "stop" | "stay" };
 
 /**

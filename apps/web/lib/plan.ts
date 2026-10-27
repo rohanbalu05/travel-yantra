@@ -18,7 +18,7 @@ export class PlanHttpError extends Error {}
  * With no `NEXT_PUBLIC_API_BASE_URL`, replays the Goa sample instead.
  */
 export function streamPlan(body: PlanBody, signal?: AbortSignal, base = API_BASE_URL): AsyncGenerator<PlanEvent> {
-  return streamEvents("/plan", body, signal, base, () => mockPlanBody());
+  return streamEvents("/plan", body, signal, base, () => mockPlanBody(undefined, "transport_mode" in body ? (body.transport_mode ?? null) : null));
 }
 
 /** POST /plan/{plan_id}/revise: same event stream, ending in done with a new plan_id. */

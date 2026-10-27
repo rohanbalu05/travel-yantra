@@ -1,4 +1,4 @@
-import type { Itinerary, PlanEvent, ReviseRequest, TripRequest } from "@/lib/contracts";
+import type { Itinerary, Mode, PlanEvent, ReviseRequest, TripRequest } from "@/lib/contracts";
 import goa from "@/lib/samples/goa_family.json";
 
 /** The Goa family sample (Arjun Rao and family), from packages/contracts/samples. */
@@ -8,8 +8,9 @@ export const GOA_ITINERARY = goa.itinerary as Itinerary;
 export const SAMPLE_SHARE_TOKEN = "sample-goa-family";
 
 /** The events TY1's /plan sends for the Goa sample, in the agreed order. */
-export function goaEvents(): PlanEvent[] {
-  const it = GOA_ITINERARY;
+export function goaEvents(mode: Mode | null = null): PlanEvent[] {
+  // A mode chosen on the form: the sample as TY1 would build it in that mode.
+  const it = mode ? revisedItinerary(GOA_ITINERARY, { intent: "transport", mode }) : GOA_ITINERARY;
   return [
     { stage: "intake", step: null, message: "Reading your trip…" },
     { stage: "intake", step: "intake", message: "Bengaluru to Goa, 11 to 14 Dec, 4 travellers." },
@@ -71,8 +72,8 @@ export function mockReviseBody(req: ReviseRequest, delayMs = 300): ReadableStrea
 }
 
 /** A fake `/plan` response body: the Goa events as SSE frames, with pings, one every `delayMs`. */
-export function mockPlanBody(delayMs = 450): ReadableStream<Uint8Array> {
-  return sseBody(goaEvents(), delayMs);
+export function mockPlanBody(delayMs = 450, mode: Mode | null = null): ReadableStream<Uint8Array> {
+  return sseBody(goaEvents(mode), delayMs);
 }
 
 function sseBody(events: PlanEvent[], delayMs: number): ReadableStream<Uint8Array> {
