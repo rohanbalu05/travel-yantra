@@ -6,7 +6,7 @@ No model calls. Travel times come from TY3's RoadEdgeProvider (HaversineRoadProv
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import date, datetime, time, timedelta
 
 from routes.graph import KIND_PLACE, HaversineRoadProvider, Node, RoadEdgeProvider
@@ -20,6 +20,9 @@ REST_MIN = 45
 REST_NOTE = "Rest break"
 # When filling a day, each step down the planner's ranking counts as this many minutes of extra travel.
 RANK_MINUTES = 6
+# A travel day: the note that names the hop, and the time to settle in after arriving.
+HOP_NOTE = "Travel: "
+HOP_SETTLE_MIN = 30
 
 
 @dataclass(frozen=True)
@@ -155,8 +158,26 @@ def schedule(day: date, stops: list[Place], travel_min: list[int], lim: Limits) 
     return visits, None
 
 
-def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorder: bool = True) -> tuple[DayPlan, str | None]:
-    """Order (optionally), schedule and attach road legs. Returns the plan and the first problem."""
+def hop_of(day: DayPlan) -> Leg | None:
+    """The inter-city leg that opens a travel day, if any. Stop-to-stop legs always start at a stop."""
+    if day.legs and (not day.stops or day.legs[0].from_ not in {p.name for p in day.stops}):
+        return day.legs[0]
+    return None
+
+
+def after_hop(lim: Limits, hop: Leg | None) -> Limits:
+    """A travel day starts once the hop has arrived (plus time to settle) and has less road time left."""
+    if hop is None:
+        return lim
+    start = max(lim.start, (hop.arrive + timedelta(minutes=HOP_SETTLE_MIN)).time())
+    return replace(lim, start=min(start, lim.end), max_travel_min=max(lim.max_travel_min - hop.minutes, 0))
+
+
+def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorder: bool = True,
+              hop: Leg | None = None) -> tuple[DayPlan, str | None]:
+    """Order (optionally), schedule and attach road legs (after the inter-city hop, if any).
+    Returns the plan and the first problem."""
+    lim = after_hop(lim, hop)
     stops = order(stops, travel) if reorder else list(stops)
     mins = [travel.minutes(a, b) for a, b in zip(stops, stops[1:])]
     visits, problem = schedule(day, stops, mins, lim)
@@ -167,13 +188,16 @@ def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorde
         legs.append(Leg(**{"from": a.place.name}, to=b.place.name, mode=Mode.road, depart=a.leave,
                         arrive=a.leave + timedelta(minutes=minutes), minutes=minutes, cost_inr=cost))
     notes = [REST_NOTE] if rested else []
+    if hop:
+        legs.insert(0, hop)
+        notes.insert(0, f"{HOP_NOTE}{hop.from_} → {hop.to} by {hop.mode.value}, {hop.minutes // 60}h{hop.minutes % 60:02d}")
     return DayPlan(date=day, stops=stops, legs=legs, notes=notes), problem
 
 
-def fits(day: date, stops: list[Place], travel: Travel, lim: Limits) -> bool:
+def fits(day: date, stops: list[Place], travel: Travel, lim: Limits, hop: Leg | None = None) -> bool:
     if len(stops) > lim.max_stops:
         return False
-    plan, problem = build_day(day, stops, travel, lim)
+    plan, problem = build_day(day, stops, travel, lim, hop=hop)
     return problem is None and sum(leg.minutes for leg in plan.legs) <= lim.max_travel_min
 
 
@@ -181,7 +205,44 @@ def trip_days(request: TripRequest) -> list[date]:
     return [request.start_date + timedelta(days=i) for i in range((request.end_date - request.start_date).days + 1)]
 
 
-def solve(request: TripRequest, places: list[Place], travel: Travel | None = None) -> tuple[list[DayPlan], list[Place]]:
+def split_days(request: TripRequest) -> list[tuple[str, list[date]]]:
+    """Share the trip's days between the destinations, in order, as evenly as possible (earlier cities
+    get the spare days). With fewer days than cities, the last cities get none."""
+    days = trip_days(request)
+    cities = request.destinations
+    base, extra = divmod(len(days), len(cities))
+    out, i = [], 0
+    for n, city in enumerate(cities):
+        take = base + (1 if n < extra else 0)
+        out.append((city, days[i:i + take]))
+        i += take
+    return out
+
+
+def city_of(request: TripRequest, day: date) -> str | None:
+    """Which destination a trip day belongs to (the same split the solver used)."""
+    return next((city for city, dates in split_days(request) if day in dates), None)
+
+
+def solve_trip(request: TripRequest, pools: dict[str, list[Place]], hops: dict[str, Leg] | None = None,
+               travel: Travel | None = None) -> tuple[list[DayPlan], list[Place]]:
+    """One solve per destination over its share of the days; the hop into a city opens its first day."""
+    travel = travel or Travel()
+    days: list[DayPlan] = []
+    left: list[Place] = []
+    for city, dates in split_days(request):
+        if not dates:
+            left += pools.get(city, [])
+            continue
+        part = request.model_copy(update={"destinations": [city], "start_date": dates[0], "end_date": dates[-1]})
+        got, rest = solve(part, pools.get(city, []), travel, first_hop=(hops or {}).get(city))
+        days += got
+        left += rest
+    return days, left
+
+
+def solve(request: TripRequest, places: list[Place], travel: Travel | None = None,
+          first_hop: Leg | None = None) -> tuple[list[DayPlan], list[Place]]:
     """Greedy clustering by distance: each day seeds with the first unplaced place that fits, then adds
     the nearest places that still fit. A day takes its share of what is left (never more than the pace
     allows), so a short list spreads over the trip instead of piling onto day one.
@@ -193,16 +254,17 @@ def solve(request: TripRequest, places: list[Place], travel: Travel | None = Non
     dates = trip_days(request)
     days: list[DayPlan] = []
     for n, d in enumerate(dates):
+        hop = first_hop if n == 0 else None
         share = min(lim.max_stops, math.ceil(len(left) / (len(dates) - n)))
-        seed = next((p for p in left if fits(d, [p], travel, lim)), None)
+        seed = next((p for p in left if fits(d, [p], travel, lim, hop)), None)
         chosen = [seed] if seed and share else []
         while chosen and len(chosen) < share:
             # Near the day's stops, but a much more popular place is worth a short detour.
             near = sorted(left, key=lambda p: (min(travel.minutes(c, p) for c in chosen) + RANK_MINUTES * rank[p.id], p.id))
-            added = next((p for p in near if p not in chosen and fits(d, [*chosen, p], travel, lim)), None)
+            added = next((p for p in near if p not in chosen and fits(d, [*chosen, p], travel, lim, hop)), None)
             if added is None:
                 break
             chosen.append(added)
         left = [p for p in left if p not in chosen]
-        days.append(build_day(d, chosen, travel, lim)[0])
+        days.append(build_day(d, chosen, travel, lim, hop=hop)[0])
     return days, left

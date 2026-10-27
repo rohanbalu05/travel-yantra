@@ -11,7 +11,17 @@ from ty_contracts import Itinerary, Place, ReviseIntent, ReviseRequest
 
 from . import fakes
 from .repair import check_and_repair
-from .solver import Limits, Travel, build_day, fits, limits
+from .solver import (
+    HOP_NOTE,
+    REST_NOTE,
+    Limits,
+    Travel,
+    build_day,
+    city_of,
+    fits,
+    hop_of,
+    limits,
+)
 
 # Categories that keep you dry. Everything else (beach, viewpoint, neighbourhood walks, forts) is outdoor.
 INDOOR = {"museum", "gallery", "heritage", "temple", "church", "market", "palace", "aquarium", "mall", "food"}
@@ -21,19 +31,25 @@ class ReviseError(ValueError):
     """The request does not fit this plan (unknown day or stop). Maps to HTTP 422."""
 
 
-def candidates(it: Itinerary) -> list[Place]:
-    """Places the planner could use that this plan does not: TY2's corpus, then the samples."""
+def candidates(it: Itinerary, city: str | None = None) -> list[Place]:
+    """Places the planner could use that this plan does not, for one city (or all): TY2's corpus, then
+    the samples."""
     from guide.planner import places_for
 
     used = {p.id for d in it.days for p in d.stops}
-    corpus = [p for city in it.request.destinations for p in places_for(city, exclude=frozenset(used))]
-    pool = [*corpus, *fakes.places(it.request), *fakes.alternatives(it.request)]
+    pool: list[Place] = []
+    for c in [city] if city else it.request.destinations:
+        one = it.request.model_copy(update={"destinations": [c]})
+        pool += [*places_for(c, exclude=frozenset(used)), *fakes.places(one), *fakes.alternatives(one)]
     return [p for p in {p.id: p for p in pool}.values() if p.id not in used]
 
 
 def _rebuild(it: Itinerary, d: date, stops: list[Place], travel: Travel, lim: Limits) -> None:
     i = next(i for i, x in enumerate(it.days) if x.date == d)
-    it.days[i] = build_day(d, stops, travel, lim)[0].model_copy(update={"notes": it.days[i].notes})
+    old = it.days[i]
+    plan = build_day(d, stops, travel, lim, hop=hop_of(old))[0]
+    keep = [n for n in old.notes if n != REST_NOTE and not n.startswith(HOP_NOTE)]
+    it.days[i] = plan.model_copy(update={"notes": keep + plan.notes})
 
 
 def _day(it: Itinerary, d: date):
@@ -51,7 +67,8 @@ def lighter_day(it: Itinerary, d: date, travel: Travel, lim: Limits) -> str:
     out = max(day.stops, key=lambda p: (p.typical_visit_minutes, p.id))
     _rebuild(it, d, [p for p in day.stops if p.id != out.id], travel, lim)
     for other in sorted(it.days, key=lambda x: (len(x.stops), x.date)):
-        if other.date != d and fits(other.date, [*other.stops, out], travel, lim):
+        same_city = city_of(it.request, other.date) == city_of(it.request, d)
+        if other.date != d and same_city and fits(other.date, [*other.stops, out], travel, lim, hop_of(other)):
             _rebuild(it, other.date, [*other.stops, out], travel, lim)
             return f"Moved {out.name} to {other.date:%a %d %b}"
     it.warnings.append(f"Dropped {out.name} to make {d:%a %d %b} lighter")
@@ -64,8 +81,9 @@ def swap_stop(it: Itinerary, place_id: str, travel: Travel, lim: Limits) -> str:
         raise ReviseError(f"{place_id} is not in this plan")
     old = next(p for p in day.stops if p.id == place_id)
     keep = [p for p in day.stops if p.id != place_id]
-    near = sorted(candidates(it), key=lambda p: (p.category != old.category, travel.minutes(old, p), p.id))
-    new = next((p for p in near if fits(day.date, [*keep, p], travel, lim)), None)
+    near = sorted(candidates(it, city_of(it.request, day.date)),
+                  key=lambda p: (p.category != old.category, travel.minutes(old, p), p.id))
+    new = next((p for p in near if fits(day.date, [*keep, p], travel, lim, hop_of(day))), None)
     _rebuild(it, day.date, [*keep, new] if new else keep, travel, lim)
     if new is None:
         it.warnings.append(f"No other place fits {day.date:%a %d %b}; removed {old.name}")
@@ -75,13 +93,13 @@ def swap_stop(it: Itinerary, place_id: str, travel: Travel, lim: Limits) -> str:
 
 def rain(it: Itinerary, d: date | None, travel: Travel, lim: Limits) -> str:
     days = [_day(it, d)] if d else list(it.days)
-    spare = [p for p in candidates(it) if p.category in INDOOR]
     changes = []
     for day in days:
+        spare = [p for p in candidates(it, city_of(it.request, day.date)) if p.category in INDOOR]
         keep = [p for p in day.stops if p.category in INDOOR]
         for old in (p for p in day.stops if p.category not in INDOOR):
             pick = min(spare, key=lambda p: (travel.minutes(old, p), p.id), default=None)
-            if pick and fits(day.date, [*keep, pick], travel, lim):
+            if pick and fits(day.date, [*keep, pick], travel, lim, hop_of(day)):
                 spare.remove(pick)
                 keep.append(pick)
                 changes.append(f"{old.name} → {pick.name}")

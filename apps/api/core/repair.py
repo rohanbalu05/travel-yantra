@@ -6,8 +6,18 @@ from datetime import date
 
 from ty_contracts import DayPlan, Itinerary, Place, Violation, ViolationCode
 
-from .checker import budget, check, warnings
-from .solver import REST_NOTE, Limits, Travel, build_day, fits, limits
+from .checker import budget, check, chosen_stays, warnings
+from .solver import (
+    HOP_NOTE,
+    REST_NOTE,
+    Limits,
+    Travel,
+    build_day,
+    city_of,
+    fits,
+    hop_of,
+    limits,
+)
 
 DAY_CODES = (ViolationCode.long_day, ViolationCode.too_much_travel, ViolationCode.no_rest)
 
@@ -35,8 +45,9 @@ def _day(it: Itinerary, d: date | None) -> DayPlan | None:
 
 def _rebuild(it: Itinerary, d: date, stops: list[Place], travel: Travel, lim: Limits) -> None:
     i = next(i for i, x in enumerate(it.days) if x.date == d)
-    plan, _ = build_day(d, stops, travel, lim)
-    plan.notes = [n for n in it.days[i].notes if n != REST_NOTE] + plan.notes
+    plan, _ = build_day(d, stops, travel, lim, hop=hop_of(it.days[i]))
+    # Keep the day's own notes; the rest and travel notes are rebuilt with the day.
+    plan.notes = [n for n in it.days[i].notes if n != REST_NOTE and not n.startswith(HOP_NOTE)] + plan.notes
     it.days[i] = plan
 
 
@@ -47,12 +58,14 @@ def _cheaper(it: Itinerary, travel: Travel, lim: Limits) -> list[str]:
             it.transport.remove(cheapest)
             it.transport.insert(0, cheapest)
             return [f"Switched to {cheapest.mode.value} to save money"]
-    if len(it.stays) > 1:
-        stay = min(it.stays, key=lambda s: s.price_per_night_inr)
-        if stay is not it.stays[0] and stay.price_per_night_inr < it.stays[0].price_per_night_inr:
-            it.stays.remove(stay)
-            it.stays.insert(0, stay)
-            return [f"Switched to {stay.name} to save money"]
+    for chosen in chosen_stays(it):
+        same = [s for s in it.stays if s.check_in == chosen.check_in]
+        cheaper = min(same, key=lambda s: s.price_per_night_inr)
+        if cheaper.price_per_night_inr < chosen.price_per_night_inr:
+            # Put the cheaper one first for that check-in, so it becomes the chosen stay.
+            it.stays.remove(cheaper)
+            it.stays.insert(it.stays.index(chosen), cheaper)
+            return [f"Switched to {cheaper.name} to save money"]
     fullest = max(it.days, key=lambda d: len(d.stops))
     if not fullest.stops:
         return []
@@ -69,7 +82,8 @@ def _move_or_drop(it: Itinerary, d: date | None, place_id: str, travel: Travel, 
         return []
     _rebuild(it, day.date, [p for p in day.stops if p.id != place_id], travel, lim)
     for other in sorted(it.days, key=lambda x: len(x.stops)):
-        if other.date != day.date and fits(other.date, [*other.stops, place], travel, lim):
+        same_city = city_of(it.request, other.date) == city_of(it.request, day.date)
+        if other.date != day.date and same_city and fits(other.date, [*other.stops, place], travel, lim, hop_of(other)):
             _rebuild(it, other.date, [*other.stops, place], travel, lim)
             return [f"Moved {place.name} to {other.date:%a %d %b}"]
     it.warnings.append(f"Dropped {place.name}: {why}")

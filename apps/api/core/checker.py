@@ -4,9 +4,18 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-from ty_contracts import BudgetSummary, Itinerary, Violation, ViolationCode
+from ty_contracts import BudgetSummary, Itinerary, Stay, Violation, ViolationCode
 
-from .solver import ELDERLY_AGE, REST_NOTE, Limits, Travel, hours_on, limits
+from .solver import (
+    ELDERLY_AGE,
+    REST_NOTE,
+    Limits,
+    Travel,
+    after_hop,
+    hop_of,
+    hours_on,
+    limits,
+)
 
 # Estimates (reversible): the sample budgets use these, so the Goa sample totals ₹46,800.
 ACTIVITY_INR_PER_STOP_PERSON = 150
@@ -16,13 +25,19 @@ LONG_DAY_HOURS = 10
 ELDERLY_MAX_OUT_HOURS = 6
 
 
+def chosen_stays(itinerary: Itinerary) -> list[Stay]:
+    """The first stay listed for each check-in date (one per city on a multi-city trip)."""
+    return list({s.check_in: s for s in reversed(itinerary.stays)}.values())[::-1]
+
+
 def budget(itinerary: Itinerary) -> BudgetSummary:
-    """Transport and stay are the first (chosen) options; transport is per traveller, the stay price is
-    for the whole party per night."""
+    """Transport is the first (chosen) option plus inter-city hops, per traveller; stays are the chosen stay
+    per city, priced for the whole party per night."""
     people = max(len(itinerary.request.constraints.travellers), 1)
     transport = itinerary.transport[0].total_cost_inr * people if itinerary.transport else 0
-    first = itinerary.stays[:1]
-    stay = sum(s.price_per_night_inr * max((s.check_out - s.check_in).days, 1) for s in first)
+    # Multi-city trips: each inter-city hop is paid per traveller too.
+    transport += sum(hop.cost_inr for d in itinerary.days if (hop := hop_of(d))) * people
+    stay = sum(s.price_per_night_inr * max((s.check_out - s.check_in).days, 1) for s in chosen_stays(itinerary))
     stops = sum(len(d.stops) for d in itinerary.days)
     activities = ACTIVITY_INR_PER_STOP_PERSON * stops * people
     food = FOOD_INR_PER_DAY_PERSON * len(itinerary.days) * people
@@ -53,13 +68,16 @@ def _check_day(day, lim: Limits, elderly: bool, travel: Travel) -> list[Violatio
     if not day.stops:
         return []
     out: list[Violation] = []
+    # A travel day opens with the inter-city hop: the visits start after it, and it counts as road time.
+    hop = hop_of(day)
+    begin = datetime.combine(day.date, lim.start) if hop is None else hop.depart
     # Travel times come from the plan's own legs when they line up with the stops, else from the provider.
-    leg_min = [leg.minutes for leg in day.legs]
+    leg_min = [leg.minutes for leg in (day.legs[1:] if hop else day.legs)]
     if len(leg_min) != len(day.stops) - 1:
         leg_min = [travel.minutes(a, b) for a, b in zip(day.stops, day.stops[1:])]
 
     # Replay the day from its start with no end-of-day cut-off, so lateness is reported once, as long_day.
-    t = datetime.combine(day.date, lim.start)
+    t = datetime.combine(day.date, after_hop(lim, hop).start)
     first_start = last_leave = None
     for i, p in enumerate(day.stops):
         if i:
@@ -79,7 +97,7 @@ def _check_day(day, lim: Limits, elderly: bool, travel: Travel) -> list[Violatio
         last_leave, t = leave, leave
 
     if first_start and last_leave:
-        hours = (last_leave - datetime.combine(day.date, lim.start)).total_seconds() / 3600
+        hours = (last_leave - begin).total_seconds() / 3600
         if hours > LONG_DAY_HOURS:
             out.append(Violation(code=ViolationCode.long_day, day=day.date,
                                  message=f"{hours:.1f}-hour day; keep it under {LONG_DAY_HOURS}"))
@@ -87,7 +105,7 @@ def _check_day(day, lim: Limits, elderly: bool, travel: Travel) -> list[Violatio
             out.append(Violation(code=ViolationCode.no_rest, day=day.date,
                                  message=f"{hours:.1f} hours out with no rest for elderly travellers"))
 
-    road = sum(leg_min)
+    road = sum(leg_min) + (hop.minutes if hop else 0)
     if road > lim.max_travel_min:
         out.append(Violation(code=ViolationCode.too_much_travel, day=day.date,
                              message=f"{road} min on the road; the limit is {lim.max_travel_min}"))

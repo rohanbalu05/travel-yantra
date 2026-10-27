@@ -5,13 +5,15 @@ Only intake (Flash-Lite), story (Flash-Lite) and narrator (Flash) call the model
 
 from __future__ import annotations
 
-from datetime import date, timedelta
+from datetime import date, datetime, time, timedelta
 from functools import lru_cache
 
 from ty_contracts import (
     Itinerary,
     KathaStory,
     Lang,
+    Leg,
+    Mode,
     Place,
     PlanText,
     Stay,
@@ -25,8 +27,10 @@ from .checker import budget, check
 from .intake import intake as run_intake
 from .llm import Model
 from .repair import finish, repair
-from .solver import solve
+from .solver import ELDERLY_AGE, Travel, solve_trip, split_days
 
+# Inter-city road hops leave at this time when routes has no timetable for them.
+HOP_DEPART = time(8, 0)
 LANG_NAME = {Lang.en: "English", Lang.hi: "Hindi", Lang.kn: "Kannada", Lang.ta: "Tamil", Lang.te: "Telugu", Lang.bn: "Bengali"}
 
 
@@ -80,37 +84,90 @@ def transport_options(request: TripRequest) -> list[TransportOption]:
 
 
 async def transport(state: dict, model: Model):
-    options = transport_options(_request(state))
-    return {"transport": _dump(options)}, f"Found {len(options)} ways to travel"
+    r = _request(state)
+    options = transport_options(r)
+    between = hops(r)
+    more = f" and {len(between)} between cities" if between else ""
+    return ({"transport": _dump(options), "hops": {c: leg.model_dump(mode="json", by_alias=True) for c, leg in between.items()}},
+            f"Found {len(options)} ways to travel{more}")
 
 
+
+
+def city_places(request: TripRequest, city: str) -> list[Place]:
+    """Ranked places for one city from TY2's corpus planner (Karnataka); samples where it has none."""
+    from guide.planner import places_for
+
+    elderly = bool(request.constraints.mobility_needs) or any(t.age >= ELDERLY_AGE for t in request.constraints.travellers)
+    return places_for(city, elderly=elderly) or fakes.places(request.model_copy(update={"destinations": [city]}))
 
 
 def place_options(request: TripRequest) -> list[Place]:
-    """Ranked places from TY2's corpus planner (Karnataka); sample places for cities it does not cover."""
-    from guide.planner import places_for_request
-
-    return places_for_request(request) or fakes.places(request)
+    return [p for city in request.destinations for p in city_places(request, city)]
 
 
 async def places(state: dict, model: Model):
-    found = place_options(_request(state))
-    return {"places": _dump(found)}, f"Found {len(found)} places to see"
+    r = _request(state)
+    pools = {city: city_places(r, city) for city in r.destinations}
+    found = sum(len(v) for v in pools.values())
+    return {"pools": {c: _dump(v) for c, v in pools.items()}}, f"Found {found} places to see"
 
 
-def stay_options(request: TripRequest) -> list[Stay]:
-    """Ranked stays from TY3's routes.stays for the first destination; sample stays when it has none."""
+def hop(request: TripRequest, a: str, b: str, day: date) -> Leg | None:
+    """The inter-city leg from a to b on the morning of `day`: TY3's best-ranked option, or a road estimate
+    between the two cities' top places when routes does not know a city."""
+    found = _compared(a, b, day)
+    if found:
+        opt = found[0]
+        depart = opt.legs[0].depart
+        return Leg(**{"from": a}, to=b, mode=opt.mode, depart=depart,
+                   arrive=depart + timedelta(minutes=opt.total_minutes), minutes=opt.total_minutes,
+                   cost_inr=opt.total_cost_inr)
+    pa, pb = city_places(request, a), city_places(request, b)
+    if not pa or not pb:
+        return None
+    minutes, cost = Travel().edge(pa[0], pb[0])
+    depart = datetime.combine(day, HOP_DEPART)
+    return Leg(**{"from": a}, to=b, mode=Mode.road, depart=depart, arrive=depart + timedelta(minutes=minutes),
+               minutes=minutes, cost_inr=cost)
+
+
+def hops(request: TripRequest) -> dict[str, Leg]:
+    """One hop into each destination after the first, on that city's first day."""
+    split = [(c, d) for c, d in split_days(request) if d]
+    out = {}
+    for (prev, _), (city, dates) in zip(split, split[1:]):
+        if (leg := hop(request, prev, city, dates[0])) is not None:
+            out[city] = leg
+    return out
+
+
+def city_stays(request: TripRequest, city: str, check_in: date, nights: int) -> list[Stay]:
+    """Ranked stays from TY3's routes.stays; sample stays for cities it does not cover."""
     from routes.compare import UnknownPlace
     from routes.stays import rank_stays
 
-    nights = max((request.end_date - request.start_date).days, 1)
     people = max(len(request.constraints.travellers), 1)
+    check_out = check_in + timedelta(days=nights)
     try:
-        found = rank_stays(request.destinations[0], request.start_date, request.start_date + timedelta(days=nights),
-                           party=people, limit=3)
+        found = rank_stays(city, check_in, check_out, party=people, limit=3)
     except (UnknownPlace, ValueError):
         found = []
-    return found or fakes.stays(request)
+    if found:
+        return found
+    one = request.model_copy(update={"destinations": [city]})
+    return [s.model_copy(update={"check_in": check_in, "check_out": check_out}) for s in fakes.stays(one)]
+
+
+def stay_options(request: TripRequest) -> list[Stay]:
+    """Stays for each city's nights, in trip order. The last city loses a night to the day you leave."""
+    split = [(c, d) for c, d in split_days(request) if d]
+    out: list[Stay] = []
+    for n, (city, dates) in enumerate(split):
+        nights = len(dates) - (1 if n == len(split) - 1 else 0)
+        if nights > 0 or len(split) == 1:
+            out += city_stays(request, city, dates[0], max(nights, 1))
+    return out
 
 
 async def stays(state: dict, model: Model):
@@ -131,17 +188,27 @@ async def story(state: dict, model: Model):
     return {"story": katha.model_dump(mode="json")}, f"Story ready for {subject}"
 
 
+def _missing_stays(request: TripRequest, stays: list[dict]) -> list[str]:
+    """A warning for each city that has nights on the trip but no stay to offer yet."""
+    check_ins = {Stay.model_validate(s).check_in for s in stays}
+    split = [(c, d) for c, d in split_days(request) if d]
+    return [f"No stays found yet for {city}" for n, (city, dates) in enumerate(split)
+            if (n < len(split) - 1 or len(split) == 1 or len(dates) > 1) and dates[0] not in check_ins]
+
+
 async def solver(state: dict, model: Model):
     r = _request(state)
-    pool = [Place.model_validate(p) for p in state["places"]]
-    days, left = solve(r, pool)
+    pools = {c: [Place.model_validate(p) for p in v] for c, v in state["pools"].items()}
+    between = {c: Leg.model_validate(v) for c, v in state.get("hops", {}).items()}
+    days, _ = solve_trip(r, pools, between)
+    empty = [c for c, v in pools.items() if not v]
     it = Itinerary(
         request=r, days=days, lang=r.lang,
         transport=[TransportOption.model_validate(t) for t in state["transport"]],
         stays=[Stay.model_validate(s) for s in state["stays"]],
         budget={"transport_inr": 0, "stay_inr": 0, "total_inr": 0},
         # Unused candidates are not a problem (the planner offers more than a trip holds); an empty pool is.
-        warnings=[] if pool else [f"No places found yet for {', '.join(r.destinations)}"],
+        warnings=[f"No places found yet for {c}" for c in empty] + _missing_stays(r, state["stays"]),
     )
     it.budget = budget(it)
     stops = sum(len(d.stops) for d in days)
