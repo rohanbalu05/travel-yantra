@@ -112,8 +112,11 @@ jobs:
             api_url=$(gcloud run services describe ty-api --region asia-south1 --project "$PROJECT" \
               --format 'value(status.url)' 2>/dev/null || true)
           fi
+          # An explicit staging dir skips gcloud's default-bucket ownership check,
+          # which needs project-wide storage.buckets.list that ty-deploy lacks.
           gcloud builds submit . --config infra/cloudbuild/image.yaml \
             --region asia-south1 --service-account "projects/$PROJECT/serviceAccounts/$DEPLOY_SA" \
+            --gcs-source-staging-dir "gs://${PROJECT}_cloudbuild/source" \
             --substitutions "_DOCKERFILE=${{ matrix.service.dockerfile }},_IMAGE=$IMAGE,_API_BASE_URL=$api_url" \
             --project "$PROJECT"
       - name: Deploy ${{ matrix.service.name }}

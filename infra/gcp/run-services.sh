@@ -29,6 +29,7 @@ secrets_flag() {
 build() {  # name dockerfile [api_url]
   gcloud builds submit . --config infra/cloudbuild/image.yaml --region "$R" \
     --service-account "projects/$P/serviceAccounts/$DEPLOY_SA" \
+    --gcs-source-staging-dir "gs://${P}_cloudbuild/source" \
     --substitutions "_DOCKERFILE=$2,_IMAGE=$R-docker.pkg.dev/$P/ty/$1:$SHA,_API_BASE_URL=${3:-}" \
     --project "$P"
 }
