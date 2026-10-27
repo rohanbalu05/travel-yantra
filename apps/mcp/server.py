@@ -14,6 +14,9 @@ import httpx
 from mcp.server.fastmcp import FastMCP
 from pydantic import BaseModel
 from ty_contracts import (
+    CityRef,
+    CompareRequest,
+    CompareResponse,
     GuideAnswer,
     GuideQuestion,
     Itinerary,
@@ -21,7 +24,7 @@ from ty_contracts import (
     Lang,
     PlanEvent,
     PlanStage,
-    TransportOption,
+    RankedOption,
     TripRequest,
 )
 
@@ -113,17 +116,42 @@ async def plan_trip(request: TripRequest) -> PlannedTrip:
 
 
 @mcp.tool()
-async def compare_transport(origin: str, destination: str, on: date) -> list[TransportOption]:
-    """Compare door-to-door flight, rail and road options for one leg, with prices and links."""
-    if not _base():
-        return _sample_itinerary().transport
-    # ponytail: assumes POST /routes/compare takes {origin, destination, date} (card #25)
-    data = await _request(
-        "POST",
-        "/routes/compare",
-        json={"origin": origin, "destination": destination, "date": on.isoformat()},
+async def compare_transport(
+    origin: str,
+    destination: str,
+    on: date | None = None,
+    rank_by: Literal["balanced", "time", "cost", "changes"] = "balanced",
+    travellers: int = 1,
+) -> CompareResponse:
+    """Compare door-to-door flight, rail and road options for one leg, ranked, with prices and links.
+
+    `unavailable` says which modes have no option and why.
+    """
+    req = CompareRequest(
+        origin=origin, destination=destination, date=on, rank_by=rank_by, travellers=travellers
     )
-    return [TransportOption.model_validate(o) for o in data]
+    if not _base():
+        return _sample_compare(req)
+    data = await _request("POST", "/routes/compare", json=req.model_dump(mode="json"))
+    return CompareResponse.model_validate(data)
+
+
+def _sample_compare(req: CompareRequest) -> CompareResponse:
+    it = _sample_itinerary()
+    ranked = [
+        RankedOption(
+            id=f"sample-{i}", rank=i, changes=len(o.legs) - 1, score=0, sources=["sample"], option=o
+        )
+        for i, o in enumerate(it.transport, start=1)
+    ]
+    return CompareResponse(
+        origin=CityRef(name="Bengaluru", lat=12.9716, lng=77.5946),
+        destination=CityRef(name="Goa", lat=15.4909, lng=73.8278),
+        date=req.date or it.request.start_date,
+        rank_by=req.rank_by,
+        options=ranked,
+        notes=["offline sample: Bengaluru to Goa, whatever was asked"],
+    )
 
 
 @mcp.tool()

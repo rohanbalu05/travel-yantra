@@ -3,7 +3,7 @@ import json
 import httpx
 import pytest
 from mcp.shared.memory import create_connected_server_and_client_session as connect
-from ty_contracts import GuideAnswer, Itinerary, KathaStory, TransportOption
+from ty_contracts import CompareRequest, CompareResponse, GuideAnswer, Itinerary, KathaStory
 
 import server
 
@@ -73,16 +73,19 @@ async def test_offline_revise_says_it_did_not_revise(monkeypatch):
 
 
 async def test_compare_transport_calls_routes_compare(monkeypatch):
-    seen = _fake_api(monkeypatch, lambda req: httpx.Response(200, json=SAMPLE["transport"]))
-    out = await _call("compare_transport")
+    offline = server._sample_compare(CompareRequest(origin="x", destination="y"))
+    offline = offline.model_dump(mode="json", by_alias=True)
+    seen = _fake_api(monkeypatch, lambda req: httpx.Response(200, json=offline))
+    out = CompareResponse.model_validate(await _call("compare_transport"))
     assert seen[0].method == "POST" and seen[0].url.path == "/routes/compare"
-    assert json.loads(seen[0].content) == {
-        "origin": "Bengaluru",
-        "destination": "Panaji",
-        "date": "2026-12-11",
-    }
-    opts = [TransportOption.model_validate(o) for o in out["result"]]
-    assert len(opts) == len(SAMPLE["transport"])
+    body = json.loads(seen[0].content)
+    assert (body["origin"], body["destination"], body["date"]) == (
+        "Bengaluru",
+        "Panaji",
+        "2026-12-11",
+    )
+    assert body["rank_by"] == "balanced" and body["travellers"] == 1
+    assert [o.rank for o in out.options] == list(range(1, len(SAMPLE["transport"]) + 1))
 
 
 async def test_revise_trip_streams_from_plan_revise(monkeypatch):
