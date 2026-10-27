@@ -3,7 +3,8 @@ import type { PlanEvent } from "@/lib/contracts";
 /**
  * Reads a `text/event-stream` body and yields each `data:` frame as JSON.
  * Comment lines (`: ping`) and other fields are skipped; multi-line data is
- * joined with newlines, as the SSE spec says.
+ * joined with newlines, as the SSE spec says. A frame that is not JSON throws
+ * a SyntaxError, which the pages show as a failed plan with "Try again".
  */
 export async function* parseSSE(body: ReadableStream<Uint8Array>): AsyncGenerator<PlanEvent> {
   const reader = body.getReader();

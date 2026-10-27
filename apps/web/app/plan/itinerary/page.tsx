@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { NoPlan } from "@/components/NoPlan";
 import { Trail } from "@/components/Trail";
@@ -11,6 +11,9 @@ import { PlanHttpError, savePlanResult, streamRevise, useChoice, usePlanResult }
 import { initialPlanState, planReducer } from "@/lib/planState";
 import { againstBudget, dayRows, pickIndex, travellerCount, tripCost } from "@/lib/planView";
 import "../plan.css";
+
+// A revise is one day's solve and check; past this the connection has stalled.
+const REVISE_TIMEOUT_MS = 90_000;
 
 const PACE_NAME = { relaxed: "gentle pace", balanced: "balanced pace", packed: "packed pace" } as const;
 
@@ -25,15 +28,20 @@ function Plan({ it, planId }: { it: Itinerary; planId: string | null }) {
   const choice = useChoice() ?? null;
   const [busy, setBusy] = useState<string | null>(null);
   const [said, setSaid] = useState<{ text: string; bad: boolean } | null>(null);
+  const live = useRef<AbortController | null>(null);
+  useEffect(() => () => live.current?.abort(), []);
 
   // Revise streams like /plan and ends in done with a new plan; only the day touched changes.
   const revise = async (req: Omit<ReviseRequest, "lang">, label: string) => {
     if (!planId || busy) return;
     setBusy(label);
     setSaid(null);
+    const ctl = new AbortController();
+    live.current = ctl;
+    const timer = setTimeout(() => ctl.abort(), REVISE_TIMEOUT_MS);
     try {
       let s = initialPlanState();
-      for await (const ev of streamRevise(planId, { ...req, lang: it.lang ?? "en" })) s = planReducer(s, ev);
+      for await (const ev of streamRevise(planId, { ...req, lang: it.lang ?? "en" }, ctl.signal)) s = planReducer(s, ev);
       if (s.status === "done" && s.itinerary) {
         savePlanResult({ itinerary: s.itinerary, plan_id: s.planId, share_token: s.shareToken });
         setSaid({ text: `Done: ${label}. The other days are as before, and the checks ran again.`, bad: false });
@@ -41,8 +49,10 @@ function Plan({ it, planId }: { it: Itinerary; planId: string | null }) {
         setSaid({ text: s.error?.message ?? "The planner stopped before finishing. Try again.", bad: true });
       }
     } catch (e) {
-      setSaid({ text: e instanceof PlanHttpError ? e.message : "We could not reach the planner. Check your connection.", bad: true });
+      const text = e instanceof PlanHttpError ? e.message : ctl.signal.aborted ? "The planner took too long. Try again." : "We could not reach the planner. Check your connection.";
+      setSaid({ text, bad: true });
     } finally {
+      clearTimeout(timer);
       setBusy(null);
     }
   };
