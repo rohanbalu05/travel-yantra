@@ -118,6 +118,9 @@ class Timetable:
                 best, best_at = arr + egress[c.b], (c.b, boarded[trip], i)
         if best_at is None:
             return None
+        # Walk back from the best arrival. came[s] only ever improves to an earlier arrival, and a
+        # ride boarded at s used a reach[s] set before its boarding index, so following came
+        # always moves to earlier connections and ends at an access station.
         rides = []
         station, b_i, a_i = best_at
         while True:

@@ -61,7 +61,7 @@ class StudyReport(BaseModel):
     target_pct: float = TARGET_PCT
     min_sessions: int = MIN_SESSIONS
     tasks: list[TaskReport]
-    overall: TaskReport  # all tasks pooled
+    overall: TaskReport  # all tasks pooled; its verdict waits until every task has MIN_SESSIONS per arm
 
 
 def _reduction(base: float | None, ty: float | None) -> float | None:
@@ -108,5 +108,8 @@ def _report(events: list[MetricEvent], task: str | None, title: str | None) -> T
 def report(events: list[MetricEvent]) -> StudyReport:
     titles = {t.id: t.title for t in TASKS}
     ids = list(titles) + sorted({e.task for e in events} - set(titles))
-    return StudyReport(tasks=[_report(events, i, titles.get(i)) for i in ids],
-                       overall=_report([e for e in events if e.task in titles], None, "All study tasks"))
+    tasks = [_report(events, i, titles.get(i)) for i in ids]
+    overall = _report([e for e in events if e.task in titles], None, "All study tasks")
+    if any(t.met is None for t in tasks if t.task in titles):  # a pooled median must not hide a thin task
+        overall = overall.model_copy(update={"met": None})
+    return StudyReport(tasks=tasks, overall=overall)

@@ -50,7 +50,16 @@ def test_report_measures_the_reduction_against_the_60_percent_target(client):
     assert goa["reduction_pct"] == 68.8 and goa["met"] is True
     assert mys["reduction_pct"] == 50.0 and mys["met"] is False
     assert rep["overall"]["baseline"]["finished"] == 2 * MIN_SESSIONS and rep["target_pct"] == 60.0
-    assert rep["overall"]["reduction_pct"] is not None
+    assert rep["overall"]["reduction_pct"] is not None and rep["overall"]["met"] is not None
+
+
+def test_pooled_verdict_waits_for_every_task(client):
+    for i in range(MIN_SESSIONS):  # plenty of Goa sessions, no Mysuru sessions yet
+        run(client, f"base-goa-{i:04d}", "plan_goa_family", "baseline", 900, 1800)
+        run(client, f"tyya-goa-{i:04d}", "plan_goa_family", "ty", 120, 540)
+    rep = client.get("/routes/metrics/report").json()
+    assert rep["tasks"][0]["met"] is True and rep["overall"]["reduction_pct"] == 70.0
+    assert rep["overall"]["met"] is None
 
 
 def test_no_verdict_before_enough_sessions_or_bookings(client):
