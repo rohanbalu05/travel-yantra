@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 import { Brand } from "@/components/Brand";
-import { useAccount } from "@/lib/account";
+import { syncMe, useAccount, useSignInOffered } from "@/lib/account";
 import type { Lang } from "@/lib/contracts";
 import { LANGS, useI18n } from "@/lib/i18n";
 import { NAV } from "@/lib/screens";
@@ -37,10 +38,21 @@ export function LangPicker() {
 }
 
 /** The signed-in shell: app bar, main area, footer. */
+let meAsked = false;
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const path = usePathname() ?? "";
   const { t } = useI18n();
   const user = useAccount()?.user;
+  const offered = useSignInOffered();
+  // Signed in with Google: ask /me once per page load, so the name and consents are the account's.
+  const signedIn = !!user && !user.demo;
+  useEffect(() => {
+    if (signedIn && !meAsked) {
+      meAsked = true;
+      syncMe().catch(() => {});
+    }
+  }, [signedIn]);
   const on = (p: string) => path === p || (p !== "/home/" && path.startsWith(p.slice(0, -1)));
   return (
     <div className="app">
@@ -60,7 +72,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {initials(user.name ?? user.email ?? "?")}
             </Link>
           ) : (
-            <Link className="btn btn-quiet btn-sm" href="/signin/">{t("Sign in")}</Link>
+            offered && <Link className="btn btn-quiet btn-sm" href="/signin/">{t("Sign in")}</Link>
           )}
         </div>
       </header>

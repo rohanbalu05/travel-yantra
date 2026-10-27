@@ -1,7 +1,7 @@
 import { useMemo, useSyncExternalStore } from "react";
 import { API_BASE_URL } from "@/lib/api";
-import { clientHeaders } from "@/lib/account";
-import { detailText } from "@/lib/http";
+import { SignInExpired, withAuth } from "@/lib/account";
+import { ApiError, detailText } from "@/lib/http";
 import type { Itinerary, PlanEvent, PlanStage, PlanText, ReviseRequest, TripRequest } from "@/lib/contracts";
 import { mockPlanBody, mockReviseBody } from "@/lib/mockPlan";
 import { parseSSE } from "@/lib/sse";
@@ -37,12 +37,23 @@ async function* streamEvents(
   if (!base) {
     stream = mock();
   } else {
-    const res = await fetch(`${base}${path}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "text/event-stream", ...clientHeaders() },
-      body: JSON.stringify(body),
-      signal,
-    });
+    let res: Response;
+    try {
+      // Signed in, the Google token goes too; a refused token is refreshed once (withAuth).
+      res = await withAuth(async (headers) => {
+        const r = await fetch(`${base}${path}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "text/event-stream", ...headers },
+          body: JSON.stringify(body),
+          signal,
+        });
+        if (r.status === 401) throw new ApiError(detailText(await r.json().catch(() => null)), 401);
+        return r;
+      });
+    } catch (e) {
+      if (e instanceof SignInExpired || e instanceof ApiError) throw new PlanHttpError(e.message || "The planner refused the request.");
+      throw e;
+    }
     if (!res.ok || !res.body) {
       const reason = detailText(await res.json().catch(() => null));
       throw new PlanHttpError(reason || `The planner answered ${res.status}.`);

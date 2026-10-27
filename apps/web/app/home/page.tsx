@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { PlayIcon, Wave } from "@/components/Wave";
+import { useAccount } from "@/lib/account";
 import { useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { savePlanInput } from "@/lib/plan";
@@ -31,6 +32,9 @@ const book = <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V
 export default function HomePage() {
   const router = useRouter();
   const { lang, t } = useI18n();
+  const user = useAccount()?.user;
+  // Signed in with Google: their own first name. Otherwise the sample persona (Arjun Rao and family).
+  const firstName = user && !user.demo && user.name ? user.name.split(" ")[0] : "Arjun";
   const [playing, setPlaying] = useState(false);
   const [ask, setAsk] = useState("");
   // Typed text goes straight to planning; an empty box opens the full start page.
@@ -45,7 +49,7 @@ export default function HomePage() {
     <AppShell>
       <div>
         <div className="hm-greet">
-          <h1>{t("Good evening, {name}.", { name: "Arjun" })}</h1>
+          <h1>{t("Good evening, {name}.", { name: firstName })}</h1>
           <p className="page-sub">{t("Plan something new, or hear the story of where you are going.")}</p>
         </div>
 

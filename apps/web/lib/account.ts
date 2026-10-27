@@ -22,6 +22,8 @@ export type SavedTrip = TripSummary & { itinerary?: Itinerary };
 
 type Account = {
   user: User | null;
+  /** When TY1 last answered "sign-in is not configured": the sign-in button hides for an hour. */
+  signInOffAt?: number | null;
   consents: Consents;
   consents_updated_at: string | null;
   trips: SavedTrip[];
@@ -90,10 +92,54 @@ async function firebaseAuth() {
   return { auth, instance: auth.getAuth(app) };
 }
 
-async function idToken(): Promise<string | null> {
-  if (!firebaseEnabled) return null;
+// TY1 answers any Bearer with 401 "sign-in is not configured" until Firebase is set up on the API.
+const SIGN_IN_OFF = "sign-in is not configured";
+const OFF_FOR_MS = 60 * 60 * 1000;
+
+const signInOff = (a: Account) => !!a.signInOffAt && Date.now() - a.signInOffAt < OFF_FOR_MS;
+
+/** Show "Sign in": the demo account without Firebase; with it, unless the API turned Google sign-in down lately. */
+export function useSignInOffered(): boolean {
+  const a = useAccount();
+  return !firebaseEnabled || !a || !signInOff(a);
+}
+
+async function idToken(force = false): Promise<string | null> {
+  if (!firebaseEnabled || signInOff(load())) return null;
   const { instance } = await firebaseAuth();
-  return (await instance.currentUser?.getIdToken()) ?? null;
+  await instance.authStateReady(); // after a reload Firebase restores the user asynchronously
+  return (await instance.currentUser?.getIdToken(force)) ?? null;
+}
+
+/** The token was refused twice: the traveller must sign in again (never a quiet fall-back to the browser id). */
+export class SignInExpired extends ApiError {
+  constructor() {
+    super("Your sign-in has expired. Sign in again.", 401);
+  }
+}
+
+/**
+ * Runs an API call with this browser's headers (X-Client-Id, plus the Google token when signed in).
+ * A 401 on a token means it is bad or expired: refresh it and try once more. "sign-in is not
+ * configured" turns sign-in off here for an hour and goes on as this browser.
+ */
+export async function withAuth<T>(call: (headers: Record<string, string>) => Promise<T>): Promise<T> {
+  const token = await idToken();
+  try {
+    return await call(bearer(token));
+  } catch (e) {
+    if (!(e instanceof ApiError) || e.status !== 401 || !token) throw e;
+    if (e.message === SIGN_IN_OFF) {
+      await signOut();
+      store({ ...load(), signInOffAt: Date.now() });
+      return call(bearer(null));
+    }
+  }
+  try {
+    return await call(bearer(await idToken(true)));
+  } catch (e) {
+    throw e instanceof ApiError && e.status === 401 ? new SignInExpired() : e;
+  }
 }
 
 /** Google only: no phone sign-in (SMS costs money). */
@@ -107,7 +153,9 @@ export async function signIn(): Promise<User> {
     user = { uid: "demo-arjun-rao", email: null, name: "Arjun Rao (sample)", demo: true };
   }
   store({ ...load(), user });
-  return user;
+  // The first signed-in call carries this browser's X-Client-Id: TY1 moves its trips, ratings and consents to the account.
+  if (!user.demo) await syncMe().catch(() => false);
+  return load().user ?? user;
 }
 
 export async function signOut() {
@@ -121,17 +169,18 @@ export async function signOut() {
 // ---- API calls (TY1's /me, /me/consents, /me/trips, /ratings), falling back to the local copy ----
 
 /** True when the API answered; false when the route does not exist yet, so the local copy is used. */
-async function tryApi<T>(call: (token: string | null) => Promise<T>): Promise<{ ok: true; value: T } | { ok: false }> {
+async function tryApi<T>(call: (headers: Record<string, string>) => Promise<T>): Promise<{ ok: true; value: T } | { ok: false }> {
   if (!API_BASE_URL) return { ok: false };
   try {
-    return { ok: true, value: await call(await idToken()) };
+    return { ok: true, value: await withAuth(call) };
   } catch (e) {
+    if (e instanceof SignInExpired) throw e;
     if (e instanceof ApiError && (e.status === 404 || e.status === 405 || e.status === 401)) return { ok: false };
     throw e;
   }
 }
 
-// TY1 keys account data by an anonymous id per browser (X-Client-Id); a Firebase token can be added later.
+// TY1 keys account data by an anonymous id per browser (X-Client-Id), and by the Google account when signed in.
 const CLIENT_KEY = "ty.client";
 let clientMemory: string | null = null;
 
@@ -149,13 +198,13 @@ export function clientId(): string {
   }
 }
 
-/** Headers for /plan, revise and ratings: the anonymous id only. */
+/** The anonymous id alone; withAuth adds the Google token when signed in. */
 export const clientHeaders = (): Record<string, string> => ({ "X-Client-Id": clientId() });
 
 const bearer = (token: string | null): Record<string, string> => ({ ...clientHeaders(), ...(token ? { Authorization: `Bearer ${token}` } : {}) });
 
 export async function saveConsents(next: Consents) {
-  const r = await tryApi((token) => apiJSON<Me>("/me/consents", { method: "PUT", body: next, headers: bearer(token) }));
+  const r = await tryApi((headers) => apiJSON<Me>("/me/consents", { method: "PUT", body: next, headers }));
   const a = load();
   // Withdrawing "Keep my trips" clears this browser’s list. TY1 keeps server trips until DELETE /me (asked to erase on withdrawal).
   const trips = next.plan_history ? a.trips : [];
@@ -165,10 +214,13 @@ export async function saveConsents(next: Consents) {
 
 /** Takes the server's consents (GET /me) as the truth when the API has them; no-op until then. */
 export async function syncMe(): Promise<boolean> {
-  const r = await tryApi((token) => apiJSON<Me>("/me", { headers: bearer(token) }));
+  const r = await tryApi((headers) => apiJSON<Me>("/me", { headers }));
   if (!r.ok) return false;
   const a = load();
-  store({ ...a, consents: { ...NO_CONSENTS, ...r.value.consents }, consents_updated_at: r.value.consents_updated_at ?? a.consents_updated_at });
+  const me = r.value;
+  // Signed in with Google, /me names the account ("fb:<uid>", with the token's name and email).
+  const user = a.user && !a.user.demo ? { ...a.user, name: me.name ?? a.user.name, email: me.email ?? a.user.email } : a.user;
+  store({ ...a, user, consents: { ...NO_CONSENTS, ...me.consents }, consents_updated_at: me.consents_updated_at ?? a.consents_updated_at });
   return true;
 }
 
@@ -192,7 +244,7 @@ export async function rememberTrip(it: Itinerary, plan_id: string | null, share_
 
 /** The API's list when it has one (the server saves plans for signed-in users), else this browser's. */
 export async function listTrips(): Promise<{ trips: SavedTrip[]; from: "api" | "browser" }> {
-  const r = await tryApi((token) => apiJSON<TripSummary[]>("/me/trips", { headers: bearer(token) }));
+  const r = await tryApi((headers) => apiJSON<TripSummary[]>("/me/trips", { headers }));
   return r.ok ? { trips: r.value, from: "api" } : { trips: load().trips, from: "browser" };
 }
 
@@ -202,7 +254,7 @@ export async function listTrips(): Promise<{ trips: SavedTrip[]; from: "api" | "
  * progress, study session id). The language choice stays; it is not personal data.
  */
 export async function deleteMyData(): Promise<{ server: number | null }> {
-  const r = await tryApi((token) => apiJSON<{ deleted: boolean; items: number }>("/me", { method: "DELETE", headers: bearer(token) }));
+  const r = await tryApi((headers) => apiJSON<{ deleted: boolean; items: number }>("/me", { method: "DELETE", headers }));
   if (firebaseEnabled) {
     // Remove the Google sign-in record too. Firebase may ask for a recent sign-in; then at least sign out.
     const { auth, instance } = await firebaseAuth();
@@ -229,7 +281,7 @@ const RATINGS_KEY = "ty.ratings";
 
 /** POST /ratings (anonymous, for the O1 study). Kept in this browser until the endpoint exists. */
 export async function rate(r: RatingIn): Promise<"api" | "browser"> {
-  const sent = await tryApi(() => apiJSON<unknown>("/ratings", { body: r, headers: clientHeaders() }));
+  const sent = await tryApi((headers) => apiJSON<unknown>("/ratings", { body: r, headers }));
   if (sent.ok) return "api";
   try {
     const list = JSON.parse(localStorage.getItem(RATINGS_KEY) ?? "[]") as RatingIn[];
