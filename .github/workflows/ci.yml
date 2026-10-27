@@ -128,7 +128,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build every service image from the repo root
         run: |
-          for d in apps/api apps/mcp apps/bots/whatsapp; do  # services/translate joins once its Dockerfile uses the root context
+          for d in apps/api apps/mcp apps/bots/whatsapp services/translate; do
             [ -f "$d/Dockerfile" ] || { echo "skip $d: no Dockerfile"; continue; }
             docker build -f "$d/Dockerfile" -t "ci-$(basename "$d")" .
           done

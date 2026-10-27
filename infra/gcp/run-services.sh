@@ -40,6 +40,13 @@ build() {  # name dockerfile [api_url]
 common=(--region "$R" --project "$P" --min-instances 0 --max-instances 2 --cpu 1
         --concurrency 40 --cpu-throttling --quiet)
 
+CONN=$P:$R:ty-pg
+VERTEX="GOOGLE_GENAI_USE_VERTEXAI=true@GOOGLE_CLOUD_PROJECT=$P@GOOGLE_CLOUD_LOCATION=global"
+
+url_of() {  # the service's Cloud Run URL, or empty if it doesn't exist yet
+  gcloud run services describe "$1" --region "$R" --project "$P" --format 'value(status.url)' 2>/dev/null || true
+}
+
 case "${1:-}" in
   ty-api)
     build ty-api apps/api/Dockerfile
@@ -54,18 +61,46 @@ case "${1:-}" in
     fi
     # Gemini models are served at the global location on the trial project.
     # ^@^ makes "@" the list separator so the comma-separated CORS value survives.
+    # 2 GiB: the image bakes torch and multilingual-e5-small for /guide/ask (V3-T).
     gcloud run deploy ty-api --image "$R-docker.pkg.dev/$P/ty/ty-api:$SHA" "${common[@]}" \
-      --service-account "ty-api-run@$P.iam.gserviceaccount.com" --memory 1Gi \
-      --set-env-vars "^@^GOOGLE_GENAI_USE_VERTEXAI=true@GOOGLE_CLOUD_PROJECT=$P@GOOGLE_CLOUD_LOCATION=global@TY_MODEL_FLASH=gemini-3.5-flash@TY_MODEL_LITE=gemini-3.1-flash-lite@TY_CORS_ORIGINS=$web_url@GIT_SHA=$SHA" \
+      --service-account "ty-api-run@$P.iam.gserviceaccount.com" --memory 2Gi \
+      --add-cloudsql-instances "$CONN" \
+      --set-env-vars "^@^$VERTEX@TY_MODEL_FLASH=gemini-3.5-flash@TY_MODEL_LITE=gemini-3.1-flash-lite@EMBEDDER=e5@TY_CORS_ORIGINS=$web_url@GIT_SHA=$SHA" \
       ${sec:+"$sec"}
     ;;
   ty-web)
-    api_url=$(gcloud run services describe ty-api --region "$R" --project "$P" --format 'value(status.url)')
-    build ty-web infra/web/Dockerfile "$api_url"
+    build ty-web infra/web/Dockerfile "$(url_of ty-api)"
     gcloud run deploy ty-web --image "$R-docker.pkg.dev/$P/ty/ty-web:$SHA" "${common[@]}" \
       --service-account "ty-web-run@$P.iam.gserviceaccount.com" --memory 512Mi \
       --set-env-vars "GIT_SHA=$SHA"
     ;;
+  ty-translate)
+    # Private: only ty-bots and ty-mcp call it, with ID tokens (run.invoker below).
+    build ty-translate services/translate/Dockerfile
+    gcloud run deploy ty-translate --image "$R-docker.pkg.dev/$P/ty/ty-translate:$SHA" "${common[@]}" \
+      --service-account "ty-translate-run@$P.iam.gserviceaccount.com" --memory 512Mi \
+      --set-env-vars "^@^$VERTEX@TY_MODEL_LITE=gemini-3.1-flash-lite@TY_TRANSLATOR=gemini@GIT_SHA=$SHA"
+    for caller in ty-bots-run ty-mcp-run; do
+      gcloud run services add-iam-policy-binding ty-translate --region "$R" --project "$P" \
+        --member "serviceAccount:$caller@$P.iam.gserviceaccount.com" --role roles/run.invoker --format none
+    done
+    ;;
+  ty-bots)
+    # Public for Meta's webhook (the bot verifies Meta's signature itself); the
+    # allUsers grant is Rohan's. Phone number id and recipients are secrets too.
+    build ty-bots apps/bots/whatsapp/Dockerfile
+    sec=$(secrets_flag WHATSAPP_TOKEN WHATSAPP_VERIFY_TOKEN WHATSAPP_APP_SECRET WHATSAPP_PHONE_NUMBER_ID WHATSAPP_ALLOWED_RECIPIENTS)
+    gcloud run deploy ty-bots --image "$R-docker.pkg.dev/$P/ty/ty-bots:$SHA" "${common[@]}" \
+      --service-account "ty-bots-run@$P.iam.gserviceaccount.com" --memory 512Mi \
+      --set-env-vars "^@^API_BASE_URL=$(url_of ty-api)@TRANSLATE_URL=$(url_of ty-translate)@GIT_SHA=$SHA" \
+      ${sec:+"$sec"}
+    ;;
+  ty-mcp)
+    build ty-mcp apps/mcp/Dockerfile
+    gcloud run deploy ty-mcp --image "$R-docker.pkg.dev/$P/ty/ty-mcp:$SHA" "${common[@]}" \
+      --service-account "ty-mcp-run@$P.iam.gserviceaccount.com" --memory 512Mi \
+      --set-env-vars "^@^API_BASE_URL=$(url_of ty-api)@TRANSLATE_URL=$(url_of ty-translate)@GIT_SHA=$SHA"
+    ;;
   *)
-    echo "usage: $0 ty-api|ty-web" >&2; exit 2 ;;
+    echo "usage: $0 ty-api|ty-web|ty-translate|ty-bots|ty-mcp" >&2; exit 2 ;;
 esac

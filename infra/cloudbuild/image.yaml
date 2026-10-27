@@ -18,6 +18,8 @@ steps:
 images: ['${_IMAGE}']
 substitutions:
   _API_BASE_URL: ''
+# ty-api bakes torch and the e5 model (~9 min cold); the default limit is 10 min.
+timeout: 1800s
 options:
   logging: CLOUD_LOGGING_ONLY
   dynamicSubstitutions: true

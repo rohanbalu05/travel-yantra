@@ -64,9 +64,10 @@ jobs:
           [ "${{ github.event_name }}" = "workflow_dispatch" ] && all=true
           echo "$changed" | grep -qE '^(\.github/workflows/deploy\.yml|infra/cloudbuild/)' && all=true
           out=()
-          # name:source dir:Dockerfile. ty-translate (services/translate) is left out
-          # until HQ picks IndicTrans2 (gated weights) or the Gemini fallback.
+          # name:source dir:Dockerfile (ty-translate is the Gemini image, V3-W;
+          # services/translate/Dockerfile.indictrans2 is never built).
           for entry in ty-api:apps/api:apps/api/Dockerfile ty-web:apps/web:infra/web/Dockerfile \
+                       ty-translate:services/translate:services/translate/Dockerfile \
                        ty-bots:apps/bots/whatsapp:apps/bots/whatsapp/Dockerfile ty-mcp:apps/mcp:apps/mcp/Dockerfile; do
             IFS=: read -r name dir dockerfile <<< "$entry"
             [ -f "$dockerfile" ] || { echo "skip $name: no $dockerfile"; continue; }
