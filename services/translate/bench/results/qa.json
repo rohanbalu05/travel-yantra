@@ -1,0 +1,185 @@
+{
+ "gemini": {
+  "bn": {
+   "n": 10,
+   "pass_rate": 0.0,
+   "mean_chrf": 0.743,
+   "mean_adequacy": 5.0,
+   "flags": {
+    "punctuation": 10,
+    "fallback_en": 10
+   }
+  },
+  "hi": {
+   "n": 10,
+   "pass_rate": 0.0,
+   "mean_chrf": 0.777,
+   "mean_adequacy": 5.0,
+   "flags": {
+    "punctuation": 10,
+    "fallback_en": 10
+   }
+  },
+  "kn": {
+   "n": 10,
+   "pass_rate": 1.0,
+   "mean_chrf": 0.867,
+   "mean_adequacy": 5.0,
+   "flags": {}
+  },
+  "ta": {
+   "n": 10,
+   "pass_rate": 1.0,
+   "mean_chrf": 0.712,
+   "mean_adequacy": 4.9,
+   "flags": {}
+  },
+  "te": {
+   "n": 10,
+   "pass_rate": 1.0,
+   "mean_chrf": 0.784,
+   "mean_adequacy": 5.0,
+   "flags": {}
+  }
+ },
+ "gemini_examples": [
+  {
+   "lang": "hi",
+   "out": "The Basilica of Bom Jesus in Old Goa was completed in 1605 and holds the remains of St Francis Xavier [1].",
+   "chrf": 0.787,
+   "adequacy": 5,
+   "flags": [
+    "punctuation",
+    "fallback_en"
+   ]
+  },
+  {
+   "lang": "hi",
+   "out": "Goan fish curry with rice is the everyday lunch in Panaji, and most family-run places also serve a vegetarian thali [1][2].",
+   "chrf": 0.742,
+   "adequacy": 5,
+   "flags": [
+    "punctuation",
+    "fallback_en"
+   ]
+  },
+  {
+   "lang": "hi",
+   "out": "Fontainhas is the old Latin Quarter of Panaji, known for its narrow lanes and brightly painted Portuguese-era houses [1].",
+   "chrf": 0.792,
+   "adequacy": 5,
+   "flags": [
+    "punctuation",
+    "fallback_en"
+   ]
+  },
+  {
+   "lang": "hi",
+   "out": "Mysuru Palace is lit with nearly one lakh bulbs on Sunday evenings and on festival nights [1].",
+   "chrf": 0.744,
+   "adequacy": 5,
+   "flags": [
+    "punctuation",
+    "fallback_en"
+   ]
+  },
+  {
+   "lang": "hi",
+   "out": "Hampi was the capital of the Vijayanagara Empire; visit the Virupaksha Temple at sunrise to avoid the crowds [1].",
+   "chrf": 0.831,
+   "adequacy": 5,
+   "flags": [
+    "punctuation",
+    "fallback_en"
+   ]
+  },
+  {
+   "lang": "hi",
+   "out": "The Meenakshi Temple in Madurai has fourteen gateway towers, and the evening ceremony starts at about nine [2].",
+   "chrf": 0.6,
+   "adequacy": 5,
+   "flags": [
+    "punctuation",
+    "fallback_en"
+   ]
+  },
+  {
+   "lang": "hi",
+   "out": "For an emergency in Calangute, the nearest government hospital is about twenty minutes away by road; call 108 for an ambulance [1].",
+   "chrf": 0.93,
+   "adequacy": 5,
+   "flags": [
+    "punctuation",
+    "fallback_en"
+   ]
+  },
+  {
+   "lang": "hi",
+   "out": "The Charminar in Hyderabad was built in 1591, and the bazaar around it is famous for bangles and pearls [1].",
+   "chrf": 0.808,
+   "adequacy": 5,
+   "flags": [
+    "punctuation",
+    "fallback_en"
+   ]
+  },
+  {
+   "lang": "hi",
+   "out": "Howrah Bridge in Kolkata carries more than one lakh vehicles a day and has no nuts or bolts, only rivets [1].",
+   "chrf": 0.759,
+   "adequacy": 5,
+   "flags": [
+    "punctuation",
+    "fallback_en"
+   ]
+  },
+  {
+   "lang": "hi",
+   "out": "Dudhsagar Falls is best seen in the monsoon, but the jeep road is closed from June to September for safety [1].",
+   "chrf": 0.772,
+   "adequacy": 5,
+   "flags": [
+    "punctuation",
+    "fallback_en"
+   ]
+  }
+ ],
+ "gemini+norm": {
+  "bn": {
+   "n": 10,
+   "pass_rate": 1.0,
+   "mean_chrf": 0.743,
+   "mean_adequacy": 5.0,
+   "flags": {}
+  },
+  "hi": {
+   "n": 10,
+   "pass_rate": 1.0,
+   "mean_chrf": 0.777,
+   "mean_adequacy": 5.0,
+   "flags": {}
+  },
+  "kn": {
+   "n": 10,
+   "pass_rate": 1.0,
+   "mean_chrf": 0.867,
+   "mean_adequacy": 5.0,
+   "flags": {}
+  },
+  "ta": {
+   "n": 10,
+   "pass_rate": 1.0,
+   "mean_chrf": 0.712,
+   "mean_adequacy": 4.9,
+   "flags": {}
+  },
+  "te": {
+   "n": 10,
+   "pass_rate": 1.0,
+   "mean_chrf": 0.784,
+   "mean_adequacy": 5.0,
+   "flags": {}
+  }
+ },
+ "gemini+norm_examples": []
+}

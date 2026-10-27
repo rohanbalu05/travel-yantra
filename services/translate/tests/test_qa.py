@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from app import qa
 
 HI = "यह एक सुंदर जगह है"
@@ -90,3 +92,19 @@ def test_report_json_and_markdown():
     assert "fallback_en" in data["hi"]["flags"]
     md = qa.report_markdown(res)
     assert md.startswith("| Language |") and "| hi | 2 | 50% |" in md
+
+
+@pytest.mark.parametrize(
+    "out, ok",
+    [
+        ("गोवा में मछली करी मिलती है [1]।", True),
+        ("गोवा में मछली करी मिलती है [1] |", False),
+        ("কলকাতায় মাছ পাওয়া যায় [1]。", False),
+        ("ಮೈಸೂರು ಅರಮನೆ, ಭಾನುವಾರ.", True),
+        ("A | B in the middle is fine", True),
+    ],
+)
+def test_foreign_punctuation_is_flagged(out, ok):
+    from app import checks
+
+    assert checks.punctuation_ok(out) is ok

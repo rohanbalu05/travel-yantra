@@ -65,6 +65,14 @@ def length_ok(src: str, out: str) -> bool:
     return MIN_LEN_RATIO <= len(out) / len(src) <= MAX_LEN_RATIO
 
 
+# CJK and full-width punctuation, or a pipe standing in for the danda: never right in our output.
+FOREIGN_PUNCT = re.compile(r"[\u3000-\u303f\uff00-\uffef]|\s\|\s*$")
+
+
+def punctuation_ok(text: str) -> bool:
+    return not FOREIGN_PUNCT.search(text)
+
+
 def check(src: str, out: str, target: str, script_text: str | None = None) -> list[str]:
     """Length uses `out`; the script check uses `script_text` (default `out`)."""
     flags = []
@@ -72,4 +80,6 @@ def check(src: str, out: str, target: str, script_text: str | None = None) -> li
         flags.append("wrong_script")
     if not length_ok(src, out):
         flags.append("length")
+    if not punctuation_ok(out):
+        flags.append("punctuation")
     return flags
