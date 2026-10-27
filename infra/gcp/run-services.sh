@@ -44,8 +44,14 @@ case "${1:-}" in
   ty-api)
     build ty-api apps/api/Dockerfile
     sec=$(secrets_flag DATABASE_URL GOOGLE_MAPS_API_KEY SERPAPI_API_KEY)
-    # CORS: the web service's URL, once it exists (TY1's TY_CORS_ORIGINS).
+    # CORS: both URLs of the web service once it exists (TY1's TY_CORS_ORIGINS).
+    # Cloud Run serves a legacy hash URL (status.url) and the project-number URL
+    # we hand out; browsers may arrive on either.
     web_url=$(gcloud run services describe ty-web --region "$R" --project "$P" --format 'value(status.url)' 2>/dev/null || true)
+    if [ -n "$web_url" ]; then
+      num=$(gcloud projects describe "$P" --format 'value(projectNumber)')
+      web_url="$web_url,https://ty-web-$num.$R.run.app"
+    fi
     # Gemini models are served at the global location on the trial project.
     # ^@^ makes "@" the list separator so the comma-separated CORS value survives.
     gcloud run deploy ty-api --image "$R-docker.pkg.dev/$P/ty/ty-api:$SHA" "${common[@]}" \
