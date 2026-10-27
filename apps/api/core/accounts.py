@@ -176,7 +176,11 @@ def me(uid: str = Depends(require_client)) -> Me:
 
 @router.put("/me/consents", response_model=Me)
 def put_consents(body: ConsentsUpdate, uid: str = Depends(require_client)) -> Me:
+    """Turning plan_history off also deletes the trips kept under it (their share links stop working)."""
     get_accounts().set_consents(uid, body)
+    if body.plan_history is False:
+        removed = get_store().delete_owner(uid)
+        log.warning("plan_history withdrawn: %d trips deleted", removed)  # no id in the log
     return _me(uid)
 
 

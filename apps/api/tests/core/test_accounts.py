@@ -107,3 +107,17 @@ def test_delete_me_also_removes_anonymous_ratings_of_its_plans(memory_accounts):
     client.post("/ratings", json={"plan_id": "someone-else", "score": 5})
     assert client.delete("/me", headers=ME).json()["items"] == 3  # trip, consents, the anonymous rating
     assert [r.plan_id for r in memory_accounts.ratings] == ["someone-else"]
+
+
+def test_withdrawing_plan_history_deletes_the_saved_trips():
+    client.put("/me/consents", json={"plan_history": True, "analytics": True}, headers=ME)
+    kept = done(client.post("/plan", json=MYSURU, headers=ME))
+    client.put("/me/consents", json={"plan_history": True}, headers=OTHER)
+    theirs = done(client.post("/plan", json=MYSURU, headers=OTHER))
+    client.put("/me/consents", json={"analytics": False}, headers=ME)  # another purpose: trips stay
+    assert len(client.get("/me/trips", headers=ME).json()) == 1
+    me = Me.model_validate(client.put("/me/consents", json={"plan_history": False}, headers=ME).json())
+    assert not me.consents.plan_history
+    assert client.get("/me/trips", headers=ME).json() == []
+    assert client.get(f"/trips/{kept['share_token']}").status_code == 404
+    assert client.get(f"/trips/{theirs['share_token']}").status_code == 200
