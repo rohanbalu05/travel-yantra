@@ -246,3 +246,12 @@ def visits_of(day, it):
     mins = [travel.minutes(a, b) for a, b in zip(day.stops, day.stops[1:])]
     visits, _ = schedule(day.date, day.stops, mins, after_hop(limits(it.request), hop_of(day)))
     return visits
+
+
+def test_only_the_trip_s_last_day_may_take_the_extra_stop():
+    from core.solver import limits
+
+    it = plan()
+    cap = limits(it.request).max_stops
+    assert all(len(d.stops) <= cap for d in it.days[:-1])
+    assert len(it.days[-1].stops) <= cap + 1
