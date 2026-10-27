@@ -71,7 +71,11 @@ def test_plan_event_extra_fields_roundtrip_and_stay_optional():
         "violations": [{"code": "closed", "message": "m", "day": "2026-12-12", "place_id": "goa-miramar"}]})
     assert ev.violations[0].code == "closed" and ev.iteration == 1
     ask = roundtrip(PlanEvent, {"stage": "needs_input", "message": "?", "questions": ["When?", "Who?"]})
-    assert ask.questions == ["When?", "Who?"] and ask.retryable is False
+    assert ask.questions == ["When?", "Who?"] and ask.retryable is False and ask.draft is None
+    drafted = roundtrip(PlanEvent, {"stage": "needs_input", "message": "?", "questions": ["When?"],
+                                    "draft": {"origin": "Bengaluru", "destinations": ["Goa"],
+                                              "travellers": [{"name": "You", "age": 30}]}})
+    assert drafted.draft.destinations == ["Goa"] and drafted.draft.start_date is None
     with pytest.raises(ValidationError):
         PlanEvent.model_validate({"stage": "needs_input", "message": "?", "questions": ["a", "b", "c", "d"]})
     with pytest.raises(ValidationError):

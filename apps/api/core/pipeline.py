@@ -111,7 +111,8 @@ async def run_plan(body: TripRequest | PlanText) -> AsyncIterator[PlanEvent]:
                 state.update(delta)
                 if "questions" in delta:
                     yield PlanEvent(stage=PlanStage.needs_input, step=PlanStep.intake,
-                                    message=event.content.parts[0].text, questions=delta["questions"])
+                                    message=event.content.parts[0].text, questions=delta["questions"],
+                                    draft=delta.get("draft"))
                     return
                 message = event.content.parts[0].text
                 if event.author == "final" and not message:

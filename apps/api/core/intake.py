@@ -5,6 +5,8 @@ The model only fills a flat draft; code decides what is missing and builds the T
 
 from __future__ import annotations
 
+import re
+from collections import OrderedDict
 from datetime import date, datetime, timedelta, timezone
 
 from pydantic import BaseModel, Field, ValidationError
@@ -46,6 +48,8 @@ class IntakeDraft(BaseModel):
 class IntakeResult(BaseModel):
     request: TripRequest | None = None
     questions: list[str] = Field(default_factory=list)
+    # What was understood so far, for a pre-filled form when questions remain.
+    draft: IntakeDraft | None = None
 
 
 def prompt(text: str, today: date) -> str:
@@ -57,7 +61,10 @@ def prompt(text: str, today: date) -> str:
         "Use English place names (Bengaluru, Mysuru, Goa). Leave a field empty when the message does not say it; "
         "never guess origin or dates. Budget is the total in rupees (1 lakh = 100000). Pace: relaxed when they "
         "mention elders, kids or taking it easy; packed when they want to see a lot; else leave it empty. "
-        "For each traveller with a known age, add {name, age}; use a role as the name when no name is given.\n"
+        "Travellers: list every person going, including the writer (name 'You') unless they say they are not "
+        "going; 'with my parents and sister' is 4 people. Use a role as the name when no name is given. When an "
+        "age is not stated, estimate it from the role: parents of an adult 60, grandparents 75, a child 8, "
+        "a spouse, sibling or friend 30.\n"
         "In questions, list at most 3 short follow-up questions for missing origin, destination or dates only.\n\n"
         f"Message:\n{text}"
     )
@@ -93,10 +100,81 @@ def to_request(draft: IntakeDraft, lang: Lang, notes: str | None = None) -> Inta
     return IntakeResult(request=request)
 
 
+def normalise(text: str) -> str:
+    return re.sub(r"\s+", " ", text.lower()).strip(" .!?")
+
+
+# Model results by (normalised text, lang, today). Small and per process; a repeat costs no model call.
+_cache: OrderedDict[tuple[str, Lang, date], IntakeResult] = OrderedDict()
+CACHE_SIZE = 512
+
+MONTHS = {m: i for i, m in enumerate(("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"), 1)}
+_MON = r"(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*"
+# "11-14 dec", "11 to 14 dec 2026", "31 oct se 1 nov"
+_DATES = re.compile(rf"(\d{{1,2}})(?:\s+{_MON})?\s*(?:-|–|to|se|till|until)\s*(\d{{1,2}})\s+{_MON}(?:\s+(\d{{4}}))?")
+# "bengaluru to goa", "from bengaluru to mysuru", "bangalore se mysore"
+_ROUTE = re.compile(r"(?:from\s+)?([a-z][a-z]*(?: [a-z]+)?)\s+(?:to|se|->|→)\s+([a-z][a-z]*(?: [a-z]+)?)")
+# Words that may stay unparsed in a quick-path message ("Bengaluru to Goa, 11-14 Dec trip").
+_FILLER = {"trip", "plan", "a", "for", "on", "jaana", "hai", "please", "travel", "going", "from", "and", "-"}
+
+
+def _city(name: str) -> str | None:
+    """A city the planner knows (TY2's corpus names, or a sample city), else None."""
+    from guide.planner import corpus_city
+
+    from .fakes import BY_CITY
+
+    name = name.strip()
+    return corpus_city(name) or (name.title() if name.lower() in BY_CITY else None)
+
+
+def _on_or_after(day: int, month: int, year: int | None, today: date) -> date | None:
+    try:
+        d = date(year or today.year, month, day)
+    except ValueError:
+        return None
+    return d.replace(year=d.year + 1) if year is None and d < today else d
+
+
+def quick_parse(text: str, lang: Lang, today: date) -> IntakeResult | None:
+    """A form-like message ("Bengaluru to Goa, 11-14 Dec", or Hinglish "se") needs no model. Anything more
+    (travellers, budget, pace, unknown cities, extra words) returns None and goes to the model."""
+    t = normalise(text)
+    dates = _DATES.search(t)
+    route = _ROUTE.search(t[:dates.start()] if dates else t)
+    if not route or not dates:
+        return None
+    origin, dest = _city(route.group(1)), _city(route.group(2))
+    d1, m1, d2, m2, year = dates.groups()
+    end = _on_or_after(int(d2), MONTHS[m2[:3]], int(year) if year else None, today)
+    start = _on_or_after(int(d1), MONTHS[(m1 or m2)[:3]], end.year if end else None, today) if end else None
+    if start and end and start > end:  # "28 dec - 2 jan": the start is in the year before the end
+        start = start.replace(year=start.year - 1)
+    rest = (t[:route.start()] + " " + t[route.end():dates.start()] + " " + t[dates.end():]).replace(",", " ")
+    if not (origin and dest and start and end) or set(rest.split()) - _FILLER:
+        return None
+    return IntakeResult(request=TripRequest(origin=origin, destinations=[dest], start_date=start, end_date=end,
+                                            lang=lang, notes=text[:500]))
+
+
 async def intake(body: TripRequest | PlanText, model: Model, today: date | None = None) -> IntakeResult:
-    """A form (TripRequest) passes straight through; free text goes to the model (Flash-Lite)."""
+    """A form (TripRequest) passes straight through. Free text: the quick parser, then the cache, then the
+    model (Flash-Lite)."""
     if isinstance(body, TripRequest):
         return IntakeResult(request=body)
-    draft = await model.json(prompt(body.text, today or datetime.now(IST).date()), IntakeDraft, tier="lite", thinking="minimal")
+    today = today or datetime.now(IST).date()
+    quick = quick_parse(body.text, body.lang, today)
+    if quick:
+        return quick
+    key = (normalise(body.text), body.lang, today)
+    if key in _cache:
+        _cache.move_to_end(key)
+        return _cache[key].model_copy(deep=True)
+    draft = await model.json(prompt(body.text, today), IntakeDraft, tier="lite", thinking="minimal")
     # Model questions are dropped here unless something is missing; they never reach a complete request.
-    return to_request(draft, body.lang, notes=body.text[:500])
+    result = to_request(draft, body.lang, notes=body.text[:500])
+    result.draft = draft
+    _cache[key] = result
+    while len(_cache) > CACHE_SIZE:
+        _cache.popitem(last=False)
+    return result.model_copy(deep=True)

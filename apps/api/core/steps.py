@@ -18,6 +18,7 @@ from ty_contracts import (
     PlanText,
     Stay,
     TransportOption,
+    TripDraft,
     TripRequest,
     Violation,
 )
@@ -46,12 +47,21 @@ def _itinerary(state: dict) -> Itinerary:
     return Itinerary.model_validate(state["itinerary"])
 
 
+def _draft(d) -> dict:
+    """The intake draft as a TripDraft for the client's pre-filled form; unusable ages are left out."""
+    travellers = [{"name": t.name, "age": t.age} for t in d.travellers if 0 <= t.age <= 120]
+    return TripDraft(origin=d.origin, destinations=d.destinations, start_date=d.start_date, end_date=d.end_date,
+                     budget_inr=d.budget_inr if d.budget_inr is None or d.budget_inr >= 0 else None,
+                     pace=d.pace, travellers=travellers).model_dump(mode="json")
+
+
 async def intake(state: dict, model: Model):
     body = state["body"]
     parsed = PlanText.model_validate(body) if "text" in body else TripRequest.model_validate(body)
     result = await run_intake(parsed, model)
     if result.request is None:
-        return {"questions": result.questions}, "I need a little more to plan this"
+        draft = _draft(result.draft) if result.draft else None
+        return {"questions": result.questions, "draft": draft}, "I need a little more to plan this"
     r = result.request
     return {"request": r.model_dump(mode="json")}, f"Planning {r.origin} to {', '.join(r.destinations)}"
 

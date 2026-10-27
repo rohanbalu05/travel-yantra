@@ -809,6 +809,17 @@
           "title": "Questions",
           "type": "array"
         },
+        "draft": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TripDraft"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "violations": {
           "items": {
             "$ref": "#/$defs/Violation"
@@ -1209,6 +1220,90 @@
         "age"
       ],
       "title": "Traveller",
+      "type": "object"
+    },
+    "TripDraft": {
+      "additionalProperties": false,
+      "description": "What intake understood from free text so far; every field optional. Sent on needs_input so a client\ncan show the trip form pre-filled instead of only asking questions.",
+      "properties": {
+        "origin": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Origin"
+        },
+        "destinations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Destinations",
+          "type": "array"
+        },
+        "start_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Date"
+        },
+        "end_date": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Date"
+        },
+        "budget_inr": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Budget Inr"
+        },
+        "pace": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Pace"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "travellers": {
+          "items": {
+            "$ref": "#/$defs/Traveller"
+          },
+          "title": "Travellers",
+          "type": "array"
+        }
+      },
+      "title": "TripDraft",
       "type": "object"
     },
     "TripRequest": {

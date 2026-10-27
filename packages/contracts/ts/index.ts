@@ -142,6 +142,7 @@ export interface PlanEvent {
   partial?: Itinerary | null;
   step?: PlanStep | null;
   questions?: string[];
+  draft?: TripDraft | null;
   violations?: Violation[];
   iteration?: number | null;
   retryable?: boolean;
@@ -211,6 +212,16 @@ export interface TransportOption {
 export interface Traveller {
   name: string;
   age: number;
+}
+
+export interface TripDraft {
+  origin?: string | null;
+  destinations?: string[];
+  start_date?: string | null;
+  end_date?: string | null;
+  budget_inr?: number | null;
+  pace?: Pace | null;
+  travellers?: Traveller[];
 }
 
 export interface TripRequest {

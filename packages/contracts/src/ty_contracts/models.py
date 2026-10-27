@@ -302,6 +302,19 @@ class Violation(_Model):
     place_id: str | None = None
 
 
+class TripDraft(_Model):
+    """What intake understood from free text so far; every field optional. Sent on needs_input so a client
+    can show the trip form pre-filled instead of only asking questions."""
+
+    origin: str | None = None
+    destinations: list[str] = Field(default_factory=list)
+    start_date: date | None = None
+    end_date: date | None = None
+    budget_inr: int | None = Field(default=None, ge=0)
+    pace: Pace | None = None
+    travellers: list[Traveller] = Field(default_factory=list)
+
+
 class PlanText(_Model):
     """Free-text body for POST /plan; intake turns it into a TripRequest or asks questions."""
 
@@ -319,6 +332,8 @@ class PlanEvent(_Model):
     step: PlanStep | None = None
     # Intake follow-ups (at most 3), only on needs_input.
     questions: list[str] = Field(default_factory=list, max_length=3)
+    # On needs_input: the fields understood so far, to pre-fill the trip form.
+    draft: TripDraft | None = None
     # On checking events: what the checker found this round.
     violations: list[Violation] = Field(default_factory=list)
     # Repair round 1..3 on checking and repairing events.
