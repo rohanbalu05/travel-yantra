@@ -13,11 +13,17 @@ import math
 from dataclasses import dataclass, replace
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
-
-from ty_contracts import Mode, TransportOption
+from ty_contracts import (
+    CityRef,
+    CompareRequest,
+    CompareResponse,
+    Mode,
+    RankedOption,
+    TransportOption,
+    Unavailable,
+)
+from ty_contracts.models import RankBy
 
 from .graph import (
     DATA_DIR,
@@ -42,11 +48,9 @@ from .roads import REF as ROUTES_API_REF
 from .roads import default_road_provider
 from .search import Weights, _result, astar
 
-RankBy = Literal["balanced", "time", "cost", "changes"]
 WEIGHTS = Weights(alpha=1.0, beta=0.0, gamma=30.0)  # minutes, plus 30 min per change
 CHANGE_WEIGHT = 0.25  # balanced score: one change counts as a quarter of the best time or cost
 MODE_ORDER = {Mode.rail: 0, Mode.road: 1, Mode.air: 2}
-DEFAULT_DEPART = dt.time(8, 0)
 SEATS_PER_CAR = 4  # road fares are per vehicle; rail and air fares are per person
 
 # Sample city points (centre coordinates, approximate). Aliases map to one key.
@@ -74,48 +78,6 @@ ALIASES = {
 
 class UnknownPlace(ValueError):
     pass
-
-
-class CompareRequest(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    origin: str = Field(min_length=1)
-    destination: str = Field(min_length=1)
-    date: dt.date | None = None
-    depart_time: dt.time = DEFAULT_DEPART
-    rank_by: RankBy = "balanced"
-    modes: list[Mode] = Field(default_factory=lambda: list(Mode), min_length=1)
-    travellers: int = Field(default=1, ge=1, le=20)  # costs in the response are for the whole party
-
-
-class CityRef(BaseModel):
-    name: str
-    lat: float
-    lng: float
-
-
-class RankedOption(BaseModel):
-    id: str  # stable for the same legs: <mode>-<12 hex>
-    rank: int = Field(ge=1)
-    changes: int = Field(ge=0)  # vehicle changes, first and last mile transfers included
-    score: float = Field(ge=0)
-    sources: list[str]  # sample_rail | routes_api | haversine | fake_air | walk
-    option: TransportOption
-
-
-class Unavailable(BaseModel):
-    mode: Mode
-    reason: str
-
-
-class CompareResponse(BaseModel):
-    origin: CityRef
-    destination: CityRef
-    date: dt.date
-    rank_by: RankBy
-    options: list[RankedOption]
-    unavailable: list[Unavailable] = Field(default_factory=list)
-    notes: list[str] = Field(default_factory=list)
 
 
 def resolve_city(name: str) -> Node:
