@@ -21,12 +21,13 @@ on:
 permissions:
   contents: read
 
-# A newer push supersedes an older deploy; Cloud Run swaps revisions
-# atomically, so a cancelled run leaves the previous revision serving, and the
-# plan diffs from the last green deploy so nothing the cancelled run held is lost.
+# Main takes about a push a minute and a deploy takes several, so cancelling
+# in-progress runs meant none ever finished. As in ci.yml (V3-U): each run
+# finishes, GitHub keeps only the newest waiting run, and the plan diffs from
+# the last green deploy, so a skipped push's services still ship.
 concurrency:
   group: deploy-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   plan:
