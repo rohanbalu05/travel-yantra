@@ -109,7 +109,9 @@ _cache: OrderedDict[tuple[str, Lang, date], IntakeResult] = OrderedDict()
 CACHE_SIZE = 512
 
 MONTHS = {m: i for i, m in enumerate(("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"), 1)}
-_MON = r"(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*"
+# A 3-letter month or the full name ("sept" too); never a word that merely starts like one ("decide").
+_MON = (r"(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sept?(?:ember)?"
+        r"|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\b")
 # "11-14 dec", "11 to 14 dec 2026", "31 oct se 1 nov"
 _DATES = re.compile(rf"(\d{{1,2}})(?:\s+{_MON})?\s*(?:-|–|to|se|till|until)\s*(\d{{1,2}})\s+{_MON}(?:\s+(\d{{4}}))?")
 # "bengaluru to goa", "from bengaluru to mysuru", "bangalore se mysore"

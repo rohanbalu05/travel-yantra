@@ -169,8 +169,11 @@ def after_hop(lim: Limits, hop: Leg | None) -> Limits:
     """A travel day starts once the hop has arrived (plus time to settle) and has less road time left."""
     if hop is None:
         return lim
-    start = max(lim.start, (hop.arrive + timedelta(minutes=HOP_SETTLE_MIN)).time())
-    return replace(lim, start=min(start, lim.end), max_travel_min=max(lim.max_travel_min - hop.minutes, 0))
+    ready = hop.arrive + timedelta(minutes=HOP_SETTLE_MIN)
+    # An arrival after the day's end (or after midnight) leaves no time for visits that day.
+    late = ready.date() != hop.depart.date() or ready.time() >= lim.end
+    start = lim.end if late else max(lim.start, ready.time())
+    return replace(lim, start=start, max_travel_min=max(lim.max_travel_min - hop.minutes, 0))
 
 
 def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorder: bool = True,

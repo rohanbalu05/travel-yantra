@@ -86,3 +86,8 @@ def test_needs_input_event_carries_the_draft():
 def test_prompt_counts_the_writer_as_a_traveller():
     text = prompt("Bengaluru to Goa with my parents and sister", TODAY)
     assert "including the writer" in text and "is 4 people" in text and "2026-10-27" in text
+
+
+def test_a_word_that_only_starts_like_a_month_is_not_a_date():
+    assert quick_parse("Bengaluru to Goa 11-14 decide later", Lang.en, TODAY) is None
+    assert quick_parse("Bengaluru to Goa 11-14 December", Lang.en, TODAY).request.end_date == date(2026, 12, 14)

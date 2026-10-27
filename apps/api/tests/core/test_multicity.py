@@ -81,3 +81,18 @@ def test_revise_keeps_the_hop_and_stays_in_the_city():
 def test_single_city_trips_are_unchanged():
     one = plan({**TRIP, "destinations": ["Mysuru"]})
     assert all(hop_of(d) is None for d in one.days) and len(one.days) == 5
+
+
+def test_a_hop_arriving_after_the_day_ends_leaves_no_visits_that_day():
+    from datetime import datetime, time
+
+    from core.solver import after_hop, limits
+    from ty_contracts import Leg
+
+    lim = limits(TripRequest.model_validate(TRIP))
+    late = Leg(**{"from": "Mysuru"}, to="Coorg", mode="rail", depart=datetime(2026, 11, 23, 21, 0),
+               arrive=datetime(2026, 11, 24, 6, 0), minutes=540, cost_inr=500)
+    assert after_hop(lim, late).start == lim.end
+    morning = late.model_copy(update={"depart": datetime(2026, 11, 23, 8, 0), "arrive": datetime(2026, 11, 23, 10, 0),
+                                      "minutes": 120})
+    assert after_hop(lim, morning).start == time(10, 30)
