@@ -104,14 +104,20 @@ async def main() -> None:
             facts = gather(db, subject, length)
             try:
                 story, notes = await write(model, subject, length, facts)
-            except KathaFailed as e:
+                plain = await model.text(plain_prompt(subject, length), tier="flash", thinking="low",
+                                         max_output_tokens=3500, temperature=0.7, timeout_s=60)  # fmt: skip
+            except Exception as e:  # 504s and the like: note it, move on, a re-run retries the pair
+                if not isinstance(e, KathaFailed):
+                    (folder / "failed.json").write_text(
+                        json.dumps({"error": f"{type(e).__name__}: {str(e)[:300]}"}, indent=1),
+                        encoding="utf-8")  # fmt: skip
+                    print(f"ERROR {folder.name}: {type(e).__name__}")
+                    continue
                 (folder / "failed.json").write_text(
                     json.dumps({"problems": e.problems, "last_drafts": e.drafts}, indent=1,
                                ensure_ascii=False), encoding="utf-8")  # fmt: skip
                 print(f"FAILED {folder.name}: {e}")
                 continue
-            plain = await model.text(plain_prompt(subject, length), tier="flash", thinking="low",
-                                     max_output_tokens=3500, temperature=0.7, timeout_s=60)  # fmt: skip
             (folder / "katha.json").write_text(story.model_dump_json(indent=1), encoding="utf-8")
             (folder / "notes.json").write_text(
                 json.dumps({**notes, "facts": [f.model_dump() for f in facts]}, indent=1,

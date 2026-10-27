@@ -27,6 +27,9 @@ log = logging.getLogger("guide.katha")
 
 ATTEMPTS = 2
 TIMEOUT_S = 60  # per call; long-form output does not fit core.llm's 20 s default
+#: Thinking tokens count toward the cap: at "low", a long prompt used ~2,900 of 3,000 and
+#: the story was cut at ~100 words. Drafts and rewrites think minimally, with room to spare.
+MAX_TOKENS = 6000
 CHAPTERS = {2: 1, 5: 1, 10: 4}
 #: Labels the contract accepts. Anything else folds into "history" (the text keeps
 #: both versions of a disputed claim either way).
@@ -127,7 +130,7 @@ def draft_prompt(subject: Subject, length: int, outline: Outline, chapter: int, 
         place += " (the last: close the story's gap and land the ending)"
     return (
         f"Write {place} of a {length}-minute spoken story about {subject.name}: between "
-        f"{lo} and {hi} words. Shorter is a failure.\n\n{RULES}\n\n{FORMAT}\n\nOutline:\n{outline.model_dump_json(indent=1)}\n\n"
+        f"{lo} and {hi} words (do not count; write fully and stop at the ending).\n\n{RULES}\n\n{FORMAT}\n\nOutline:\n{outline.model_dump_json(indent=1)}\n\n"
         f"Write only: {outline.chapters[chapter].model_dump_json()}\n\nFacts:\n\n{facts_block(facts)}"
     )
 
@@ -138,7 +141,7 @@ def critique_prompt(subject: Subject, outline: Outline, draft: str, words: int, 
         f"{outline.theme!r}.\n\nScore it 1-5 on: hook (would a tired traveller read the third "
         "sentence?), theme, specifics, peak, ending, honesty (labels and citations). Name the three "
         "biggest problems. Then rewrite it once to fix them, keeping the facts, the citations and "
-        f"the length: at least {words} words, never shorter than the draft.\n\n{RULES}\n\nReply as: the scores and problems, then a line with "
+        f"the length: about as long as the draft, never shorter, never more than {words * 3 // 2} words.\n\n{RULES}\n\nReply as: the scores and problems, then a line with "
         f"=== alone, then the rewrite.\n\n{FORMAT}\n\nDraft:\n\n{draft}\n\nFacts:\n\n{facts_block(facts)}"
     )
 
@@ -177,11 +180,11 @@ def renumber(segments: list[tuple[str, str]], facts: list[Fact]) -> tuple[list[S
 async def _chapter(model: Any, subject, length, outline, i, facts, words) -> tuple[str, str]:
     log.info("katha model call: draft %s ch%d/%d", subject.name, i + 1, len(outline.chapters))
     draft = await model.text(draft_prompt(subject, length, outline, i, facts), tier="flash",
-                             thinking="low", max_output_tokens=3000, temperature=0.7,
+                             thinking="minimal", max_output_tokens=MAX_TOKENS, temperature=0.7,
                              timeout_s=TIMEOUT_S)  # fmt: skip
     log.info("katha model call: critique %s ch%d/%d", subject.name, i + 1, len(outline.chapters))
     reply = await model.text(critique_prompt(subject, outline, draft, words, facts), tier="flash",
-                             thinking="low", max_output_tokens=3500, temperature=0.4,
+                             thinking="minimal", max_output_tokens=MAX_TOKENS, temperature=0.4,
                              timeout_s=TIMEOUT_S)  # fmt: skip
     parts = SEPARATOR.split(reply)
     critique, revised = (parts[0], parts[-1]) if len(parts) > 1 else (reply, "")
