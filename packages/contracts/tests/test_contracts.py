@@ -13,6 +13,7 @@ from ty_contracts import (
     Lang,
     PlanEvent,
     PlanStage,
+    PlanText,
     TripRequest,
 )
 
@@ -56,7 +57,21 @@ def test_plan_event_roundtrip_with_and_without_partial():
     ev = roundtrip(PlanEvent, {"stage": "intake", "message": "hi"})
     assert ev.partial is None
     assert [s.value for s in PlanStage] == [
-        "intake", "planning", "solving", "checking", "narrating", "done", "error"]
+        "intake", "planning", "solving", "checking", "repairing", "narrating", "needs_input", "done", "error"]
+
+
+def test_plan_event_extra_fields_roundtrip_and_stay_optional():
+    ev = roundtrip(PlanEvent, {
+        "stage": "checking", "message": "2 issues", "step": "checker", "iteration": 1,
+        "violations": [{"code": "closed", "message": "m", "day": "2026-12-12", "place_id": "goa-miramar"}]})
+    assert ev.violations[0].code == "closed" and ev.iteration == 1
+    ask = roundtrip(PlanEvent, {"stage": "needs_input", "message": "?", "questions": ["When?", "Who?"]})
+    assert ask.questions == ["When?", "Who?"] and ask.retryable is False
+    with pytest.raises(ValidationError):
+        PlanEvent.model_validate({"stage": "needs_input", "message": "?", "questions": ["a", "b", "c", "d"]})
+    with pytest.raises(ValidationError):
+        PlanEvent.model_validate({"stage": "checking", "message": "x", "iteration": 4})
+    assert roundtrip(PlanText, {"text": "Goa with my parents in December", "lang": "hi"}).lang == "hi"
 
 
 def test_katha_and_guide_roundtrip():

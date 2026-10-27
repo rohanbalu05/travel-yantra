@@ -14,12 +14,16 @@ from .models import (
     Place,
     PlanEvent,
     PlanStage,
+    PlanStep,
+    PlanText,
     SellerOffer,
     Stay,
     StorySegment,
     TransportOption,
     Traveller,
     TripRequest,
+    Violation,
+    ViolationCode,
 )
 
 __all__ = [
@@ -38,10 +42,14 @@ __all__ = [
     "Place",
     "PlanEvent",
     "PlanStage",
+    "PlanStep",
+    "PlanText",
     "SellerOffer",
     "Stay",
     "StorySegment",
     "TransportOption",
     "Traveller",
     "TripRequest",
+    "Violation",
+    "ViolationCode",
 ]

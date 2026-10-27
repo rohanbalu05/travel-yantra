@@ -191,13 +191,62 @@ class PlanStage(StrEnum):
     planning = "planning"
     solving = "solving"
     checking = "checking"
+    repairing = "repairing"
     narrating = "narrating"
+    needs_input = "needs_input"
     done = "done"
     error = "error"
 
 
+class PlanStep(StrEnum):
+    """Which agent finished. Several steps share one stage (the four planners are all `planning`)."""
+
+    intake = "intake"
+    transport = "transport"
+    places = "places"
+    stays = "stays"
+    story = "story"
+    solver = "solver"
+    checker = "checker"
+    repair = "repair"
+    narrator = "narrator"
+
+
+class ViolationCode(StrEnum):
+    over_budget = "over_budget"
+    closed = "closed"
+    long_day = "long_day"
+    too_much_travel = "too_much_travel"
+    no_rest = "no_rest"
+
+
+class Violation(_Model):
+    code: ViolationCode
+    message: str
+    day: date | None = None
+    place_id: str | None = None
+
+
+class PlanText(_Model):
+    """Free-text body for POST /plan; intake turns it into a TripRequest or asks questions."""
+
+    text: str = Field(min_length=1, max_length=4000)
+    lang: Lang = Lang.en
+
+
 class PlanEvent(_Model):
+    """One Server-Sent Event of POST /plan. The stream ends after the first done, needs_input or error."""
+
     stage: PlanStage
     message: str
     # Only sent once a complete Itinerary (request, days, budget) exists; earlier stages send None.
     partial: Itinerary | None = None
+    step: PlanStep | None = None
+    # Intake follow-ups (at most 3), only on needs_input.
+    questions: list[str] = Field(default_factory=list, max_length=3)
+    # On checking events: what the checker found this round.
+    violations: list[Violation] = Field(default_factory=list)
+    # Repair round 1..3 on checking and repairing events.
+    iteration: int | None = Field(default=None, ge=1, le=3)
+    # On error: whether trying again may help.
+    retryable: bool = False

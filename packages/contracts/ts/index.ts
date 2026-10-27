@@ -95,9 +95,21 @@ export interface PlanEvent {
   stage: PlanStage;
   message: string;
   partial?: Itinerary | null;
+  step?: PlanStep | null;
+  questions?: string[];
+  violations?: Violation[];
+  iteration?: number | null;
+  retryable?: boolean;
 }
 
-export type PlanStage = "intake" | "planning" | "solving" | "checking" | "narrating" | "done" | "error";
+export type PlanStage = "intake" | "planning" | "solving" | "checking" | "repairing" | "narrating" | "needs_input" | "done" | "error";
+
+export type PlanStep = "intake" | "transport" | "places" | "stays" | "story" | "solver" | "checker" | "repair" | "narrator";
+
+export interface PlanText {
+  text: string;
+  lang?: Lang;
+}
 
 export interface SellerOffer {
   seller: string;
@@ -145,4 +157,13 @@ export interface TripRequest {
   lang?: Lang;
   notes?: string | null;
 }
+
+export interface Violation {
+  code: ViolationCode;
+  message: string;
+  day?: string | null;
+  place_id?: string | null;
+}
+
+export type ViolationCode = "over_budget" | "closed" | "long_day" | "too_much_travel" | "no_rest";
 

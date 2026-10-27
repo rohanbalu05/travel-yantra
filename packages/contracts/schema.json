@@ -485,6 +485,7 @@
     },
     "PlanEvent": {
       "additionalProperties": false,
+      "description": "One Server-Sent Event of POST /plan. The stream ends after the first done, needs_input or error.",
       "properties": {
         "stage": {
           "$ref": "#/$defs/PlanStage"
@@ -503,6 +504,51 @@
             }
           ],
           "default": null
+        },
+        "step": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PlanStep"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "questions": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "title": "Questions",
+          "type": "array"
+        },
+        "violations": {
+          "items": {
+            "$ref": "#/$defs/Violation"
+          },
+          "title": "Violations",
+          "type": "array"
+        },
+        "iteration": {
+          "anyOf": [
+            {
+              "maximum": 3,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Iteration"
+        },
+        "retryable": {
+          "default": false,
+          "title": "Retryable",
+          "type": "boolean"
         }
       },
       "required": [
@@ -518,12 +564,51 @@
         "planning",
         "solving",
         "checking",
+        "repairing",
         "narrating",
+        "needs_input",
         "done",
         "error"
       ],
       "title": "PlanStage",
       "type": "string"
+    },
+    "PlanStep": {
+      "description": "Which agent finished. Several steps share one stage (the four planners are all `planning`).",
+      "enum": [
+        "intake",
+        "transport",
+        "places",
+        "stays",
+        "story",
+        "solver",
+        "checker",
+        "repair",
+        "narrator"
+      ],
+      "title": "PlanStep",
+      "type": "string"
+    },
+    "PlanText": {
+      "additionalProperties": false,
+      "description": "Free-text body for POST /plan; intake turns it into a TripRequest or asks questions.",
+      "properties": {
+        "text": {
+          "maxLength": 4000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "lang": {
+          "$ref": "#/$defs/Lang",
+          "default": "en"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "PlanText",
+      "type": "object"
     },
     "SellerOffer": {
       "additionalProperties": false,
@@ -766,6 +851,60 @@
       ],
       "title": "TripRequest",
       "type": "object"
+    },
+    "Violation": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/ViolationCode"
+        },
+        "message": {
+          "title": "Message",
+          "type": "string"
+        },
+        "day": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Day"
+        },
+        "place_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Place Id"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "Violation",
+      "type": "object"
+    },
+    "ViolationCode": {
+      "enum": [
+        "over_budget",
+        "closed",
+        "long_day",
+        "too_much_travel",
+        "no_rest"
+      ],
+      "title": "ViolationCode",
+      "type": "string"
     }
   }
 }
