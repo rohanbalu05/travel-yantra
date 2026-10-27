@@ -137,3 +137,20 @@ async def test_followups_only_after_a_plan(monkeypatch):
     seen = fake_http(monkeypatch, lambda req: httpx.Response(200, json={"text": "Here."}))
     await Brain(base=API).handle(text("share"))
     assert seen[0].url.path == "/guide/ask"
+
+
+async def test_needs_input_echoes_the_draft(monkeypatch):
+    ask = {
+        "stage": "needs_input",
+        "message": "q",
+        "questions": ["Which dates?"],
+        "draft": {
+            "origin": "Bengaluru",
+            "destinations": ["Goa"],
+            "travellers": [{"name": "A", "age": 30}] * 4,
+        },
+    }
+    fake_http(monkeypatch, lambda req: httpx.Response(200, text=sse(ask)))
+    reply = await Brain(base=API).handle(text("Plan Bengaluru to Goa for 4"))
+    assert reply.split("\n")[0] == "So far: Goa from Bengaluru, 4 travellers"
+    assert reply.endswith("- Which dates?")

@@ -19,6 +19,7 @@ from ty_contracts import (
     PlanEvent,
     PlanStage,
     PlanText,
+    TripDraft,
 )
 
 from .translate import Translator
@@ -123,6 +124,34 @@ def parse_followup(text: str) -> tuple[str, int | None, str | None] | None:
     if LIGHTER.search(text):
         return "lighter_day", n, None
     return None
+
+
+@dataclass
+class Ask:
+    """The planner's needs_input: up to three questions and what it understood so far."""
+
+    questions: list[str]
+    draft: TripDraft | None = None
+
+
+def so_far(d: TripDraft | None) -> tuple[str, list[str]]:
+    """'So far: Goa from Bengaluru, 11 Dec to 14 Dec, 4 travellers' and the names to keep."""
+    if d is None:
+        return "", []
+    parts, keep = [], [*d.destinations, *([d.origin] if d.origin else [])]
+    if d.destinations:
+        parts.append(", ".join(d.destinations) + (f" from {d.origin}" if d.origin else ""))
+    elif d.origin:
+        parts.append(f"from {d.origin}")
+    if d.start_date and d.end_date:
+        parts.append(f"{d.start_date:%d %b} to {d.end_date:%d %b}")
+    elif d.start_date:
+        parts.append(f"from {d.start_date:%d %b}")
+    if d.travellers:
+        parts.append(f"{len(d.travellers)} travellers")
+    if d.budget_inr:
+        parts.append(f"budget ₹{d.budget_inr:,}")
+    return ("So far: " + ", ".join(parts) if parts else ""), keep
 
 
 class ApiError(Exception):
@@ -258,9 +287,11 @@ class Brain:
         except Exception:
             user.pending, user.pending_at = before  # the user can just try their answer again
             raise
-        if isinstance(result, list):
+        if isinstance(result, Ask):
             user.pending, user.pending_at = text, self.clock()
-            return await self.say(user, "\n".join([ASKING, *(f"- {q}" for q in result)]))
+            known, keep = so_far(result.draft)
+            lines = [ASKING, *(f"- {q}" for q in result.questions)]
+            return await self.say(user, "\n".join(([known] if known else []) + lines), keep=keep)
         return await self.planned(user, *result)
 
     async def planned(
@@ -278,7 +309,9 @@ class Brain:
                 )
             web = os.environ.get("SHARE_BASE_URL", "").rstrip("/")
             # The web's read-only page (TY4); without it, the API's JSON for the same plan.
-            link = f"{web}/t/{user.share_token}/" if web else f"{self.base}/trips/{user.share_token}"
+            link = (
+                f"{web}/t/{user.share_token}/" if web else f"{self.base}/trips/{user.share_token}"
+            )
             return await self.say(user, "Your plan:", tail=link)
         days = it.days
         if n is not None and not 1 <= n <= len(days):
@@ -308,7 +341,7 @@ class Brain:
             return await self.say(user, e.detail)
         return await self.planned(user, *result)
 
-    async def plan(self, body: PlanText) -> tuple[Itinerary, str | None, str | None] | list[str]:
+    async def plan(self, body: PlanText) -> tuple[Itinerary, str | None, str | None] | Ask:
         """(itinerary, plan_id, share_token), or the planner's follow-up questions (needs_input)."""
         if not self.base:
             sample = json.loads(SAMPLE.read_text(encoding="utf-8"))["itinerary"]
@@ -326,8 +359,8 @@ class Brain:
             it = it.model_copy(update={"warnings": [*it.warnings, "offline sample: not revised"]})
             return it, SAMPLE_PLAN_ID, None
         result = await self._stream(f"/plan/{quote(plan_id, safe='')}/revise", body)
-        if isinstance(result, list):  # revise does not ask questions; treat it as a failure
-            raise ApiError(422, " ".join(result))
+        if isinstance(result, Ask):  # revise does not ask questions; treat it as a failure
+            raise ApiError(422, " ".join(result.questions))
         return result
 
     async def _stream(self, path: str, body: dict):
@@ -346,7 +379,7 @@ class Brain:
                 if event.stage == PlanStage.error:
                     raise RuntimeError(event.message)
                 if event.stage == PlanStage.needs_input:
-                    return event.questions
+                    return Ask(event.questions, event.draft)
                 if event.partial is not None:
                     final = event.partial
                 if event.stage == PlanStage.done:
