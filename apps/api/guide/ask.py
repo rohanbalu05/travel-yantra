@@ -92,10 +92,41 @@ def _poi(db: Any, name: str | None, city: str | None) -> tuple[int, float, float
     return (row[0], float(row[1]), float(row[2])) if row else None
 
 
-def _locate(db: Any, req: GuideQuestion) -> tuple[float, float] | None:
-    """Where to search for help: the traveller, else their stop, else their city."""
+#: "hospital near Panaji", "police station in Calangute": the place the traveller named.
+NAMED = re.compile(
+    r"\b(?:near|in|at|around|close to|nearest to)\s+(?:the\s+)?([a-z][\w'.-]*(?:\s+[a-z][\w'.-]*){0,3}?)"
+    r"\s*(?:[?.!,]|$|\s+(?:please|now|urgently|right now|today|tonight)\b)",
+    re.I,
+)
+NOT_A_PLACE = {"me", "here", "my", "our", "this", "that", "a", "an", "case", "emergency", "india",
+               "pain", "trouble", "danger", "the", "it", "there", "hotel", "my hotel"}  # fmt: skip
+
+
+def named_place(question: str) -> str | None:
+    """The place a question names for its help, if any ("near Panaji" -> "Panaji")."""
+    for m in NAMED.finditer(question):
+        name = m.group(1).strip(" .")
+        if name.lower() not in NOT_A_PLACE and name.split()[0].lower() not in NOT_A_PLACE:
+            return name
+    return None
+
+
+def _locate(
+    db: Any, req: GuideQuestion, places: PlacesClient | None = None
+) -> tuple[float, float] | None:
+    """Where to search for help: the traveller; else the place the question names (a
+    corpus place, or Google's match for the name); else their stop; else their city."""
     if req.lat is not None and req.lng is not None:
         return req.lat, req.lng
+    if name := named_place(req.question):
+        if poi := _poi(db, name, req.city):
+            return poi[1], poi[2]
+        try:  # one cached Text Search (Pro): "Panaji" -> Panaji, not the middle of Goa
+            found = places.search(f"{name}, India", limit=1) if places else []
+        except Exception:  # no key, quota, network: fall back to the stop and city
+            found = []
+        if found:
+            return found[0].lat, found[0].lng
     if poi := _poi(db, req.place_name, req.city):
         return poi[1], poi[2]
     if req.city:
@@ -240,7 +271,7 @@ async def ask(
 ) -> GuideAnswer:
     if kinds := emergency_kinds(req.question):
         urgent = bool(URGENT.search(req.question))
-        return answer_emergency(kinds, _locate(db, req), places, urgent=urgent)
+        return answer_emergency(kinds, _locate(db, req, places), places, urgent=urgent)
     # place_id is accepted but not matched: the corpus does not store itinerary ids yet.
     poi = _poi(db, req.place_name, req.city)
     # city is a soft hint: the plan's destination, not necessarily what the question is

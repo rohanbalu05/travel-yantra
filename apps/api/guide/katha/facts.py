@@ -18,6 +18,10 @@ NEED = {2: 2, 5: 6, 10: 12}
 PER_DAY_STOP = 3
 
 COLS = "id, poi_id, city, title, body, is_legend, source_name, source_url"
+#: Every source a reader sees must link somewhere they can check (HQ QA): facts without a
+#: source URL (field notes, "general reference") are left out, and thin sources make a
+#: shorter story (rule 9).
+LINKED = "coalesce(source_url, '') <> ''"
 #: Story material first. Practical notes (tickets, water) never make a story.
 STORY_ORDER = """CASE chunk_type WHEN 'hook' THEN 0 WHEN 'story' THEN 1 WHEN 'sensory' THEN 2
     WHEN 'fact' THEN 3 ELSE 4 END"""
@@ -81,7 +85,7 @@ def resolve(db: Any, kind: str, subject: str, places: list[str] = ()) -> Subject
 
 def _rows(db: Any, where: str, params: tuple, limit: int) -> list[tuple]:
     return db.execute(
-        f"SELECT {COLS} FROM doc_chunk WHERE NOT retired AND chunk_type <> 'practical' "
+        f"SELECT {COLS} FROM doc_chunk WHERE NOT retired AND chunk_type <> 'practical' AND {LINKED} "
         f"AND {where} ORDER BY coalesce(tier, 2), {STORY_ORDER}, id LIMIT %s",
         (*params, limit),
     ).fetchall()
@@ -101,7 +105,7 @@ def gather(db: Any, subject: Subject, length_min: int) -> list[Fact]:
             rows += db.execute(
                 f"SELECT {', '.join('c.' + c.strip() for c in COLS.split(','))} "
                 "FROM doc_chunk c JOIN poi p ON p.id = c.poi_id "
-                "WHERE NOT c.retired AND c.chunk_type <> 'practical' AND c.city = %s "
+                f"WHERE NOT c.retired AND c.chunk_type <> 'practical' AND {LINKED.replace('source_url', 'c.source_url')} AND c.city = %s "
                 f"ORDER BY p.popularity DESC NULLS LAST, {STORY_ORDER.replace('chunk_type', 'c.chunk_type')}, "
                 "c.id LIMIT %s",
                 (subject.city, cap - len(rows)),

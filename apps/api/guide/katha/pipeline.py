@@ -105,6 +105,8 @@ RULES = """House style (binding):
   instruction to visit.
 - Honest labels: history must cite its fact; a legend is told as one ("people here say...");
   a disputed claim gives both versions briefly. Never invent a fact, name, date or quote.
+- Lead with history: when the facts hold history, the story opens on it, not on a legend.
+- Tell each fact once. The ending may return to an image in new words; it never restates a fact.
 - Written for the ear: short sentences mixed with long ones, plain words.
 - Never use: nestled, tapestry, testament to, steeped in history, hidden gem, bustling, vibrant,
   breathtaking, awe-inspiring, delve, step back in time, boasts, must-visit, must-see,
@@ -114,7 +116,7 @@ RULES = """House style (binding):
 FORMAT = """Output format, exactly:
 Before every paragraph, a line with its label alone: [HISTORY], [LEGEND] or [DISPUTED].
 Cite facts by number in square brackets right after the claim, like [3]. Use only the
-numbered facts; cite at least one in every HISTORY and DISPUTED paragraph.
+numbered facts; cite at least one in every paragraph, LEGEND paragraphs included.
 Every LEGEND paragraph says in its own words that it is a legend: "People here say...",
 "The story goes...", "Legend has it...". Never tell a legend as plain fact.
 No title, no headings, no lists, no notes to the editor, nothing before the first label."""

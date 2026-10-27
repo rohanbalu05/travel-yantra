@@ -486,3 +486,51 @@ def test_kannada_is_told_from_the_same_outline_through_katha(monkeypatch) -> Non
     assert kn_notes["outline"] == en_notes["outline"] and kn_notes["key_inputs"][-1] == "kn"
     low, high = checks.band(2, "kn")
     assert low <= checks.words(kn.text, "kn") <= high
+
+
+# --- HQ QA: history first, every paragraph cited, nothing told twice, every source linked ---
+
+
+def test_a_legend_never_opens_a_story_that_has_history() -> None:
+    long = " ".join(f"w{i}" for i in range(260))
+    legend_first = [("legend", "People here say a queen cursed the kings [1]."), ("history", f"{long} [2].")]
+    assert "opens with a legend; lead with history when there is history" in checks.problems(legend_first, 2, 2)
+    history_first = list(reversed(legend_first))
+    assert not any("opens with" in p for p in checks.problems(history_first, 2, 2))
+    only_legend = [("legend", f"People here say {long} [1].")]
+    assert not any("opens with" in p for p in checks.problems(only_legend, 1, 2))
+
+
+def test_every_paragraph_cites_legends_too() -> None:
+    long = " ".join(f"w{i}" for i in range(260))
+    found = checks.problems([("history", f"{long} [1]."), ("legend", "People here say it sang.")], 1, 2)
+    assert any("uncited legend segment" in p for p in found)
+
+
+def test_a_fact_told_twice_is_caught_in_a_real_story() -> None:
+    # Mysuru 5 min, taste-gate pack (Oct 2026): the curse told in two places.
+    story = json.loads((TASTE_GATE / "key" / "mysuru-5min" / "katha.json").read_text(encoding="utf-8"))
+    pairs = checks.repeats(story["text"])
+    assert pairs and pairs[0][0].startswith("The story goes that in 1610")
+    echo = "The bird over the gate still looks at the hill. Look up once more at that bird on the gate."
+    assert checks.repeats(echo) == []  # an image returned in new words is not a repeat
+
+
+def test_katha_facts_come_only_from_linked_sources() -> None:
+    from guide.katha import facts as f
+
+    seen = []
+
+    class Recording:
+        def execute(self, sql, params):
+            seen.append(sql)
+
+            class R:
+                def fetchall(self):
+                    return []
+
+            return R()
+
+    f.gather(Recording(), f.Subject(kind="city", name="Mysuru", city="Mysuru"), 2)
+    assert seen and all("source_url" in sql and "<> ''" in sql for sql in seen)
+

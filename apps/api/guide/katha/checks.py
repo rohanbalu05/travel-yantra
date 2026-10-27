@@ -133,6 +133,27 @@ def slop(text: str, lang: str = "en") -> list[str]:
     return found + lang_found
 
 
+REPEAT_OVERLAP = 0.6  # share of words two sentences hold in common
+REPEAT_MIN_WORDS = 6  # shorter lines ("Look up.") may echo; they carry no fact
+
+
+def repeats(text: str) -> list[tuple[str, str]]:
+    """Pairs of sentences that tell the same thing twice: most of their words shared
+    (Jaccard), in any language. An ending that echoes an image in new words passes."""
+    sentences = [s for s in re.split(r"(?<=[.!?।])\s+", MARKER.sub("", text)) if s.strip()]
+    def bag(s: str) -> set[str]:  # spaced words: \w would cut Devanagari at its vowel signs
+        return {w for w in (t.strip(".,;:!?\"'()।—–-“”‘’") for t in s.lower().split()) if len(w) > 2}
+
+    bags = [(s, bag(s)) for s in sentences]
+    bags = [(s, b) for s, b in bags if len(b) >= REPEAT_MIN_WORDS]
+    return [
+        (a, b)
+        for i, (a, x) in enumerate(bags)
+        for b, y in bags[i + 1 :]
+        if len(x & y) / len(x | y) >= REPEAT_OVERLAP
+    ]
+
+
 def problems(segments: list[tuple[str, str]], n_facts: int, length_min: int, lang: str = "en") -> list[str]:
     """Everything wrong with a draft. Empty means it can ship."""
     out: list[str] = []
@@ -142,11 +163,14 @@ def problems(segments: list[tuple[str, str]], n_facts: int, length_min: int, lan
         numbers = citations(text)
         if bad := [n for n in numbers if not 1 <= n <= n_facts]:
             out.append(f"markers point at no fact: {bad}")
-        if label in ("history", "disputed") and not numbers:
+        if not numbers:  # every paragraph, legends and the ending included (HQ QA)
             out.append(f"uncited {label} segment: {text[:60]!r}")
         if label == "legend" and not legend_told(text, lang):
             out.append(f"legend not told as legend: {text[:60]!r}")
+    if segments[0][0] == "legend" and any(label == "history" for label, _ in segments[1:]):
+        out.append("opens with a legend; lead with history when there is history")
     full = "\n\n".join(t for _, t in segments)
+    out += [f"told twice: {a[:50]!r} / {b[:50]!r}" for a, b in repeats(full)]
     out += [f"slop: {s}" for s in slop(full, lang)]
     low, high = band(length_min, lang)
     if not low <= (n := words(full, lang)) <= high:

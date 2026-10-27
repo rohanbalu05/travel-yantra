@@ -370,3 +370,64 @@ def test_a_plain_hospital_question_still_lists_the_nearest() -> None:
                              NoRows(), Spy(), client))  # fmt: skip
     assert answer.emergency_places[0].name == "Sample Urban Health Centre"
     assert "full hospital" not in answer.text and t.bodies[0]["maxResultCount"] == 5
+
+
+# --- "hospital near Panaji" with no location: the named place, not the city's middle ---
+
+
+@pytest.mark.parametrize(("question", "name"), [
+    ("hospital near Panaji", "Panaji"), ("Hospital near Panaji?", "Panaji"),
+    ("chest pain, hospital near Old Goa please", "Old Goa"), ("police station in Calangute", "Calangute"),
+    ("ambulance near the Basilica of Bom Jesus", "Basilica of Bom Jesus"),
+    ("nearest hospital", None), ("pharmacy near me", None), ("hospital near my hotel", None),
+    ("in an emergency what do I do", None),
+])  # fmt: skip
+def test_named_place(question, name) -> None:
+    assert ask_mod.named_place(question) == name
+
+
+class Geocode:
+    """Text Search answers with Panaji; Nearby answers with one sample hospital there."""
+
+    def __init__(self) -> None:
+        self.searched: list[str] = []
+        self.centres: list[tuple[float, float]] = []
+
+    def __call__(self, method, url, headers, body, timeout):
+        if url.endswith("/places:searchText"):
+            self.searched.append(body["textQuery"])
+            return {"places": [{"id": "sample-panaji", "types": ["locality"],
+                                "location": {"latitude": 15.4909, "longitude": 73.8278},
+                                "displayName": {"text": "Panaji"}}]}  # fmt: skip
+        c = body["locationRestriction"]["circle"]["center"]
+        self.centres.append((c["latitude"], c["longitude"]))
+        return {"places": [{"id": "sample-h", "types": ["hospital"], "primaryType": "hospital",
+                            "location": {"latitude": c["latitude"], "longitude": c["longitude"] + 0.005},
+                            "displayName": {"text": "Sample Hospital"}}]}  # fmt: skip
+
+
+class CityOnly:
+    """No poi matches the name; the city centre would be the middle of Goa."""
+
+    def execute(self, sql, params=()):
+        class R:
+            def fetchone(self):
+                return (15.35, 74.05) if "avg(lat)" in sql else None
+
+        return R()
+
+
+def test_hospital_near_panaji_without_a_location_searches_at_panaji() -> None:
+    t = Geocode()
+    client = PlacesClient(cache=MemoryCache(), transport=t, api_key="test-key")
+    req = GuideQuestion(question="hospital near Panaji", city="Goa")
+    answer = asyncio.run(ask(req, CityOnly(), Spy(), client))
+    assert t.searched == ["Panaji, India"] and t.centres == [(15.4909, 73.8278)]
+    assert "Sample Hospital, 0.5 km [1]" in answer.text
+
+
+def test_a_named_place_google_cannot_find_falls_back_to_the_city() -> None:
+    client, transport = places(fail=True)  # every Places call fails
+    req = GuideQuestion(question="hospital near Nowhereville", city="Goa")
+    answer = asyncio.run(ask(req, CityOnly(), Spy(), client))
+    assert "couldn't reach Google Maps" in answer.text  # located (city), then nearby failed

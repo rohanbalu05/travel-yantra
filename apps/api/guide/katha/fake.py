@@ -7,7 +7,9 @@ writer; it exists so the pipeline's parsing, renumbering and checks run.
 
 from __future__ import annotations
 
+import json
 import re
+import zlib
 
 from . import checks
 from .pipeline import Beat, Chapter, Outline
@@ -56,10 +58,20 @@ class FakeKathaModel:
         cue = ("लोग कहते हैं कि" if "Language: write in Hindi" in prompt
                else "ಜನ ಹೇಳುತ್ತಾರೆ," if "Language: write in Kannada" in prompt else "People here say")  # fmt: skip
         paras, words, i = [], 0, 0
+        # History first (a legend never opens when there is history), each fact told once,
+        # then padding lines that share no words, so the repeat check stays quiet.
+        if m := re.search(r"^Write only: (\{.*\})$", prompt, re.M):  # this chapter's facts only
+            mine = {n for beat in json.loads(m.group(1))["beats"] for n in beat["facts"]}
+            facts = [f for f in facts if f[0] in mine] or facts[:1]
+        facts = sorted(facts, key=lambda f: f[1])
+        tag = zlib.crc32(prompt.encode()) % 10_000  # each chapter's padding differs
         while words < target and facts:
             n, legend, first = facts[i % len(facts)]
-            body = f"{cue} {first[0].lower()}{first[1:]} [{n}]." if legend else f"{first} [{n}]."
-            paras.append(f"[{'LEGEND' if legend else 'HISTORY'}]\n{body}")
+            if i < len(facts):
+                body = f"{cue} {first[0].lower()}{first[1:]} [{n}]." if legend else f"{first} [{n}]."
+            else:
+                body = " ".join(f"pad{tag}x{i}x{k}" for k in range(8)) + f" [{n}]."
+            paras.append(f"[{'LEGEND' if legend and i < len(facts) else 'HISTORY'}]\n{body}")
             words += checks.words(body)
             i += 1
         return "\n\n".join(paras)
