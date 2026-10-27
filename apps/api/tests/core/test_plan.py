@@ -138,3 +138,22 @@ def test_gemini_thinking_level_maps_to_the_genai_config():
     assert m._thinking(None) is None
     assert m._thinking("low").thinking_level == types.ThinkingLevel.LOW
     assert m._thinking("minimal").thinking_level == types.ThinkingLevel.MINIMAL
+
+
+def test_cors_preflight_allows_localhost_and_env_origins(monkeypatch):
+    import importlib
+
+    import main
+
+    pre = {"Access-Control-Request-Method": "POST", "Access-Control-Request-Headers": "content-type"}
+    r = client.options("/plan", headers={"Origin": "http://localhost:3000", **pre})
+    assert r.status_code == 200 and r.headers["access-control-allow-origin"] == "http://localhost:3000"
+    assert "content-type" in r.headers["access-control-allow-headers"].lower()
+
+    monkeypatch.setenv("TY_CORS_ORIGINS", "https://ty-web-abc-el.a.run.app, https://x.example")
+    fresh = TestClient(importlib.reload(main).app)
+    r = fresh.options("/plan", headers={"Origin": "https://ty-web-abc-el.a.run.app", **pre})
+    assert r.headers["access-control-allow-origin"] == "https://ty-web-abc-el.a.run.app"
+    assert "access-control-allow-origin" not in fresh.options("/plan", headers={"Origin": "https://evil.example", **pre}).headers
+    monkeypatch.delenv("TY_CORS_ORIGINS")
+    importlib.reload(main)
