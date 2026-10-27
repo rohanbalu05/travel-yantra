@@ -173,12 +173,25 @@ def schedule(day: date, stops: list[Place], travel_min: list[int], lim: Limits) 
 
 def hop_of(day: DayPlan) -> Leg | None:
     """The journey that opens a day (the outbound trip on day 1, or a move to the next city), if any."""
-    return day.legs[0] if day.legs and day.legs[0].role in ("outbound", "between") else None
+    if not day.legs:
+        return None
+    leg = day.legs[0]
+    if leg.role in ("outbound", "between"):
+        return leg
+    # Plans saved before Leg.role: the journey note and a leg that does not start at a stop.
+    legacy = leg.role is None and any(n.startswith(HOP_NOTE) for n in day.notes)
+    return leg if legacy and leg.from_ not in {p.name for p in day.stops} else None
 
 
 def out_of(day: DayPlan) -> Leg | None:
     """The journey home that closes the last day, if any."""
-    return day.legs[-1] if day.legs and day.legs[-1].role == "home" else None
+    if not day.legs:
+        return None
+    leg = day.legs[-1]
+    if leg.role == "home":
+        return leg
+    legacy = leg.role is None and any(n.startswith(RETURN_NOTE) for n in day.notes)
+    return leg if legacy and leg.to not in {p.name for p in day.stops} else None
 
 
 def hop_note(hop: Leg) -> str:

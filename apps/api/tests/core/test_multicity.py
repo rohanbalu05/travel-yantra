@@ -198,3 +198,13 @@ def test_journeys_are_marked_by_role_and_rebuilds_keep_other_notes():
     notes = it.days[3].notes
     assert "Travel: carry a rain jacket" in notes and hop_of(it.days[3]).role == "between"
     assert sum(n.startswith("Travel: Mysuru → Coorg") for n in notes) == 1
+
+
+def test_plans_saved_before_leg_roles_still_have_their_journeys():
+    it = plan()
+    old = it.model_copy(deep=True)
+    for d in old.days:
+        d.legs = [leg.model_copy(update={"role": None}) for leg in d.legs]
+    assert hop_of(old.days[0]).to == "Mysuru" and hop_of(old.days[3]).to == "Coorg"
+    assert out_of(old.days[-1]).to == "Bengaluru" and hop_of(old.days[1]) is None
+    assert budget(old) == budget(it)  # the outbound journey is not counted twice

@@ -54,7 +54,7 @@ class AccountStore(Protocol):
     def consents(self, uid: str) -> tuple[Consents, datetime | None]: ...
     def set_consents(self, uid: str, update: ConsentsUpdate) -> tuple[Consents, datetime]: ...
     def add_rating(self, rating: Rating) -> None: ...
-    def delete(self, uid: str) -> int: ...
+    def delete(self, uid: str, plan_ids: list[str] | None = None) -> int: ...
 
 
 class MemoryAccounts:
@@ -77,10 +77,12 @@ class MemoryAccounts:
         with self._lock:
             self.ratings.append(rating)
 
-    def delete(self, uid: str) -> int:
+    def delete(self, uid: str, plan_ids: list[str] | None = None) -> int:
+        """The id's consents and ratings, plus any rating (even anonymous) of one of its plans."""
+        plans = set(plan_ids or [])
         with self._lock:
             n = 1 if self._consents.pop(uid, None) else 0
-            kept = [r for r in self.ratings if r.uid != uid]
+            kept = [r for r in self.ratings if r.uid != uid and r.plan_id not in plans]
             n += len(self.ratings) - len(kept)
             self.ratings = kept
             return n
@@ -122,10 +124,11 @@ class PgAccounts:
             conn.execute("INSERT INTO ratings (uid, plan_id, score, comment, lang) VALUES (%s, %s, %s, %s, %s)",
                          (rating.uid, rating.plan_id, rating.score, rating.comment, rating.lang))
 
-    def delete(self, uid: str) -> int:
+    def delete(self, uid: str, plan_ids: list[str] | None = None) -> int:
         with self._connect() as conn, conn.transaction():
             n = conn.execute("DELETE FROM consents WHERE uid = %s", (uid,)).rowcount
-            return n + conn.execute("DELETE FROM ratings WHERE uid = %s", (uid,)).rowcount
+            return n + conn.execute("DELETE FROM ratings WHERE uid = %s OR plan_id = ANY(%s)",
+                                    (uid, list(plan_ids or []))).rowcount
 
 
 _accounts: AccountStore | None = None
@@ -180,7 +183,8 @@ def put_consents(body: ConsentsUpdate, uid: str = Depends(require_client)) -> Me
 @router.delete("/me", status_code=202)
 def delete_me(uid: str = Depends(require_client)) -> dict:
     """Everything for this id: its trips (their share links stop working), consents and ratings."""
-    items = get_store().delete_owner(uid) + get_accounts().delete(uid)
+    plan_ids = [t.id for t in get_store().by_owner(uid)]
+    items = get_store().delete_owner(uid) + get_accounts().delete(uid, plan_ids)
     log.warning("deleted account data: %d items", items)  # no id in the log
     return {"deleted": True, "items": items}
 

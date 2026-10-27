@@ -98,3 +98,12 @@ def test_postgres_accounts_and_owned_trips():
     acc.add_rating(Rating(uid, a.id, 5, None, "en"))
     assert store.delete_owner(uid) + acc.delete(uid) == 4
     assert store.by_owner(uid) == [] and store.get(stranger.id).revised_from is None
+
+
+def test_delete_me_also_removes_anonymous_ratings_of_its_plans(memory_accounts):
+    client.put("/me/consents", json={"plan_history": True}, headers=ME)
+    mine = done(client.post("/plan", json=MYSURU, headers=ME))
+    client.post("/ratings", json={"plan_id": mine["plan_id"], "score": 4})  # sent without the header
+    client.post("/ratings", json={"plan_id": "someone-else", "score": 5})
+    assert client.delete("/me", headers=ME).json()["items"] == 3  # trip, consents, the anonymous rating
+    assert [r.plan_id for r in memory_accounts.ratings] == ["someone-else"]
