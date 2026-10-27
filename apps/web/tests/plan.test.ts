@@ -243,3 +243,12 @@ describe("the plan's train (QA #101)", () => {
     expect(planRailLeg(GOA_ITINERARY)?.depart).toBe("2026-12-11T21:00:00"); // no journeys in the days: the option's leg
   });
 });
+
+describe("what a revise changed (QA #108)", () => {
+  it("keeps the solver's line from the stream", async () => {
+    let s = initialPlanState();
+    for await (const ev of streamRevise("sample-goa-family", { intent: "lighter_day", day: GOA_ITINERARY.days[1].date })) s = planReducer(s, ev);
+    expect(s.status).toBe("done");
+    expect(s.solvedNote).toBe(`Dropped ${GOA_ITINERARY.days[1].stops!.at(-1)!.name}`);
+  });
+});

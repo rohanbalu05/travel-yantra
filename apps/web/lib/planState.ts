@@ -10,6 +10,8 @@ export type PlanState = {
   intake: string | null;
   agents: Record<Agent, string | null>; // the agent's finding once it reports, else null
   solved: boolean;
+  /** The solver's own line, e.g. revise's "Dropped Karanji Lake" or "Sun 01 Nov is already free". */
+  solvedNote: string | null;
   checks: CheckRound[];
   repairs: string[];
   narrating: boolean;
@@ -26,6 +28,7 @@ export const initialPlanState = (): PlanState => ({
   intake: null,
   agents: { transport: null, places: null, stays: null, story: null },
   solved: false,
+  solvedNote: null,
   checks: [],
   repairs: [],
   narrating: false,
@@ -50,6 +53,7 @@ export function planReducer(s: PlanState, ev: PlanEvent): PlanState {
       break;
     case "solving":
       next.solved = true;
+      next.solvedNote = ev.message || s.solvedNote;
       break;
     case "checking":
       next.solved = true;

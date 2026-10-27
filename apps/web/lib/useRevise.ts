@@ -21,7 +21,7 @@ export function useRevise(planId: string | null, lang: Lang | undefined) {
   const live = useRef<AbortController | null>(null);
   useEffect(() => () => live.current?.abort(), []);
 
-  /** `done` is the whole message shown when it works. Resolves true when the new plan is saved. */
+  /** `done` is shown when it works and the stream named no change. Resolves true when the new plan is saved. */
   const revise = async (req: Omit<ReviseRequest, "lang">, done: string): Promise<boolean> => {
     if (!planId || busy) return false;
     setBusy(done);
@@ -36,7 +36,8 @@ export function useRevise(planId: string | null, lang: Lang | undefined) {
         savePlanResult({ itinerary: s.itinerary, plan_id: s.planId, share_token: s.shareToken });
         // A new transport order: the highlighted option follows the plan again.
         if (req.intent === "transport") clearChoice();
-        setSaid({ text: done, bad: false });
+        // TY1's solver line says what really changed ("Dropped X", "already free"); a bare "Done" could hide a no-op (QA #108).
+        setSaid({ text: s.solvedNote ? t("Done: {what}", { what: s.solvedNote }) : done, bad: false });
         return true;
       }
       setSaid({ text: t(s.error?.message ?? "The planner stopped before finishing. Try again."), bad: true });

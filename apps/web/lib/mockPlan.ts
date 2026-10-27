@@ -58,12 +58,22 @@ export function revisedItinerary(it: Itinerary, req: ReviseRequest): Itinerary {
   return { ...it, days };
 }
 
+/** TY1's solver line for a revise, as the mock can tell it. */
+function reviseNote(req: ReviseRequest): string {
+  if (req.intent === "transport") return `Switched every journey to ${req.mode === "rail" ? "train" : req.mode}`;
+  if (req.intent === "rain") return "Planned the day for rain";
+  if (req.intent === "move_day") return `Moved a day to ${req.city}`;
+  const day = GOA_ITINERARY.days.find((d) => d.date === req.day);
+  const stop = req.intent === "swap_stop" ? day?.stops?.find((s) => s.id === req.place_id) : day?.stops?.at(-1);
+  return stop ? `${req.intent === "swap_stop" ? "Swapped" : "Dropped"} ${stop.name}` : "That day is already free";
+}
+
 export function mockReviseBody(req: ReviseRequest, delayMs = 300): ReadableStream<Uint8Array> {
   const it = revisedItinerary(GOA_ITINERARY, req);
   return sseBody(
     [
       { stage: "intake", message: "Revising your plan…" },
-      { stage: "solving", step: "solver", message: "Rebuilding that day.", partial: it },
+      { stage: "solving", step: "solver", message: reviseNote(req), partial: it },
       { stage: "checking", step: "checker", iteration: 1, message: "All checks passed.", violations: [], partial: it },
       { stage: "done", message: "Your plan is updated.", partial: it, plan_id: "sample-goa-family-r1", share_token: SAMPLE_SHARE_TOKEN },
     ],
