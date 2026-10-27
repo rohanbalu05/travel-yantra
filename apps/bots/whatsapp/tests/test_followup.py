@@ -1,0 +1,139 @@
+import json
+
+import httpx
+import pytest
+from test_brain import ITINERARY, done, fake_http, sse, text
+
+from app.brain import EXPIRED, WHICH_DAY, Brain, parse_followup
+
+API = "http://api.test"
+STOPS = [p for d in ITINERARY["days"] for p in d["stops"]]
+
+
+@pytest.mark.parametrize(
+    "msg, parsed",
+    [
+        ("share", ("share", None, None)),
+        ("Share!", ("share", None, None)),
+        ("शेयर", ("share", None, None)),
+        ("make day 2 lighter", ("lighter_day", 2, None)),
+        ("lighter day 3", ("lighter_day", 3, None)),
+        ("2nd day halka", ("lighter_day", 2, None)),
+        ("it will rain", ("rain", None, None)),
+        ("rain day 1", ("rain", 1, None)),
+        ("बारिश होगी", ("rain", None, None)),
+        ("swap Se Cathedral", ("swap_stop", None, "Se Cathedral")),
+        ("replace miramar on day 3", ("swap_stop", 3, "miramar on day 3")),
+        ("What should we eat?", None),
+        ("shared taxi to Hampi?", None),
+        ("is it raining in Goa?", None),
+    ],
+)
+def test_parse_followup(msg, parsed):
+    assert parse_followup(msg) == parsed
+
+
+async def planned(monkeypatch, handler):
+    """A brain with a plan (plan_id p1, share_token s1) already made through the fake API."""
+    seen = fake_http(monkeypatch, handler)
+    brain = Brain(base=API)
+    await brain.handle(text("Plan Bengaluru to Goa 11-14 Dec"))
+    return brain, seen
+
+
+def plan_then(revised=None, status=200, body=None):
+    def handler(req):
+        if req.url.path == "/plan":
+            return httpx.Response(200, text=sse({**done(), "share_token": "s1"}))
+        if status != 200:
+            return httpx.Response(status, json=body)
+        return httpx.Response(
+            200, text=sse({**done(revised or ITINERARY), "plan_id": "p2", "share_token": "s2"})
+        )
+
+    return handler
+
+
+async def test_plan_reply_offers_followups(monkeypatch):
+    fake_http(monkeypatch, plan_then())
+    reply = await Brain(base=API).handle(text("Plan Bengaluru to Goa 11-14 Dec"))
+    assert "lighter day 2" in reply and "share" in reply
+
+
+async def test_share_links_to_the_web_page(monkeypatch):
+    monkeypatch.setenv("SHARE_BASE_URL", "https://web.example/")
+    brain, _ = await planned(monkeypatch, plan_then())
+    reply = await brain.handle(text("share"))
+    assert reply.endswith("\n\nhttps://web.example/t/s1/")
+
+
+async def test_share_falls_back_to_the_api_json(monkeypatch):
+    brain, _ = await planned(monkeypatch, plan_then())
+    assert (await brain.handle(text("share"))).endswith(f"{API}/trips/s1")
+
+
+async def test_lighter_day_revises_with_that_days_date(monkeypatch):
+    brain, seen = await planned(monkeypatch, plan_then())
+    reply = await brain.handle(text("make day 2 lighter"))
+    req = seen[-1]
+    assert req.url.path == "/plan/p1/revise"
+    assert json.loads(req.content) == {
+        "intent": "lighter_day",
+        "lang": "en",
+        "day": ITINERARY["days"][1]["date"],
+    }
+    assert "Day 1" in reply
+    user = brain.users["15550001111"]
+    assert (user.plan_id, user.share_token) == ("p2", "s2")
+
+
+async def test_lighter_needs_a_day(monkeypatch):
+    brain, seen = await planned(monkeypatch, plan_then())
+    assert await brain.handle(text("make it lighter")) == WHICH_DAY
+    assert len(seen) == 1  # no revise call
+
+
+async def test_day_out_of_range(monkeypatch):
+    brain, seen = await planned(monkeypatch, plan_then())
+    reply = await brain.handle(text("rain day 9"))
+    assert reply.startswith(f"Your plan has days 1 to {len(ITINERARY['days'])}")
+    assert len(seen) == 1
+
+
+async def test_rain_without_a_day_covers_the_trip(monkeypatch):
+    brain, seen = await planned(monkeypatch, plan_then())
+    await brain.handle(text("it will rain"))
+    assert json.loads(seen[-1].content) == {"intent": "rain", "lang": "en"}
+
+
+async def test_swap_finds_the_stop_by_name(monkeypatch):
+    brain, seen = await planned(monkeypatch, plan_then())
+    target = STOPS[1]
+    await brain.handle(text(f"swap {target['name'].lower()}"))
+    assert json.loads(seen[-1].content)["place_id"] == target["id"]
+
+
+async def test_swap_unknown_stop_lists_the_stops(monkeypatch):
+    brain, seen = await planned(monkeypatch, plan_then())
+    reply = await brain.handle(text("swap Taj Mahal"))
+    assert reply.startswith("I could not find Taj Mahal in your plan") and STOPS[0]["name"] in reply
+    assert len(seen) == 1
+
+
+async def test_expired_plan_is_forgotten(monkeypatch):
+    handler = plan_then(status=404, body={"detail": "plan not found"})
+    brain, _ = await planned(monkeypatch, handler)
+    assert await brain.handle(text("rain day 1")) == EXPIRED
+    assert brain.users["15550001111"].itinerary is None
+
+
+async def test_revise_422_detail_is_shown(monkeypatch):
+    handler = plan_then(status=422, body={"detail": [{"msg": "stop not in plan"}]})
+    brain, _ = await planned(monkeypatch, handler)
+    assert await brain.handle(text("rain day 1")) == "stop not in plan"
+
+
+async def test_followups_only_after_a_plan(monkeypatch):
+    seen = fake_http(monkeypatch, lambda req: httpx.Response(200, json={"text": "Here."}))
+    await Brain(base=API).handle(text("share"))
+    assert seen[0].url.path == "/guide/ask"

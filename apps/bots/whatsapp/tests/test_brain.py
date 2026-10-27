@@ -6,7 +6,7 @@ from ty_contracts import Lang
 
 from app import brain as brain_mod
 from app import translate as translate_mod
-from app.brain import ASKING, HELP, MAX_REPLY, SAMPLE, Brain, User, detect_lang, is_trip
+from app.brain import ASKING, HELP, MAX_REPLY, SAMPLE, ApiError, Brain, User, detect_lang, is_trip
 from app.translate import Translator
 
 ITINERARY = json.loads(SAMPLE.read_text(encoding="utf-8"))["itinerary"]
@@ -213,7 +213,8 @@ async def test_plan_summary_is_translated_with_place_names_kept(monkeypatch):
     assert json.loads(seen[0].content)["lang"] == "hi"
     sent = json.loads(seen[1].content)
     assert "Basilica of Bom Jesus" in sent["entities"] and "Bengaluru" in sent["entities"]
-    assert all(line.startswith("<hi>") for line in reply.split("\n"))
+    assert all(line.startswith("<hi>") for line in reply.split("\n") if line)
+    assert "share" in sent["entities"]  # follow-up keywords stay English
 
 
 async def test_flagged_translation_stays_english(monkeypatch):
@@ -364,7 +365,7 @@ async def test_failed_plan_keeps_the_pending_text(monkeypatch):
     fake_http(monkeypatch, lambda req: next(calls))
     brain = Brain(base=API)
     await brain.handle(text("Plan a trip to Goa"))
-    with pytest.raises(httpx.HTTPStatusError):
+    with pytest.raises(ApiError):
         await brain.handle(text("11-14 Dec"))
     assert brain.users["15550001111"].pending == "Plan a trip to Goa"
 

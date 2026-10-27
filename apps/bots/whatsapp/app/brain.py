@@ -8,6 +8,7 @@ import re
 import time
 from dataclasses import dataclass
 from pathlib import Path
+from urllib.parse import quote
 
 import httpx
 from ty_contracts import (
@@ -23,6 +24,7 @@ from ty_contracts import (
 from .translate import Translator
 
 SAMPLE = Path(__file__).parent / "samples/goa_family.json"
+SAMPLE_PLAN_ID = "sample-goa"
 MAX_REPLY = 4000  # WhatsApp text bodies are capped at 4096 characters
 PENDING_SECONDS = 30 * 60  # how long the planner's follow-up questions stay open
 LOCATION_SECONDS = 60 * 60  # how long a shared location is used for guide questions
@@ -40,7 +42,18 @@ VOICE = (
 NOT_TEXT = "Sorry, I can only read text messages for now. Please type your message."
 LOCATION_OK = "Got your location. Ask me, for example: nearest hospital or pharmacy."
 ASKING = "To plan this I need a little more:"
-GREETINGS = {"hi", "hello", "help", "namaste", "start", "नमस्ते", "ನಮಸ್ಕಾರ", "வணக்கம்", "నమస్కారం", "নমস্কার"}
+GREETINGS = {
+    "hi",
+    "hello",
+    "help",
+    "namaste",
+    "start",
+    "नमस्ते",
+    "ನಮಸ್ಕಾರ",
+    "வணக்கம்",
+    "నమస్కారం",
+    "নমস্কার",
+}
 CANCEL = {"cancel", "stop", "new", "reset"}
 
 # Unicode blocks of the Indic scripts we support; Hinglish (Latin script) counts as English.
@@ -78,6 +91,46 @@ def is_trip(text: str) -> bool:
     return bool(TRIP_WORDS.search(text) or (ROUTE.search(text) and DATE.search(text)))
 
 
+# Follow-ups once a plan exists. Keywords stay English in the hint so users can copy them.
+_END = r"(?=\s|$|[.,!?])"
+SHARE = re.compile(rf"^\s*(?:share|link|शेयर|ಹಂಚಿ|பகிர்|షేర్|শেয়ার){_END}", re.IGNORECASE)
+LIGHTER = re.compile(rf"\b(?:lighter|easier|relaxed|halka){_END}|हल्का", re.IGNORECASE)
+RAIN = re.compile(
+    rf"\b(?:rain|raining|rainy|baarish|barish){_END}|बारिश|ಮಳೆ|மழை|వర్షం|বৃষ্টি", re.IGNORECASE
+)
+SWAP = re.compile(r"^\s*(?:swap|replace|skip|change)\s+(?P<what>.+)$", re.IGNORECASE)
+DAY_N = re.compile(
+    r"\bday\s*(?P<a>\d{1,2})\b|\b(?P<b>\d{1,2})(?:st|nd|rd|th)?\s+day\b", re.IGNORECASE
+)
+NEXT = "Reply share for a link, or: lighter day 2 · rain day 3 · swap <place>"
+NEXT_KEEP = ["share", "lighter day 2", "rain day 3", "swap <place>"]
+EXPIRED = "That plan has expired. Send your trip again and I will plan it afresh."
+WHICH_DAY = "Which day? For example: lighter day 2"
+
+
+def parse_followup(text: str) -> tuple[str, int | None, str | None] | None:
+    """(intent, day number, stop name) for share / lighter / rain / swap; None for anything else."""
+    if SHARE.search(text):
+        return "share", None, None
+    if text.rstrip().endswith(("?", "？")):
+        return None  # "is it raining in Goa?" is a question for the guide
+    m = DAY_N.search(text)
+    n = int(m["a"] or m["b"]) if m else None
+    if s := SWAP.match(text):
+        return "swap_stop", n, s["what"].strip(" .")
+    if RAIN.search(text):
+        return "rain", n, None
+    if LIGHTER.search(text):
+        return "lighter_day", n, None
+    return None
+
+
+class ApiError(Exception):
+    def __init__(self, status: int, detail: str) -> None:
+        super().__init__(detail)
+        self.status, self.detail = status, detail
+
+
 def summarise(it: Itinerary) -> str:
     req = it.request
     head = f"{', '.join(req.destinations)} from {req.origin}, "
@@ -101,11 +154,25 @@ def names(it: Itinerary) -> list[str]:
 
 def sources(answer: GuideAnswer) -> str:
     """Numbered to match the [n] markers in the answer text; never translated."""
-    lines = [f"[{i}] {c.title}" + (f" {c.url}" if c.url else "") for i, c in enumerate(answer.citations, 1)]
+    lines = [
+        f"[{i}] {c.title}" + (f" {c.url}" if c.url else "")
+        for i, c in enumerate(answer.citations, 1)
+    ]
     lines += [
         f"{p.name} https://maps.google.com/?q={p.lat},{p.lng}" for p in answer.emergency_places
     ]
     return "\n".join(lines)
+
+
+def _detail(r: httpx.Response) -> str:
+    """The API's own words for an error ("plan not found", a 422's messages)."""
+    try:
+        detail = r.json().get("detail")
+    except ValueError:
+        detail = None
+    if isinstance(detail, list):
+        detail = "; ".join(str(d.get("msg", d)) for d in detail if isinstance(d, dict))
+    return detail if isinstance(detail, str) and detail else f"HTTP {r.status_code}"
 
 
 def _cap(text: str, limit: int = MAX_REPLY) -> str:
@@ -120,6 +187,9 @@ class User:
     lat: float | None = None
     lng: float | None = None
     located_at: float = 0.0
+    itinerary: Itinerary | None = None  # the latest plan, for share and revise
+    plan_id: str | None = None
+    share_token: str | None = None
 
 
 class Brain:
@@ -128,7 +198,9 @@ class Brain:
     Per-user state (language, open planner questions, last location) lives in memory only.
     """
 
-    def __init__(self, base: str | None = None, translator: Translator | None = None, clock=time.monotonic):
+    def __init__(
+        self, base: str | None = None, translator: Translator | None = None, clock=time.monotonic
+    ):
         base = base if base is not None else os.environ.get("API_BASE_URL", "")
         self.base = base.rstrip("/")
         self.tr = translator or Translator()
@@ -169,6 +241,8 @@ class Brain:
         if text.lower() in CANCEL:
             user.pending = None
             return await self.say(user, HELP)
+        if user.itinerary is not None and (follow := parse_followup(text)):
+            return await self.followup(user, *follow)
         if is_trip(text):
             return await self.trip(user, text)  # a fresh trip replaces any open questions
         if waiting and not text.endswith(("?", "？")):
@@ -187,20 +261,84 @@ class Brain:
         if isinstance(result, list):
             user.pending, user.pending_at = text, self.clock()
             return await self.say(user, "\n".join([ASKING, *(f"- {q}" for q in result)]))
-        return await self.say(user, summarise(result), keep=names(result))
+        return await self.planned(user, *result)
 
-    async def plan(self, body: PlanText) -> Itinerary | list[str]:
-        """The itinerary, or the planner's follow-up questions (needs_input)."""
+    async def planned(
+        self, user: User, it: Itinerary, plan_id: str | None, token: str | None
+    ) -> str:
+        user.itinerary, user.plan_id, user.share_token = it, plan_id, token
+        return await self.say(user, summarise(it) + "\n\n" + NEXT, keep=names(it) + NEXT_KEEP)
+
+    async def followup(self, user: User, intent: str, n: int | None, stop: str | None) -> str:
+        it = user.itinerary
+        if intent == "share":
+            if not user.share_token:
+                return await self.say(
+                    user, "Sharing needs a saved plan; plan your trip again first."
+                )
+            web = os.environ.get("SHARE_BASE_URL", "").rstrip("/")
+            # The web's read-only page (TY4); without it, the API's JSON for the same plan.
+            link = f"{web}/t/{user.share_token}/" if web else f"{self.base}/trips/{user.share_token}"
+            return await self.say(user, "Your plan:", tail=link)
+        days = it.days
+        if n is not None and not 1 <= n <= len(days):
+            return await self.say(user, f"Your plan has days 1 to {len(days)}. {WHICH_DAY}")
+        if intent == "lighter_day" and n is None:
+            return await self.say(user, WHICH_DAY)
+        body: dict = {"intent": intent, "lang": user.lang.value}
+        if n is not None:
+            body["day"] = days[n - 1].date.isoformat()
+        if intent == "swap_stop":
+            pool = days[n - 1].stops if n is not None else [p for d in days for p in d.stops]
+            match = [p for p in pool if stop and stop.casefold() in p.name.casefold()]
+            if not match:
+                listed = ", ".join(p.name for p in pool)
+                return await self.say(
+                    user,
+                    f"I could not find {stop} in your plan. Stops: {listed}",
+                    keep=[stop or "", *(p.name for p in pool)],
+                )
+            body["place_id"] = match[0].id
+        try:
+            result = await self.revise(user.plan_id, body)
+        except ApiError as e:
+            if e.status == 404:
+                user.itinerary = user.plan_id = user.share_token = None
+                return await self.say(user, EXPIRED)
+            return await self.say(user, e.detail)
+        return await self.planned(user, *result)
+
+    async def plan(self, body: PlanText) -> tuple[Itinerary, str | None, str | None] | list[str]:
+        """(itinerary, plan_id, share_token), or the planner's follow-up questions (needs_input)."""
         if not self.base:
             sample = json.loads(SAMPLE.read_text(encoding="utf-8"))["itinerary"]
             it = Itinerary.model_validate(sample)
-            return it.model_copy(update={"warnings": [*it.warnings, "offline sample plan"]})
+            it = it.model_copy(update={"warnings": [*it.warnings, "offline sample plan"]})
+            return it, SAMPLE_PLAN_ID, None
+        return await self._stream("/plan", body.model_dump(mode="json"))
+
+    async def revise(
+        self, plan_id: str | None, body: dict
+    ) -> tuple[Itinerary, str | None, str | None]:
+        if not self.base or not plan_id or plan_id == SAMPLE_PLAN_ID:
+            sample = json.loads(SAMPLE.read_text(encoding="utf-8"))["itinerary"]
+            it = Itinerary.model_validate(sample)
+            it = it.model_copy(update={"warnings": [*it.warnings, "offline sample: not revised"]})
+            return it, SAMPLE_PLAN_ID, None
+        result = await self._stream(f"/plan/{quote(plan_id, safe='')}/revise", body)
+        if isinstance(result, list):  # revise does not ask questions; treat it as a failure
+            raise ApiError(422, " ".join(result))
+        return result
+
+    async def _stream(self, path: str, body: dict):
         final = None
         async with (
             httpx.AsyncClient(timeout=120) as client,
-            client.stream("POST", f"{self.base}/plan", json=body.model_dump(mode="json")) as r,
+            client.stream("POST", f"{self.base}{path}", json=body) as r,
         ):
-            r.raise_for_status()
+            if r.is_error:
+                await r.aread()
+                raise ApiError(r.status_code, _detail(r))
             async for line in r.aiter_lines():
                 if not line.startswith("data:"):
                     continue  # blank separators and ": ping" keep-alives
@@ -212,10 +350,10 @@ class Brain:
                 if event.partial is not None:
                     final = event.partial
                 if event.stage == PlanStage.done:
-                    break
-        if final is None:
-            raise RuntimeError("plan finished without an itinerary")
-        return final
+                    if final is None:
+                        break
+                    return final, event.plan_id, event.share_token
+        raise RuntimeError("plan finished without an itinerary")
 
     async def ask(self, user: User, question: str) -> GuideAnswer:
         located = user.lat is not None and self.clock() - user.located_at < LOCATION_SECONDS
@@ -228,6 +366,8 @@ class Brain:
         if not self.base:
             return GuideAnswer(text=f"(offline sample) I would ask the guide: {question}")
         async with httpx.AsyncClient(timeout=60) as client:
-            r = await client.post(f"{self.base}/guide/ask", json=q.model_dump(mode="json", exclude_none=True))
+            r = await client.post(
+                f"{self.base}/guide/ask", json=q.model_dump(mode="json", exclude_none=True)
+            )
             r.raise_for_status()
             return GuideAnswer.model_validate(r.json())
