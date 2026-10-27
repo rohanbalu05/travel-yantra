@@ -1,4 +1,4 @@
-import type { Pace, Traveller, TripRequest } from "@/lib/contracts";
+import type { Pace, Traveller, TripDraft, TripRequest } from "@/lib/contracts";
 import { GOA_REQUEST } from "@/lib/mockPlan";
 
 export type TripForm = {
@@ -14,6 +14,8 @@ export type TripForm = {
   pace: Pace;
   food: string;
   budget: string;
+  /** The travellers the form started from (sample or intake's draft); kept while the counts match. */
+  people?: Traveller[];
 };
 
 export const INTERESTS = ["Churches", "Temples", "Beaches", "Forts and palaces", "Food", "Nature and waterfalls", "Museums", "Markets"];
@@ -33,9 +35,7 @@ export function goaForm(): TripForm {
     to: r.destinations.join(", "),
     start: r.start_date,
     end: r.end_date,
-    adults: people.filter((t) => !isSenior(t) && !isKid(t)).length,
-    seniors: people.filter(isSenior).length,
-    kids: people.filter(isKid).length,
+    ...counts(people),
     stepFree: (c.mobility_needs ?? []).includes("step-free access"),
     interests: ["Churches", "Temples", "Beaches"],
     pace: c.pace ?? "relaxed",
@@ -44,11 +44,39 @@ export function goaForm(): TripForm {
   };
 }
 
-/** Keeps the sample's names when the group is unchanged; otherwise numbered placeholders. */
+const counts = (people: Traveller[]) => ({
+  adults: people.filter((t) => !isSenior(t) && !isKid(t)).length,
+  seniors: people.filter(isSenior).length,
+  kids: people.filter(isKid).length,
+});
+
+/**
+ * The form from what intake understood on needs_input. Missing fields stay
+ * empty so the form asks for them; a missing group counts as one adult.
+ */
+export function formFromDraft(d: TripDraft): TripForm {
+  const people = d.travellers ?? [];
+  const c = people.length ? counts(people) : { adults: 1, seniors: 0, kids: 0 };
+  return {
+    from: d.origin ?? "",
+    to: (d.destinations ?? []).join(", "),
+    start: d.start_date ?? "",
+    end: d.end_date ?? "",
+    ...c,
+    stepFree: false,
+    interests: [],
+    pace: d.pace ?? "balanced",
+    food: "Anything",
+    budget: d.budget_inr ? String(d.budget_inr) : "",
+    people: people.length ? people : undefined,
+  };
+}
+
+/** Keeps the starting travellers (sample or draft) when the group is unchanged; otherwise numbered placeholders. */
 function travellers(f: TripForm): Traveller[] {
-  const sample = GOA_REQUEST.constraints?.travellers ?? [];
-  const d = goaForm();
-  if (f.adults === d.adults && f.seniors === d.seniors && f.kids === d.kids) return sample;
+  const base = f.people ?? GOA_REQUEST.constraints?.travellers ?? [];
+  const d = counts(base);
+  if (f.adults === d.adults && f.seniors === d.seniors && f.kids === d.kids) return base;
   const list: Traveller[] = [];
   for (let i = 1; i <= f.adults; i++) list.push({ name: `Adult ${i}`, age: 35 });
   for (let i = 1; i <= f.seniors; i++) list.push({ name: `Senior ${i}`, age: 65 });

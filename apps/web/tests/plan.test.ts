@@ -4,7 +4,7 @@ import { GOA_ITINERARY, goaEvents, revisedItinerary } from "@/lib/mockPlan";
 import { PlanHttpError, streamPlan, streamRevise } from "@/lib/plan";
 import { initialPlanState, planReducer } from "@/lib/planState";
 import { dayRows, pickIndex, tripCost } from "@/lib/planView";
-import { formProblems, goaForm, toTripRequest } from "@/lib/tripForm";
+import { formFromDraft, formProblems, goaForm, toTripRequest } from "@/lib/tripForm";
 
 const sse = (evs: PlanEvent[]) => evs.map((e) => `: ping\n\ndata: ${JSON.stringify(e)}\n\n`).join("");
 
@@ -115,6 +115,29 @@ describe("plan view helpers", () => {
     const rows = dayRows(GOA_ITINERARY.days[0], GOA_ITINERARY);
     expect(rows.map((r) => r.kind)).toEqual(["stop", "move", "stop", "stay"]);
     expect(dayRows(GOA_ITINERARY.days[3], GOA_ITINERARY)).toEqual([]); // check-out day: no stay that night
+  });
+});
+
+describe("multi-city days", () => {
+  it("opens the day with the city-to-city leg that leaves no stop", () => {
+    const day = {
+      date: "2026-12-13",
+      stops: [GOA_ITINERARY.days[0].stops![0]],
+      legs: [{ from: "Goa", to: "Mysuru", mode: "road" as const, depart: "2026-12-13T08:00:00", arrive: "2026-12-13T14:00:00", minutes: 360, cost_inr: 6000 }],
+      notes: ["Travel: Goa to Mysuru by road."],
+    };
+    expect(dayRows(day, GOA_ITINERARY).map((r) => r.kind)).toEqual(["move", "stop", "stay"]);
+  });
+});
+
+describe("form from intake's draft", () => {
+  it("keeps what intake understood and leaves the rest empty to ask", () => {
+    const f = formFromDraft({ origin: "Bengaluru", destinations: ["Goa", "Gokarna"], travellers: [{ name: "You", age: 30 }, { name: "Father", age: 60 }] });
+    expect([f.from, f.to, f.start, f.end]).toEqual(["Bengaluru", "Goa, Gokarna", "", ""]);
+    expect([f.adults, f.seniors, f.kids]).toEqual([1, 1, 0]);
+    expect(formProblems(f)).toEqual(["Pick the first and last day."]);
+    const r = toTripRequest({ ...f, start: "2026-12-11", end: "2026-12-14" });
+    expect(r.constraints?.travellers?.map((t) => t.name)).toEqual(["You", "Father"]);
   });
 });
 

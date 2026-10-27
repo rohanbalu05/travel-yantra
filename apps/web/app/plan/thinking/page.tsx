@@ -196,7 +196,9 @@ export default function PlanThinking() {
             <textarea id="answers" className="input" value={answers} onChange={(e) => setAnswers(e.target.value)} placeholder="Answer in your own words…" />
             <div className="row-wrap">
               <button type="button" className="btn btn-primary" onClick={resend} disabled={!answers.trim()}>Send and plan</button>
-              <Link className="btn btn-quiet" href="/plan/start/?mode=form">Fill a form instead</Link>
+              <Link className="btn btn-quiet" href={state.draft ? `/plan/start/?mode=form&draft=${encodeURIComponent(JSON.stringify(state.draft))}` : "/plan/start/?mode=form"}>
+                {state.draft ? "Finish it in the form" : "Fill a form instead"}
+              </Link>
             </div>
           </div>
         )}

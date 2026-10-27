@@ -4,10 +4,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Trail } from "@/components/Trail";
-import type { Lang } from "@/lib/contracts";
+import type { Lang, TripDraft } from "@/lib/contracts";
 import { track } from "@/lib/metrics";
 import { savePlanInput } from "@/lib/plan";
-import { FOODS, INTERESTS, PACES, formProblems, goaForm, toTripRequest, type TripForm } from "@/lib/tripForm";
+import { FOODS, INTERESTS, PACES, formFromDraft, formProblems, goaForm, toTripRequest, type TripForm } from "@/lib/tripForm";
 import "../plan.css";
 
 const LANGS: [Lang, string][] = [["en", "English"], ["hi", "हिन्दी"], ["kn", "ಕನ್ನಡ"], ["ta", "தமிழ்"], ["te", "తెలుగు"], ["bn", "বাংলা"]];
@@ -26,7 +26,15 @@ function PlanStart() {
   const [mode, setMode] = useState<"words" | "form">(params.get("mode") === "form" ? "form" : "words");
   const [text, setText] = useState(params.get("text") ?? SAMPLE_TEXT);
   const [lang, setLang] = useState<Lang>("en");
-  const [form, setForm] = useState<TripForm>(goaForm);
+  // From needs_input, the form starts from what intake understood; otherwise from the Goa sample.
+  const [form, setForm] = useState<TripForm>(() => {
+    try {
+      const d = params.get("draft");
+      return d ? formFromDraft(JSON.parse(d) as TripDraft) : goaForm();
+    } catch {
+      return goaForm();
+    }
+  });
   const [tried, setTried] = useState(false);
 
   const set = <K extends keyof TripForm>(k: K, v: TripForm[K]) => setForm((f) => ({ ...f, [k]: v }));

@@ -23,6 +23,7 @@ export type {
   ReviseRequest,
   Stay,
   TransportOption,
+  TripDraft,
   Traveller,
   TripRequest,
   Violation,

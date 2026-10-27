@@ -3,10 +3,15 @@ import { daysBetween } from "@/lib/format";
 
 export type DayRow = { kind: "stop"; n: number; place: Place } | { kind: "move"; leg: Leg } | { kind: "stay"; name: string };
 
-/** Stops in order, each followed by the leg that leaves it; the night's stay last. */
+/**
+ * Stops in order, each followed by the leg that leaves it; the night's stay last.
+ * A leg that leaves no stop (multi-city: TY1 puts the city-to-city leg first) opens the day.
+ */
 export function dayRows(day: DayPlan, it: Itinerary): DayRow[] {
   const rows: DayRow[] = [];
+  const names = new Set((day.stops ?? []).map((s) => s.name));
   const legs = [...(day.legs ?? [])];
+  while (legs.length && !names.has(legs[0].from)) rows.push({ kind: "move", leg: legs.shift()! });
   (day.stops ?? []).forEach((place, i) => {
     rows.push({ kind: "stop", n: i + 1, place });
     const j = legs.findIndex((l) => l.from === place.name);

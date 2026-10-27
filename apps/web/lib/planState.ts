@@ -1,4 +1,4 @@
-import type { Itinerary, PlanEvent, Violation } from "@/lib/contracts";
+import type { Itinerary, PlanEvent, TripDraft, Violation } from "@/lib/contracts";
 
 export const AGENTS = ["transport", "places", "stays", "story"] as const;
 export type Agent = (typeof AGENTS)[number];
@@ -14,6 +14,7 @@ export type PlanState = {
   repairs: string[];
   narrating: boolean;
   questions: string[];
+  draft: TripDraft | null; // what intake did understand, on needs_input
   error: { message: string; retryable: boolean } | null;
   itinerary: Itinerary | null;
   planId: string | null;
@@ -29,6 +30,7 @@ export const initialPlanState = (): PlanState => ({
   repairs: [],
   narrating: false,
   questions: [],
+  draft: null,
   error: null,
   itinerary: null,
   planId: null,
@@ -67,6 +69,7 @@ export function planReducer(s: PlanState, ev: PlanEvent): PlanState {
     case "needs_input":
       next.status = "needs_input";
       next.questions = (ev.questions ?? []).slice(0, 3);
+      next.draft = ev.draft ?? null;
       next.intake = ev.message;
       break;
     case "error":

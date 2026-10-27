@@ -81,6 +81,7 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
   const travelMin = (day?.legs ?? []).reduce((a, l) => a + l.minutes, 0);
   const travelCost = (day?.legs ?? []).reduce((a, l) => a + l.cost_inr, 0);
   const stay = it.stays?.[0];
+  const stayCities = [...new Set((it.stays ?? []).map((s) => s.city))];
 
   return (
     <>
@@ -92,7 +93,7 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
             <div className="it-meta">
               <span className="badge">{dayLabel(it.request.start_date)} to {dayLabel(it.request.end_date)}</span>
               {people > 0 && <span className="badge">{people} traveller{people > 1 ? "s" : ""}{pace ? `, ${PACE_NAME[pace]}` : ""}</span>}
-              {way && <span className="badge">By {MODE_NAME[way.mode].toLowerCase()}{stay ? `, base in ${stay.city}` : ""}</span>}
+              {way && <span className="badge">By {MODE_NAME[way.mode].toLowerCase()}{stayCities.length === 1 ? `, base in ${stayCities[0]}` : stayCities.length > 1 ? `, stays in ${stayCities.length} cities` : ""}</span>}
               <span className={(it.warnings ?? []).length ? "badge badge-warn" : "badge badge-ok"}>{(it.warnings ?? []).length ? `${it.warnings!.length} to note` : "All checks passed"}</span>
               <span className={vs && !vs.ok ? "badge badge-warn" : "badge badge-sea"}>{inr(cost)}{budget ? ` of ${inr(budget)}` : ""}</span>
             </div>
@@ -207,8 +208,13 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
           {stay && (
             <section className="panel panel-pad" aria-labelledby="s-h">
               <h2 className="h3" id="s-h" style={{ marginBottom: 8 }}>Where you stay</h2>
-              <p style={{ margin: 0 }}><b>{stay.name}</b>, {stay.city}</p>
-              <p className="hint" style={{ margin: "4px 0 0" }}>{dayLabel(stay.check_in)} to {dayLabel(stay.check_out)} · {inr(stay.price_per_night_inr)} a night</p>
+              {/* One stay per city on multi-city trips, in the order you reach them. */}
+              {[...(it.stays ?? [])].sort((a, b) => a.check_in.localeCompare(b.check_in)).map((s) => (
+                <div key={s.name + s.check_in} style={{ marginTop: 8 }}>
+                  <p style={{ margin: 0 }}><b>{s.name}</b>, {s.city}</p>
+                  <p className="hint" style={{ margin: "4px 0 0" }}>{dayLabel(s.check_in)} to {dayLabel(s.check_out)} · {inr(s.price_per_night_inr)} a night</p>
+                </div>
+              ))}
             </section>
           )}
           {(it.warnings ?? []).length > 0 && (
