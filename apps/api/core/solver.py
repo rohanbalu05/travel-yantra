@@ -42,6 +42,8 @@ RETURN_NOTE = "Return: "
 # The last day is planned to about RETURN_FILL_END; the journey home then leaves at least RETURN_BUFFER_MIN
 # after the last visit ends (RETURN_DEPART is the provisional departure the solver plans against).
 RETURN_FILL_END = time(17, 0)
+# Below this, the last day takes one stop over the pace cap (not on relaxed pace).
+LAST_DAY_FILL_UNTIL = time(15, 0)
 RETURN_BUFFER_MIN = 45
 RETURN_DEPART = time(17, 45)
 # Journey notes as written before the timetable wording, e.g. "Travel: A → B by rail, 3h20".
@@ -445,6 +447,19 @@ def solve(request: TripRequest, places: list[Place], travel: Travel | None = Non
             if added is None:
                 break
             chosen.append(added)
+        if out and chosen and len(chosen) == lim.max_stops and request.constraints.pace != Pace.relaxed:
+            # The last day (HQ V3-AL): when the pace's cap would end the visits early, one more stop fills it.
+            plan, _ = build_day(d, chosen, travel, lim, hop=hop, out=out)
+            if plan.schedule and plan.schedule[-1].leave.time() < LAST_DAY_FILL_UNTIL:
+                more = replace(lim, max_stops=lim.max_stops + 1)
+                near = sorted((p for p in left if p not in chosen),
+                              key=lambda p: (min(travel.minutes(c, p) for c in chosen) + RANK_MINUTES * rank[p.id], p.id))
+                extra = next((p for p in near if fits(d, [*chosen, p], travel, more, hop, out)), None)
+                if extra:
+                    chosen.append(extra)
+                    days.append(build_day(d, chosen, travel, more, hop=hop, out=out)[0])
+                    left = [p for p in left if p not in chosen]
+                    continue
         left = [p for p in left if p not in chosen]
         days.append(build_day(d, chosen, travel, lim, hop=hop, out=out)[0])
     return days, left

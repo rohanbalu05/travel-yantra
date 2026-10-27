@@ -2,7 +2,7 @@ from datetime import date, datetime, time, timedelta
 
 from core import steps
 from core.solver import RETURN_BUFFER_MIN, limits
-from ty_contracts import Mode, TripRequest
+from ty_contracts import Mode, Pace, TripRequest
 
 DEMO = TripRequest.model_validate({"origin": "Bengaluru", "destinations": ["Mysuru"], "start_date": "2026-10-31",
                                    "end_date": "2026-11-01"})
@@ -113,3 +113,17 @@ def test_when_the_last_train_leaves_too_early_visits_are_dropped_to_catch_it(mon
     assert out_of(kept).depart == early.depart and 0 < len(kept.stops) < len(last.stops)
     assert any(w.startswith("Dropped ") and "to catch the 12:30 rail home" in w for w in it.warnings)
     assert kept.schedule[-1].leave <= early.depart - timedelta(minutes=45)
+
+
+def test_the_last_day_takes_one_more_stop_when_the_cap_would_end_it_early_but_not_on_relaxed():
+    # HQ V3-AL: fill the last day to about 15:00-17:00; relaxed pace keeps its cap.
+    from core.solver import LAST_DAY_FILL_UNTIL, limits, out_of
+
+    balanced = steps.replan(DEMO)
+    day = balanced.days[-1]
+    assert len(day.stops) == limits(DEMO).max_stops + 1
+    assert day.schedule[-1].leave.time() >= LAST_DAY_FILL_UNTIL.replace(hour=LAST_DAY_FILL_UNTIL.hour - 1)
+    assert out_of(day).depart >= day.schedule[-1].leave + timedelta(minutes=45)
+    relaxed_req = DEMO.model_copy(update={"constraints": DEMO.constraints.model_copy(update={"pace": Pace.relaxed})})
+    relaxed = steps.replan(relaxed_req)
+    assert len(relaxed.days[-1].stops) <= limits(relaxed_req).max_stops
