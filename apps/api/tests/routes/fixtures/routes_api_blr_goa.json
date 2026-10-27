@@ -1,0 +1,4 @@
+{
+  "_note": "Hand-written sample in the computeRoutes response shape (field mask routes.duration,routes.distanceMeters). Not a recorded live response.",
+  "routes": [{"distanceMeters": 561000, "duration": "35400s"}]
+}

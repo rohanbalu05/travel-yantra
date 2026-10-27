@@ -207,6 +207,18 @@ def add_airport_transfers(graph: Graph, provider: RoadEdgeProvider, max_km: floa
                         graph.add_edge(e)
 
 
+def add_station_transfers(graph: Graph, provider: RoadEdgeProvider, max_km: float = 40.0) -> None:
+    """Road transfers between place points and stations within max_km (great-circle),
+    for stations too far to walk to."""
+    for p in graph.nodes_of(KIND_PLACE):
+        for st in graph.nodes_of(KIND_STATION):
+            if haversine_km(p.lat, p.lon, st.lat, st.lon) <= max_km:
+                for a, b in ((p, st), (st, p)):
+                    e = provider.road_edge(a, b)
+                    if e:
+                        graph.add_edge(e)
+
+
 def add_air(graph: Graph, provider: AirEdgeProvider) -> None:
     aps = provider.airports()
     for ap in aps:

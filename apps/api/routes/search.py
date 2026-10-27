@@ -46,7 +46,8 @@ def _max_speed_km_per_min(g: Graph) -> float:
     return best
 
 
-def _search(g: Graph, src: str, dst: str, w: Weights, use_heuristic: bool) -> SearchResult | None:
+def _search(g: Graph, src: str, dst: str, w: Weights, use_heuristic: bool,
+            depart: datetime = START) -> SearchResult | None:
     if src == dst or src not in g.nodes or dst not in g.nodes:  # same node: no legs, no option
         return None
     goal = g.nodes[dst]
@@ -78,7 +79,7 @@ def _search(g: Graph, src: str, dst: str, w: Weights, use_heuristic: bool) -> Se
             while state in prev:
                 state, e = prev[state]
                 path.append(e)
-            return _result(tuple(reversed(path)), d, expansions)
+            return _result(tuple(reversed(path)), d, expansions, depart)
         for e in g.neighbors(node):
             step = w.alpha * e.minutes + w.beta * e.cost_inr
             if last is not None and last != _key(e):
@@ -92,8 +93,9 @@ def _search(g: Graph, src: str, dst: str, w: Weights, use_heuristic: bool) -> Se
     return None
 
 
-def _result(edges: tuple[Edge, ...], objective: float, expansions: int) -> SearchResult:
-    t, legs = START, []
+def _result(edges: tuple[Edge, ...], objective: float, expansions: int,
+            start: datetime = START) -> SearchResult:
+    t, legs = start, []
     for e in edges:
         mins = round(e.minutes)
         mode = Mode.road if e.mode == "walk" else Mode(e.mode)  # contract has no walk mode
@@ -113,9 +115,11 @@ def _result(edges: tuple[Edge, ...], objective: float, expansions: int) -> Searc
     return SearchResult(opt, objective, expansions, edges)
 
 
-def dijkstra(g: Graph, src: str, dst: str, w: Weights | None = None) -> SearchResult | None:
-    return _search(g, src, dst, w or Weights(), use_heuristic=False)
+def dijkstra(g: Graph, src: str, dst: str, w: Weights | None = None,
+             start: datetime = START) -> SearchResult | None:
+    return _search(g, src, dst, w or Weights(), use_heuristic=False, depart=start)
 
 
-def astar(g: Graph, src: str, dst: str, w: Weights | None = None) -> SearchResult | None:
-    return _search(g, src, dst, w or Weights(), use_heuristic=True)
+def astar(g: Graph, src: str, dst: str, w: Weights | None = None,
+          start: datetime = START) -> SearchResult | None:
+    return _search(g, src, dst, w or Weights(), use_heuristic=True, depart=start)

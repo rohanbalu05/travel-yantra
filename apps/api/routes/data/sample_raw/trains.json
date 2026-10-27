@@ -56,6 +56,22 @@
     "name": "Sample Delhi Express",
     "number": "90007"
    }
+  },
+  {
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "name": "Sample Bengaluru-Mysuru Express",
+    "number": "90008"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": null,
+   "properties": {
+    "name": "Sample Mysuru-Bengaluru Express",
+    "number": "90009"
+   }
   }
  ]
 }
