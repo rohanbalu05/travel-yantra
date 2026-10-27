@@ -109,3 +109,25 @@ def test_trip_context_lifts_the_stop_you_are_standing_at(db) -> None:
         trip_context=TripContext(current_poi=poi_id, has_elderly=True),
     )
     assert aware and aware[0].poi_id == poi_id
+
+
+def test_concurrent_first_calls_load_the_embedder_once(monkeypatch):
+    import threading
+    import time
+
+    loads = []
+
+    def slow_load():
+        loads.append(1)
+        time.sleep(0.2)  # the real e5 load takes 10-60 s on one throttled vCPU
+        return object()
+
+    monkeypatch.setattr(embed, "_model", None)
+    monkeypatch.setattr(embed, "_load", slow_load)
+    got = []
+    threads = [threading.Thread(target=lambda: got.append(embed.model())) for _ in range(4)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    assert len(loads) == 1 and len({id(m) for m in got}) == 1 and len(got) == 4

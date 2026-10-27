@@ -20,7 +20,7 @@ BUSY = "The guide couldn't answer just now. Try again in a minute."
 def warm_up() -> None:
     """Called once at startup by main.py, in a background thread: load the query
     embedder so the first /guide/ask after a cold start doesn't pay 10-20 s for it.
-    Idempotent; embed.model() is cached."""
+    Idempotent; embed.model() loads once, and /ask waits on a load in progress."""
     from .planner import _pois
     from .retrieval import embed
 

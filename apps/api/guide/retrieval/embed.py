@@ -14,8 +14,8 @@ from __future__ import annotations
 import hashlib
 import os
 import re
+import threading
 from collections.abc import Sequence
-from functools import lru_cache
 from typing import Any
 
 import numpy as np
@@ -27,12 +27,26 @@ PASSAGE_PREFIX = "passage: "
 QUERY_PREFIX = "query: "
 
 
-@lru_cache(maxsize=1)
-def model() -> Any:
-    """The sentence-transformers model, loaded once, on first use."""
+_model: Any = None
+_lock = threading.Lock()
+
+
+def _load() -> Any:
     from sentence_transformers import SentenceTransformer
 
     return SentenceTransformer(MODEL_NAME)
+
+
+def model() -> Any:
+    """The sentence-transformers model, loaded once, on first use. A caller that arrives
+    while another thread is loading it (the first /ask during warm-up) waits for that
+    load instead of starting a second one on the same vCPU."""
+    global _model
+    if _model is None:
+        with _lock:
+            if _model is None:
+                _model = _load()
+    return _model
 
 
 def _fake(text: str) -> np.ndarray:
