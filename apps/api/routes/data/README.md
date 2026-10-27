@@ -1,27 +1,45 @@
 # Rail data
 
-Source: datameet/railways (stations.json, trains.json, schedules.json).
-Licence: CC0 1.0. Data date: about 2016 (timetables are old; use for graph
-structure and rough timings only, never as live schedules).
+## rail_stations.json, rail_trains.json (real, the default)
 
-## Current contents: SAMPLE ONLY
+Source: [datameet/railways](https://github.com/datameet/railways)
+(stations.json, trains.json, schedules.json). Licence: CC0 1.0 (public domain
+dedication). Data date: about 2016, so the timetables are old; the app says so
+and sends people to IRCTC to check the train before booking. Running days are
+not in the source, so every train is treated as daily.
 
-`sample_raw/` holds a tiny hand-made dataset in the datameet format (16
-stations, 14 fictional trains numbered 90001-90014, approximate coordinates;
-90008 and 90009 run Bengaluru-Mysuru, 90010 Madgaon-Bengaluru, 90011 and
-90012 Bengaluru-Chikkamagaluru, 90013 and 90014 Bengaluru-Hosapete for Hampi).
-`rail_stations.json` and `rail_trains.json` are built from it. The real
-datameet files could not be downloaded from the cloud session (egress policy
-blocked raw.githubusercontent.com), so the full six-state subset is still to be
-generated.
+Filter: the demo corridors, every station inside the box lat 11.5-16.0, lon
+73.6-78.0 (Bengaluru, Mysuru and the Coorg side, Hassan, Chikkamagaluru,
+Hosapete for Hampi, Hubballi, Goa), whatever its state field (many datameet
+stations have none, Yesvantpur and Chikkamagaluru among them), and the trains
+with two or more stops there: 427 stations, 513 trains. `rail_meta.json`
+records the source, licence, filter and counts.
 
-## Regenerate
+Rebuild (the same script `build-rail.yml` runs):
 
 ```
-python apps/api/routes/scripts/build_rail.py --src <dir with the three datameet files>
+curl -fsSL -o <dir>/stations.json https://raw.githubusercontent.com/datameet/railways/master/stations.json
+# likewise trains.json and schedules.json
+python apps/api/routes/scripts/build_rail.py --src <dir> --out apps/api/routes/data --bbox demo
 ```
 
-Keeps stations in Karnataka, Goa, Maharashtra, Kerala, Tamil Nadu and Andhra
-Pradesh and trains with two or more stops in them. Output is gzipped
-(`*.json.gz`) when over 5 MB. Run it in GitHub Actions or on a machine with
-network access, then commit the output.
+Without `--bbox` the script keeps the six-state subset (Karnataka, Goa,
+Maharashtra, Kerala, Tamil Nadu, Andhra Pradesh; 1,173 stations, 1,518 trains).
+
+## sample/ (fictional, fallback only)
+
+`sample/rail_stations.json` and `sample/rail_trains.json` are built from
+`sample_raw/`, a tiny hand-made dataset in the datameet format: 16 stations, 14
+FICTIONAL trains numbered 90001-90014. They are used only when
+`ROUTES_RAIL=sample` is set, when the real files are missing, by the PNR mock
+(`sample_pnrs.json` names sample trains) and by unit tests that need a small
+fixed network.
+
+```
+python apps/api/routes/scripts/build_rail.py --src apps/api/routes/data/sample_raw --out apps/api/routes/data/sample
+```
+
+## Other files
+
+- `sample_stays.json`: fictional stays, used when SerpApi Hotels is off.
+- `sample_pnrs.json`: fictional PNRs for the PNR timeline mock.

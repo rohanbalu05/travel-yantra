@@ -12,7 +12,15 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from .graph import DATA_DIR, RAIL_DETOUR, RAIL_INR_PER_KM, _read_json, haversine_km
+from .graph import (
+    DATA_DIR,
+    RAIL_DETOUR,
+    RAIL_INR_PER_KM,
+    SAMPLE_RAIL_DIR,
+    _read_json,
+    haversine_km,
+    rail_dir,
+)
 
 IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
 BOOKING_URL = "https://www.irctc.co.in/nget/train-search"
@@ -96,13 +104,17 @@ class PnrStatus(BaseModel):
     sample: bool = True
 
 
+def _rail(data_dir: Path | None = None) -> tuple[dict[str, dict], list[dict]]:
+    return _rail_at(data_dir or rail_dir())
+
+
 @lru_cache(maxsize=4)
-def _rail(data_dir: Path = DATA_DIR) -> tuple[dict[str, dict], list[dict]]:
+def _rail_at(data_dir: Path) -> tuple[dict[str, dict], list[dict]]:
     stations = {s["code"]: s for s in _read_json("rail_stations", data_dir)}
     return stations, _read_json("rail_trains", data_dir)
 
 
-def resolve_station(value: str, data_dir: Path = DATA_DIR) -> dict:
+def resolve_station(value: str, data_dir: Path | None = None) -> dict:
     stations, _ = _rail(data_dir)
     v = value.strip()
     if v.upper() in stations:
@@ -117,7 +129,7 @@ def _hhmm(minutes: int) -> str:
     return f"{minutes // 60:02d}:{minutes % 60:02d}"
 
 
-def _find_run(src: str, dst: str, train: str | None, data_dir: Path) -> tuple[dict, dict, dict]:
+def _find_run(src: str, dst: str, train: str | None, data_dir: Path | None) -> tuple[dict, dict, dict]:
     _, trains = _rail(data_dir)
     for t in trains:
         if train and t["number"] != train:
@@ -138,7 +150,7 @@ def _berths(party: list[tuple[str, int, str]], cls: str) -> list[str]:
 
 def irctc_card(src: str, dst: str, date: dt.date, travel_class: TravelClass = "3A",
                party: Party = "goa_family", train: str | None = None,
-               data_dir: Path = DATA_DIR) -> IrctcCard:
+               data_dir: Path | None = None) -> IrctcCard:
     a, b = resolve_station(src, data_dir), resolve_station(dst, data_dir)
     t, dep, arr = _find_run(a["code"], b["code"], train, data_dir)
     dep_min = dep["dep"] if dep["dep"] is not None else dep["arr"]
@@ -159,7 +171,9 @@ def irctc_card(src: str, dst: str, date: dt.date, travel_class: TravelClass = "3
         date=date, date_irctc=date_irctc, departs=_hhmm(dep_min), arrives=_hhmm(arr_min),
         arrives_day_offset=arr["day"] - dep["day"], travel_class=travel_class, passengers=passengers,
         fare_estimate_inr=fare, copy_text="\n".join(lines),
-        notes=["Sample timetable and sample travellers.",
+        notes=[("Sample timetable" if (data_dir or rail_dir()) == SAMPLE_RAIL_DIR
+                else "Timetable from datameet (about 2016): check the train runs that day on IRCTC")
+               + "; sample travellers.",
                "Fare is an estimate; IRCTC shows the real fare when you book."],
     )
 
@@ -184,7 +198,7 @@ def pnr_status(pnr: str, at: dt.datetime | None = None, data_dir: Path = DATA_DI
         statuses = [f"CNF {berth}" for berth in row["berths"]]
     else:
         statuses = [current] * len(people)
-    stations, trains = _rail(data_dir)
+    stations, trains = _rail(SAMPLE_RAIL_DIR)  # sample PNRs name the sample trains
     train_name = next((t["name"] for t in trains if t["number"] == row["train"]), "")
     a, b = stations[row["from"]], stations[row["to"]]
     return PnrStatus(

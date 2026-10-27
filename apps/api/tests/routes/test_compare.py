@@ -46,9 +46,10 @@ def test_bengaluru_to_goa_returns_rail_road_and_air_ranked(service):
     assert air.option.total_minutes < road.option.total_minutes
     assert rail.option.total_cost_inr < road.option.total_cost_inr < air.option.total_cost_inr
     assert road.changes == 0 and road.sources == ["haversine"]
-    assert "sample_rail" in rail.sources and "fake_air" in air.sources
-    # one rail leg per train, not one per stop pair
-    assert [leg.mode for leg in rail.option.legs].count(Mode.rail) == 1
+    assert "datameet_rail" in rail.sources and "fake_air" in air.sources
+    # one rail leg per train, not one per stop pair: the 15:15 Yesvantpur-Vasco
+    trains = [leg for leg in rail.option.legs if leg.mode is Mode.rail]
+    assert [(t.from_, t.depart.strftime("%H:%M")) for t in trains] == [("Yesvantpur JN", "15:15")]
     assert any("airport (BLR)" in leg.from_ for leg in air.option.legs)
 
 
@@ -59,7 +60,8 @@ def test_bengaluru_to_mysuru_has_rail_and_road_and_explains_no_air(service):
     assert [u.mode for u in r.unavailable] == [Mode.air]
     assert "airport" in r.unavailable[0].reason
     rail = modes[Mode.rail]
-    assert any(leg.to == "Mysuru Jn" for leg in rail.option.legs)
+    assert rail.option.legs[0].from_ == "Bengaluru" and rail.option.legs[-1].to == "Mysuru"
+    assert any(leg.mode is Mode.rail for leg in rail.option.legs)
 
 
 def test_legs_chain_from_the_requested_departure(service):
@@ -67,6 +69,11 @@ def test_legs_chain_from_the_requested_departure(service):
                                        date="2026-12-11", depart_time="06:30"))
     for o in r.options:
         legs = o.option.legs
+        if o.option.mode is Mode.rail:  # real timetable: leave in time for the train, wait between trains
+            assert legs[0].depart >= dt.datetime(2026, 12, 11, 6, 30)
+            assert all(a.arrive <= b.depart for a, b in zip(legs, legs[1:]))
+            assert o.option.total_minutes == round((legs[-1].arrive - legs[0].depart).total_seconds() / 60)
+            continue
         assert legs[0].depart.isoformat() == "2026-12-11T06:30:00"
         assert all(a.arrive == b.depart for a, b in zip(legs, legs[1:]))
         assert o.option.total_minutes == sum(leg.minutes for leg in legs)
@@ -150,8 +157,8 @@ def test_travellers_scale_tickets_per_person_and_cars_per_four(service):
 
 @pytest.mark.parametrize("dest,modes,missing", [
     ("Hampi", {"rail", "road", "air"}, set()),
-    ("Coorg", {"road"}, {"rail", "air"}),
-    ("Madikeri", {"road"}, {"rail", "air"}),
+    ("Coorg", {"rail", "road"}, {"air"}),  # rail via Subrahmanya Road, ranked below road
+    ("Madikeri", {"rail", "road"}, {"air"}),
     ("Chikmagalur", {"rail", "road"}, {"air"}),
 ])
 def test_karnataka_destinations_for_planner(dest, modes, missing):
@@ -160,3 +167,37 @@ def test_karnataka_destinations_for_planner(dest, modes, missing):
     assert {o.option.mode.value for o in resp.options} == modes
     assert {u.mode.value for u in resp.unavailable} == missing
     assert [o.rank for o in resp.options] == list(range(1, len(modes) + 1))
+
+
+def test_rail_waits_for_the_real_train_and_leaves_in_time(service):
+    r = service.compare(CompareRequest(origin="Bengaluru", destination="Goa", date="2026-12-11",
+                                       depart_time="08:00", modes=["rail"]))
+    legs = r.options[0].option.legs
+    first_train = next(leg for leg in legs if leg.mode is Mode.rail)
+    # leave the centre in time for the train, plus BOARD_MIN at the station; no morning spent waiting
+    assert legs[0].arrive + dt.timedelta(minutes=15) == first_train.depart
+    assert first_train.depart > dt.datetime(2026, 12, 11, 8, 0)
+
+
+def test_no_early_detour_onto_the_same_train(service):
+    r = service.compare(CompareRequest(origin="Bengaluru", destination="Mysuru", date="2026-12-11",
+                                       depart_time="08:00", modes=["rail"]))
+    trains = [leg for leg in r.options[0].option.legs if leg.mode is Mode.rail]
+    assert len(trains) == 1  # a direct train, not a hop out and back to catch it
+
+
+def test_rail_departures_list_real_trains_in_a_window(service):
+    deps = service.rail_departures("Bengaluru", "Mysuru", dt.date(2026, 12, 11), dt.time(5, 0), dt.time(10, 0))
+    leaves = [o.legs[0].depart for o in deps]
+    assert len(deps) >= 3 and leaves == sorted(leaves)
+    assert all(dt.datetime(2026, 12, 11, 5, 0) <= t <= dt.datetime(2026, 12, 11, 10, 0) for t in leaves)
+    arrivals = [o.legs[-1].arrive for o in deps]
+    assert len(set(arrivals)) == len(arrivals)
+    assert all(o.mode is Mode.rail and o.legs[-1].to == "Mysuru" for o in deps)
+
+
+def test_sample_rail_is_the_fallback(monkeypatch):
+    monkeypatch.setenv("ROUTES_RAIL", "sample")
+    svc = CompareService(road=HaversineRoadProvider(), live=False)
+    r = svc.compare(CompareRequest(origin="Bengaluru", destination="Goa", date="2026-12-11", modes=["rail"]))
+    assert "sample_rail" in r.options[0].sources and "fictional sample" in r.notes[0]

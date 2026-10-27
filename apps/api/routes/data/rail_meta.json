@@ -1,0 +1,16 @@
+{
+ "source": "https://github.com/datameet/railways (stations.json, trains.json, schedules.json)",
+ "licence": "CC0 1.0 (public domain dedication)",
+ "filter": {
+  "bbox": [
+   11.5,
+   73.6,
+   16.0,
+   78.0
+  ]
+ },
+ "data_date": "about 2016 (datameet snapshot; timetables are old)",
+ "running_days": "not in the source; every train is treated as daily",
+ "stations": 427,
+ "trains": 513
+}

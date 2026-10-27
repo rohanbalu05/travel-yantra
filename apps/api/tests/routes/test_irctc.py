@@ -7,6 +7,13 @@ from fastapi.testclient import TestClient
 from routes import router
 from routes.irctc import NotFound, irctc_card, pnr_status
 
+
+@pytest.fixture(autouse=True)
+def sample_rail(monkeypatch):
+    """These tests cover the logic on the small fictional sample network."""
+    monkeypatch.setenv("ROUTES_RAIL", "sample")
+
+
 IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
 
 
@@ -94,3 +101,10 @@ def test_http_pnr_mock(client):
     missing = client.get("/routes/pnr-mock", params={"pnr": "9999999999"})
     assert missing.status_code == 404 and missing.json()["detail"] == "unknown sample PNR"
     assert client.get("/routes/pnr-mock", params={"pnr": "12345"}).status_code == 422
+
+
+def test_card_on_the_real_timetable_from_compare_station_names(monkeypatch):
+    monkeypatch.delenv("ROUTES_RAIL")
+    card = irctc_card("Yesvantpur JN", "Dabolim", dt.date(2026, 12, 11))
+    assert card.train.number == "17309" and card.departs == "15:15" and card.from_.code == "YPR"
+    assert "datameet" in card.notes[0]

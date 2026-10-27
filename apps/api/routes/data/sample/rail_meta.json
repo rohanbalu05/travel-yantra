@@ -1,0 +1,7 @@
+{
+ "source": "SAMPLE ONLY: hand-made fictional trains 90001-90014 in the datameet format (../sample_raw/), built by scripts/build_rail.py",
+ "licence": "project sample data",
+ "use": "fallback only: when ROUTES_RAIL=sample or the real subset in ../ is missing; also used by unit tests that need a tiny fixed network",
+ "stations": 16,
+ "trains": 14
+}

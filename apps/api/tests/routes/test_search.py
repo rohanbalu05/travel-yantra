@@ -5,12 +5,20 @@ import pytest
 
 from routes.graph import (
     KIND_PLACE,
+    SAMPLE_RAIL_DIR,
     FakeAirProvider,
     HaversineRoadProvider,
     Node,
     build_graph,
 )
 from routes.search import Weights, astar, dijkstra
+
+
+@pytest.fixture(autouse=True)
+def sample_rail(monkeypatch):
+    """These tests cover the logic on the small fictional sample network."""
+    monkeypatch.setenv("ROUTES_RAIL", "sample")
+
 
 PLACES = [
     Node("PL:blr", KIND_PLACE, "Bengaluru", 12.9716, 77.5946),
@@ -25,7 +33,7 @@ MIXES = [Weights(1, 0, 0), Weights(0, 1, 0), Weights(1, 0.05, 30)]  # time, cost
 
 @pytest.fixture(scope="module")
 def g():
-    return build_graph(places=PLACES, road=HaversineRoadProvider(), air=FakeAirProvider())
+    return build_graph(SAMPLE_RAIL_DIR, places=PLACES, road=HaversineRoadProvider(), air=FakeAirProvider())
 
 
 def test_time_only_prefers_air(g):

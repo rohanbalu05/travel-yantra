@@ -6,6 +6,7 @@ import gzip
 import itertools
 import json
 import math
+import os
 from collections import Counter
 from collections.abc import Iterable
 from dataclasses import dataclass, field
@@ -13,6 +14,17 @@ from pathlib import Path
 from typing import Protocol
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
+SAMPLE_RAIL_DIR = DATA_DIR / "sample"  # fictional trains 90001-90014: fallback and small unit tests
+
+
+def rail_dir() -> Path:
+    """The datameet corridor subset in data/, or the sample when ROUTES_RAIL=sample
+    or the subset is missing."""
+    if os.environ.get("ROUTES_RAIL") == "sample":
+        return SAMPLE_RAIL_DIR
+    if any((DATA_DIR / f"rail_trains.json{ext}").exists() for ext in ("", ".gz")):
+        return DATA_DIR
+    return SAMPLE_RAIL_DIR
 
 # Reversible assumptions (offline fakes, replaced by live providers later).
 RAIL_INR_PER_KM = 0.6
@@ -148,8 +160,9 @@ def _read_json(name: str, data_dir: Path):
     return json.loads(plain.read_text(encoding="utf-8"))
 
 
-def load_rail(graph: Graph, data_dir: Path = DATA_DIR) -> None:
+def load_rail(graph: Graph, data_dir: Path | None = None) -> None:
     """Add station nodes and one rail edge per consecutive stop pair of each train."""
+    data_dir = data_dir or rail_dir()
     stations = _read_json("rail_stations", data_dir)
     trains = _read_json("rail_trains", data_dir)
     for s in stations:
@@ -234,7 +247,7 @@ def add_air(graph: Graph, provider: AirEdgeProvider) -> None:
 
 
 def build_graph(
-    data_dir: Path = DATA_DIR,
+    data_dir: Path | None = None,
     places: Iterable[Node] = (),
     road: RoadEdgeProvider | None = None,
     air: AirEdgeProvider | None = None,

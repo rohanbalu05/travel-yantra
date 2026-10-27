@@ -5,7 +5,8 @@ Multimodal transport graph, Dijkstra and A*, Routes API, SerpApi flights and hot
 ## Files
 
 - `graph.py`: stations, airports and city points joined by rail, road, air and walk edges; offline fakes for road and air.
-- `search.py`: Dijkstra and A* with a time, cost and transfer objective.
+- `search.py`: Dijkstra and A* with a time, cost and transfer objective (road and air).
+- `timetable.py`: rail on real timetables (datameet corridor subset, `data/README.md`): earliest arrival by connection scan with changes, then the latest departure that arrives as early.
 - `roads.py`: road edges from the Google Routes API (`GOOGLE_MAPS_API_KEY`), cached in the shared store, capped at 100 live calls per process and `ROUTES_MONTHLY_CAP` (default 2000) for all instances, haversine fallback.
 - `apicache.py`: the shared response cache and live-call counters (Postgres tables `routes_api_cache` and `routes_api_calls` when `DATABASE_URL` is set, else the JSON file `ROUTES_CACHE_FILE`, default in the temp dir).
 - `serpapi.py`: SerpApi client (`SERPAPI_API_KEY`): cache first, then one live call if `SERPAPI_DAILY_CAP` (default 20) and `SERPAPI_MONTHLY_CAP` (default 100) allow, then the stale cached answer, then None. Responses are sanitised before caching; a failed call is not retried for 10 minutes.
@@ -49,6 +50,19 @@ dropped; a pair with no live answer keeps its estimate (`fake_air`). The air
 option's `offers[]` lists every seller (prices for the whole party, cheapest
 first). `sources` may include `serpapi_flights`.
 
+Rail: real departure times. The option leaves the city centre in time for the
+first train (road or walk to one of the city's stations, plus 15 min at the
+station), waits between trains (15 min minimum change), and goes on by road
+from the last station; `total_minutes` is door to door including waits, so the
+first leg can leave later than `depart_time`. `sources` has `datameet_rail`
+(or `sample_rail` on the fallback).
+
+In process, for choosing a departure (TY1):
+`routes.compare.get_service().rail_departures(origin, destination, day,
+earliest=time(5, 0), latest=time(23, 59), travellers=1, limit=6)` gives the
+rail journeys leaving in that window, in order, each a `TransportOption`;
+`legs[0].depart` is when to leave, `legs[-1].arrive` when you are there.
+
 In process (no HTTP): `routes.compare.get_service().compare(CompareRequest(...))`.
 
 ## GET /routes/irctc-card
@@ -82,7 +96,7 @@ per task and arm, sessions and the median seconds from a session's first
 
 ## Known limits
 
-- Rail is the sample timetable subset (fictional trains); waits for departures are not modelled, so legs run back to back from `depart_time`.
+- Rail is datameet's timetable from about 2016, every train treated as daily; fares are per-km estimates. `ROUTES_RAIL=sample` switches to the fictional sample network.
 - Air is the fake network unless `SERPAPI_API_KEY` is set. Live flight booking links need a POST, so seller offers for flights link to each seller's search, not the exact fare.
 - Hotel rates assume two adults a room; the party price is rooms x the room rate. Only the top stay gets per-source prices (one details call); the others show registry links.
 - Road uses the haversine fake unless `GOOGLE_MAPS_API_KEY` is set. Cache and monthly cap are shared through the store; the 100-call cap is per process.

@@ -1,5 +1,7 @@
 import json
 
+import pytest
+
 from routes.graph import (
     KIND_PLACE,
     FakeAirProvider,
@@ -8,6 +10,13 @@ from routes.graph import (
     build_graph,
     haversine_km,
 )
+
+
+@pytest.fixture(autouse=True)
+def sample_rail(monkeypatch):
+    """These tests cover the logic on the small fictional sample network."""
+    monkeypatch.setenv("ROUTES_RAIL", "sample")
+
 
 CITIES = [
     Node("PL:blr", KIND_PLACE, "Bengaluru", 12.9716, 77.5946),
