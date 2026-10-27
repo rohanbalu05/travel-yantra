@@ -1,0 +1,19 @@
+# Every service image builds from the repo root; keep host state out of the context.
+.git
+.lanes
+.claude
+.playwright-mcp
+**/node_modules
+**/.next
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/*.py[cod]
+
+# Secrets never enter a build context.
+.env
+.env.*
+**/*.pem
+**/*-key.json
+**/credentials*.json
