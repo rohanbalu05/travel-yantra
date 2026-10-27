@@ -92,7 +92,7 @@ case "${1:-}" in
     sec=$(secrets_flag WHATSAPP_TOKEN WHATSAPP_VERIFY_TOKEN WHATSAPP_APP_SECRET WHATSAPP_PHONE_NUMBER_ID WHATSAPP_ALLOWED_RECIPIENTS)
     gcloud run deploy ty-bots --image "$R-docker.pkg.dev/$P/ty/ty-bots:$SHA" "${common[@]}" \
       --service-account "ty-bots-run@$P.iam.gserviceaccount.com" --memory 512Mi \
-      --set-env-vars "^@^API_BASE_URL=$(url_of ty-api)@TRANSLATE_URL=$(url_of ty-translate)@GIT_SHA=$SHA" \
+      --set-env-vars "^@^API_BASE_URL=$(url_of ty-api)@TRANSLATE_URL=$(url_of ty-translate)@SHARE_BASE_URL=https://ty-web-$(gcloud projects describe "$P" --format 'value(projectNumber)').$R.run.app@GIT_SHA=$SHA" \
       ${sec:+"$sec"}
     ;;
   ty-mcp)
