@@ -1,0 +1,50 @@
+{
+ "sentences": 28,
+ "service_flags_pass": {
+  "hi": 1.0,
+  "kn": 1.0,
+  "ta": 1.0,
+  "te": 1.0,
+  "bn": 1.0
+ },
+ "run_qa": {
+  "bn": {
+   "n": 28,
+   "pass_rate": 1.0,
+   "mean_chrf": 0.724,
+   "mean_adequacy": 5.0,
+   "flags": {}
+  },
+  "hi": {
+   "n": 28,
+   "pass_rate": 1.0,
+   "mean_chrf": 0.794,
+   "mean_adequacy": 5.0,
+   "flags": {}
+  },
+  "kn": {
+   "n": 28,
+   "pass_rate": 1.0,
+   "mean_chrf": 0.737,
+   "mean_adequacy": 5.0,
+   "flags": {}
+  },
+  "ta": {
+   "n": 28,
+   "pass_rate": 0.964,
+   "mean_chrf": 0.708,
+   "mean_adequacy": 4.86,
+   "flags": {
+    "low_backtranslation": 1,
+    "fallback_en": 1
+   }
+  },
+  "te": {
+   "n": 28,
+   "pass_rate": 1.0,
+   "mean_chrf": 0.738,
+   "mean_adequacy": 5.0,
+   "flags": {}
+  }
+ }
+}

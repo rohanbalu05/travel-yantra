@@ -62,7 +62,9 @@ def forward(out_path: str) -> None:
         "service_flags": flags,
     }
     Path(out_path).write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding="utf-8")
-    print(json.dumps({k: v for k, v in report.items() if k not in ("translations", "service_flags")}))
+    print(
+        json.dumps({k: v for k, v in report.items() if k not in ("translations", "service_flags")})
+    )
 
 
 class Back:
@@ -81,7 +83,10 @@ class Back:
 def back(in_path: str, out_path: str) -> None:
     data = json.loads(Path(in_path).read_text(encoding="utf-8"))
     b = Back()
-    res = {sysname: {lang: b.to_en(texts, lang) for lang, texts in by.items()} for sysname, by in data.items()}
+    res = {
+        sysname: {lang: b.to_en(texts, lang) for lang, texts in by.items()}
+        for sysname, by in data.items()
+    }
     Path(out_path).write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
     print("back-translated", {s: list(v) for s, v in res.items()})
 

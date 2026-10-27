@@ -29,14 +29,20 @@ def client():
 
 
 def ask_json(c, model, prompt):
-    from google.genai import types
+    from google.genai import errors, types
 
-    t = time.perf_counter()
-    r = c.models.generate_content(
-        model=model,
-        contents=prompt,
-        config=types.GenerateContentConfig(response_mime_type="application/json", temperature=0),
-    )
+    config = types.GenerateContentConfig(response_mime_type="application/json", temperature=0)
+    for attempt in range(4):  # the trial quota 429s quickly: wait 20, 40, 60 s
+        t = time.perf_counter()
+        try:
+            r = c.models.generate_content(model=model, contents=prompt, config=config)
+            break
+        except errors.ClientError as e:
+            with CALLS.open("a", encoding="utf-8") as f:
+                f.write(f"{model}\t{time.perf_counter() - t:.2f}s\tHTTP {e.code}\n")
+            if e.code != 429 or attempt == 3:
+                raise
+            time.sleep(20 * (attempt + 1))
     dt = time.perf_counter() - t
     u = r.usage_metadata
     with CALLS.open("a", encoding="utf-8") as f:
@@ -55,7 +61,11 @@ def translate():
         )
         out[lang], times[lang] = ask_json(c, LITE, prompt)
     (OUT / "gemini_tr.json").write_text(
-        json.dumps({"model": LITE, "seconds_per_10": times, "translations": out}, ensure_ascii=False, indent=1),
+        json.dumps(
+            {"model": LITE, "seconds_per_10": times, "translations": out},
+            ensure_ascii=False,
+            indent=1,
+        ),
         encoding="utf-8",
     )
     print({k: round(v, 2) for k, v in times.items()})
@@ -79,8 +89,12 @@ def back():
 def systems():
     found = {}
     if (OUT / "it2_forward.json").exists():
-        found["indictrans2"] = json.loads((OUT / "it2_forward.json").read_text(encoding="utf-8"))["translations"]
-    found["gemini"] = json.loads((OUT / "gemini_tr.json").read_text(encoding="utf-8"))["translations"]
+        found["indictrans2"] = json.loads((OUT / "it2_forward.json").read_text(encoding="utf-8"))[
+            "translations"
+        ]
+    found["gemini"] = json.loads((OUT / "gemini_tr.json").read_text(encoding="utf-8"))[
+        "translations"
+    ]
     found["gemini+norm"] = {k: [normalise(t, k) for t in v] for k, v in found["gemini"].items()}
     return found
 
@@ -104,7 +118,9 @@ def judge():
                 f"{len(pairs)} integers.\n\n{json.dumps(pairs, ensure_ascii=False)}"
             )
             scores[f"{system}/{lang}"], _ = ask_json(c, FLASH, prompt)
-    (OUT / "judge.json").write_text(json.dumps({"model": FLASH, "scores": scores}, indent=1), encoding="utf-8")
+    (OUT / "judge.json").write_text(
+        json.dumps({"model": FLASH, "scores": scores}, indent=1), encoding="utf-8"
+    )
     print(scores)
 
 

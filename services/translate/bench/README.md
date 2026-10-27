@@ -38,3 +38,23 @@ use IndicTrans2 indic-en (`bench_it2.py back`) once the weights are available.
 See `results/qa.md`. Gemini Flash-Lite: 50 of 50 outputs pass `run_qa` (chrF 0.71 to 0.87,
 adequacy 4.9 to 5.0); every `[n]` marker and place name kept. QA does not catch stray final
 punctuation (one Hindi `|` for `।`, one Bengali `。`). IndicTrans2: not measured (gated weights).
+
+## Real path (P3, 27 Oct 2026)
+
+`real_answers.json`: 10 real `POST /guide/ask` answers from TY2's seeded local API (Karnataka
+corpus; 8 cited, 2 "no sourced answer"). `real_path.py` splits them into 28 sentences (26 unique)
+and sends them through the running translate service (`TY_TRANSLATOR=gemini`, `TY_MAX_BATCH=64`:
+one Gemini call per language, 4.4 to 9.2 s), then back-translates and judges for `run_qa`.
+
+| Language | Service flags pass | run_qa pass | chrF | Adequacy |
+|---|---|---|---|---|
+| hi | 100% | 100% | 0.794 | 5.0 |
+| kn | 100% | 100% | 0.737 | 5.0 |
+| ta | 100% | 96% (27/28) | 0.708 | 4.86 |
+| te | 100% | 100% | 0.738 | 5.0 |
+| bn | 100% | 100% | 0.724 | 5.0 |
+
+Every `[n]` marker survived; no stray end punctuation. The one Tamil failure is a QA false
+negative: the translation is right, but the back-translation paraphrases ("pillars" for
+colonnades, "evicted" for moved out) and chrF falls under 0.35. The trial quota 429s quickly:
+`gemini.ask_json` now waits 20/40/60 s and `real_path.py` caches each language's QA calls.
