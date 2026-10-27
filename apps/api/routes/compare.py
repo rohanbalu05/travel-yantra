@@ -8,7 +8,9 @@ fake), air the fake air network until SerpApi flights land (P2)."""
 from __future__ import annotations
 
 import datetime as dt
-from dataclasses import dataclass
+import hashlib
+import math
+from dataclasses import dataclass, replace
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -45,6 +47,7 @@ WEIGHTS = Weights(alpha=1.0, beta=0.0, gamma=30.0)  # minutes, plus 30 min per c
 CHANGE_WEIGHT = 0.25  # balanced score: one change counts as a quarter of the best time or cost
 MODE_ORDER = {Mode.rail: 0, Mode.road: 1, Mode.air: 2}
 DEFAULT_DEPART = dt.time(8, 0)
+SEATS_PER_CAR = 4  # road fares are per vehicle; rail and air fares are per person
 
 # Sample city points (centre coordinates, approximate). Aliases map to one key.
 CITIES: dict[str, tuple[str, float, float]] = {
@@ -82,6 +85,7 @@ class CompareRequest(BaseModel):
     depart_time: dt.time = DEFAULT_DEPART
     rank_by: RankBy = "balanced"
     modes: list[Mode] = Field(default_factory=lambda: list(Mode), min_length=1)
+    travellers: int = Field(default=1, ge=1, le=20)  # costs in the response are for the whole party
 
 
 class CityRef(BaseModel):
@@ -91,6 +95,7 @@ class CityRef(BaseModel):
 
 
 class RankedOption(BaseModel):
+    id: str  # stable for the same legs: <mode>-<12 hex>
     rank: int = Field(ge=1)
     changes: int = Field(ge=0)  # vehicle changes, first and last mile transfers included
     score: float = Field(ge=0)
@@ -162,6 +167,19 @@ def _source(e: Edge) -> str:
     return "walk"
 
 
+def _party_cost(e: Edge, travellers: int) -> Edge:
+    if e.mode in ("rail", "air"):
+        return replace(e, cost_inr=e.cost_inr * travellers)
+    if e.mode == "road":
+        return replace(e, cost_inr=e.cost_inr * math.ceil(travellers / SEATS_PER_CAR))
+    return e
+
+
+def option_id(opt: TransportOption) -> str:
+    key = "|".join(f"{leg.from_}>{leg.to}:{leg.mode}:{leg.depart.isoformat()}:{leg.minutes}" for leg in opt.legs)
+    return f"{opt.mode}-{hashlib.sha256(key.encode()).hexdigest()[:12]}"
+
+
 @dataclass
 class Found:
     mode: Mode
@@ -187,11 +205,13 @@ class CompareService:
         add_station_transfers(g, self.road)
         return g
 
-    def _find(self, g: Graph, src: Node, dst: Node, mode: Mode, start: dt.datetime) -> Found | None:
+    def _find(self, g: Graph, src: Node, dst: Node, mode: Mode, start: dt.datetime,
+              travellers: int = 1) -> Found | None:
         res = astar(_slice(g, mode), src.id, dst.id, WEIGHTS, start=start)
         if res is None:
             return None
-        merged = _merge(res.edges)  # one leg per vehicle, built by the same code as search
+        # one leg per vehicle, built by the same code as search
+        merged = tuple(_party_cost(e, travellers) for e in _merge(res.edges))
         opt = _result(merged, res.objective, res.expansions, start).option
         legs = [leg.model_copy(update={"from_": _label(g.nodes[e.src]), "to": _label(g.nodes[e.dst])})
                 for leg, e in zip(opt.legs, merged, strict=True)]
@@ -219,7 +239,7 @@ class CompareService:
         g = self._graph_for([src, dst])
         found, unavailable = [], []
         for mode in sorted(set(req.modes), key=MODE_ORDER.get):
-            f = self._find(g, src, dst, mode, start)
+            f = self._find(g, src, dst, mode, start, req.travellers)
             if f:
                 found.append(f)
             else:
@@ -249,7 +269,7 @@ def rank(found: list[Found], rank_by: RankBy) -> list[RankedOption]:
         "changes": lambda f: (f.changes, f.option.total_minutes, MODE_ORDER[f.mode]),
     }
     ordered = sorted(found, key=keys[rank_by])
-    return [RankedOption(rank=i, changes=f.changes, score=round(score(f), 3), sources=f.sources, option=f.option)
+    return [RankedOption(id=option_id(f.option), rank=i, changes=f.changes, score=round(score(f), 3), sources=f.sources, option=f.option)
             for i, f in enumerate(ordered, 1)]
 
 

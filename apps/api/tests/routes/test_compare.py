@@ -117,6 +117,30 @@ def test_http_compare_returns_contract_shape(client):
     {"origin": "Goa", "destination": "Panaji"},
     {"origin": "Bengaluru", "destination": "Goa", "rank_by": "fastest"},
     {"origin": "Bengaluru", "destination": "Goa", "modes": []},
+    {"origin": "Bengaluru", "destination": "Goa", "travellers": 0},
 ])
 def test_http_compare_rejects_bad_input(client, payload):
     assert client.post("/routes/compare", json=payload).status_code == 422
+
+
+def test_option_ids_are_stable_and_distinct(service):
+    req = CompareRequest(origin="Bengaluru", destination="Goa", date="2026-12-11")
+    ids = [o.id for o in service.compare(req).options]
+    assert ids == [o.id for o in service.compare(req).options]
+    assert len(set(ids)) == 3 and all(i.split("-")[0] in {"rail", "road", "air"} for i in ids)
+
+
+def test_travellers_scale_tickets_per_person_and_cars_per_four(service):
+    def costs(n):
+        r = service.compare(CompareRequest(origin="Bengaluru", destination="Goa", date="2026-12-11",
+                                           travellers=n))
+        return {o.option.mode: o.option for o in r.options}
+
+    one, four, five = costs(1), costs(4), costs(5)
+    assert four[Mode.road].total_cost_inr == one[Mode.road].total_cost_inr
+    assert five[Mode.road].total_cost_inr == 2 * one[Mode.road].total_cost_inr
+    rail_legs = lambda opt: [leg.cost_inr for leg in opt.legs if leg.mode == Mode.rail]  # noqa: E731
+    assert rail_legs(four[Mode.rail]) == [pytest.approx(4 * c, abs=2) for c in rail_legs(one[Mode.rail])]
+    assert four[Mode.air].total_cost_inr > 3 * one[Mode.air].total_cost_inr
+    assert all(o.option.total_cost_inr == sum(leg.cost_inr for leg in o.option.legs)
+               for o in service.compare(CompareRequest(origin="Bengaluru", destination="Goa", travellers=4)).options)
