@@ -154,3 +154,9 @@ async def test_story_has_its_own_working_note(monkeypatch):
 
     await Brain(base=API).handle(text("story Mysore Palace"), notify=notify)
     assert notes == [FINDING_STORY] == ["Finding the story; this takes a few seconds."]
+
+
+async def test_katha_error_log_masks_the_subject(monkeypatch, caplog):
+    fake_http(monkeypatch, katha_api((404, {"detail": "No story for 'Atlantis'"}), (404, {})))
+    await Brain(base=API).handle(text("story Atlantis"))
+    assert "Atlantis" not in caplog.text and "No story for '<subject>'" in caplog.text

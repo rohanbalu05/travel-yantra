@@ -54,7 +54,7 @@ def failed_statuses(payload: dict) -> list[str]:
 def split(text: str, limit: int = MAX_REPLY) -> list[str]:
     """WhatsApp-sized parts: break at a blank line, else a line, else a space; never mid-word
     unless one word is longer than a message."""
-    parts = []
+    text, parts = text.strip(), []
     while len(text) > limit:
         for sep in ("\n\n", "\n", " "):
             cut = text.rfind(sep, 0, limit + 1)
@@ -62,7 +62,8 @@ def split(text: str, limit: int = MAX_REPLY) -> list[str]:
                 break
         else:
             cut = limit
-        parts.append(text[:cut].rstrip())
+        if part := text[:cut].rstrip():
+            parts.append(part)
         text = text[cut:].lstrip()
     return [*parts, text] if text or not parts else parts
 

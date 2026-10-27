@@ -285,3 +285,39 @@ async def test_guide_questions_send_no_planning_note(monkeypatch):
 
     await Brain(base=API).handle(text("What should we eat?"), notify=notify)
     assert notes == []
+
+
+@pytest.mark.parametrize(
+    "msg",
+    [
+        "share a taxi to Hampi",
+        "link to Hampi map",
+        "will it rain tomorrow in Goa",
+        "it will rain tomorrow in Goa",
+        "relaxed places near Mysuru",
+        "is there a lighter option for kids",
+        "skip the queue at Hampi",
+        "replace the hotel",
+    ],
+)
+async def test_guide_questions_using_command_words_reach_the_guide(monkeypatch, msg):
+    seen = fake_http(monkeypatch, lambda req: httpx.Response(200, json={"text": "Here."}))
+    assert await Brain(base=API).handle(text(msg)) == "Here."
+    assert seen[0].url.path == "/guide/ask"
+
+
+@pytest.mark.parametrize(
+    "msg",
+    [
+        "rain",
+        "Share!",
+        "lighter day 2",
+        "day 3 halka",
+        "swap Se Cathedral",
+        "one more day in Mysuru",
+    ],
+)
+async def test_bare_commands_without_a_plan_get_no_plan(monkeypatch, msg):
+    seen = fake_http(monkeypatch, lambda req: httpx.Response(200, json={"text": "Here."}))
+    assert await Brain(base=API).handle(text(msg)) == NO_PLAN
+    assert seen == []

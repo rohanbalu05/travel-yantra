@@ -188,6 +188,21 @@ EXPIRED = "That plan has expired. Send your trip again and I will plan it afresh
 WHICH_DAY = "Which day? For example: lighter day 2"
 
 
+def is_command(text: str, intent: str) -> bool:
+    """A bare follow-up command ("share", "rain day 2", "swap Miramar", "extra day in Coorg"),
+    as opposed to a guide question that happens to use the word ("share a taxi to Hampi")."""
+    words = text.split()
+    if intent == "share":
+        return len(words) <= 2
+    if intent in ("rain", "lighter_day"):
+        return len(words) <= 5 and (DAY_N.search(text) is not None or len(words) == 1)
+    if intent == "swap_stop":
+        return len(words) <= 6 and text.lower().lstrip().startswith("swap")
+    if intent == "move_day":
+        return len(words) <= 7 and MOVE.match(text.strip()) is not None
+    return False
+
+
 def parse_followup(text: str) -> tuple[str, int | None, str | None] | None:
     """(intent, day number, stop or city) for share / lighter / rain / swap / move_day; else None."""
     if SHARE.search(text):
@@ -287,7 +302,9 @@ def sources(answer: GuideAnswer) -> str:
         f"[{i}] {c.title}" + (f" {c.url}" if c.url else "")
         for i, c in enumerate(answer.citations, 1)
     ]
-    first = len(lines) + 1
+    # Past every [n] the answer uses, even one without a citation, so places never collide.
+    used = [int(m) for m in re.findall(r"\[(\d{1,3})\]", answer.text)]
+    first = max([len(lines), *used]) + 1
     lines += [
         f"[{i}] {p.name} https://maps.google.com/?q={round(p.lat, 4)},{round(p.lng, 4)}"
         for i, p in enumerate(answer.emergency_places, first)
@@ -439,8 +456,10 @@ class Brain:
             if not any(follow[2] and follow[2].casefold() in s for s in stops):
                 follow = None
         if follow and user.itinerary is None:
-            log.info("route: follow-up %s without a plan", follow[0])
-            return await self.say(user, NO_PLAN)
+            if is_command(text, follow[0]):
+                log.info("route: follow-up %s without a plan", follow[0])
+                return await self.say(user, NO_PLAN)
+            follow = None  # "share a taxi to Hampi": a question for the guide
         if follow:
             log.info("route: follow-up %s", follow[0])
             return await self.followup(user, *follow)
@@ -627,7 +646,9 @@ class Brain:
                 if r.is_success:
                     return KathaStory.model_validate(r.json())
                 err = ApiError(r.status_code, _detail(r))
-                log.warning("katha as %s: HTTP %s %r", kind, r.status_code, err.detail[:200])
+                # The API's words, with the user's subject masked: logs never carry user text.
+                said = err.detail.replace(what, "<subject>")[:200]
+                log.warning("katha as %s: HTTP %s %r", kind, r.status_code, said)
                 if r.status_code != 404:
                     break
         raise err

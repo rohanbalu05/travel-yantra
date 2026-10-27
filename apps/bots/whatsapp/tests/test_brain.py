@@ -459,3 +459,19 @@ def test_places_follow_citations_numbered_with_short_links():
         "[2] Sample Clinic https://maps.google.com/?q=15.4989,73.8278",
         "[3] Other Clinic https://maps.google.com/?q=15.4989,73.8278",
     ]
+
+
+def test_places_number_past_markers_without_citations():
+    from app.brain import sources
+
+    place = {
+        "id": "c1",
+        "name": "Sample Clinic",
+        "lat": 15.5,
+        "lng": 73.8,
+        "category": "clinic",
+        "typical_visit_minutes": 0,
+        "source": "places",
+    }
+    answer = GuideAnswer.model_validate({"text": "Close by [2].", "emergency_places": [place]})
+    assert sources(answer) == "[3] Sample Clinic https://maps.google.com/?q=15.5,73.8"

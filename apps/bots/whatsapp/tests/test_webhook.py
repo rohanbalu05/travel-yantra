@@ -372,3 +372,9 @@ def test_health_reports_the_deployed_version(bot, monkeypatch):
     assert client.get("/health").json() == {"ok": True, "version": "dev"}
     monkeypatch.setenv("GIT_SHA", "abc1234")
     assert client.get("/health").json() == {"ok": True, "version": "abc1234"}
+
+
+def test_split_never_sends_empty_or_padded_parts():
+    assert split("\n\n" + "a" * 12, limit=10) == ["aaaaaaaaaa", "aa"]
+    assert split("  " + "a" * 12 + "  ", limit=10) == ["aaaaaaaaaa", "aa"]
+    assert split("abc\n\n\n\ndef", limit=4) == ["abc", "def"]
