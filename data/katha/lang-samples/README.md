@@ -1,6 +1,6 @@
 # Katha language samples (rule 12)
 
-Each folder holds one place's story in English and in another language, both told
+Each folder (`<place>-<len>min-<lang>`) holds one place's story in English and in another language, both told
 from the same outline (`notes.json` has the outline, both critiques and the model
 calls). Written by `apps/api/guide/scripts/katha_lang_sample.py`, live, Gemini Flash
 (outline on Flash-Lite).

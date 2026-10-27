@@ -1,0 +1,84 @@
+{
+ "outline": {
+  "theme": "The palace is a survivor that demands you look where others do not.",
+  "hook": "You are standing on ground that has been scorched three times over. Why would a king keep building on the same spot?",
+  "gap": "Why does the palace face the hill?",
+  "people": [
+   "Alamelamma",
+   "The Wodeyar kings"
+  ],
+  "bridge": "Like the palace, we often rebuild our own lives on the foundations of what we have lost.",
+  "peak": "In the Kalyana Mantapa, you are standing beneath a ceiling of cast-iron peacocks that seem to watch you as you look up.",
+  "ending": "The two-headed bird above the gate remains, watching the hill that never moves.",
+  "chapters": [
+   {
+    "title": "The Fourth Foundation",
+    "hook": "The wood of the previous palace turned to ash during a wedding in 1897, leaving only the stone foundations you stand on today.",
+    "gap": "The palace faces the Chamundi hill because the royal family believed the goddess there protected their lineage.",
+    "beats": [
+     {
+      "text": "Three palaces burned before this one, yet the kings returned to this exact soil. People here say that when the queen Alamelamma fled to the Kaveri river in 1610, she cursed the rulers, a shadow that perhaps explains why they clung so tightly to this site.",
+      "facts": [
+       1,
+       3
+      ],
+      "label": "legend"
+     },
+     {
+      "text": "Look up at the arch above the main gate to see the double-headed bird, a symbol of power that has outlasted the fires. It is a quiet detail that most of the millions who visit here—a crowd that often outnumbers those at the Taj Mahal—never notice.",
+      "facts": [
+       2,
+       5
+      ],
+      "label": "history"
+     },
+     {
+      "text": "Walk into the long corridor and trace the oil paintings of the 1930s Dasara procession. When you reach the Durbar Hall, ignore the center; move to the left row to see the light hit the pillars as the kings once did.",
+      "facts": [
+       4,
+       7
+      ],
+      "label": "history"
+     },
+     {
+      "text": "In the Kalyana Mantapa, stop moving. Look up at the glass ceiling and the cast-iron peacocks. You are finally seeing what the crowd misses.",
+      "facts": [
+       6
+      ],
+      "label": "history"
+     },
+     {
+      "text": "Stand at the front and look east toward the temple on Chamundi hill. The palace faces that peak because the kings believed their authority was anchored to the goddess who watches from the summit.",
+      "facts": [
+       8
+      ],
+      "label": "disputed"
+     }
+    ]
+   }
+  ]
+ },
+ "critiques": {
+  "en": [
+   "### Scores and Problems\n\n**Scores:**\n- **Hook:** 4/5 (The first two sentences create a decent question, but a tired traveler might find the curse legend in the third sentence a bit too familiar to keep reading.)\n- **Theme:** 4/5 (The theme of looking where others do not is present, but it gets diluted by focusing too much on the curse and the general crowd size rather than the physical details of survival and hidden views.)\n- **Specifics:** 5/5 (Good use of specific details like the 1930s Dasara procession, Glasgow glass, and the left row of pillars.)\n- **Peak:** 3/5 (The peak in the fourth paragraph lacks emotional resonance; it feels like a list of architectural facts rather than a dramatic climax.)\n- **Ending:** 4/5 (The ending image of the hill and the bird is good, but it ends on a slightly flat note about the hill not moving.)\n- **Honesty:** 5/5 (The draft correctly labels the legends and history, citing the facts accurately.)\n\n**Three Biggest Problems:**\n1. **Weak Hook and Curiosity Gap:** The opening paragraph focuses on a generic curse legend [3] rather than a compelling human struggle or a sharp contradiction. The curiosity gap about \"someone's answer to a fire\" [1] is never clearly opened or closed.\n2. **Lack of a Clear Human Protagonist (People, Not Lists):** The draft lacks a strong central figure wanting something and facing an obstacle. Introducing the regent queen, Kempananjammanni, who had to rebuild after the devastating 1897 fire [1], will ground the history in a human struggle.\n3. **House Style Violations:** The draft uses the forbidden word \"vibrant\" (implied in tone, though not literally used, but it violates the spirit of plain words) and lacks a strong, relatable bridge to the reader's own life regarding how we look at things when we are overwhelmed."
+  ],
+  "kn": [
+   "Hook: 4/5 (Good question, but the transition to the reader's life feels slightly abrupt).\nTheme: 5/5 (Consistently focuses on looking where others do not and the palace as a survivor).\nSpecifics: 4/5 (Good details, but some sensory elements like smell/touch could be sharper).\nPeak: 4/5 (The Durbar Hall perspective works well, but needs a stronger build-up).\nEnding: 5/5 (Ends on a strong visual image of the bird and the hill).\nHonesty: 5/5 (Citations are accurate and legends are clearly labeled).\n\nThree biggest problems:\n1. The draft uses some bookish Kannada phrasing (e.g., \"ಸಂಕೇತವಿದು\", \"ಅಡಿಪಾಯದ ಮೇಲೆಯೇ\") which sounds slightly formal rather than like a natural spoken story.\n2. The bridge to the reader's life in the first paragraph feels a bit disconnected from the physical space of the palace.\n3. The sensory details (touching the oil paintings in [HISTORY]) need to be more realistic, as visitors cannot actually touch the historic paintings."
+  ]
+ },
+ "trim": {
+  "en": "trimmed 446 -> 321 words",
+  "kn": null
+ },
+ "calls": [
+  "katha model call: outline Mysore Palace 2min 6.3s",
+  "katha model call: draft Mysore Palace ch1/1 en 11.1s",
+  "katha model call: critique Mysore Palace ch1/1 en 14.6s",
+  "katha model call: trim Mysore Palace 2min en 3.0s",
+  "katha model call: draft Mysore Palace ch1/1 kn 16.9s",
+  "katha model call: critique Mysore Palace ch1/1 kn 5.0s",
+  "katha kn attempt 1 failed checks: ['length 164 words, want 165-300 for 2 min']",
+  "katha model call: draft Mysore Palace ch1/1 kn 18.1s",
+  "katha model call: critique Mysore Palace ch1/1 kn 5.3s"
+ ]
+}

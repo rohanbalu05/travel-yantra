@@ -41,8 +41,9 @@ BANNED_LANG = {
 BANDS = {2: (220, 400), 5: (580, 950), 10: (1150, 1850)}
 #: The same minutes hold a different number of words in each language. Hindi keeps its
 #: postpositions apart (the live Mysore Palace pair: 377 Hindi words for 344 English);
-#: Kannada joins them into long words, so fewer (an estimate; recheck with live samples).
-WORD_FACTOR = {"en": 1.0, "hi": 1.1, "kn": 0.75}
+#: Kannada joins them into long words (its live pair: 170 words told what 321 English did).
+#: One pair each, so recheck as samples grow.
+WORD_FACTOR = {"en": 1.0, "hi": 1.1, "kn": 0.6}
 
 
 def band(length_min: int, lang: str = "en") -> tuple[int, int]:

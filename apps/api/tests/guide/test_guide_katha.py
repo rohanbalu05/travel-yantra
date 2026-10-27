@@ -459,7 +459,7 @@ def test_kannada_cues_counts_and_band() -> None:
     assert checks.legend_told("ತಲಕಾಡಿನ ಶಾಪದ ಪ್ರತೀತಿ ಇದೆ.", "kn")
     assert not checks.legend_told("ಇಲ್ಲಿ ಒಬ್ಬ ರಾಕ್ಷಸ ಇದ್ದ [1].", "kn")
     assert checks.words("ಮೈಸೂರು ಅರಮನೆಯನ್ನು 1912ರಲ್ಲಿ ಕಟ್ಟಲಾಯಿತು [1, 2].", "kn") == 4
-    assert checks.band(2, "kn") == (165, 300) and checks.band(2, "hi") == (242, 440)
+    assert checks.band(2, "kn") == (132, 240) and checks.band(2, "hi") == (242, 440)
     assert checks.band(2) == checks.BANDS[2]
     assert checks.slop("ಅರಮನೆಯ ಮುಂದೆ ಮಲ್ಲಿಗೆ ಮಾರುವವರು ಕುಳಿತಿದ್ದಾರೆ.", "kn") == []
 

@@ -5,7 +5,7 @@ in the order gather() uses.
     cd apps/api && TY_FAKE_LLM=0 uv run python -m guide.scripts.katha_lang_sample \\
         ["Mysore Palace"] [2|5|10] [hi]
 
-Writes data/katha/lang-samples/<place>-<len>min/: en.md, <lang>.md and notes.json
+Writes data/katha/lang-samples/<place>-<len>min-<lang>/: en.md, <lang>.md and notes.json
 (the shared outline, both critiques, the model calls with their times).
 """
 
@@ -61,7 +61,7 @@ async def main(place: str, length: int, lang: str) -> None:
     outline = await plan(model, subject, length, facts)
     en, en_notes = await write(model, subject, length, facts, "en", outline=outline)
     other, other_notes = await write(model, subject, length, facts, lang, outline=outline)
-    folder = OUT / f"{_slug(place)}-{length}min"
+    folder = OUT / f"{_slug(place)}-{length}min-{lang}"  # one pair, one outline, per folder
     folder.mkdir(parents=True, exist_ok=True)
     (folder / "en.md").write_text(story_md(en), encoding="utf-8")
     (folder / f"{lang}.md").write_text(story_md(other), encoding="utf-8")
