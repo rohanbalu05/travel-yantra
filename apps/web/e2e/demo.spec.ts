@@ -103,6 +103,18 @@ test("study: ty arm plans in the app, baseline arm uses the timer with no app na
   await expect(page.getByText("Thank you. You can close this tab.")).toBeVisible();
 });
 
+test("privacy and data-deletion pages are public and linked from the footer", async ({ page }) => {
+  await page.goto("/home/");
+  await page.getByRole("contentinfo").getByRole("link", { name: "Privacy policy" }).click();
+  await expect(page).toHaveURL(/\/privacy\/$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Privacy policy");
+  await expect(page.getByRole("link", { name: "rohan@aizyantra.com" }).first()).toHaveAttribute("href", "mailto:rohan@aizyantra.com");
+  await page.getByRole("contentinfo").getByRole("link", { name: "Delete your data" }).click();
+  await expect(page).toHaveURL(/\/data-deletion\/$/);
+  await expect(page.getByText(/delete my data/i).first()).toBeVisible();
+  await noSidewaysScroll(page);
+});
+
 test("a shared plan opens read only", async ({ page }) => {
   await page.goto("/t/sample-goa-family/");
   await expect(page.getByText("Shared plan, read only")).toBeVisible();
