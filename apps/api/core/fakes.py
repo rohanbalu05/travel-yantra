@@ -13,14 +13,14 @@ SAMPLES = Path(__file__).resolve().parents[3] / "packages" / "contracts" / "samp
 
 
 @lru_cache
-def _sample(name: str) -> Itinerary:
+def sample(name: str) -> Itinerary:
     data = json.loads((SAMPLES / name).read_text(encoding="utf-8"))
     return Itinerary.model_validate(data["itinerary"])
 
 
 def _sample_for(request: dict) -> Itinerary:
     wanted = {d.lower() for d in request["destinations"]}
-    return _sample("mysuru_weekend.json" if "mysuru" in wanted else "goa_family.json")
+    return sample("mysuru_weekend.json" if "mysuru" in wanted else "goa_family.json")
 
 
 def _dump(obj) -> dict | list:
