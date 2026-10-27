@@ -30,6 +30,19 @@ cd apps/mcp && uv run python server.py   # http://localhost:8080/mcp
 
 Clients with an add command, for example: `<client> mcp add --transport http travel-yantra http://localhost:8080/mcp`
 
+## Live
+
+`https://ty-mcp-643396702106.asia-south1.run.app/mcp` (Cloud Run `ty-mcp`). It is private until Rohan
+grants allUsers the invoker role; until then outside clients get 403.
+
+## OpenClaw
+
+`openclaw/travel-yantra/` is an OpenClaw skill (AgentSkills format). Copy the folder into
+`~/.openclaw/skills/` (or `<workspace>/skills/`). `SKILL.md` tells the agent to run
+`scripts/ty.py` (Python 3, stdlib only), which calls the public API: `plan`, `revise`, `compare`,
+`katha`, `ask`, `pnr`, each printing one JSON object. Once ty-mcp is public, `mcp.json` adds the
+MCP server to OpenClaw's config instead. Tests: `tests/test_openclaw.py` (fake API).
+
 ## Test
 
 ```
