@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -249,3 +250,56 @@ def test_a_goa_place_gets_a_story(db) -> None:
     story = run(db, subject_kind="place", subject="goa-basilica-of-bom-jesus", length_min=2)
     assert story.subject == "Basilica of Bom Jesus" and story.sources
     assert all("wikipedia.org" in s for s in story.sources)
+
+
+# --- the trim step: an over-long story is cut once, inside its band, before the checks ---
+
+
+class LongWinded(FakeKathaModel):
+    """Drafts about 560 words for a 2-minute story, like the live model did."""
+
+    def __init__(self, trims: bool = True) -> None:
+        self.trims, self.labels = trims, []
+
+    async def json(self, *a, **k):
+        self.labels.append(k.get("label"))
+        return await super().json(*a, **k)
+
+    async def text(self, prompt, tier="flash", **k):
+        self.labels.append(k.get("label"))
+        if prompt.startswith("This spoken story") and not self.trims:
+            return prompt.split("Story:\n\n", 1)[1]  # "cut" that changes nothing
+        return await super().text(prompt.replace("between 242 and", "between 560 and"), tier, **k)
+
+
+def long_facts() -> list[Fact]:
+    bodies = ["The stone bell by the east gate was cast in 1886 for the river festival.",
+              "Flower sellers here string Mysore mallige jasmine before the sun is up.",
+              "Iron pillars brought by rail still hold up the old market roof."]  # fmt: skip
+    return [Fact(n=i + 1, chunk_id=200 + i, city="Mysuru", title=f"T{i}", body=b,
+                 is_legend=False, source_name="S", source_url=f"https://s/{i}")
+            for i, b in enumerate(bodies)]  # fmt: skip
+
+
+def test_an_over_long_story_is_trimmed_into_its_band() -> None:
+    from guide.katha.facts import Subject
+    from guide.katha.pipeline import write
+
+    model = LongWinded()
+    subject = Subject(kind="place", name="Devaraja Market", city="Mysuru", poi_ids=[1])
+    story, notes = asyncio.run(write(model, subject, 2, long_facts()))
+    low, high = checks.BANDS[2]
+    assert low <= checks.words(story.text) <= high
+    before, after = (int(n) for n in re.findall(r"\d+", notes["trim"]))
+    assert notes["trim"].startswith("trimmed") and before > high >= after
+    assert model.labels == ["katha outline", "katha draft", "katha critique", "katha trim"]
+
+
+def test_a_trim_that_misses_the_band_is_never_shipped() -> None:
+    from guide.katha.facts import Subject
+    from guide.katha.pipeline import write
+
+    subject = Subject(kind="place", name="Devaraja Market", city="Mysuru", poi_ids=[1])
+    with pytest.raises(KathaFailed) as e:
+        asyncio.run(write(LongWinded(trims=False), subject, 2, long_facts()))
+    assert any("length" in p for p in e.value.problems)

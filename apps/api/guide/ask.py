@@ -223,6 +223,7 @@ class ModelAnswerer:
             thinking="minimal",
             max_output_tokens=MAX_TOKENS,
             temperature=0.2,
+            label="guide ask",
         )
 
 

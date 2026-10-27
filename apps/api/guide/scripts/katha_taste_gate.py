@@ -110,7 +110,8 @@ async def main(max_pairs: int | None = None) -> None:
             try:
                 story, notes = await write(model, subject, length, facts)
                 plain = await model.text(plain_prompt(subject, length), tier="flash", thinking="low",
-                                         max_output_tokens=3500, temperature=0.7, timeout_s=60)  # fmt: skip
+                                         max_output_tokens=3500, temperature=0.7, timeout_s=60,
+                                         label="katha plain")  # fmt: skip
             except Exception as e:  # 504s and the like: note it, move on, a re-run retries the pair
                 if not isinstance(e, KathaFailed):
                     (folder / "failed.json").write_text(

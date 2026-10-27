@@ -6,7 +6,8 @@ Model calls go through core.llm. Each is logged on logger guide.katha with its
 step, so the live calls behind a taste-gate pack can be counted.
 
 The 10-minute story is written and revised chapter by chapter: each call stays
-short enough for one timeout, and each chapter gets its own hook.
+short enough for one timeout, and each chapter gets its own hook. A story that
+runs past its word band gets one trim call before the checks.
 """
 
 from __future__ import annotations
@@ -44,6 +45,9 @@ MARKER_RUN = re.compile(rf"{checks.MARKER.pattern}(?:\s*{checks.MARKER.pattern})
 SEPARATOR = re.compile(r"^\s*={3,}\s*$", re.M)
 #: A rewrite much shorter than its draft was cut off, not edited; keep the draft.
 MIN_REWRITE_RATIO = 0.85
+#: An over-long story is cut to this share of its band's top: drafts and rewrites run
+#: long (2-minute stories came back at 410-580 words against 400).
+TRIM_TO = 0.9
 
 
 class KathaFailed(RuntimeError):
@@ -157,6 +161,15 @@ def critique_prompt(subject: Subject, outline: Outline, draft: str, words: int, 
     )
 
 
+def trim_prompt(subject: Subject, text: str, target: int) -> str:
+    return (
+        f"This spoken story about {subject.name} is too long. Cut it to about {target} words, "
+        "never more. Cut whole sentences and asides; keep the opening hook, the peak and the last "
+        "line, every label line, and the citations of the sentences you keep exactly as they are. "
+        f"Add nothing and reword nothing else.\n\n{FORMAT}\n\nStory:\n\n{text}"
+    )
+
+
 def parse(text: str) -> list[tuple[str, str]]:
     """[(label, paragraph)] from the labelled format; text before the first label is dropped."""
     parts = LABEL_LINE.split(text)
@@ -207,10 +220,10 @@ async def _chapter(model: Any, subject, length, outline, i, facts, words) -> tup
     where = f"{subject.name} ch{i + 1}/{len(outline.chapters)}"
     draft = await _timed(f"draft {where}", model.text(
         draft_prompt(subject, length, outline, i, facts), tier="flash", thinking="minimal",
-        max_output_tokens=MAX_TOKENS, temperature=0.7, timeout_s=TIMEOUT_S))  # fmt: skip
+        max_output_tokens=MAX_TOKENS, temperature=0.7, timeout_s=TIMEOUT_S, label="katha draft"))  # fmt: skip
     reply = await _timed(f"critique {where}", model.text(
         critique_prompt(subject, outline, draft, words, facts), tier="flash", thinking="minimal",
-        max_output_tokens=MAX_TOKENS, temperature=0.4, timeout_s=TIMEOUT_S))  # fmt: skip
+        max_output_tokens=MAX_TOKENS, temperature=0.4, timeout_s=TIMEOUT_S, label="katha critique"))  # fmt: skip
     parts = SEPARATOR.split(reply)
     critique, revised = (parts[0], parts[-1]) if len(parts) > 1 else (reply, "")
     # No separator, no labels, or a rewrite that was cut short: keep the draft.
@@ -223,6 +236,21 @@ def _words(text: str) -> int:
     return checks.words(" ".join(p for _, p in parse(text)))
 
 
+async def _trim(model: Any, subject: Subject, text: str, length: int) -> tuple[str, str | None]:
+    """(text, note): one cut when the story runs past its band. The cut is kept only if it
+    lands inside the band and cites nothing the story did not already cite."""
+    low, high = checks.BANDS[length]
+    if (before := _words(text)) <= high:
+        return text, None
+    cut = await _timed(f"trim {subject.name} {length}min", model.text(
+        trim_prompt(subject, text, int(high * TRIM_TO)), tier="flash", thinking="minimal",
+        max_output_tokens=MAX_TOKENS, temperature=0.2, timeout_s=TIMEOUT_S, label="katha trim"))  # fmt: skip
+    after = _words(cut)
+    if parse(cut) and low <= after <= high and set(checks.citations(cut)) <= set(checks.citations(text)):
+        return cut, f"trimmed {before} -> {after} words"
+    return text, f"trim not used: {before} -> {after} words"
+
+
 async def write(model: Any, subject: Subject, length_min: int, facts: list[Fact], lang: str = "en"):
     """(KathaStory, notes). notes keeps the outline and the critiques for the taste gate."""
     length = fitting_length(length_min, len(facts))
@@ -232,7 +260,7 @@ async def write(model: Any, subject: Subject, length_min: int, facts: list[Fact]
     for attempt in range(1, ATTEMPTS + 1):
         outline = await _timed(f"outline {subject.name} {length}min", model.json(
             outline_prompt(subject, length, facts), Outline,
-            tier=OUTLINE_TIER, thinking="minimal", timeout_s=TIMEOUT_S))  # fmt: skip
+            tier=OUTLINE_TIER, thinking="minimal", timeout_s=TIMEOUT_S, label="katha outline"))  # fmt: skip
         low, high = checks.BANDS[length]
         words = low * 11 // 10 // max(len(outline.chapters), 1)
         texts, critiques = [], []
@@ -240,7 +268,8 @@ async def write(model: Any, subject: Subject, length_min: int, facts: list[Fact]
             text, critique = await _chapter(model, subject, length, outline, i, facts, words)
             texts.append(text)
             critiques.append(critique)
-        segments = parse("\n\n".join(texts))
+        text, trim = await _trim(model, subject, "\n\n".join(texts), length)
+        segments = parse(text)
         problems = checks.problems(segments, len(facts), length)
         if not problems:
             story_segments, sources = renumber(segments, facts)
@@ -249,9 +278,10 @@ async def write(model: Any, subject: Subject, length_min: int, facts: list[Fact]
                 text="\n\n".join(s.text for s in story_segments),
                 segments=story_segments, sources=sources, lang=lang,
             )  # fmt: skip
-            return story, {"outline": outline.model_dump(), "critiques": critiques, "attempts": attempt}
+            notes = {"outline": outline.model_dump(), "critiques": critiques, "attempts": attempt}
+            return story, notes | ({"trim": trim} if trim else {})
         log.warning("katha attempt %d failed checks: %s", attempt, problems)
-    raise KathaFailed(problems, texts)
+    raise KathaFailed(problems, [text])
 
 
 def plain_prompt(subject: Subject, length_min: int) -> str:
