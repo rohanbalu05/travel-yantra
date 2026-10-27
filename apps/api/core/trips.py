@@ -11,7 +11,8 @@ import secrets
 import threading
 import uuid
 from collections import OrderedDict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Protocol
 
@@ -30,6 +31,7 @@ class Trip:
     itinerary: Itinerary
     owner: str | None = None
     revised_from: str | None = None
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 def new_ids() -> tuple[str, str]:
@@ -41,6 +43,8 @@ class TripStore(Protocol):
     def save(self, itinerary: Itinerary, owner: str | None = None, revised_from: str | None = None) -> Trip: ...
     def get(self, trip_id: str) -> Trip | None: ...
     def by_share_token(self, token: str) -> Trip | None: ...
+    def by_owner(self, owner: str) -> list[Trip]: ...
+    def delete_owner(self, owner: str) -> int: ...
 
 
 class MemoryStore:
@@ -63,6 +67,17 @@ class MemoryStore:
 
     def by_share_token(self, token: str) -> Trip | None:
         return next((t for t in list(self._trips.values()) if secrets.compare_digest(t.share_token, token)), None)
+
+    def by_owner(self, owner: str) -> list[Trip]:
+        """Newest first."""
+        return sorted((t for t in list(self._trips.values()) if t.owner == owner), key=lambda t: t.created_at, reverse=True)
+
+    def delete_owner(self, owner: str) -> int:
+        with self._lock:
+            gone = [k for k, t in self._trips.items() if t.owner == owner]
+            for k in gone:
+                del self._trips[k]
+        return len(gone)
 
 
 class PgStore:
@@ -88,17 +103,33 @@ class PgStore:
             )
         return Trip(trip_id, token, itinerary, owner, revised_from)
 
+    _COLUMNS = "id, share_token, itinerary, owner, revised_from, created_at"
     _SELECT = {
-        "id": "SELECT id, share_token, itinerary, owner, revised_from FROM trips WHERE id = %s",
-        "share_token": "SELECT id, share_token, itinerary, owner, revised_from FROM trips WHERE share_token = %s",
+        "id": f"SELECT {_COLUMNS} FROM trips WHERE id = %s",
+        "share_token": f"SELECT {_COLUMNS} FROM trips WHERE share_token = %s",
     }
+
+    @staticmethod
+    def _trip(row) -> Trip:
+        return Trip(row[0], row[1], Itinerary.model_validate(row[2]), row[3], row[4], row[5])
 
     def _one(self, key: str, value: str) -> Trip | None:
         with self._connect() as conn:
             row = conn.execute(self._SELECT[key], (value,)).fetchone()
-        if row is None:
-            return None
-        return Trip(row[0], row[1], Itinerary.model_validate(row[2]), row[3], row[4])
+        return None if row is None else self._trip(row)
+
+    def by_owner(self, owner: str) -> list[Trip]:
+        with self._connect() as conn:
+            rows = conn.execute(f"SELECT {self._COLUMNS} FROM trips WHERE owner = %s ORDER BY created_at DESC",
+                                (owner,)).fetchall()
+        return [self._trip(r) for r in rows]
+
+    def delete_owner(self, owner: str) -> int:
+        with self._connect() as conn, conn.transaction():
+            # Revisions of these trips may belong to nobody; unlink them before the delete.
+            conn.execute("UPDATE trips SET revised_from = NULL WHERE revised_from IN "
+                         "(SELECT id FROM trips WHERE owner = %s)", (owner,))
+            return conn.execute("DELETE FROM trips WHERE owner = %s", (owner,)).rowcount
 
     def get(self, trip_id: str) -> Trip | None:
         return self._one("id", trip_id)

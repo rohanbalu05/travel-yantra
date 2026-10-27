@@ -1,7 +1,7 @@
 import asyncio
 import os
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 
 from ty_contracts import (
@@ -13,11 +13,14 @@ from ty_contracts import (
     TripRequest,
 )
 
+from .accounts import client_id, keeps_history
+from .accounts import router as accounts_router
 from .pipeline import revise_events, run_plan
 from .revise import ReviseError, revise
 from .trips import get_store
 
 router = APIRouter()
+router.include_router(accounts_router)
 # Seconds between SSE comment keepalives while a step is still running (Cloud Run drops idle streams).
 PING_SECONDS = 15.0
 
@@ -54,14 +57,15 @@ def stream(events) -> StreamingResponse:
 
 
 @router.post("/plan")
-async def plan(body: TripRequest | PlanText):
+async def plan(body: TripRequest | PlanText, client: str | None = Depends(client_id)):
     """POST a TripRequest (form) or PlanText (free text). Streams PlanEvents as Server-Sent Events;
-    the stream ends after the first done, needs_input or error event."""
-    return stream(run_plan(body))
+    the stream ends after the first done, needs_input or error event. With X-Client-Id and the plan_history
+    consent, the finished trip is listed in /me/trips."""
+    return stream(run_plan(body, client))
 
 
 @router.post("/plan/{plan_id}/revise")
-async def revise_plan(plan_id: str, body: ReviseRequest):
+async def revise_plan(plan_id: str, body: ReviseRequest, client: str | None = Depends(client_id)):
     """Lighter day, swap a stop, or a rain plan. 404 for an unknown plan, 422 when the day or stop is not
     in it; otherwise streams PlanEvents ending in done with a new plan_id (the old plan is kept)."""
     # Store calls (Postgres) and the solver are blocking; keep them off the event loop.
@@ -75,7 +79,8 @@ async def revise_plan(plan_id: str, body: ReviseRequest):
 
     async def events():
         yield PlanEvent(stage=PlanStage.intake, message="Revising your plan…")
-        for event in await asyncio.to_thread(revise_events, trip.id, revised, what, rounds):
+        owner = client if client and await asyncio.to_thread(keeps_history, client) else None
+        for event in await asyncio.to_thread(revise_events, trip.id, revised, what, rounds, owner):
             yield event
 
     return stream(events())

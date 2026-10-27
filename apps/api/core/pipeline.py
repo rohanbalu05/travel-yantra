@@ -25,6 +25,7 @@ from ty_contracts import (
 )
 
 from . import llm, steps
+from .accounts import keeps_history
 from .repair import MAX_ROUNDS
 from .trips import get_store
 
@@ -88,7 +89,7 @@ def _event(author: str, message: str, state: dict, delta: dict) -> PlanEvent:
     )
 
 
-async def run_plan(body: TripRequest | PlanText) -> AsyncIterator[PlanEvent]:
+async def run_plan(body: TripRequest | PlanText, client: str | None = None) -> AsyncIterator[PlanEvent]:
     """Yield one PlanEvent per finished step, then one terminal event (done, needs_input or error). Never raises."""
     # First answer at once (card #38): before any ADK setup or model call.
     if isinstance(body, TripRequest):
@@ -121,7 +122,9 @@ async def run_plan(body: TripRequest | PlanText) -> AsyncIterator[PlanEvent]:
         finally:
             await events.aclose()
         final = Itinerary.model_validate(state["itinerary"])
-        trip = await asyncio.to_thread(lambda: get_store().save(final))
+        # Linked to the caller's id only if it opted in to plan history (checked here, not before the first event).
+        owner = client if client and await asyncio.to_thread(keeps_history, client) else None
+        trip = await asyncio.to_thread(lambda: get_store().save(final, owner=owner))
         yield PlanEvent(stage=PlanStage.done, message="Done", partial=final, plan_id=trip.id, share_token=trip.share_token)
     except Exception as exc:
         log.exception("plan failed")
@@ -130,9 +133,9 @@ async def run_plan(body: TripRequest | PlanText) -> AsyncIterator[PlanEvent]:
         yield PlanEvent(stage=PlanStage.error, message="Planning failed. Please try again.", retryable=retryable)
 
 
-def revise_events(old_id: str, revised: Itinerary, what: str, rounds: int) -> list[PlanEvent]:
+def revise_events(old_id: str, revised: Itinerary, what: str, rounds: int, owner: str | None = None) -> list[PlanEvent]:
     """The revise stream (card #20): what changed, the check result, then done with the new trip's ids."""
-    trip = get_store().save(revised, revised_from=old_id)
+    trip = get_store().save(revised, owner=owner, revised_from=old_id)
     checked = "Plan checks passed" if rounds == 0 else f"Checked and repaired in {rounds} round{'s' * (rounds > 1)}"
     return [
         PlanEvent(stage=PlanStage.solving, step=PlanStep.solver, message=what, partial=revised),
