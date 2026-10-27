@@ -79,7 +79,7 @@ def test_parse_and_renumber_share_sources_and_order_markers() -> None:
 # --- the taste-gate pack, when it is there: every Katha version passes the checker ---
 
 
-@pytest.mark.parametrize("path", sorted(TASTE_GATE.glob("*/katha.json")), ids=lambda p: p.parent.name)
+@pytest.mark.parametrize("path", sorted(TASTE_GATE.glob("key/*/katha.json")), ids=lambda p: p.parent.name)
 def test_taste_gate_katha_is_clean(path) -> None:
     story = json.loads(path.read_text(encoding="utf-8"))
     segments = [(s["label"], s["text"]) for s in story["segments"]]

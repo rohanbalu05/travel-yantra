@@ -42,6 +42,8 @@ class FakeKathaModel:
         if prompt.startswith("Here is a draft"):
             draft = prompt.split("Draft:\n\n", 1)[1].rsplit("\n\nFacts:\n\n", 1)[0]
             return "hook 4, theme 4, specifics 4, peak 3, ending 3, honesty 5\n===\n" + draft
+        if "\n" not in prompt:  # the taste gate's plain prompt
+            return f"(sample) A plain story. {prompt}"
         target = int(re.search(r"about (\d+) words", prompt).group(1))
         facts = _facts(prompt)
         paras, words, i = [], 0, 0
