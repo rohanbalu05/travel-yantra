@@ -157,7 +157,7 @@ const bearer = (token: string | null): Record<string, string> => ({ ...clientHea
 export async function saveConsents(next: Consents) {
   const r = await tryApi((token) => apiJSON<Me>("/me/consents", { method: "PUT", body: next, headers: bearer(token) }));
   const a = load();
-  // Withdrawing "Keep my trips" also removes the trips kept under it (DPDP: stop using it, and erase it).
+  // Withdrawing "Keep my trips" clears this browser’s list. TY1 keeps server trips until DELETE /me (asked to erase on withdrawal).
   const trips = next.plan_history ? a.trips : [];
   const saved = r.ok ? { ...NO_CONSENTS, ...r.value.consents } : next;
   store({ ...a, trips, consents: saved, consents_updated_at: (r.ok && r.value.consents_updated_at) || new Date().toISOString() });

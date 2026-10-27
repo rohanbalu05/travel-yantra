@@ -51,7 +51,7 @@ function StudyConsent() {
             </ul>
           </div>
         </div>
-        <p className="hint" style={{ margin: 0 }}>{t("This stops when you close this tab. You can stop at any time.")}</p>
+        <p className="hint" style={{ margin: 0 }}>{t("This stops when you close this tab. To stop sooner, close this tab.")}</p>
         <div className="row-wrap">
           <button type="button" className="btn btn-primary btn-lg" onClick={agree}>{t("I agree, start")}</button>
           {arm === "ty" && <button type="button" className="btn btn-quiet" onClick={() => router.push("/home/")}>{t("No, just use the app")}</button>}

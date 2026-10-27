@@ -11,7 +11,7 @@ import "./settings.css";
 // DPDP: each use of personal data has its own consent, off until the person turns it on.
 // title and what are dictionary keys, translated where they are shown.
 const PURPOSES: { key: keyof Consents; title: string; what: string }[] = [
-  { key: "plan_history", title: "Keep my trips", what: "Save the plans you make so they appear in My trips. Turning it off also deletes the trips saved so far." },
+  { key: "plan_history", title: "Keep my trips", what: "Save the plans you make so they appear in My trips. Turning it off stops saving and clears this browser’s list; Delete my data removes saved trips from our servers." },
   { key: "location", title: "Use my location for emergencies", what: "Lets the guide use where you are, only when you tap Share my location, to find the nearest hospital, police or pharmacy." },
   { key: "analytics", title: "Help us measure Travel Yantra", what: "Sends anonymous timings (when you start, see a plan and pick a booking) with a random id. No name, email or trip details." },
 ];

@@ -31,16 +31,16 @@ export default function PrivacyPage() {
         <p>We do not ask for your name, phone number or payment details on the web, and we never take card numbers, UPI ids or OTPs. Bookings happen on the seller&apos;s own site, under their policy.</p>
 
         <h2 className="h3">Consent (DPDP Act, 2023)</h2>
-        <p>Each use above that needs consent has its own switch in <Link href="/settings/">Settings</Link>, off until you turn it on: <i>Keep my trips</i>, <i>Use my location for emergencies</i> and <i>Help us measure</i>. Your location is read only when you tap <i>Share my location</i>, and only sent with that question to the guide. You can turn any of them off at any time; turning off <i>Keep my trips</i> also deletes the trips saved under it.</p>
+        <p>Each use above that needs consent has its own switch in <Link href="/settings/">Settings</Link>, off until you turn it on: <i>Keep my trips</i>, <i>Use my location for emergencies</i> and <i>Help us measure</i>. Your location is read only when you tap <i>Share my location</i>, and only sent with that question to the guide. You can turn any of them off at any time; turning off <i>Keep my trips</i> stops saving new trips and clears the list in your browser. To delete the trips already saved on our servers, use <i>Delete my data</i>.</p>
 
         <h2 className="h3">WhatsApp</h2>
         <p>If you plan with our WhatsApp bot, it keeps only your current plan and your language, in memory, to continue the conversation. Messages pass through WhatsApp (Meta) under its own terms.</p>
 
         <h2 className="h3">Who processes it</h2>
-        <p>We run on Google Cloud in India (Mumbai region). Your trip request and your questions are processed by Google&apos;s Gemini models on Vertex AI to write plans, stories and answers. Places come from Google Maps data and stories cite public sources such as Wikipedia and Wikivoyage.</p>
+        <p>Our servers and database run on Google Cloud in India (Mumbai region). Your trip request and your questions are sent to Google&apos;s Gemini models on Vertex AI to write plans, stories and answers; Google may process those requests outside India. Places come from Google Maps data and stories cite public sources such as Wikipedia and Wikivoyage.</p>
 
         <h2 className="h3">Deleting your data</h2>
-        <p>See <Link href="/data-deletion/">how to delete your data</Link>. In short: Settings → Delete my data on the web, or send &quot;delete my data&quot; to the WhatsApp bot, or email us.</p>
+        <p>See <Link href="/data-deletion/">how to delete your data</Link>. In short: Settings → Delete my data on the web, or email us (this also covers WhatsApp).</p>
 
         <h2 className="h3">Questions or complaints</h2>
         <p>Email <a href={`mailto:${CONTACT}`}>{CONTACT}</a>.</p>
