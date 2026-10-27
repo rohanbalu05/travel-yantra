@@ -76,4 +76,7 @@ def test_goa_corridor_has_at_least_ten_places_with_native_names() -> None:
     assert len(named) >= 10
     basilica = next(p for p in goa if p.name == "Basilica of Bom Jesus")
     assert basilica.native_names["kn"] and basilica.id == "goa-basilica-of-bom-jesus"
-    assert basilica.opening_hours == []  # not in Wikimedia: unknown, not invented
+    # Hours from Places where it confirmed them; unknown (empty), never invented, where not.
+    assert len(basilica.opening_hours) == 7 and basilica.opening_hours[0].day == "mon"
+    divar = next(p for p in goa if p.name == "Divar Island")
+    assert divar.opening_hours == []

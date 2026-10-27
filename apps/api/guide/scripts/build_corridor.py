@@ -20,6 +20,7 @@ import time
 from datetime import date
 
 from guide.retrieval.seed import DATA
+from guide.scripts.enrich_places import km
 from guide.wiki import WikiClient, paragraphs
 
 OUT = DATA / "corridor"
@@ -27,6 +28,15 @@ MAX_CHUNKS = 6  # per place: the lead and the history, not the whole article
 PAUSE_S = 0.3  # between live requests
 
 #: (Wikipedia title, display name or None, category, minutes, district, popularity)
+#: Where a region's places may be: a page that resolves to a namesake abroad
+#: ("Fontainhas" is in Cape Verde, "Forte dos Reis Magos" in Brazil) is skipped.
+BBOX = {"goa": (14.85, 15.85, 73.65, 74.35)}  # lat min, lat max, lng min, lng max
+#: Wikidata and Wikipedia disagreeing by more than this: Wikipedia's coordinates win
+#: (Wikidata put Shantadurga Temple 23 km off, near Panaji).
+MAX_DISAGREE_KM = 3.0
+#: The temple page has no coordinates and Wikidata's are 8 km off; the village's are right.
+COORDS_PAGE = {"Mangueshi Temple": "Mangueshi"}
+
 REGIONS = {
     "goa": {
         "city": "Goa",
@@ -35,10 +45,10 @@ REGIONS = {
             ("Basilica of Bom Jesus", None, "monument", 60, "North Goa", 5),
             ("Se Cathedral", None, "monument", 45, "North Goa", 5),
             ("Church and Convent of St. Francis of Assisi", "Church of St. Francis of Assisi", "monument", 30, "North Goa", 4),
-            ("Fontainhas", None, "experience", 90, "North Goa", 5),
+            ("Fontainhas (quarter)", "Fontainhas", "experience", 90, "North Goa", 5),
             ("Our Lady of the Immaculate Conception Church, Goa", "Immaculate Conception Church, Panaji", "monument", 30, "North Goa", 4),
             ("Fort Aguada", None, "monument", 75, "North Goa", 5),
-            ("Forte dos Reis Magos", "Reis Magos Fort", "monument", 60, "North Goa", 4),
+            ("Reis Magos", "Reis Magos Fort", "monument", 60, "North Goa", 4),
             ("Chapora Fort", None, "viewpoint", 60, "North Goa", 4),
             ("Calangute", "Calangute Beach", "nature", 120, "North Goa", 4),
             ("Anjuna", "Anjuna Beach", "nature", 120, "North Goa", 4),
@@ -53,6 +63,20 @@ REGIONS = {
         ],
     },
 }
+
+
+def pick_coords(wikidata: tuple, wikipedia: tuple) -> tuple:
+    """Wikidata's coordinates, unless Wikipedia's are far from them (or Wikidata has none)."""
+    if wikidata[0] is None:
+        return wikipedia
+    if wikipedia[0] is not None and km(*wikidata, *wikipedia) > MAX_DISAGREE_KM:
+        return wikipedia
+    return wikidata
+
+
+def in_bbox(region: str, lat: float, lng: float) -> bool:
+    lat0, lat1, lng0, lng1 = BBOX[region]
+    return lat0 <= lat <= lat1 and lng0 <= lng <= lng1
 
 
 def build(region: str, wiki: WikiClient) -> tuple[list[dict], list[dict], list[str]]:
@@ -81,13 +105,14 @@ def build(region: str, wiki: WikiClient) -> tuple[list[dict], list[dict], list[s
     for title, display, category, minutes, district, popularity in spec["places"]:
         data = wiki.labels(title)
         time.sleep(PAUSE_S)
-        lat, lng = data["lat"], data["lng"]
-        if lat is None:
-            s = wiki.summary(title)
-            time.sleep(PAUSE_S)
-            lat, lng = s["lat"], s["lng"]
+        s = wiki.summary(COORDS_PAGE.get(title, title))
+        time.sleep(PAUSE_S)
+        lat, lng = pick_coords((data["lat"], data["lng"]), (s["lat"], s["lng"]))
         if lat is None or not data["qid"]:
             skipped.append(f"{title}: no Wikidata item or coordinates")
+            continue
+        if not in_bbox(region, lat, lng):
+            skipped.append(f"{title}: coordinates {lat}, {lng} are outside {region}")
             continue
         name = display or data["labels"].get("en") or title
         names = {k: v for k, v in data["labels"].items() if k != "en"}

@@ -29,6 +29,8 @@ LIST_MASK = "places.id,places.displayName,places.location,places.types"
 # Essentials SKU for Details. Opening hours are Enterprise, so opt-in.
 DETAILS_MASK = "id,location,types,formattedAddress"
 HOURS_MASK = DETAILS_MASK + ",displayName,regularOpeningHours"
+# Enterprise Text Search: one call finds the place and its hours (enrichment only).
+FIND_HOURS_MASK = "places.id,places.displayName,places.location,places.regularOpeningHours"
 
 EMERGENCY_TYPES = {"hospital": "hospital", "police": "police", "pharmacy": "pharmacy"}
 _DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"]  # Places: 0 = Sunday
@@ -146,6 +148,21 @@ class PlacesClient:
         body = {"textQuery": query, "pageSize": limit, "regionCode": region}
         raw = self._call("POST", "/places:searchText", LIST_MASK, body, SEARCH_TTL_S)
         return [to_place(p) for p in raw.get("places", [])]
+
+    def find_with_hours(
+        self, query: str, lat: float, lng: float, *, radius_m: float = 3000
+    ) -> dict | None:
+        """The best text match near (lat, lng), raw, with regularOpeningHours; None if no match."""
+        body = {
+            "textQuery": query,
+            "pageSize": 1,
+            "regionCode": "IN",
+            "locationBias": {
+                "circle": {"center": {"latitude": lat, "longitude": lng}, "radius": radius_m}
+            },
+        }
+        raw = self._call("POST", "/places:searchText", FIND_HOURS_MASK, body, DETAILS_TTL_S)
+        return (raw.get("places") or [None])[0]
 
     def details(self, place_id: str, *, with_hours: bool = False) -> Place:
         mask = HOURS_MASK if with_hours else DETAILS_MASK
