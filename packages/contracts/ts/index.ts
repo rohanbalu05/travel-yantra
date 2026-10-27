@@ -40,6 +40,18 @@ export interface CompareResponse {
   notes?: string[];
 }
 
+export interface Consents {
+  plan_history?: boolean;
+  location?: boolean;
+  analytics?: boolean;
+}
+
+export interface ConsentsUpdate {
+  plan_history?: boolean | null;
+  location?: boolean | null;
+  analytics?: boolean | null;
+}
+
 export interface Constraints {
   budget_inr?: number | null;
   pace?: Pace;
@@ -114,6 +126,14 @@ export interface Leg {
   cost_inr: number;
 }
 
+export interface Me {
+  uid: string;
+  email?: string | null;
+  name?: string | null;
+  consents?: Consents;
+  consents_updated_at?: string | null;
+}
+
 export type Mode = "road" | "rail" | "air";
 
 export interface OpeningHours {
@@ -166,6 +186,13 @@ export interface RankedOption {
   score: number;
   sources: string[];
   option: TransportOption;
+}
+
+export interface RatingIn {
+  plan_id?: string | null;
+  score: number;
+  comment?: string | null;
+  lang?: Lang;
 }
 
 export type ReviseIntent = "lighter_day" | "swap_stop" | "rain";
@@ -232,6 +259,17 @@ export interface TripRequest {
   constraints?: Constraints;
   lang?: Lang;
   notes?: string | null;
+}
+
+export interface TripSummary {
+  plan_id: string;
+  share_token: string;
+  title: string;
+  origin: string;
+  destinations: string[];
+  start_date: string;
+  end_date: string;
+  created_at: string;
 }
 
 export interface Unavailable {

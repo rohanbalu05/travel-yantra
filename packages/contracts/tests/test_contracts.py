@@ -144,3 +144,18 @@ def test_rejects_out_of_order_dates():
     with pytest.raises(ValidationError):
         Stay.model_validate({"name": "n", "city": "c", "check_in": "2026-01-02", "check_out": "2026-01-01",
                              "price_per_night_inr": 1})
+
+
+def test_account_models():
+    from ty_contracts import ConsentsUpdate, Me, RatingIn, TripSummary
+
+    me = roundtrip(Me, {"uid": "sample-uid"})
+    assert me.consents.plan_history is False and me.consents.location is False and me.consents.analytics is False
+    assert roundtrip(ConsentsUpdate, {"plan_history": True}).location is None
+    roundtrip(TripSummary, {"plan_id": "p", "share_token": "s", "title": "Goa, 11-14 Dec", "origin": "Bengaluru",
+                            "destinations": ["Goa"], "start_date": "2026-12-11", "end_date": "2026-12-14",
+                            "created_at": "2026-10-27T10:00:00"})
+    assert roundtrip(RatingIn, {"score": 5}).plan_id is None
+    for bad in ({"score": 0}, {"score": 6}, {"score": 3, "comment": "x" * 501}):
+        with pytest.raises(ValidationError):
+            RatingIn.model_validate(bad)

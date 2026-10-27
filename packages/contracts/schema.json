@@ -225,6 +225,73 @@
       "title": "CompareResponse",
       "type": "object"
     },
+    "Consents": {
+      "additionalProperties": false,
+      "description": "Purpose-specific opt-ins; all off until the user turns them on (DPDP).",
+      "properties": {
+        "plan_history": {
+          "default": false,
+          "title": "Plan History",
+          "type": "boolean"
+        },
+        "location": {
+          "default": false,
+          "title": "Location",
+          "type": "boolean"
+        },
+        "analytics": {
+          "default": false,
+          "title": "Analytics",
+          "type": "boolean"
+        }
+      },
+      "title": "Consents",
+      "type": "object"
+    },
+    "ConsentsUpdate": {
+      "additionalProperties": false,
+      "description": "Body of PUT /me/consents: only the fields to change.",
+      "properties": {
+        "plan_history": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Plan History"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Location"
+        },
+        "analytics": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Analytics"
+        }
+      },
+      "title": "ConsentsUpdate",
+      "type": "object"
+    },
     "Constraints": {
       "additionalProperties": false,
       "properties": {
@@ -649,6 +716,60 @@
       "title": "Leg",
       "type": "object"
     },
+    "Me": {
+      "additionalProperties": false,
+      "properties": {
+        "uid": {
+          "title": "Uid",
+          "type": "string"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Email"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "consents": {
+          "$ref": "#/$defs/Consents"
+        },
+        "consents_updated_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Consents Updated At"
+        }
+      },
+      "required": [
+        "uid"
+      ],
+      "title": "Me",
+      "type": "object"
+    },
     "Mode": {
       "enum": [
         "road",
@@ -972,6 +1093,52 @@
         "option"
       ],
       "title": "RankedOption",
+      "type": "object"
+    },
+    "RatingIn": {
+      "additionalProperties": false,
+      "description": "Body of POST /ratings; anonymous is fine, and no personal data belongs in it.",
+      "properties": {
+        "plan_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Plan Id"
+        },
+        "score": {
+          "maximum": 5,
+          "minimum": 1,
+          "title": "Score",
+          "type": "integer"
+        },
+        "comment": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Comment"
+        },
+        "lang": {
+          "$ref": "#/$defs/Lang",
+          "default": "en"
+        }
+      },
+      "required": [
+        "score"
+      ],
+      "title": "RatingIn",
       "type": "object"
     },
     "ReviseIntent": {
@@ -1358,6 +1525,62 @@
         "end_date"
       ],
       "title": "TripRequest",
+      "type": "object"
+    },
+    "TripSummary": {
+      "additionalProperties": false,
+      "description": "One row of GET /me/trips, newest first.",
+      "properties": {
+        "plan_id": {
+          "title": "Plan Id",
+          "type": "string"
+        },
+        "share_token": {
+          "title": "Share Token",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "origin": {
+          "title": "Origin",
+          "type": "string"
+        },
+        "destinations": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Destinations",
+          "type": "array"
+        },
+        "start_date": {
+          "format": "date",
+          "title": "Start Date",
+          "type": "string"
+        },
+        "end_date": {
+          "format": "date",
+          "title": "End Date",
+          "type": "string"
+        },
+        "created_at": {
+          "format": "date-time",
+          "title": "Created At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "plan_id",
+        "share_token",
+        "title",
+        "origin",
+        "destinations",
+        "start_date",
+        "end_date",
+        "created_at"
+      ],
+      "title": "TripSummary",
       "type": "object"
     },
     "Unavailable": {

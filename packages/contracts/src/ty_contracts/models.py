@@ -368,3 +368,52 @@ class ReviseRequest(_Model):
         if self.intent is ReviseIntent.swap_stop and not self.place_id:
             raise ValueError("swap_stop needs place_id")
         return self
+
+
+# Accounts, consent and ratings (TY4 P3; endpoints not built yet).
+
+
+class Consents(_Model):
+    """Purpose-specific opt-ins; all off until the user turns them on (DPDP)."""
+
+    plan_history: bool = False
+    location: bool = False
+    analytics: bool = False
+
+
+class ConsentsUpdate(_Model):
+    """Body of PUT /me/consents: only the fields to change."""
+
+    plan_history: bool | None = None
+    location: bool | None = None
+    analytics: bool | None = None
+
+
+class Me(_Model):
+    uid: str
+    email: str | None = None
+    name: str | None = None
+    consents: Consents = Field(default_factory=Consents)
+    consents_updated_at: datetime | None = None
+
+
+class TripSummary(_Model):
+    """One row of GET /me/trips, newest first."""
+
+    plan_id: str
+    share_token: str
+    title: str
+    origin: str
+    destinations: list[str]
+    start_date: date
+    end_date: date
+    created_at: datetime
+
+
+class RatingIn(_Model):
+    """Body of POST /ratings; anonymous is fine, and no personal data belongs in it."""
+
+    plan_id: str | None = None
+    score: int = Field(ge=1, le=5)
+    comment: str | None = Field(default=None, max_length=500)
+    lang: Lang = Lang.en
