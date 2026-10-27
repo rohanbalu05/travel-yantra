@@ -17,6 +17,18 @@ OFFLINE = "The guide is offline right now."
 BUSY = "The guide couldn't answer just now. Try again in a minute."
 
 
+def warm_up() -> None:
+    """Called once at startup by main.py, in a background thread: load the query
+    embedder so the first /guide/ask after a cold start doesn't pay 10-20 s for it.
+    Idempotent; embed.model() is cached."""
+    from .planner import _pois
+    from .retrieval import embed
+
+    _pois()
+    if os.environ.get("EMBEDDER") != "fake":
+        embed.embed_query("warm up")  # loads the model and runs one encode
+
+
 def get_db() -> Iterator[Any]:
     url = os.environ.get("DATABASE_URL")
     if not url:

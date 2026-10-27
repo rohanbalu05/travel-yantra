@@ -30,7 +30,8 @@ TIMEOUT_S = 60  # per call; long-form output does not fit core.llm's 20 s defaul
 #: Thinking tokens count toward the cap: at "low", a long prompt used ~2,900 of 3,000 and
 #: the story was cut at ~100 words. Drafts and rewrites think minimally, with room to spare.
 MAX_TOKENS = 6000
-CHAPTERS = {2: 1, 5: 1, 10: 4}
+#: The model undershoots long single drafts (~500 of 750 words) and lands chapter-sized ones.
+CHAPTERS = {2: 1, 5: 2, 10: 4}
 #: Labels the contract accepts. Anything else folds into "history" (the text keeps
 #: both versions of a disputed claim either way).
 CONTRACT_LABELS = set(typing.get_args(StorySegment.model_fields["label"].annotation))

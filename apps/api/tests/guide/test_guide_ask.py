@@ -250,3 +250,10 @@ def test_a_failing_model_is_503_with_a_reason(monkeypatch) -> None:
     r = TestClient(app).post("/guide/ask", json={"question": "who built it"})
     assert r.status_code == 503 and r.json() == {"detail": guide.BUSY}
     assert Broken.calls == 1  # it failed in the model, not somewhere earlier
+
+
+def test_warm_up_never_loads_the_model_under_the_fake(monkeypatch) -> None:
+    from guide.retrieval import embed
+
+    monkeypatch.setattr(embed, "model", lambda: pytest.fail("loaded the real model"))
+    guide.warm_up()  # EMBEDDER=fake in tests: the corpus warms, the model does not

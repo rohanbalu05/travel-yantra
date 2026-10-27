@@ -29,7 +29,8 @@ class FakeKathaModel:
     async def json(self, prompt: str, schema, tier: str = "flash", **_: object):
         assert schema is Outline
         facts = _facts(prompt)
-        chapters = 4 if "4 chapters" in prompt else 1
+        m = re.search(r"as (\d+) chapters", prompt)
+        chapters = int(m.group(1)) if m else 1
         beats = [Beat(text=t, facts=[n], label="legend" if leg else "history") for n, leg, t in facts]
         return Outline(
             theme="(sample) theme", hook="(sample) hook", gap="(sample) gap", people=[],

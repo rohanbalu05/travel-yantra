@@ -10,7 +10,7 @@ plain-prompt version from the same model, written to data/katha/taste-gate/:
   calls.log                  every live model call: time, step, result
 
 Live calls, paced; re-running skips pairs already written. Run from apps/api:
-  DATABASE_URL=... TY_FAKE_LLM=0 uv run python -m guide.scripts.katha_taste_gate
+  DATABASE_URL=... TY_FAKE_LLM=0 uv run python -m guide.scripts.katha_taste_gate [--pairs N]
 """
 
 from __future__ import annotations
@@ -83,7 +83,8 @@ def katha_body(story) -> str:
     return "\n\n".join(f"*{s.label.title()}.* {s.text}" for s in story.segments)
 
 
-async def main() -> None:
+async def main(max_pairs: int | None = None) -> None:
+    """Write up to max_pairs missing pairs (all of them when None), then the blind files."""
     import psycopg
 
     from core.llm import get_model
@@ -94,12 +95,16 @@ async def main() -> None:
     db = psycopg.connect(os.environ["DATABASE_URL"], autocommit=True)
     apply_migrations(db)
     rng = random.Random(SEED)
+    attempted = 0
     for kind, name in SUBJECTS:
         subject = resolve(db, kind, name)
         for length in LENGTHS:
             folder = OUT / "key" / slug(kind, name, length)
             if (folder / "katha.json").exists() and (folder / "plain.md").exists():
                 continue
+            if max_pairs is not None and attempted >= max_pairs:
+                break
+            attempted += 1
             folder.mkdir(exist_ok=True)
             facts = gather(db, subject, length)
             try:
@@ -160,4 +165,8 @@ def write_blind(rng: random.Random) -> None:
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--pairs", type=int, help="write at most this many missing pairs, then stop")
+    asyncio.run(main(parser.parse_args().pairs))
