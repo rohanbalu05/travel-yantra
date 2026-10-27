@@ -127,7 +127,12 @@ def test_day_one_starts_after_arrival_and_the_last_day_ends_before_the_journey_h
 
         visits, problem = schedule(day.date, day.stops, mins, frame(lim, hop_of(day), out_of(day)))
         assert problem is None and all(check_visit(v) for v in visits)
-    assert out_of(last).depart.hour == 18 and any(n.startswith("Return: Coorg → Bengaluru") for n in last.notes)
+    # Journeys leave at or after the time asked for (real trains wait for their departure).
+    from datetime import datetime, time
+
+    assert out_of(last).depart >= datetime.combine(last.date, time(18, 0))
+    assert hop_of(first).depart >= datetime.combine(first.date, time(8, 0))
+    assert any(n.startswith("Return: Coorg → Bengaluru") for n in last.notes)
 
 
 def test_visits_past_the_departure_home_are_flagged():
