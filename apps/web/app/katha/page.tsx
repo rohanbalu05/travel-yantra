@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
+import { categoryLabel } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { GOA_ITINERARY } from "@/lib/mockPlan";
 import { usePlanResult } from "@/lib/plan";
@@ -39,7 +40,7 @@ export default function KathaHome() {
             <Link key={c} className="kh-card" href={href("city", c)}><b>{c}</b><span>{t("City Katha")}</span></Link>
           ))}
           {stops.map((p) => (
-            <Link key={p.id} className="kh-card" href={href("place", p.name)}><b>{p.name}</b><span>{t("Place Katha · {category}", { category: p.category })}</span></Link>
+            <Link key={p.id} className="kh-card" href={href("place", p.name)}><b>{p.name}</b><span>{t("Place Katha · {category}", { category: t(categoryLabel(p.category)) })}</span></Link>
           ))}
         </div>
       </section>

@@ -14,7 +14,7 @@ import "../settings/settings.css";
 export default function MyTrips() {
   const account = useAccount();
   const router = useRouter();
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const [res, setRes] = useState<{ trips?: SavedTrip[]; from?: "api" | "browser"; problem?: { message: string; retryable: boolean } } | null>(null);
   const [run, setRun] = useState(0);
   const keep = !!account?.consents.plan_history;
@@ -67,7 +67,7 @@ export default function MyTrips() {
           {res.trips!.map((trip) => (
             <article className="trip-card" key={trip.plan_id}>
               <b>{trip.destinations.join(", ")}</b>
-              <span className="hint">{t("From {origin} · {start} to {end}", { origin: trip.origin, start: dayLabel(trip.start_date), end: dayLabel(trip.end_date) })}</span>
+              <span className="hint">{t("From {origin} · {start} to {end}", { origin: trip.origin, start: dayLabel(trip.start_date, lang), end: dayLabel(trip.end_date, lang) })}</span>
               <div className="row-wrap">
                 <button type="button" className="btn btn-primary btn-sm" onClick={() => open(trip)} disabled={!trip.itinerary && !trip.share_token}>{t("View details")}</button>
                 {trip.share_token && <Link className="btn btn-quiet btn-sm" href={`/t/${encodeURIComponent(trip.share_token)}/`}>{t("Share")}</Link>}

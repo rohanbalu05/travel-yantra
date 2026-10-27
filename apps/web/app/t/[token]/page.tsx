@@ -8,7 +8,7 @@ import { Problem, problemOf } from "@/components/Problem";
 import { StopsMap } from "@/components/StopsMap";
 import { API_BASE_URL } from "@/lib/api";
 import type { Itinerary } from "@/lib/contracts";
-import { MODE_NAME, clock, dayLabel, duration, inr, weekday } from "@/lib/format";
+import { MODE_NAME, categoryLabel, clock, dayLabel, duration, inr, weekday } from "@/lib/format";
 import { ApiError, apiJSON } from "@/lib/http";
 import { useI18n } from "@/lib/i18n";
 import { GOA_ITINERARY, SAMPLE_SHARE_TOKEN } from "@/lib/mockPlan";
@@ -24,7 +24,7 @@ async function sharedTrip(token: string, signal: AbortSignal): Promise<Itinerary
 }
 
 function Shared({ it }: { it: Itinerary }) {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const [sel, setSel] = useState(0);
   const day = it.days[sel];
   const people = it.request.constraints?.travellers?.length ?? 0;
@@ -36,7 +36,7 @@ function Shared({ it }: { it: Itinerary }) {
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <h1 className="page-title">{t("{from} to {to}", { from: it.request.origin, to: it.request.destinations.join(` ${t("and")} `) })}</h1>
             <div className="it-meta">
-              <span className="badge">{t("{from} to {to}", { from: dayLabel(it.request.start_date), to: dayLabel(it.request.end_date) })}</span>
+              <span className="badge">{t("{from} to {to}", { from: dayLabel(it.request.start_date, lang), to: dayLabel(it.request.end_date, lang) })}</span>
               {people > 0 && <span className="badge">{t(people > 1 ? "{n} travellers" : "{n} traveller", { n: people })}</span>}
               <span className="badge badge-sea">{t("About {amount} in all", { amount: inr(it.budget.total_inr) })}</span>
             </div>
@@ -49,7 +49,7 @@ function Shared({ it }: { it: Itinerary }) {
           <div className="dtabs" role="tablist" aria-label={t("Days")}>
             {it.days.map((d, i) => (
               <button key={d.date} type="button" role="tab" aria-selected={i === sel} className={i === sel ? "dtab on" : "dtab"} onClick={() => setSel(i)}>
-                <b>{weekday(d.date)} {Number(d.date.slice(8, 10))}</b>
+                <b>{weekday(d.date, lang)} {Number(d.date.slice(8, 10))}</b>
                 <span>{(d.stops ?? []).map((s) => s.name).join(", ") || d.notes?.[0] || t("Free day")}</span>
               </button>
             ))}
@@ -62,7 +62,7 @@ function Shared({ it }: { it: Itinerary }) {
                   <span className={r.kind === "stop" ? "mk mk-stop" : r.kind === "move" ? "mk mk-move" : "mk mk-stay"}>{r.kind === "stop" ? r.n : r.kind === "move" ? "→" : "H"}</span>
                   <div className="it-body">
                     <b>{r.kind === "stop" ? r.place.name : r.kind === "move" ? t("{mode} to {place}", { mode: t(MODE_NAME[r.leg.mode]), place: r.leg.to }) : r.name}</b>
-                    {r.kind === "stop" && <small>{r.place.category}</small>}
+                    {r.kind === "stop" && <small>{t(categoryLabel(r.place.category))}</small>}
                   </div>
                 </div>
               ))}
@@ -72,7 +72,7 @@ function Shared({ it }: { it: Itinerary }) {
         </section>
         <aside className="side">
           {day && (day.stops ?? []).length > 0 && (
-            <StopsMap pins={(day.stops ?? []).map((s, i) => ({ id: s.id, label: String(i + 1), name: s.name, lat: s.lat, lng: s.lng, kind: "stop" }))} caption={t("{date}, numbered in order", { date: dayLabel(day.date) })} />
+            <StopsMap pins={(day.stops ?? []).map((s, i) => ({ id: s.id, label: String(i + 1), name: s.name, lat: s.lat, lng: s.lng, kind: "stop" }))} caption={t("{date}, numbered in order", { date: dayLabel(day.date, lang) })} />
           )}
         </aside>
       </div>

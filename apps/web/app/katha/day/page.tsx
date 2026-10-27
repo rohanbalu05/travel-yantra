@@ -12,7 +12,7 @@ import "../../guide.css";
 
 export default function KathaDay() {
   const plan = usePlanResult();
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const it = plan?.itinerary ?? GOA_ITINERARY;
   const days = it.days.filter((d) => (d.stops ?? []).length);
   const [sel, setSel] = useState(0);
@@ -27,7 +27,7 @@ export default function KathaDay() {
           <Link href="/katha/">{t("Katha")}</Link> · <span>{t("Day")}</span>
         </nav>
         <div className="k-head">
-          <h1 className="page-title">{day ? t("{day} in {city}", { day: dayLabel(day.date), city }) : t("No days to tell yet")}</h1>
+          <h1 className="page-title">{day ? t("{day} in {city}", { day: dayLabel(day.date, lang), city }) : t("No days to tell yet")}</h1>
           <p className="page-sub">{plan ? t("One story that walks with you from stop to stop, in the order of your plan.") : t("One story that walks with you from stop to stop, in the order of the sample plan.")}</p>
         </div>
         {day && (
@@ -41,7 +41,7 @@ export default function KathaDay() {
                 {days.map((d, i) => (
                   <button key={d.date} type="button" role="tab" aria-selected={d === day} className={d === day ? "on" : undefined} onClick={() => setSel(i)}>
                     <span className="n">{it.days.indexOf(d) + 1}</span>
-                    <span>{dayLabel(d.date)}: {(d.stops ?? []).map((s) => s.name).join(", ")}</span>
+                    <span>{dayLabel(d.date, lang)}: {(d.stops ?? []).map((s) => s.name).join(", ")}</span>
                   </button>
                 ))}
               </div>

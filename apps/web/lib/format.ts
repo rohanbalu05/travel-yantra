@@ -1,4 +1,4 @@
-import type { Mode } from "@/lib/contracts";
+import type { Lang, Mode } from "@/lib/contracts";
 
 const inrFmt = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 });
 
@@ -20,12 +20,15 @@ function parts(iso: string) {
   return new Date(Date.UTC(y, mo - 1, d));
 }
 
-/** "2026-12-11" → "Fri 11 Dec" */
-export const dayLabel = (iso: string) =>
-  parts(iso).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+// Dates in the app's language, with Latin digits like the times and prices beside them.
+const locale = (lang: Lang) => `${lang}-IN-u-nu-latn`;
 
-/** "2026-12-11" → "Fri" */
-export const weekday = (iso: string) => parts(iso).toLocaleDateString("en-IN", { weekday: "short", timeZone: "UTC" });
+/** "2026-12-11" → "Fri 11 Dec" (in `lang`) */
+export const dayLabel = (iso: string, lang: Lang = "en") =>
+  parts(iso).toLocaleDateString(locale(lang), { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+
+/** "2026-12-11" → "Fri" (in `lang`) */
+export const weekday = (iso: string, lang: Lang = "en") => parts(iso).toLocaleDateString(locale(lang), { weekday: "short", timeZone: "UTC" });
 
 /** "2026-12-11T21:00:00" → "21:00" */
 export const clock = (iso: string) => iso.slice(11, 16);
@@ -39,4 +42,10 @@ export const MODE_ICON: Record<Mode, string> = {
   rail: "M6 3h12v13H6zM6 10h12M8 16l-2 4M16 16l2 4M7 19h10",
   air: "M10.5 21l1.5-6-7-2V11l7 1V6.5a1.5 1.5 0 0 1 3 0V12l7-1v2l-7 2 1.5 6Z",
   road: "M5 16V12l2-5h10l2 5v4M3 16h18v2H3z",
+};
+
+/** A place category as a label to translate: "hindu_temple" → "Hindu temple". */
+export const categoryLabel = (c: string) => {
+  const s = c.replace(/_/g, " ").trim();
+  return s ? s[0].toUpperCase() + s.slice(1).toLowerCase() : s;
 };

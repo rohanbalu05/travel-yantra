@@ -75,7 +75,7 @@ export default function HomePage() {
               </div>
               <div className="hm-chips" aria-label={t("Ideas")}>
                 {ideas.map((i) => (
-                  <Link key={i} href={`/plan/start/?text=${encodeURIComponent(i)}`}>{i}</Link>
+                  <Link key={i} href={`/plan/start/?text=${encodeURIComponent(t(i))}`}>{t(i)}</Link>
                 ))}
               </div>
             </div>
@@ -96,8 +96,8 @@ export default function HomePage() {
                     <PlayIcon playing={playing} />
                   </button>
                   <div>
-                    <b>Mysuru in 5 minutes</b>
-                    <span>City Katha for your trip this weekend</span>
+                    <b>{t("Mysuru in 5 minutes")}</b>
+                    <span>{t("City Katha for your trip this weekend")}</span>
                   </div>
                 </div>
                 <Wave play={playing} count={40} step={0.11} />
@@ -121,12 +121,12 @@ export default function HomePage() {
           <div className="trips">
             {trips.map((trip) => (
               <Link key={trip.name} className="trip" href={trip.href}>
-                <div className="trip-top"><b>{trip.name}</b><span className={trip.badge}>{trip.when}</span></div>
-                <small>{trip.dates}</small>
+                <div className="trip-top"><b>{t(trip.name)}</b><span className={trip.badge}>{t(trip.when)}</span></div>
+                <small>{t(trip.dates)}</small>
                 <div className="trip-route"><span>Bengaluru</span><i /><span>{trip.to}</span></div>
                 <div className="trip-foot">
                   {trip.status.map(([cls, text]) => (
-                    <span key={text} className={cls}>{text}</span>
+                    <span key={text} className={cls}>{t(text)}</span>
                   ))}
                 </div>
               </Link>
@@ -143,9 +143,9 @@ export default function HomePage() {
                   <svg className="ic" viewBox="0 0 24 24" aria-hidden="true"><path d={n.icon} /></svg>
                 </span>
                 <div>
-                  <b>{n.title}</b>
-                  <span>{n.text}</span>
-                  {n.link && <Link href="/book/">{n.link}</Link>}
+                  <b>{t(n.title)}</b>
+                  <span>{t(n.text)}</span>
+                  {n.link && <Link href="/book/">{t(n.link)}</Link>}
                 </div>
               </div>
             ))}

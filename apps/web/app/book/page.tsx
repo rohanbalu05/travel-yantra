@@ -43,7 +43,7 @@ function Travel({ it }: { it: Itinerary }) {
   const [cmp, setCmp] = useState<Load<CompareResponse>>(null);
   const [run, setRun] = useState(0);
   const stored = useChoice();
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const travellers = it.request.constraints?.travellers?.length || 1;
 
   useEffect(() => {
@@ -65,7 +65,7 @@ function Travel({ it }: { it: Itinerary }) {
     <section className="bk-sec" aria-labelledby="go-h">
       <div className="bk-sec-head">
         <h2 className="h2" id="go-h">{t("Getting there")}</h2>
-        <span className="hint">{t("{from} to {to}, {date}, for {n}", { from: it.request.origin, to: it.request.destinations.join(", "), date: dayLabel(it.request.start_date), n: travellers })}</span>
+        <span className="hint">{t("{from} to {to}, {date}, for {n}", { from: it.request.origin, to: it.request.destinations.join(", "), date: dayLabel(it.request.start_date, lang), n: travellers })}</span>
       </div>
       {!cmp ? (
         <p className="hint" role="status">{t("Comparing road, rail and air…")}</p>
@@ -188,7 +188,7 @@ function TrainCard({ it }: { it: Itinerary }) {
 function PnrTrack() {
   const [pnr, setPnr] = useState("");
   const [res, setRes] = useState<Load<PnrStatus> | "busy">(null);
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const check = async (value: string) => {
     const v = value.replace(/\D/g, "");
     setPnr(v);
@@ -217,13 +217,13 @@ function PnrTrack() {
       ) : s && (
         <div className="panel panel-pad pnr">
           <div className="bk-sec-head">
-            <b>{s.train} · {s.class} · {dayLabel(s.date)}</b>
+            <b>{s.train} · {s.class} · {dayLabel(s.date, lang)}</b>
             <span className={/CNF/.test(s.current_status) ? "badge badge-ok" : "badge badge-warn"}>{s.current_status}</span>
           </div>
           <p className="hint" style={{ margin: 0 }}>{s.chart_prepared ? t("{from} to {to} · chart prepared", { from: s.from.name, to: s.to.name }) : t("{from} to {to}", { from: s.from.name, to: s.to.name })}</p>
           <ol className="timeline">
             {[...s.timeline].sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).map((e) => (
-              <li key={e.at + e.status}><time dateTime={e.at}>{dayLabel(e.at)} {e.at.slice(11, 16)}</time><i /><span><b>{e.status}</b> {e.note}</span></li>
+              <li key={e.at + e.status}><time dateTime={e.at}>{dayLabel(e.at, lang)} {e.at.slice(11, 16)}</time><i /><span><b>{e.status}</b> {e.note}</span></li>
             ))}
           </ol>
         </div>
@@ -237,7 +237,7 @@ function Book({ it }: { it: Itinerary }) {
   const way = (it.transport ?? [])[stored ?? pickIndex(it)];
   const cost = way ? tripCost(it, way) : it.budget.total_inr;
   const vs = againstBudget(it, cost);
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   return (
     <>
       <div className="bk-top">
@@ -259,7 +259,7 @@ function Book({ it }: { it: Itinerary }) {
             <span className="item-ic"><svg className="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18V7" /><path d="M3 14h18v4" /><path d="M3 11h7a2 2 0 0 1 2 2v1" /><path d="M12 14v-2a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v2" /></svg></span>
             <div>
               <b>{s.name}</b>
-              <span className="item-sub">{t("{city} · {from} to {to} · {price} a night", { city: s.city, from: dayLabel(s.check_in), to: dayLabel(s.check_out), price: inr(s.price_per_night_inr) })}</span>
+              <span className="item-sub">{t("{city} · {from} to {to} · {price} a night", { city: s.city, from: dayLabel(s.check_in, lang), to: dayLabel(s.check_out, lang), price: inr(s.price_per_night_inr) })}</span>
               <Offers offers={s.offers} />
             </div>
           </article>

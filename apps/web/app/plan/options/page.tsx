@@ -15,7 +15,7 @@ import "../plan.css";
 const star = <path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7Z" />;
 
 function Options({ it, planId }: { it: Itinerary; planId: string | null }) {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
   const router = useRouter();
   const { busy, said, revise } = useRevise(planId, it.lang);
   const mode = (m: Mode) => t(MODE_NAME[m]);
@@ -98,7 +98,7 @@ function Options({ it, planId }: { it: Itinerary; planId: string | null }) {
           <section className="main panel panel-pad" aria-labelledby="d-h">
             <div className="detail-head">
               <h2 className="h2" id="d-h">{t("{mode}, step by step", { mode: mode(o.mode) })}</h2>
-              <span className="hint">{t("Going, {date}", { date: dayLabel(o.legs[0]?.depart ?? it.request.start_date) })}</span>
+              <span className="hint">{t("Going, {date}", { date: dayLabel(o.legs[0]?.depart ?? it.request.start_date, lang) })}</span>
             </div>
             <div className="legs">
               {o.legs.map((l, i) => (

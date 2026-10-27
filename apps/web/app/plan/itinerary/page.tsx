@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { NoPlan } from "@/components/NoPlan";
@@ -8,9 +9,9 @@ import { Rating } from "@/components/Rating";
 import { StopsMap } from "@/components/StopsMap";
 import { Trail } from "@/components/Trail";
 import type { DayPlan, Itinerary, Mode } from "@/lib/contracts";
-import { MODE_NAME, clock, dayLabel, duration, inr, weekday } from "@/lib/format";
-import { useI18n, type Vars } from "@/lib/i18n";
-import { usePlanResult } from "@/lib/plan";
+import { MODE_NAME, categoryLabel, clock, dayLabel, duration, inr, weekday } from "@/lib/format";
+import { LANGS, useI18n, type Vars } from "@/lib/i18n";
+import { savePlanInput, usePlanInput, usePlanResult } from "@/lib/plan";
 import { againstBudget, dayRows, pickIndex, travellerCount, tripCost } from "@/lib/planView";
 import { useRevise } from "@/lib/useRevise";
 import "../plan.css";
@@ -26,7 +27,17 @@ function dayTitle(day: DayPlan, t: (text: string, vars?: Vars) => string): strin
 }
 
 function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null; shareToken: string | null }) {
-  const { t } = useI18n();
+  const { lang, t } = useI18n();
+  const router = useRouter();
+  const input = usePlanInput();
+  // Day titles, notes and warnings come from the planner in the plan's language (QA #111): offer to remake it.
+  const planLang = it.lang ?? it.request.lang ?? "en";
+  const nameOf = (l: string) => LANGS.find((x) => x.code === l)?.native ?? l;
+  const remake = () => {
+    if (!input) return;
+    savePlanInput({ ...input, lang });
+    router.push("/plan/thinking/");
+  };
   const [sel, setSel] = useState(0);
   const [shared, setShared] = useState<string | null>(null);
   // The link shows the plan only (TY1's GET /trips/{token}), never bookings or names.
@@ -66,7 +77,7 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <h1 className="page-title">{people > 1 ? t("{dest} with family", { dest: it.request.destinations.join(` ${t("and")} `) }) : it.request.destinations.join(` ${t("and")} `)}</h1>
             <div className="it-meta">
-              <span className="badge">{t("{from} to {to}", { from: dayLabel(it.request.start_date), to: dayLabel(it.request.end_date) })}</span>
+              <span className="badge">{t("{from} to {to}", { from: dayLabel(it.request.start_date, lang), to: dayLabel(it.request.end_date, lang) })}</span>
               {people > 0 && <span className="badge">{pace ? t("{travellers}, {pace}", { travellers, pace: t(PACE_NAME[pace]) }) : travellers}</span>}
               {way && (
                 <span className="badge">
@@ -90,12 +101,19 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
         </div>
       </div>
 
+      {planLang !== lang && input && (
+        <div className="panel panel-pad lang-note" role="note">
+          <span>{t("This plan was written in {plan}. Its days, notes and warnings stay in {plan} until it is made again.", { plan: nameOf(planLang) })}</span>
+          <button type="button" className="btn btn-quiet btn-sm" onClick={remake}>{t("Make it again in {lang}", { lang: nameOf(lang) })}</button>
+        </div>
+      )}
+
       <div className="split">
         <section className="main" aria-label={t("Day by day")}>
           <div className="dtabs" role="tablist" aria-label={t("Days")}>
             {it.days.map((d, i) => (
               <button key={d.date} type="button" role="tab" id={`tab-${i}`} aria-selected={i === sel} aria-controls="day-panel" className={i === sel ? "dtab on" : "dtab"} onClick={() => setSel(i)}>
-                <b>{weekday(d.date)} {Number(d.date.slice(8, 10))}</b>
+                <b>{weekday(d.date, lang)} {Number(d.date.slice(8, 10))}</b>
                 <span>{dayTitle(d, t)}</span>
               </button>
             ))}
@@ -103,7 +121,7 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
           {day && (
             <div id="day-panel" role="tabpanel" aria-labelledby={`tab-${sel}`}>
               <div className="day-sum">
-                <span><b>{t("Day")}</b><span>{dayLabel(day.date)}</span></span>
+                <span><b>{t("Day")}</b><span>{dayLabel(day.date, lang)}</span></span>
                 <span><b>{t("Stops")}</b><span>{(day.stops ?? []).length}</span></span>
                 {travelMin > 0 && <span><b>{t("Getting around")}</b><span>{duration(travelMin)}, {inr(travelCost)}</span></span>}
               </div>
@@ -115,7 +133,7 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
                       <span className="mk mk-stop">{r.n}</span>
                       <div className="it-body">
                         <b>{r.place.name}</b>
-                        <small>{r.place.category[0].toUpperCase() + r.place.category.slice(1)} · {t("about {time} there", { time: duration(r.place.typical_visit_minutes) })}</small>
+                        <small>{t(categoryLabel(r.place.category))} · {t("about {time} there", { time: duration(r.place.typical_visit_minutes) })}</small>
                       </div>
                       {planId && (
                         <button type="button" className="btn btn-quiet btn-sm it-swap" disabled={!!busy} aria-label={t("Swap {name} for something else", { name: r.place.name })}
@@ -157,20 +175,20 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
           {day && (day.stops ?? []).length > 0 && (
             <StopsMap
               pins={(day.stops ?? []).map((s, i) => ({ id: s.id, label: String(i + 1), name: s.name, lat: s.lat, lng: s.lng, kind: "stop" }))}
-              caption={t((day.stops ?? []).length > 1 ? "{date}: {n} stops, numbered in order" : "{date}: {n} stop, numbered in order", { date: dayLabel(day.date), n: (day.stops ?? []).length })}
+              caption={t((day.stops ?? []).length > 1 ? "{date}: {n} stops, numbered in order" : "{date}: {n} stop, numbered in order", { date: dayLabel(day.date, lang), n: (day.stops ?? []).length })}
             />
           )}
           {planId && day && (
             <section className="panel" aria-labelledby="ch-h">
-              <div className="panel-head"><h2 className="h3" id="ch-h">{t("Change {day}", { day: weekday(day.date) })}</h2><span className="hint">{t("Only this day is rebuilt")}</span></div>
+              <div className="panel-head"><h2 className="h3" id="ch-h">{t("Change {day}", { day: weekday(day.date, lang) })}</h2><span className="hint">{t("Only this day is rebuilt")}</span></div>
               <div className="panel-pad" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 <button type="button" className="btn btn-quiet" disabled={!!busy || !(day.stops ?? []).length}
-                  onClick={() => revise({ intent: "lighter_day", day: day.date }, t("Done: {day} is lighter. The other days are as before, and the checks ran again.", { day: weekday(day.date) }))}>
-                  {t("Make {day} lighter", { day: weekday(day.date) })}
+                  onClick={() => revise({ intent: "lighter_day", day: day.date }, t("Done: {day} is lighter. The other days are as before, and the checks ran again.", { day: weekday(day.date, lang) }))}>
+                  {t("Make {day} lighter", { day: weekday(day.date, lang) })}
                 </button>
                 <button type="button" className="btn btn-quiet" disabled={!!busy}
-                  onClick={() => revise({ intent: "rain", day: day.date }, t("Done: {day} is planned for rain. The other days are as before, and the checks ran again.", { day: weekday(day.date) }))}>
-                  {t("Plan {day} for rain", { day: weekday(day.date) })}
+                  onClick={() => revise({ intent: "rain", day: day.date }, t("Done: {day} is planned for rain. The other days are as before, and the checks ran again.", { day: weekday(day.date, lang) }))}>
+                  {t("Plan {day} for rain", { day: weekday(day.date, lang) })}
                 </button>
                 {/* Multi-city: TY1's move_day takes a day from the neighbouring city and re-plans the whole trip. */}
                 {it.request.destinations.length > 1 && it.request.destinations.map((c) => (
@@ -203,7 +221,7 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
               {[...(it.stays ?? [])].sort((a, b) => a.check_in.localeCompare(b.check_in)).map((s) => (
                 <div key={s.name + s.check_in} style={{ marginTop: 8 }}>
                   <p style={{ margin: 0 }}><b>{s.name}</b>, {s.city}</p>
-                  <p className="hint" style={{ margin: "4px 0 0" }}>{t("{from} to {to}", { from: dayLabel(s.check_in), to: dayLabel(s.check_out) })} · {t("{price} a night", { price: inr(s.price_per_night_inr) })}</p>
+                  <p className="hint" style={{ margin: "4px 0 0" }}>{t("{from} to {to}", { from: dayLabel(s.check_in, lang), to: dayLabel(s.check_out, lang) })} · {t("{price} a night", { price: inr(s.price_per_night_inr) })}</p>
                 </div>
               ))}
             </section>
