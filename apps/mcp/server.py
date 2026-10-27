@@ -23,6 +23,7 @@ from ty_contracts import (
     KathaRequest,
     KathaStory,
     Lang,
+    Mode,
     PlanEvent,
     PlanStage,
     RankedOption,
@@ -50,7 +51,9 @@ def share_url(token: str | None) -> str | None:
     if not token:
         return None
     web = os.environ.get("SHARE_BASE_URL", "").rstrip("/")
-    return f"{web}/t/{quote(token, safe='')}/" if web else f"{_base()}/trips/{quote(token, safe='')}"
+    return (
+        f"{web}/t/{quote(token, safe='')}/" if web else f"{_base()}/trips/{quote(token, safe='')}"
+    )
 
 
 mcp = FastMCP("travel-yantra", host="0.0.0.0", port=int(os.environ.get("PORT", "8080")))
@@ -167,21 +170,32 @@ def _sample_compare(req: CompareRequest) -> CompareResponse:
 @mcp.tool()
 async def revise_trip(
     plan_id: str,
-    intent: Literal["lighter_day", "swap_stop", "rain"],
+    intent: Literal["lighter_day", "swap_stop", "rain", "move_day", "transport"],
     day: date | None = None,
     place_id: str | None = None,
+    city: str | None = None,
+    mode: Mode | None = None,
     lang: Lang = Lang.en,
 ) -> PlannedTrip:
-    """Revise a planned trip (plan_id from plan_trip): lighter day, swap a stop, or rain plan.
+    """Revise a planned trip (plan_id from plan_trip): lighter day, swap a stop, rain plan,
+    one more day in a city, or a different way to travel.
 
-    lighter_day needs day; swap_stop needs place_id; rain without a day covers every day.
+    lighter_day needs day; swap_stop needs place_id (a stop id from the itinerary); rain without
+    a day covers every day; move_day needs city (a destination that gains a day from a
+    neighbour); transport needs mode (every journey switches to it, stops are kept).
     Returns a new plan_id; the old plan stays revisable.
     """
     if not _base():
         it = _sample_itinerary()
         it = it.model_copy(update={"warnings": [*it.warnings, "offline sample: not revised"]})
         return PlannedTrip(plan_id=plan_id, itinerary=it)
-    body = {"intent": intent, "day": day.isoformat() if day else None, "place_id": place_id}
+    body = {
+        "intent": intent,
+        "day": day.isoformat() if day else None,
+        "place_id": place_id,
+        "city": city,
+        "mode": mode.value if mode else None,
+    }
     body = {k: v for k, v in body.items() if v is not None} | {"lang": lang.value}
     return await _stream_plan(f"/plan/{quote(plan_id, safe='')}/revise", body)
 

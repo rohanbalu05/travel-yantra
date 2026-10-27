@@ -342,3 +342,18 @@ async def test_get_katha_in_tamil_translates_the_english_story(monkeypatch):
     assert json.loads(seen[0].content)["lang"] == "ta"
     story = KathaStory.model_validate(res.structuredContent)
     assert story.lang == "ta" and story.text.startswith("<ta>")
+
+
+@pytest.mark.parametrize(
+    "args, body",
+    [
+        ({"intent": "move_day", "city": "Mysuru"}, {"intent": "move_day", "city": "Mysuru"}),
+        ({"intent": "transport", "mode": "rail"}, {"intent": "transport", "mode": "rail"}),
+    ],
+)
+async def test_revise_trip_move_day_and_transport(monkeypatch, args, body):
+    seen = _fake_api(monkeypatch, lambda req: httpx.Response(200, text=_sse(SAMPLE)))
+    async with connect(server.mcp._mcp_server) as client:
+        res = await client.call_tool("revise_trip", {"plan_id": "p1", **args})
+    assert not res.isError
+    assert json.loads(seen[0].content) == {**body, "lang": "en"}
