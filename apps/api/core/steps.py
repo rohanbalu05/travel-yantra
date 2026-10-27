@@ -258,8 +258,22 @@ def retime_home(it: Itinerary) -> None:
     leave = (ends + timedelta(minutes=RETURN_BUFFER_MIN)).time()
     same_mode = it.request.model_copy(update={"transport_mode": out.mode})
     new = hop(same_mode, out.from_, out.to, last.date, leave, role="home")
-    if new and (new.depart, new.mode) != (out.depart, out.mode):
-        rebuild_day(it, last.date, list(last.stops), travel, lim, out=new)
+    if new is None or (new.depart, new.mode) == (out.depart, out.mode):
+        return
+    if new.mode is not out.mode:
+        it.warnings.append(f"No {out.mode.value} home from {out.from_} that day; the journey home is by {new.mode.value}")
+    # When even the day's last train leaves before the visits can end, drop visits from the end until it fits.
+    stops = list(last.stops)
+    while stops and new.depart < _visits_end(last.date, stops, travel, opened) + timedelta(minutes=RETURN_BUFFER_MIN):
+        dropped = stops.pop()
+        it.warnings.append(f"Dropped {dropped.name} to catch the {new.depart:%H:%M} {new.mode.value} home")
+    rebuild_day(it, last.date, stops, travel, lim, out=new)
+
+
+def _visits_end(day: date, stops: list[Place], travel: Travel, opened) -> datetime:
+    mins = [travel.minutes(x, y) for x, y in zip(stops, stops[1:])]
+    visits, _ = schedule(day, stops, mins, opened)
+    return visits[-1].leave if visits else datetime.combine(day, opened.start)
 
 
 def home(request: TripRequest) -> Leg | None:

@@ -99,3 +99,17 @@ def test_rail_journeys_carry_the_train_number_when_routes_gives_one():
     it = steps.replan(DEMO)
     refs = [leg.ref for leg in (it.days[0].legs[0], it.days[-1].legs[-1])]
     assert all(r is None or (r.isdigit() and len(r) == 5) for r in refs)
+
+
+def test_when_the_last_train_leaves_too_early_visits_are_dropped_to_catch_it(monkeypatch):
+    from core.solver import out_of
+
+    it = steps.replan(DEMO)
+    last = it.days[-1]
+    early = out_of(last).model_copy(update={"depart": out_of(last).depart.replace(hour=12, minute=30)})
+    monkeypatch.setattr(steps, "hop", lambda *a, **k: early)  # pretend this is the only train left
+    steps.retime_home(it)
+    kept = it.days[-1]
+    assert out_of(kept).depart == early.depart and 0 < len(kept.stops) < len(last.stops)
+    assert any(w.startswith("Dropped ") and "to catch the 12:30 rail home" in w for w in it.warnings)
+    assert kept.schedule[-1].leave <= early.depart - timedelta(minutes=45)

@@ -15,6 +15,7 @@ from dataclasses import dataclass
 
 CERTS_URL = "https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com"
 CERTS_TTL_S = 3600
+RETRY_AFTER_S = 60
 # Account ids carry a prefix with a ":", which an anonymous X-Client-Id can never contain.
 ACCOUNT_PREFIX = "fb:"
 MAX_UID = 128  # Firebase's limit for a uid
@@ -59,7 +60,9 @@ def certs() -> dict[str, str]:
             except (OSError, ValueError) as exc:  # network, timeout or bad JSON
                 if not _certs:
                     raise AuthUnavailable("sign-in is unavailable right now") from exc
-                # Keep using the certificates we have (Google rotates them slowly); try again next call.
+                # Keep using the certificates we have (Google rotates them slowly) and try again in a minute,
+                # not on every request.
+                _certs_at = time.monotonic() - CERTS_TTL_S + RETRY_AFTER_S
         return _certs
 
 
