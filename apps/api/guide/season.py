@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Callable
 from datetime import date
 from functools import lru_cache
 
@@ -100,11 +101,57 @@ def _table() -> dict:
     return json.loads(PATH.read_text(encoding="utf-8"))["notes"] if PATH.exists() else {}
 
 
+#: A note that names a festival is an event: it holds only on the festival's dates, not
+#: the whole month (WA-02, WEB-09: Dasara lights quoted for a 31 Oct trip, after Dasara).
+EVENT = re.compile(r"\b(dasara|dussehra|navaratri|navratri|festival|utsav|carnival|christmas|diwali|"
+                   r"deepavali|shigmo|feast|jatre|jatra|illuminated)\w*", re.I)  # fmt: skip
+#: Festival dates, by the words that name them. A year not listed is unknown, and an event
+#: whose dates are unknown is left out of a dated trip rather than guessed.
+EVENT_DATES: list[tuple[re.Pattern, Callable[[int], tuple[date, date] | None]]] = [
+    # Mysuru Dasara: Navaratri to Vijayadashami. 2026: 11-20 October.
+    (re.compile(r"dasara|dussehra|navaratri|navratri|mysore palace is illuminated", re.I),
+     lambda y: {2026: (date(2026, 10, 11), date(2026, 10, 20))}.get(y)),
+    # Hampi Utsav, as the quoted source says: "the first week of November".
+    (re.compile(r"hampi utsav", re.I), lambda y: (date(y, 11, 1), date(y, 11, 7))),
+    (re.compile(r"christmas", re.I), lambda y: (date(y, 12, 24), date(y, 12, 25))),
+]  # fmt: skip
+
+
 def notes_for(city: str, month: int | date) -> list[dict]:
     """[{text, source_url, kind}] for a destination in a month (1-12 or a date). kind is
-    "month" when the source names that month, "general" for the destination's climate."""
+    "month" when the source names that month, "event" when it names a festival (dated:
+    use notes_for_trip to keep only those inside the trip), "general" for the climate."""
     m = month.month if isinstance(month, date) else month
-    return list(_table().get(corpus_city(city) or city, {}).get(MONTHS[m - 1], []))
+    notes = _table().get(corpus_city(city) or city, {}).get(MONTHS[m - 1], [])
+    return [{**n, "kind": "event"} if EVENT.search(n["text"]) else dict(n) for n in notes]
+
+
+def event_window(text: str, year: int) -> tuple[date, date] | None:
+    """The dates a festival note holds in that year, or None if they are not known."""
+    for pattern, dates in EVENT_DATES:
+        if pattern.search(text):
+            return dates(year)
+    return None
+
+
+def notes_for_trip(city: str, start: date, end: date) -> list[dict]:
+    """Notes for every month of a trip, once each, with each event kept only when its
+    dates fall inside the trip (an event with unknown dates is left out)."""
+    out: list[dict] = []
+    seen: set[str] = set()
+    y, m = start.year, start.month
+    while (y, m) <= (end.year, end.month):
+        for note in notes_for(city, m):
+            if note["text"] in seen:
+                continue
+            if note["kind"] == "event":
+                window = event_window(note["text"], y)
+                if not window or window[1] < start or window[0] > end:
+                    continue
+            seen.add(note["text"])
+            out.append(note)
+        y, m = (y + 1, 1) if m == 12 else (y, m + 1)
+    return out
 
 
 def main() -> None:

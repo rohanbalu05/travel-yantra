@@ -44,3 +44,44 @@ def test_lookup_by_alias_and_by_date() -> None:
     assert notes_for("Panjim", date(2026, 12, 20)) == notes_for("Goa", 12)
     assert any("mid-November to mid-February" in n["text"] for n in notes_for("Goa", 12))
     assert notes_for("Kashmir", 12) == []
+
+
+# --- WA-02, WEB-09: season notes inside the trip dates ---
+
+
+def test_no_dasara_lights_for_a_trip_after_dasara() -> None:
+    from datetime import date
+
+    from guide.season import notes_for_trip
+
+    after = notes_for_trip("Mysuru", date(2026, 10, 31), date(2026, 11, 1))
+    assert after and not any("illuminated" in n["text"] for n in after)
+    assert all(n["kind"] != "event" for n in after)
+    during = notes_for_trip("Mysore", date(2026, 10, 15), date(2026, 10, 18))
+    assert any(n["kind"] == "event" and "illuminated" in n["text"] for n in during)
+    assert len({n["text"] for n in during}) == len(during)  # each note once
+
+
+def test_events_are_kept_only_on_known_dates() -> None:
+    from datetime import date
+
+    from guide.season import event_window, notes_for, notes_for_trip
+
+    assert [n["kind"] for n in notes_for("Mysuru", 10)].count("event") == 1  # still listed by month
+    assert event_window("Mysore Palace is illuminated for Dasara", 2026) == (date(2026, 10, 11), date(2026, 10, 20))
+    assert event_window("Mysore Palace is illuminated for Dasara", 2031) is None  # unknown year: left out
+    assert notes_for_trip("Mysuru", date(2031, 10, 1), date(2031, 10, 31)) == [
+        n for n in notes_for_trip("Mysuru", date(2031, 10, 1), date(2031, 10, 31)) if n["kind"] != "event"
+    ]
+    hampi = notes_for_trip("Hampi", date(2026, 11, 3), date(2026, 11, 5))
+    assert any("Hampi Utsav" in n["text"] for n in hampi)
+    assert not any("Hampi Utsav" in n["text"] for n in notes_for_trip("Hampi", date(2026, 11, 20), date(2026, 11, 22)))
+
+
+def test_a_trip_across_new_year_reads_both_years() -> None:
+    from datetime import date
+
+    from guide.season import notes_for_trip
+
+    notes = notes_for_trip("Goa", date(2026, 12, 30), date(2027, 1, 2))
+    assert notes and len({n["text"] for n in notes}) == len(notes)
