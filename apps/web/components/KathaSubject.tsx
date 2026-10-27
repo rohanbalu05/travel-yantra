@@ -19,7 +19,7 @@ export function KathaSubject({ kind, fallback }: { kind: "place" | "city"; fallb
           <h1 className="page-title">{subject}</h1>
           <p className="page-sub">{kind === "city" ? "The city's story, from its founding to today." : "The story of this place, history first, legends labelled."}</p>
         </div>
-        <KathaView key={`${kind}:${subject}`} req={{ subject_kind: kind, subject, lang: "en" }} />
+        <KathaView key={`${kind}:${subject}`} req={{ subject_kind: kind, subject }} />
         <p style={{ marginTop: 24 }}>
           <Link className="btn btn-quiet btn-sm" href="/ask/">Ask the guide about {subject}</Link>
         </p>

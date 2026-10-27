@@ -28,6 +28,15 @@ a{text-underline-offset:3px}
 .ta{font-family:var(--font-anek-ta),var(--f-body)}
 .te{font-family:var(--font-anek-te),var(--f-body)}
 .bn{font-family:var(--font-anek-bn),var(--f-body)}
+/* the whole app in the chosen language (lib/i18n sets html[data-lang]); Latin text keeps its fonts as fallback */
+html[data-lang=hi]{--f-body:var(--font-anek-hi),var(--font-figtree),sans-serif;--f-display:var(--font-anek-hi),var(--font-bricolage),sans-serif}
+html[data-lang=kn]{--f-body:var(--font-anek-kn),var(--font-figtree),sans-serif;--f-display:var(--font-anek-kn),var(--font-bricolage),sans-serif}
+html[data-lang=ta]{--f-body:var(--font-anek-ta),var(--font-figtree),sans-serif;--f-display:var(--font-anek-ta),var(--font-bricolage),sans-serif}
+html[data-lang=te]{--f-body:var(--font-anek-te),var(--font-figtree),sans-serif;--f-display:var(--font-anek-te),var(--font-bricolage),sans-serif}
+html[data-lang=bn]{--f-body:var(--font-anek-bn),var(--font-figtree),sans-serif;--f-display:var(--font-anek-bn),var(--font-bricolage),sans-serif}
+html[data-lang]:not([data-lang=en]) h1,html[data-lang]:not([data-lang=en]) h2{letter-spacing:0;line-height:1.25}
+.lang-pick{display:inline-flex;align-items:center;gap:6px}
+.lang-pick select{min-height:44px;padding:0 10px;border:1px solid var(--line);border-radius:var(--r);background:transparent;font-weight:600;font-size:15px}
 
 /* layout */
 .wrap{width:100%;max-width:1280px;margin-inline:auto;padding-inline:clamp(16px,4vw,56px)}

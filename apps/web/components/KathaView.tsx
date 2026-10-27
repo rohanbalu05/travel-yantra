@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Cited, Sources, citationFrom } from "@/components/Cited";
 import { Problem, problemOf } from "@/components/Problem";
 import { getKatha, type KathaRequest, type KathaResult } from "@/lib/guide";
+import { useI18n } from "@/lib/i18n";
 
 const LENGTHS = [2, 5, 10] as const;
 // Labels TY2 may add later still show, as plain text with no tag.
@@ -13,11 +14,13 @@ const TAG: Record<string, string> = { history: "tag tag-history k-label", legend
 const KATHA_TIMEOUT_MS = 90_000;
 
 /** The story for one subject with a 2, 5 or 10 minute switch, labelled segments and numbered sources. */
-export function KathaView({ req }: { req: Omit<KathaRequest, "length_min"> }) {
+export function KathaView({ req }: { req: Omit<KathaRequest, "length_min" | "lang"> }) {
+  const { lang, t } = useI18n();
   const [length, setLength] = useState<2 | 5 | 10>(5);
   const [run, setRun] = useState(0);
   const [result, setResult] = useState<{ key: string; story?: KathaResult; problem?: { message: string; retryable: boolean } } | null>(null);
-  const reqKey = JSON.stringify({ ...req, length_min: length });
+  // A new language or length is a new request.
+  const reqKey = JSON.stringify({ ...req, lang, length_min: length });
 
   useEffect(() => {
     const ctl = new AbortController();
@@ -45,7 +48,7 @@ export function KathaView({ req }: { req: Omit<KathaRequest, "length_min"> }) {
       <div className="k-bar">
         <div className="toggle" role="group" aria-label="Length">
           {LENGTHS.map((n) => (
-            <button key={n} type="button" className={n === length ? "on" : undefined} aria-pressed={n === length} onClick={() => setLength(n)}>{n} min</button>
+            <button key={n} type="button" className={n === length ? "on" : undefined} aria-pressed={n === length} onClick={() => setLength(n)}>{n} {t("Minutes")}</button>
           ))}
         </div>
         {story?.sample && <span className="badge">Sample story</span>}

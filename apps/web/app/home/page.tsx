@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { PlayIcon, Wave } from "@/components/Wave";
+import { useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { savePlanInput } from "@/lib/plan";
 import "./home.css";
@@ -29,13 +30,14 @@ const book = <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V
 
 export default function HomePage() {
   const router = useRouter();
+  const { lang, t } = useI18n();
   const [playing, setPlaying] = useState(false);
   const [ask, setAsk] = useState("");
   // Typed text goes straight to planning; an empty box opens the full start page.
   const planIt = () => {
     const text = ask.trim();
     if (!text) return router.push("/plan/start/");
-    savePlanInput({ text, lang: "en" });
+    savePlanInput({ text, lang });
     track("start");
     router.push("/plan/thinking/");
   };
@@ -61,14 +63,14 @@ export default function HomePage() {
               <svg className="ic" viewBox="0 0 24 24" aria-hidden="true">{pin}<circle cx="12" cy="10" r="2.3" /></svg>
               Planning
             </span>
-            <h2 id="plan-h">Plan a trip</h2>
+            <h2 id="plan-h">{t("Plan a trip")}</h2>
             <p>Say where, when and who you are going with. Get road, rail and air compared, a plan checked stop by stop, and every booking lined up.</p>
             <div className="door-box">
               <div className="hm-composer">
-                <label htmlFor="hm-ask">Where to?</label>
+                <label htmlFor="hm-ask">{t("Where do you want to go?")}</label>
                 <textarea id="hm-ask" value={ask} maxLength={4000} onChange={(e) => setAsk(e.target.value)} placeholder="Bengaluru to Goa, 11 to 14 Dec, with my parents and sister. Churches, temples, a little beach." />
                 <div className="hm-composer-row">
-                  <button type="button" className="btn btn-primary" onClick={planIt}>Plan it</button>
+                  <button type="button" className="btn btn-primary" onClick={planIt}>{t("Plan my trip")}</button>
                 </div>
               </div>
               <div className="hm-chips" aria-label="Ideas">

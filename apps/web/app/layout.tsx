@@ -9,6 +9,7 @@ import {
   Figtree,
   JetBrains_Mono,
 } from "next/font/google";
+import { LangProvider } from "@/lib/i18n";
 import "./ty.css";
 
 const bricolage = Bricolage_Grotesque({ subsets: ["latin"], variable: "--font-bricolage", display: "swap" });
@@ -31,7 +32,9 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, them
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={fonts.map((x) => x.variable).join(" ")}>
-      <body>{children}</body>
+      <body>
+        <LangProvider>{children}</LangProvider>
+      </body>
     </html>
   );
 }

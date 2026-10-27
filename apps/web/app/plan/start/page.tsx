@@ -5,12 +5,13 @@ import { Suspense, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Trail } from "@/components/Trail";
 import type { Lang, TripDraft } from "@/lib/contracts";
+import { LANGS, useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { savePlanInput } from "@/lib/plan";
 import { FOODS, INTERESTS, PACES, formFromDraft, formProblems, goaForm, toTripRequest, type TripForm } from "@/lib/tripForm";
 import "../plan.css";
 
-const LANGS: [Lang, string][] = [["en", "English"], ["hi", "हिन्दी"], ["kn", "ಕನ್ನಡ"], ["ta", "தமிழ்"], ["te", "తెలుగు"], ["bn", "বাংলা"]];
+const PLAN_LANGS: [Lang, string][] = LANGS.map((l) => [l.code, l.native]);
 
 const SAMPLE_TEXT = "Bengaluru to Goa, 11 to 14 Dec, with my parents and sister. Churches, temples, a little beach. Vegetarian food, about ₹60,000 in all.";
 
@@ -25,7 +26,9 @@ function PlanStart() {
   const params = useSearchParams();
   const [mode, setMode] = useState<"words" | "form">(params.get("mode") === "form" ? "form" : "words");
   const [text, setText] = useState(params.get("text") ?? SAMPLE_TEXT);
-  const [lang, setLang] = useState<Lang>("en");
+  const { lang: uiLang, t } = useI18n();
+  // The plan's language starts as the app's and can differ (plan in Hindi, read the app in English).
+  const [lang, setLang] = useState<Lang>(uiLang);
   // From needs_input, the form starts from what intake understood; otherwise from the Goa sample.
   const [form, setForm] = useState<TripForm>(() => {
     try {
@@ -52,7 +55,7 @@ function PlanStart() {
     <div className="field">
       <span className="label">Plan and Katha in</span>
       <div className="toggle wrap-toggle" role="group" aria-label="Language for the plan">
-        {LANGS.map(([k, label]) => (
+        {PLAN_LANGS.map(([k, label]) => (
           <button key={k} type="button" className={k === lang ? "on" : undefined} aria-pressed={k === lang} onClick={() => setLang(k)}>
             {label}
           </button>
@@ -74,7 +77,7 @@ function PlanStart() {
           <Trail at={1} />
           <div className="ps-titlebar">
             <div className="col-10">
-              <h1 className="page-title">Tell us about the trip</h1>
+              <h1 className="page-title">{t("Tell us about the trip")}</h1>
               <p className="page-sub">In your own words, in any of six languages, or fill in a form. Either way the AI checks what it understood before it plans.</p>
             </div>
             <div className="toggle" role="group" aria-label="How to describe the trip">
@@ -102,7 +105,7 @@ function PlanStart() {
               </div>
               <div className="ps-cta">
                 {errors}
-                <button type="button" className="btn btn-primary btn-lg btn-block" onClick={submit}>Plan my trip</button>
+                <button type="button" className="btn btn-primary btn-lg btn-block" onClick={submit}>{t("Plan my trip")}</button>
                 <span className="hint">Takes about 15 seconds. Nothing is booked until you say so.</span>
               </div>
             </aside>
@@ -173,7 +176,7 @@ function PlanStart() {
               </div>
               {langPicker}
               {errors}
-              <button type="button" className="btn btn-primary btn-lg btn-block" onClick={submit}>Plan my trip</button>
+              <button type="button" className="btn btn-primary btn-lg btn-block" onClick={submit}>{t("Plan my trip")}</button>
             </section>
           </div>
         )}

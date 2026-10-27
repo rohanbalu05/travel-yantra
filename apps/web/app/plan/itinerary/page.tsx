@@ -8,6 +8,7 @@ import { StopsMap } from "@/components/StopsMap";
 import { Trail } from "@/components/Trail";
 import type { DayPlan, Itinerary, ReviseRequest } from "@/lib/contracts";
 import { MODE_NAME, clock, dayLabel, duration, inr, weekday } from "@/lib/format";
+import { useI18n } from "@/lib/i18n";
 import { PlanHttpError, savePlanResult, streamRevise, useChoice, usePlanResult } from "@/lib/plan";
 import { initialPlanState, planReducer } from "@/lib/planState";
 import { againstBudget, dayRows, pickIndex, travellerCount, tripCost } from "@/lib/planView";
@@ -25,6 +26,7 @@ function dayTitle(day: DayPlan): string {
 }
 
 function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null; shareToken: string | null }) {
+  const { t } = useI18n();
   const [sel, setSel] = useState(0);
   const [shared, setShared] = useState<string | null>(null);
   // The link shows the plan only (TY1's GET /trips/{token}), never bookings or names.
@@ -102,7 +104,7 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
             {shareToken && (
               <button type="button" className="btn btn-quiet btn-sm" onClick={share}>{shared ?? "Share with family"}</button>
             )}
-            <Link className="btn btn-primary btn-sm" href="/book/">Book this plan</Link>
+            <Link className="btn btn-primary btn-sm" href="/book/">{t("Book this plan")}</Link>
           </div>
         </div>
       </div>
@@ -230,7 +232,7 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
         <div><b>Happy with it? Book it.</b><span>Trains, the stay and the cabs. We line them up; you pay the seller directly.</span></div>
         <div className="row-wrap">
           <Link className="btn btn-on-dark" href="/plan/options/">Change how you travel</Link>
-          <Link className="btn btn-primary btn-lg" href="/book/">Book this plan</Link>
+          <Link className="btn btn-primary btn-lg" href="/book/">{t("Book this plan")}</Link>
         </div>
       </div>
     </>

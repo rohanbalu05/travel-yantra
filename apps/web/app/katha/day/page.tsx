@@ -31,7 +31,7 @@ export default function KathaDay() {
         {day && (
           <div className="split">
             <div className="main">
-              <KathaView key={day.date} req={{ subject_kind: "day", subject: `Day ${n}, ${city}`, places: (day.stops ?? []).map((s) => s.name), lang: "en" }} />
+              <KathaView key={day.date} req={{ subject_kind: "day", subject: `Day ${n}, ${city}`, places: (day.stops ?? []).map((s) => s.name) }} />
             </div>
             <aside className="side panel panel-pad" aria-labelledby="days-h">
               <h2 className="h3" id="days-h" style={{ marginBottom: 12 }}>Days</h2>

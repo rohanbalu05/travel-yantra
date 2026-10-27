@@ -1,4 +1,5 @@
 import { ApiError } from "@/lib/http";
+import { useI18n } from "@/lib/i18n";
 
 /** What to say for a failed call: the API's own reason, and whether Try again makes sense. */
 export function problemOf(e: unknown): { message: string; retryable: boolean } {
@@ -7,10 +8,11 @@ export function problemOf(e: unknown): { message: string; retryable: boolean } {
 }
 
 export function Problem({ message, retryable, onRetry }: { message: string; retryable: boolean; onRetry?: () => void }) {
+  const { t } = useI18n();
   return (
     <div className="problem" role="alert">
       <span>{message}</span>
-      {retryable && onRetry && <button type="button" className="btn btn-quiet btn-sm" onClick={onRetry}>Try again</button>}
+      {retryable && onRetry && <button type="button" className="btn btn-quiet btn-sm" onClick={onRetry}>{t("Try again")}</button>}
     </div>
   );
 }

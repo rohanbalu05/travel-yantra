@@ -6,6 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { Trail } from "@/components/Trail";
 import type { ViolationCode } from "@/lib/contracts";
 import { inr } from "@/lib/format";
+import { useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { GOA_REQUEST } from "@/lib/mockPlan";
 import { PlanHttpError, savePlanInput, savePlanResult, streamPlan, usePlanInput, type PlanBody } from "@/lib/plan";
@@ -124,6 +125,7 @@ function budgetOf(s: PlanState): string {
 }
 
 export default function PlanThinking() {
+  const { t } = useI18n();
   const stored = usePlanInput();
   // Opening this page directly (nothing typed yet) plans the Goa sample.
   const body: PlanBody | null = stored === undefined ? null : (stored ?? GOA_REQUEST);
@@ -222,7 +224,7 @@ export default function PlanThinking() {
           <div className="ready bad" role="alert">
             <div><b>We could not finish the plan</b><span>{state.error?.message}</span></div>
             <div className="row-wrap">
-              {state.error?.retryable && <button type="button" className="btn btn-primary btn-lg" onClick={retry}>Try again</button>}
+              {state.error?.retryable && <button type="button" className="btn btn-primary btn-lg" onClick={retry}>{t("Try again")}</button>}
               <Link className="btn btn-on-dark" href="/plan/start/">Change the trip</Link>
             </div>
           </div>
@@ -230,7 +232,7 @@ export default function PlanThinking() {
           <div className="ready" aria-live="polite">
             {state.status === "done" ? (
               <>
-                <div><b>Your plan is ready</b><span>{ways > 1 ? `${ways} ways to get there, compared for all of you.` : "Checked stop by stop."}</span></div>
+                <div><b>{t("Your plan is ready")}</b><span>{ways > 1 ? `${ways} ways to get there, compared for all of you.` : "Checked stop by stop."}</span></div>
                 <Link className="btn btn-primary btn-lg" href={ways > 1 ? "/plan/options/" : "/plan/itinerary/"}>{ways > 1 ? `See the ${ways} ways to go` : "See the plan"}</Link>
               </>
             ) : (

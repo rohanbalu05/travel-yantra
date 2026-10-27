@@ -6,6 +6,7 @@ import { Cited, Sources } from "@/components/Cited";
 import { Problem, problemOf } from "@/components/Problem";
 import type { GuideAnswer, Place } from "@/lib/contracts";
 import { askGuide } from "@/lib/guide";
+import { useI18n } from "@/lib/i18n";
 import { osmLink } from "@/lib/map";
 import { usePlanResult } from "@/lib/plan";
 import "../guide.css";
@@ -36,6 +37,7 @@ function Emergency({ places }: { places: Place[] }) {
 
 export default function AskGuide() {
   const plan = usePlanResult();
+  const { lang, t } = useI18n();
   const city = plan?.itinerary.request.destinations[0] ?? null;
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState("");
@@ -48,7 +50,7 @@ export default function AskGuide() {
     setBusy(true);
     setTurns((t) => t.map((x) => (x.id === id ? { id, q } : x)));
     try {
-      const a = await askGuide({ question: q, lang: "en", city, lat: pos?.lat ?? null, lng: pos?.lng ?? null, has_elderly: (plan?.itinerary.request.constraints?.travellers ?? []).some((t) => t.age >= 60) });
+      const a = await askGuide({ question: q, lang, city, lat: pos?.lat ?? null, lng: pos?.lng ?? null, has_elderly: (plan?.itinerary.request.constraints?.travellers ?? []).some((t) => t.age >= 60) });
       setTurns((t) => t.map((x) => (x.id === id ? { id, q, a } : x)));
     } catch (e) {
       setTurns((t) => t.map((x) => (x.id === id ? { id, q, problem: problemOf(e) } : x)));
@@ -82,7 +84,7 @@ export default function AskGuide() {
     <AppShell>
       <div>
         <div className="ag-head">
-          <h1 className="page-title">Ask the guide</h1>
+          <h1 className="page-title">{t("Ask the guide")}</h1>
           <p className="page-sub">History, food, culture and what to do in an emergency{city ? ` in ${city}` : ""}. Every answer names its sources; if there is no source, the guide says so instead of guessing.</p>
         </div>
         <div className="split">
@@ -123,7 +125,7 @@ export default function AskGuide() {
               </div>
             </section>
             <section className="panel panel-pad" aria-labelledby="loc-h">
-              <h2 className="h3" id="loc-h" style={{ marginBottom: 8 }}>Emergencies</h2>
+              <h2 className="h3" id="loc-h" style={{ marginBottom: 8 }}>{t("Emergency numbers")}</h2>
               <p className="hint" style={{ margin: "0 0 12px" }}>For the nearest hospital, police or pharmacy, the guide can use where you are. It is sent only with your questions and not stored.</p>
               <button type="button" className="btn btn-quiet btn-sm" onClick={share} disabled={!!pos}>{pos ? "Location shared" : "Share my location"}</button>
               {posNote && <p className="hint" role="status" style={{ margin: "8px 0 0" }}>{posNote}</p>}

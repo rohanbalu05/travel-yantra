@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Brand } from "@/components/Brand";
+import type { Lang } from "@/lib/contracts";
+import { LANGS, useI18n } from "@/lib/i18n";
 import { NAV } from "@/lib/screens";
 
 const globe = (
@@ -13,9 +15,26 @@ const globe = (
   </svg>
 );
 
+/** The six-language switch; each language is named in its own script. */
+export function LangPicker() {
+  const { lang, setLang, t } = useI18n();
+  return (
+    <label className="lang-pick">
+      {globe}
+      <span className="sr">{t("Choose a language")}</span>
+      <select value={lang} onChange={(e) => setLang(e.target.value as Lang)}>
+        {LANGS.map((l) => (
+          <option key={l.code} value={l.code} lang={l.code}>{l.native}</option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 /** The signed-in shell: app bar, main area, footer. */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const path = usePathname() ?? "";
+  const { t } = useI18n();
   const on = (p: string) => path === p || (p !== "/home/" && path.startsWith(p.slice(0, -1)));
   return (
     <div className="app">
@@ -24,15 +43,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <nav className="appnav" aria-label="Main">
           {NAV.map((n) => (
             <Link key={n.path} href={n.path} className={on(n.path) ? "on" : undefined}>
-              {n.label}
+              {t(n.label)}
             </Link>
           ))}
         </nav>
         <div className="appbar-end">
-          <Link className="btn btn-quiet btn-sm" href="/settings/">
-            {globe}English
-          </Link>
-          <Link className="avatar" href="/settings/" aria-label="Account and settings">
+          <LangPicker />
+          <Link className="avatar" href="/settings/" aria-label={t("Settings")}>
             AR
           </Link>
         </div>
