@@ -17,8 +17,15 @@ GOA = json.loads((SAMPLES / "goa_family.json").read_text(encoding="utf-8"))["req
 MYSURU = json.loads((SAMPLES / "mysuru_weekend.json").read_text(encoding="utf-8"))["request"]
 
 
-def frames(resp):
+def all_frames(resp):
     return [json.loads(line[len("data: "):]) for line in resp.text.splitlines() if line.startswith("data: ")]
+
+
+def frames(resp):
+    """Frames after the instant first event, which every stream starts with (card #38)."""
+    events = all_frames(resp)
+    assert events[0]["stage"] == "intake" and events[0]["step"] is None and events[0]["partial"] is None
+    return events[1:]
 
 
 def stages(events):
@@ -67,8 +74,9 @@ def test_free_text_plans_through_intake():
 
 
 def test_free_text_missing_dates_ends_with_questions():
-    events = frames(client.post("/plan", json={"text": "Goa trip from Bengaluru with my parents"}))
-    assert stages(events) == ["needs_input"]
+    events = all_frames(client.post("/plan", json={"text": "Goa trip from Bengaluru with my parents"}))
+    assert stages(events) == ["intake", "needs_input"] and events[0]["message"] == "Reading your trip…"
+    events = events[1:]
     assert events[0]["questions"] and len(events[0]["questions"]) <= 3
     assert any("date" in q.lower() for q in events[0]["questions"])
 
@@ -99,7 +107,7 @@ def test_plan_error_is_single_generic_event(monkeypatch):
         raise TimeoutError("model timed out after 20 s")
 
     monkeypatch.setitem(pipeline.STEPS, "story", boom)
-    events = frames(client.post("/plan", json=GOA))
+    events = all_frames(client.post("/plan", json=GOA))
     assert events[-1]["stage"] == "error" and events[-1]["retryable"] is True
     assert "timed out" not in json.dumps(events)
     assert stages(events).count("error") == 1
@@ -157,3 +165,23 @@ def test_cors_preflight_allows_localhost_and_env_origins(monkeypatch):
     assert "access-control-allow-origin" not in fresh.options("/plan", headers={"Origin": "https://evil.example", **pre}).headers
     monkeypatch.delenv("TY_CORS_ORIGINS")
     importlib.reload(main)
+
+
+def test_first_event_is_instant_and_names_the_trip(monkeypatch):
+    async def slow_intake(state, model):
+        await asyncio.sleep(5)  # a slow model must not delay the first event
+        return {}, "never"
+
+    monkeypatch.setitem(pipeline.STEPS, "intake", slow_intake)
+
+    async def first():
+        from ty_contracts import TripRequest
+
+        stream = pipeline.run_plan(TripRequest.model_validate(GOA))
+        try:
+            return await asyncio.wait_for(anext(stream), timeout=0.5)
+        finally:
+            await stream.aclose()
+
+    event = asyncio.run(first())
+    assert event.stage is PlanStage.intake and event.message == "Planning Bengaluru to Goa…"

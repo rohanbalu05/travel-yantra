@@ -5,6 +5,7 @@ Only intake (Flash-Lite), story (Flash-Lite) and narrator (Flash) call the model
 
 from __future__ import annotations
 
+from datetime import date
 from functools import lru_cache
 
 from ty_contracts import (
@@ -59,17 +60,22 @@ def _compare():
     return get_service()
 
 
-def transport_options(request: TripRequest) -> list[TransportOption]:
-    """Ranked options from TY3's /routes/compare service for origin to first destination (one way).
-    Falls back to the sample options when routes does not know a city."""
+@lru_cache(maxsize=256)
+def _compared(origin: str, destination: str, day: date) -> tuple[TransportOption, ...]:
+    """Cached per route and day: the graph search is deterministic for the same inputs."""
     from routes.compare import CompareRequest, UnknownPlace
 
     try:
-        found = _compare().compare(CompareRequest(origin=request.origin, destination=request.destinations[0],
-                                                  date=request.start_date))
-        options = [o.option for o in found.options]
+        found = _compare().compare(CompareRequest(origin=origin, destination=destination, date=day))
     except UnknownPlace:
-        options = []
+        return ()
+    return tuple(o.option for o in found.options)
+
+
+def transport_options(request: TripRequest) -> list[TransportOption]:
+    """Ranked options from TY3's /routes/compare service for origin to first destination (one way).
+    Falls back to the sample options when routes does not know a city."""
+    options = [o.model_copy(deep=True) for o in _compared(request.origin, request.destinations[0], request.start_date)]
     return options or fakes.transport(request)
 
 

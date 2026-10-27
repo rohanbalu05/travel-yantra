@@ -102,6 +102,11 @@ def remember(itinerary: Itinerary) -> str:
 
 async def run_plan(body: TripRequest | PlanText) -> AsyncIterator[PlanEvent]:
     """Yield one PlanEvent per finished step, then one terminal event (done, needs_input or error). Never raises."""
+    # First answer at once (card #38): before any ADK setup or model call.
+    if isinstance(body, TripRequest):
+        yield PlanEvent(stage=PlanStage.intake, message=f"Planning {body.origin} to {', '.join(body.destinations)}…")
+    else:
+        yield PlanEvent(stage=PlanStage.intake, message="Reading your trip…")
     state: dict = {"body": body.model_dump(mode="json")}
     try:
         sessions = InMemorySessionService()
