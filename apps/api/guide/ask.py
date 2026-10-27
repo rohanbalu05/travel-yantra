@@ -25,6 +25,7 @@ from .places import PlacesClient
 from .retrieval.retrieve import Filters, Hit, TripContext, search
 
 K = 6  # sources handed to the model
+MAX_TOKENS = 400  # thinking plus a two-to-four-sentence answer
 EMERGENCY_NUMBER = "112"  # India's single emergency number: police, fire, ambulance
 REFUSAL = (
     "I don't have a sourced answer to that yet, so I won't guess. "
@@ -210,7 +211,15 @@ class ModelAnswerer:
     async def __call__(self, question: str, sources: list[Hit]) -> str:
         from core.llm import get_model
 
-        return await get_model().text(build_prompt(question, sources), tier="flash")
+        # Low thinking and a short cap: thinking tokens count toward the cap, and the
+        # guide's budget is 3 s for an answer of two to four sentences.
+        return await get_model().text(
+            build_prompt(question, sources),
+            tier="flash",
+            thinking="low",
+            max_output_tokens=MAX_TOKENS,
+            temperature=0.2,
+        )
 
 
 def answerer() -> Answerer:
