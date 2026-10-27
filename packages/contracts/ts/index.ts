@@ -223,7 +223,7 @@ export interface SeasonNote {
   city: string;
   text: string;
   source_url: string;
-  kind: "month" | "general";
+  kind: "month" | "general" | "event";
 }
 
 export interface SellerOffer {

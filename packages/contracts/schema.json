@@ -1339,7 +1339,8 @@
         "kind": {
           "enum": [
             "month",
-            "general"
+            "general",
+            "event"
           ],
           "title": "Kind",
           "type": "string"

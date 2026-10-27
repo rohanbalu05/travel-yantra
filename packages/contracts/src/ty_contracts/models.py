@@ -232,8 +232,9 @@ class SeasonNote(_Model):
     city: str
     text: str
     source_url: str
-    # "month": the source names a month of the trip; "general": the destination's climate.
-    kind: Literal["month", "general"]
+    # "month": the source names a month of the trip; "general": the destination's climate; "event": a dated
+    # festival or event (TY2 keeps only those whose window overlaps the trip).
+    kind: Literal["month", "general", "event"]
 
 
 class Itinerary(_Model):
