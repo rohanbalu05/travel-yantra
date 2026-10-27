@@ -1,0 +1,15 @@
+# Mysuru, 2 minutes
+
+*History.* You stand under a warm evening sky, watching a lakh of lightbulbs snap on at once to outline this palace in fire [1]. It is a moment of pure celebration, yet it hides a dark, four-hundred-year-old wound [1]. How did a dynasty that built these wide, planned roads under a temple hill, and filled the air with the sweet scent of sandalwood, remain haunted by a queen's dying words [2]?
+
+*History.* The city’s wounds are deep. In 1799, the British killed Tipu Sultan, the ruler who fought them with iron-cased rockets [3][2]. Tipu owned a life-sized mechanical toy: a wooden tiger mauling a British soldier [4]. When you turn its handle, the soldier's arm flails and he wails while the tiger grunts [4]. The British took this toy to London as a trophy [4]. It sits in a museum there today, still growling—a piece of Mysuru's anger on permanent display across the ocean [4]. Have you ever had your own quiet anger taken and put on show by someone else?
+
+*Disputed.* People still debate the curse that haunts the royal family [1]. Some say a queen's dying words doomed the Wadiyar kings to never have a natural heir, pointing to how the succession repeatedly went sideways through adoption [5]. Yet geologists argue that the sand burying the nearby town of Talakad is just the river shifting course, not a supernatural punishment [5]. The family itself takes the curse seriously [5]. They still live in the palace today, watching the Sunday lights turn on while the old curse whispers in the dark [1][2].
+
+## Sources
+
+1. Two stories run this city (Mysore Palace Board)
+2. https://en.wikipedia.org/wiki/Wadiyar_dynasty
+3. Rockets before the British had them (Royal Artillery Museum collection, general reference)
+4. https://collections.vam.ac.uk/item/O61949/tippoos-tiger-mechanical-organ-unknown
+5. https://www.karnataka.com/talakad/talakad-legend

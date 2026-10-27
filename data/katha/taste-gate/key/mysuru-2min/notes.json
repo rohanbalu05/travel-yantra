@@ -1,0 +1,154 @@
+{
+ "outline": {
+  "theme": "Mysuru is a city that holds its contradictions—celebration and wounds, light and curses—side by side.",
+  "hook": "Look at the palace before you, its wide straight roads stretching out into the city. If you stand here on a Sunday night, you will see close to a lakh of lightbulbs turn on all at once, drawing the whole building in fire.",
+  "gap": "How did a dynasty that built this grand capital, with its sweet smell of sandalwood and its royal pace, remain haunted by a queen's dying words?",
+  "people": [
+   "Wadiyar kings",
+   "Tipu Sultan",
+   "Mahishasura"
+  ],
+  "bridge": "Have you ever held onto a quiet family fear, even when logic tells you it is just wind and sand?",
+  "peak": "The fall of Srirangapatna in 1799, Tipu's death, and the British taking the mechanical tiger that still growls in London.",
+  "ending": "They train in silence, keeping a tradition alive under the shadow of the hill.",
+  "chapters": [
+   {
+    "title": "The Two Faces of Mysuru",
+    "hook": "Look at the palace before you, its wide straight roads stretching out into the city.",
+    "gap": "How did a dynasty that built this grand capital, with its sweet smell of sandalwood and its royal pace, remain haunted by a queen's dying words?",
+    "beats": [
+     {
+      "text": "Look at the palace before you, its wide straight roads stretching out into the city. If you stand here on a Sunday night, you will see close to a lakh of lightbulbs turn on all at once, drawing the whole building in fire. Yet, under this brilliant show lies a dark four-hundred-year-old curse that the royal family still takes seriously. How did a dynasty that built this grand capital, with its sweet smell of sandalwood and its royal pace, remain haunted by a queen's dying words?",
+      "facts": [
+       1,
+       2
+      ],
+      "label": "history"
+     },
+     {
+      "text": "The Wadiyar family has been attached to this city since 1399, surviving as rulers for over six centuries. But their rule was not a smooth ride; they faced a massive obstacle when a general named Hyder Ali and his son, Tipu Sultan, took real power and pushed the maharajas into the shadows. Tipu wanted to crush his enemies, and he did it with iron-cased rockets strapped to bamboo shafts that screamed through the air for over a kilometre. You can almost hear the deafening boom of those early missiles that once terrified the British at Srirangapatna.",
+      "facts": [
+       8,
+       7
+      ],
+      "label": "history"
+     },
+     {
+      "text": "The peak of this struggle came in 1799 when the British stormed Srirangapatna and Tipu died in the mud. The victors did not just take the land; they seized Tipu’s favourite toy—a life-sized mechanical tiger mauling a British soldier. If you turn its handle, the wooden beast grunts and the dying soldier's arm flails as an organ inside mimics his wails. Today, that cold wooden machine sits in a London museum, still growling, a physical piece of Mysuru's old anger on display thousands of miles away.",
+      "facts": [
+       3
+      ],
+      "label": "history"
+     },
+     {
+      "text": "After Tipu's death, the British put a four-year-old Wadiyar child back on the throne, but the old curse seemed to follow them. The family line repeatedly went sideways, forcing rulers like Chamaraja Wadiyar the Tenth to take the throne by adoption. Geologists say the sand that buried the nearby town of Talakad was just the result of a shifting river and wind, but the family still treats the curse as a real, heavy shadow. Have you ever held onto a quiet family fear, even when logic tells you it is just wind and sand?",
+      "facts": [
+       6
+      ],
+      "label": "history"
+     },
+     {
+      "text": "The city's very name carries this tension between history and belief. People here say a buffalo demon named Mahishasura terrorised this land until the goddess Chamundeshwari came down to the hill you see above us and killed him. While historians argue the name Mysuru simply comes from an old term for buffalo country, the city still keeps the demon's name and celebrates the goddess's victory every autumn.",
+      "facts": [
+       5
+      ],
+      "label": "legend"
+     },
+     {
+      "text": "Away from the palace lights, the oldest pulse of the city beats in the dark. In the earthen wrestling houses called garadi mane, men still train at five in the morning on floors of red earth mixed with oil and turmeric. You can smell the sharp spice in the cool air as they climb ropes and lift heavy stone weights. They train in silence, keeping a tradition alive under the shadow of the hill.",
+      "facts": [
+       4
+      ],
+      "label": "history"
+     }
+    ]
+   }
+  ]
+ },
+ "critiques": [
+  "Scores:\n- Hook: 2/5 (The draft opens with a command to look, rather than a person at a moment, a contradiction, or a question)\n- Theme: 4/5 (The draft introduces the theme of celebration and curse, but doesn't sustain it due to being cut off)\n- Specifics: 4/5 (Good use of the lakh of bulbs, sandalwood, and roads, but lacks sensory details in the second half)\n- Peak: 1/5 (The text cuts off mid-sentence, so there is no peak)\n- Ending: 1/5 (The text cuts off, leaving no ending at all)\n- Honesty: 2/5 (The labels are present but incomplete, and the second paragraph lacks citations)\n\nThree biggest problems:\n1. **Incomplete Draft:** The story cuts off mid-sentence in the second paragraph, leaving it without a peak, an ending, or a closed curiosity gap.\n2. **Weak Hook:** The opening sentence does not start with a person at a moment, a contradiction, or a question, and lacks immediate narrative tension.\n3. **No Bridge to the Reader:** The draft fails to connect the history or theme of Mysuru to the reader's own life or experiences."
+ ],
+ "attempts": 1,
+ "facts": [
+  {
+   "n": 1,
+   "chunk_id": 1,
+   "city": "Mysuru",
+   "title": "Two stories run this city",
+   "body": "Mysuru runs on two stories. One is electric: on Sunday nights, close to a lakh of bulbs come on across the palace at once, and for about an hour the whole building is drawn in light. The other is much older and much darker, and it involves a queen, a river, and a curse that the royal family has taken seriously for four hundred years. You will hear both before this walk is done. Keep them in your head together, because that is the trick of this city. The lights are for everyone. The curse is family business. Mysuru has always known how to hold a celebration and a wound at the same time.",
+   "is_legend": false,
+   "source_name": "Mysore Palace Board",
+   "source_url": null
+  },
+  {
+   "n": 2,
+   "chunk_id": 258,
+   "city": "Mysuru",
+   "title": "The palace city that kept its capital manners",
+   "body": "Mysuru is the city the old Mysore kingdom was named for, and it still carries itself like a capital. For most of five centuries the Wadiyar kings ruled from here or from Srirangapatna, sixteen kilometres north, and when the British handed the state back to them in 1799 they put the court in this city and kept it here until 1947. So what you get is a royal town built with a plan and a budget: a palace at the centre, wide straight roads leading off it, a hill with a temple watching over everything, and the Kaveri feeding the plain around. Bengaluru took the government. Mysuru kept the palace, the festival, the silk, the sandalwood and the pace.",
+   "is_legend": false,
+   "source_name": "Karnataka Gazetteer, Mysore District",
+   "source_url": "https://en.wikipedia.org/wiki/Wadiyar_dynasty"
+  },
+  {
+   "n": 3,
+   "chunk_id": 17,
+   "city": "Mysuru",
+   "title": "The tiger that eats a soldier",
+   "body": "Tipu Sultan called himself the Tiger of Mysore, and he meant it. His throne had tiger heads. His soldiers wore tiger stripes. And he owned a life-sized mechanical tiger shown mauling a British soldier. Turn a handle and the soldier's arm flails while an organ inside makes the man wail and the tiger grunt. It was equal parts toy, propaganda, and threat. When Srirangapatna fell in 1799, the British took it home as a trophy, which is its own kind of irony. The machine sits in the Victoria and Albert Museum in London today, still working, still mid-bite, one of their most visited objects. Mysuru's anger, on permanent display in England.",
+   "is_legend": false,
+   "source_name": "Victoria and Albert Museum, London",
+   "source_url": "https://collections.vam.ac.uk/item/O61949/tippoos-tiger-mechanical-organ-unknown"
+  },
+  {
+   "n": 4,
+   "chunk_id": 237,
+   "city": "Mysuru",
+   "title": "The wrestlers train through the night",
+   "body": "In the old quarters of this city there are garadi mane, earthen wrestling houses, and men still train in them the way they did when the palace paid for it. The floor is red earth mixed with oil and turmeric, turned over before each session. The Dasara wrestling tournament is the surviving public face of it. If someone offers to take you into a garadi at five in the morning, go. You will see rope climbing, stone weights, and a form of wrestling with rules older than the Wadiyars. Ask before you photograph. These are training halls, not exhibitions.",
+   "is_legend": false,
+   "source_name": "Mysuru garadi tradition, general reference",
+   "source_url": null
+  },
+  {
+   "n": 5,
+   "chunk_id": 259,
+   "city": "Mysuru",
+   "title": "A buffalo demon gave the city its name",
+   "body": "Ask anyone here how the city got its name and you will hear the same story. The story goes that a demon called Mahishasura, a buffalo with a man's cunning, ruled this land and terrorised everyone in it. The gods could not touch him, so the goddess Parvati took the form of Chamundeshwari, came down to the hill above the city and killed him there. The land was Mahisha's town, Mahishuru, and centuries of speech wore that down to Mysuru. Historians will tell you the region was called buffalo country long before any demon, and that the name probably comes from the animal, not the villain. The city does not mind. It kept the demon's name, put the goddess on the hill, and celebrates her winning every autumn.",
+   "is_legend": true,
+   "source_name": "Devi Purana tradition and Mysore historians, general reference",
+   "source_url": "https://indianexpress.com/article/india/india-news-india/mysore-name-connection-mahishasura-was-seen-as-demon-with-good-qualities-say-historians"
+  },
+  {
+   "n": 6,
+   "chunk_id": 56,
+   "city": "Mysuru",
+   "title": "The adoption record, without the curse",
+   "body": "Set the curse aside and look at the record. The Wadiyar succession has repeatedly gone sideways rather than straight down. Krishnaraja Wadiyar the Third had no surviving son and adopted. Chamaraja Wadiyar the Tenth came to the throne by adoption. Jayachamarajendra Wadiyar, the last ruling maharaja, had a son, but the line after him passed by adoption again in 2015. That much is documented. Sand did cover Talakad, and geologists put it down to the river shifting course and wind moving dune fields. Two true things sitting next to each other is not the same as one causing the other. The family itself has treated the curse seriously, which is also a fact.",
+   "is_legend": false,
+   "source_name": "Karnataka.com, The Legend of Talakad",
+   "source_url": "https://www.karnataka.com/talakad/talakad-legend"
+  },
+  {
+   "n": 7,
+   "chunk_id": 73,
+   "city": "Mysuru",
+   "title": "Rockets before the British had them",
+   "body": "Tipu's army used iron-cased rockets. Not fireworks. Tubes of soft hammered iron packed with powder, strapped to a bamboo shaft, fired in volleys at ranges over a kilometre. They were used against the British at Pollilur and again at Srirangapatna. After 1799 the British collected the wreckage and took it home, and William Congreve worked from it to develop the Congreve rocket, which the Royal Navy then used. The line runs from this island to the rockets in the American national anthem. Some of the recovered casings are in the Royal Artillery collection in England.",
+   "is_legend": false,
+   "source_name": "Royal Artillery Museum collection, general reference",
+   "source_url": null
+  },
+  {
+   "n": 8,
+   "chunk_id": 260,
+   "city": "Mysuru",
+   "title": "One family, six hundred years, two interruptions",
+   "body": "One family has been attached to this city since 1399, when a chieftain called Yaduraya took charge of Mysuru for the Vijayanagara empire. The Wadiyars stayed feudatories until that empire fell, then took Srirangapatna in 1610 and ruled as kings in their own right. Two interruptions matter. From about 1760 the general Hyder Ali, and then his son Tipu Sultan, held the real power with a Wadiyar kept on as a figurehead, until the British stormed Srirangapatna in 1799 and Tipu died in the fighting. The British then put a Wadiyar child of four on the throne and moved the court back to this city. The maharajas ruled, under British oversight, until independence in 1947, and the family still lives in the palace.",
+   "is_legend": false,
+   "source_name": "Karnataka Gazetteer, Mysore District",
+   "source_url": "https://en.wikipedia.org/wiki/Wadiyar_dynasty"
+  }
+ ]
+}

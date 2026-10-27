@@ -1,0 +1,145 @@
+{
+ "outline": {
+  "theme": "The Vittala temple is a silent, stone-carved monument of ambition that was frozen in time before it could ever come to life.",
+  "hook": "You are standing in front of a stone chariot, but if you reach into your pocket and pull out a fifty rupee note, you will see its twin. Why does this grand temple complex feel so strangely quiet, like a stage set after the actors have left?",
+  "gap": "Why is this massive, grand temple completely empty of any spiritual life—no bells, no priests, no deity—even though its stone looks so alive?",
+  "people": [
+   "Krishnadevaraya",
+   "Portuguese traders"
+  ],
+  "bridge": "We carry the image of this very stone chariot in our pockets every day on the back of a fifty rupee note.",
+  "peak": "The pink, crumbly scars on the granite pillars show where an invading army set massive fires to destroy the temple in 1565.",
+  "ending": "The long, empty market avenue stretches out under the hot sun, silent where heaps of gems once lay.",
+  "chapters": [
+   {
+    "title": "The Silent Chariot and the Singing Stone",
+    "hook": "Look at the stone chariot in front of you and pull out a fifty rupee note to compare them.",
+    "gap": "Why are the wheels of this grand stone vehicle locked in place, and why does the temple around it hold no worship?",
+    "beats": [
+     {
+      "text": "Take out a fifty rupee note and hold it up next to the stone chariot in front of you. This structure is actually a shrine to Garuda, built to look like a processional chariot, and its stone wheels are cut so convincingly that they used to turn. They are fixed in place now to protect them from a century of hands. King Krishnadevaraya wanted this marvel after seeing a chariot temple in Odisha, expanding this complex to fit his grand vision.",
+      "facts": [
+       2,
+       4
+      ],
+      "label": "history"
+     },
+     {
+      "text": "Walk over to the main hall and look at the slender granite pillars. People here say these pillars once rang with musical notes when struck by musicians during ceremonies. The story goes that British officers, refusing to believe solid granite could sing, sawed into two of them looking for hollow chambers or hidden metal. They found only solid stone, and you can still see the sawed pillars standing there today, though tapping them is now banned.",
+      "facts": [
+       1
+      ],
+      "label": "legend"
+     },
+     {
+      "text": "Touch the surface of the pillars and lintels around you. On some, the grey granite turns into a pinkish, flaked, crumbly texture. This is physical evidence of the fire that raged here after the battle of Talikota in 1565, when an invading army spent months trying to burn the city down. Granite spalls and cracks when heated intensely, leaving these permanent scars on the stone.",
+      "facts": [
+       7
+      ],
+      "label": "history"
+     },
+     {
+      "text": "This destruction explains why the temple feels like pure architecture rather than a place of worship. There is no smell of incense, no ringing bell, and no queue of devotees because the temple was never fully consecrated. Legend holds that before the army arrived in 1565, the priests smuggled the image of the deity, Vitthala, out to Pandharpur in Maharashtra, leaving this vast stone complex empty by design.",
+      "facts": [
+       3
+      ],
+      "label": "legend"
+     },
+     {
+      "text": "Now, walk out of the east gate and look down the half-kilometre avenue lined with stone colonnades. This was a market street where Portuguese traders once saw gems sold openly by the heap. Walk a hundred metres down this quiet path and turn around to see the temple gateway framed by the colonnade, a view almost entirely forgotten by the crowds.",
+      "facts": [
+       6
+      ],
+      "label": "history"
+     }
+    ]
+   }
+  ]
+ },
+ "critiques": [
+  "Hook: 4/5. The prompt's hook is decent but can be sharper by focusing on a direct physical action and a stronger contradiction.\nTheme: 3/5. The draft mentions the quietness but fails to weave the \"frozen in time before it could come to life\" theme through the entire narrative.\nSpecifics: 3/5. It has the fifty-rupee note and the king, but lacks sensory details (touch, sound) and other rich specifics from the facts (like the fire damage or the empty sanctuary).\nPeak: 2/5. There is no clear emotional or narrative peak two-thirds of the way through.\nEnding: 2/5. It ends abruptly on the king's ambition rather than a striking image of the silent temple.\nHonesty: 5/5. The labels and citations are used correctly.\n\nThree Biggest Problems:\n1. **Weak Theme and Narrative Arc**: The draft does not build up to the theme of a monument \"frozen in time before it could ever come to life.\" It misses the crucial historical facts of the temple never being consecrated and the deity never arriving.\n2. **No Curiosity Gap**: It fails to open a compelling question early on that is resolved near the end.\n3. **Lack of Sensory Details and Reader Bridge**: It does not help the reader feel the physical space (like touching the fire-damaged stone) or connect the temple's unfinished state to the reader's own life."
+ ],
+ "attempts": 1,
+ "facts": [
+  {
+   "n": 1,
+   "chunk_id": 24,
+   "city": "Hampi",
+   "title": "The pillars that play",
+   "body": "Inside the Vittala complex stands a hall whose slender granite pillars ring with musical notes when struck, each cluster tuned differently. Musicians are said to have accompanied temple ceremonies on stone. The story goes that the British, refusing to believe solid granite could sing, sawed into two of the pillars looking for the trick, hollow chambers, hidden metal, anything, and found only stone. The cut pillars are still there. Tapping is banned now, for good reason, after generations of visitors testing the legend. So you cannot hear them. But stand in the hall and look at the sawed ones. Empire came here with a full toolkit and left without the answer.",
+   "is_legend": true,
+   "source_name": "Archaeological Survey of India",
+   "source_url": null
+  },
+  {
+   "n": 2,
+   "chunk_id": 93,
+   "city": "Hampi",
+   "title": "Krishnadevaraya saw a chariot and wanted one",
+   "body": "The story told here is that Krishnadevaraya came back from a campaign in Odisha having seen the temple at Konark with its stone wheels, and decided he would have one too. The Vittala complex was already being built. He expanded it and added the chariot. Whether the Konark link is true or a good story attached later, the pattern is real: this king took what he saw on campaign and put it in his capital. The temple was never fully consecrated. Work stopped, and then in 1565 there was no more work to be done.",
+   "is_legend": false,
+   "source_name": "Karnataka.com, Vittala Temple",
+   "source_url": "https://www.karnataka.com/hampi/vittala-temple"
+  },
+  {
+   "n": 3,
+   "chunk_id": 98,
+   "city": "Hampi",
+   "title": "Where the deity went when the army came",
+   "body": "The Vittala image is not here. Before the sack of 1565 the deity was moved out, and Vitthala is worshipped at Pandharpur in Maharashtra, where the tradition holds that the image came from Hampi and went back. So this vast complex is empty by design now, not only by damage. That is why it feels like architecture rather than a temple when you stand in it. There is no bell, no queue, no oil lamp. What survives is the building thinking out loud about stone. The silence here is administrative rather than spiritual.",
+   "is_legend": true,
+   "source_name": "Pandharpur Vitthala tradition, general reference",
+   "source_url": null
+  },
+  {
+   "n": 4,
+   "chunk_id": 23,
+   "city": "Hampi",
+   "title": "The chariot on the fifty rupee note",
+   "body": "Take out a fifty rupee note. The stone chariot on the back is the one in front of you. It is actually a shrine to Garuda, built to look like a processional chariot, and the wheels are cut so convincingly that for a long time they could genuinely be turned. They are fixed in place now, to save them from a century of enthusiastic hands. Walk around it once at a distance, then once close. From far, it is a vehicle. From near, it is all carving, wheels included, every surface worked. Then hold up the note next to it. Everyone does. Do it anyway.",
+   "is_legend": false,
+   "source_name": "Archaeological Survey of India",
+   "source_url": null
+  },
+  {
+   "n": 5,
+   "chunk_id": 94,
+   "city": "Hampi",
+   "title": "Stand at the east end of the hall and look along it",
+   "body": "Go to the far east end of the main pillared hall, stand in the centre, and look back along the axis. The pillars line up in avenues and the ceiling opens above you in carved panels. Each of the big composite pillars is a bundle: a central shaft with attached colonnettes, and animals carved at the base. Find the ones with yalis, the lion-like creatures with riders. Then look at the ceiling directly overhead. The lotus medallions are cut so deep that the shadow does the work. Morning light, coming in low from the east, is when this hall is best.",
+   "is_legend": false,
+   "source_name": "travel-yantra field notes",
+   "source_url": null
+  },
+  {
+   "n": 6,
+   "chunk_id": 95,
+   "city": "Hampi",
+   "title": "The bazaar in front was a market street",
+   "body": "Walk out of the east gate and look at the long avenue running away from you with colonnades on both sides. That is not a ruin of houses. It was a market street, over half a kilometre long, and traders sold there under those stone roofs. Portuguese visitors described gems being sold openly by the heap in streets like this. Walk a hundred metres down it and turn round. From there you get the temple gopura framed by the colonnade, which is how it was meant to be approached. Almost nobody walks this far. It is the quietest good view at Hampi.",
+   "is_legend": false,
+   "source_name": "BA Notes, Paes and Nuniz on Vijayanagara",
+   "source_url": "https://banotes.org/history-writing-india/vijayanagara-empire-domingo-paes-fernao-nuniz-16th-century"
+  },
+  {
+   "n": 7,
+   "chunk_id": 99,
+   "city": "Hampi",
+   "title": "Look for the burn marks",
+   "body": "On some of the pillars and lintels here the granite has a pinkish, flaked, crumbly look, quite different from the smooth grey elsewhere. That is fire damage. Granite spalls when it is heated hard and then cooled. After Talikota the city was worked over for months and fire was one of the tools. You are looking at the physical record of that. Once you learn to see it you will find it across Hampi, on the Krishna temple, on the Achyutaraya complex. It is the difference between a building that fell down and a building that was destroyed.",
+   "is_legend": false,
+   "source_name": "Archaeological Survey of India, Hampi conservation notes",
+   "source_url": null
+  },
+  {
+   "n": 8,
+   "chunk_id": 100,
+   "city": "Hampi",
+   "title": "Bring water in, there is nothing to buy",
+   "body": "There are no stalls inside the Vittala complex and the ones at the drop-off point are limited. Carry at least a litre a person. There is no proper food nearby either. The nearest reliable meal is back in Hampi Bazaar or across at the Mango Tree. If you are doing Vittala in the morning, eat first at your guesthouse and plan lunch for after. Doing this site hungry, in the sun, with a small child, is how good days go wrong here. A hat and a packet of salt biscuits are worth carrying too, and so is a spare bottle for the walk back.",
+   "is_legend": false,
+   "source_name": "travel-yantra field notes",
+   "source_url": null
+  }
+ ]
+}

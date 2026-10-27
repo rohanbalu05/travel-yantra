@@ -1,0 +1,223 @@
+{
+ "outline": {
+  "theme": "Mysuru is a city that holds its celebrations and its wounds together, built on two stories that run side by side.",
+  "hook": "A traveller standing in Mysuru might look at the grand palace and see only a celebration of light. But beneath the surface of this royal town lies a darker story of a four-hundred-year-old curse that the royal family still takes seriously.",
+  "gap": "How did a city that draws as many visitors as the Taj Mahal manage to keep its quiet, capital manners while carrying a deep, centuries-old wound?",
+  "people": [
+   "Alamelamma",
+   "Kempananjammanni",
+   "Henry Irwin"
+  ],
+  "bridge": "We all have family secrets we keep behind closed doors while putting on a brave face for our guests.",
+  "peak": "The moment in 1897 when the old wooden palace caught fire during a royal wedding, forcing a regent queen to rebuild her entire world out of stone, iron, and glass.",
+  "ending": "The next time you see the palace lit up on a Sunday night, look past the glare of the bulbs to the quiet shadows where a queen's image is still honoured in the dark.",
+  "chapters": [
+   {
+    "title": "The Stage and the Curse",
+    "hook": "Look at the wide, straight roads stretching out from the palace gates. They were not built for daily traffic, but as a grand stage designed for a single ten-day festival.",
+    "gap": "Why does a family that has ruled for six hundred years still pay tribute to a widowed queen who jumped into a river?",
+    "beats": [
+     {
+      "text": "Mysuru carries itself like a capital because for five centuries the Wadiyar kings ruled from here or Srirangapatna, leaving wide roads designed specifically for the Dasara procession.",
+      "facts": [
+       2,
+       9
+      ],
+      "label": "history"
+     },
+     {
+      "text": "People here say that in 1610, a widowed queen named Alamelamma was pursued to the banks of the Kaveri at Talakad for her jewels. Before leaping into the water, she cursed the Wadiyars to never bear children, and today Talakad is buried under sand while the family has repeatedly relied on adoption.",
+      "facts": [
+       14,
+       6
+      ],
+      "label": "legend"
+     },
+     {
+      "text": "While geologists attribute the sand at Talakad to wind and river shifts, the Wadiyar family has treated the curse seriously, keeping Alamelamma's image inside the palace to this day.",
+      "facts": [
+       6,
+       14
+      ],
+      "label": "history"
+     }
+    ]
+   },
+   {
+    "title": "Out of the Ashes",
+    "hook": "Smell the hot ghee and butter from the nearby dosa shops, and listen to the chatter of the crowds waiting in line. This lively city was almost redefined by a single spark in 1897.",
+    "gap": "How did a devastating fire lead to the creation of a palace that now rivals the Taj Mahal in visitor numbers?",
+    "beats": [
+     {
+      "text": "During a royal wedding in 1897, the old wooden palace caught fire and burned to the ground. The regent queen, Kempananjammanni, refused to build with wood again and hired British architect Henry Irwin to design a palace of stone, iron, and glass.",
+      "facts": [
+       12
+      ],
+      "label": "history"
+     },
+     {
+      "text": "Today, this palace draws visitor numbers in the same range as the Taj Mahal, filled mostly with Indian families who come in their Sunday best to see the grand building.",
+      "facts": [
+       13
+      ],
+      "label": "history"
+     },
+     {
+      "text": "On Sunday nights, close to a lakh of electric bulbs come on at once, drawing the entire palace in light for an hour, showing how Mysuru celebrates its survival while holding its wounds.",
+      "facts": [
+       1
+      ],
+      "label": "history"
+     }
+    ]
+   }
+  ]
+ },
+ "critiques": [
+  "Hook: 4/5 (The transition from the wide roads to the family secret is intriguing, but the opening sentence itself is slightly dry for a tired traveller).\nTheme: 5/5 (Strongly focused on the duality of celebration and wounds).\nSpecifics: 4/5 (Good use of facts, but lacks sensory details like smell or touch in the first paragraph).\nPeak: 3/5 (The peak is somewhat flat; the transition to the curse feels abrupt rather than building to a climax).\nEnding: 4/5 (Ends on a strong note about the family not taking chances, but could be more evocative).\nHonesty: 5/5 (Accurately separates history from legend with proper citations).\n\nThree biggest problems:\n1. **Lack of sensory details**: The draft lacks rich sensory descriptions (sights, smells, sounds, or textures) to ground the reader in the physical space of Mysuru.\n2. **Weak curiosity gap**: The curiosity gap about the two stories (celebration and wound) is not opened clearly in the very beginning to hook the reader.\n3. **Flat peak**: The transition to the curse in the second paragraph lacks the dramatic tension of a true narrative peak.",
+  "### Scores and Problems\n\n**Scores:**\n- **Hook:** 3/5 (The first sentence opens with sensory details of food, but lacks a person at a moment, a contradiction, or a question. It does not immediately establish the core theme of celebrations and wounds.)\n- **Theme:** 4/5 (The theme of holding celebrations and wounds together is present, but the connection between the fire of 1897 and a \"deep, centuries-old wound\" is slightly muddled by jumping straight to the Taj Mahal comparison.)\n- **Specifics:** 4/5 (Good use of facts, but some paragraphs lack a clear, checkable specific combined with a sensory detail that points the reader's eyes to what is in front of them.)\n- **Peak:** 3/5 (The peak is weak; it describes the Taj Mahal visitor numbers rather than a dramatic realization of the city's dual nature.)\n- **Ending:** 4/5 (Ends on an image of quiet shadows, which is good, but can be sharper.)\n- **Honesty:** 3/5 (The draft labels a paragraph as [HISTORY] but includes the legend of Alamelamma's curse within it without clearly stating it as a legend in that section.)\n\n**Three Biggest Problems:**\n1. **Weak Hook and Curiosity Gap:** The opening paragraph starts with a generic description of dosa shops rather than a person at a moment or a sharp contradiction. It fails to open a clear curiosity gap about the city's dual nature (celebration and wound) that closes near the end.\n2. **Honesty and Labeling Violation:** The third paragraph is labeled [HISTORY] but contains the legend of Alamelamma's curse [14] without identifying it as a legend or using the required phrasing (\"People here say...\", \"The story goes...\").\n3. **Missing Reader Bridge and Visual Focus:** The draft lacks a strong, direct bridge to the reader's own life and does not sufficiently point the reader's eyes to the physical details of the palace standing directly in front of them."
+ ],
+ "attempts": 1,
+ "facts": [
+  {
+   "n": 1,
+   "chunk_id": 1,
+   "city": "Mysuru",
+   "title": "Two stories run this city",
+   "body": "Mysuru runs on two stories. One is electric: on Sunday nights, close to a lakh of bulbs come on across the palace at once, and for about an hour the whole building is drawn in light. The other is much older and much darker, and it involves a queen, a river, and a curse that the royal family has taken seriously for four hundred years. You will hear both before this walk is done. Keep them in your head together, because that is the trick of this city. The lights are for everyone. The curse is family business. Mysuru has always known how to hold a celebration and a wound at the same time.",
+   "is_legend": false,
+   "source_name": "Mysore Palace Board",
+   "source_url": null
+  },
+  {
+   "n": 2,
+   "chunk_id": 258,
+   "city": "Mysuru",
+   "title": "The palace city that kept its capital manners",
+   "body": "Mysuru is the city the old Mysore kingdom was named for, and it still carries itself like a capital. For most of five centuries the Wadiyar kings ruled from here or from Srirangapatna, sixteen kilometres north, and when the British handed the state back to them in 1799 they put the court in this city and kept it here until 1947. So what you get is a royal town built with a plan and a budget: a palace at the centre, wide straight roads leading off it, a hill with a temple watching over everything, and the Kaveri feeding the plain around. Bengaluru took the government. Mysuru kept the palace, the festival, the silk, the sandalwood and the pace.",
+   "is_legend": false,
+   "source_name": "Karnataka Gazetteer, Mysore District",
+   "source_url": "https://en.wikipedia.org/wiki/Wadiyar_dynasty"
+  },
+  {
+   "n": 3,
+   "chunk_id": 17,
+   "city": "Mysuru",
+   "title": "The tiger that eats a soldier",
+   "body": "Tipu Sultan called himself the Tiger of Mysore, and he meant it. His throne had tiger heads. His soldiers wore tiger stripes. And he owned a life-sized mechanical tiger shown mauling a British soldier. Turn a handle and the soldier's arm flails while an organ inside makes the man wail and the tiger grunt. It was equal parts toy, propaganda, and threat. When Srirangapatna fell in 1799, the British took it home as a trophy, which is its own kind of irony. The machine sits in the Victoria and Albert Museum in London today, still working, still mid-bite, one of their most visited objects. Mysuru's anger, on permanent display in England.",
+   "is_legend": false,
+   "source_name": "Victoria and Albert Museum, London",
+   "source_url": "https://collections.vam.ac.uk/item/O61949/tippoos-tiger-mechanical-organ-unknown"
+  },
+  {
+   "n": 4,
+   "chunk_id": 237,
+   "city": "Mysuru",
+   "title": "The wrestlers train through the night",
+   "body": "In the old quarters of this city there are garadi mane, earthen wrestling houses, and men still train in them the way they did when the palace paid for it. The floor is red earth mixed with oil and turmeric, turned over before each session. The Dasara wrestling tournament is the surviving public face of it. If someone offers to take you into a garadi at five in the morning, go. You will see rope climbing, stone weights, and a form of wrestling with rules older than the Wadiyars. Ask before you photograph. These are training halls, not exhibitions.",
+   "is_legend": false,
+   "source_name": "Mysuru garadi tradition, general reference",
+   "source_url": null
+  },
+  {
+   "n": 5,
+   "chunk_id": 259,
+   "city": "Mysuru",
+   "title": "A buffalo demon gave the city its name",
+   "body": "Ask anyone here how the city got its name and you will hear the same story. The story goes that a demon called Mahishasura, a buffalo with a man's cunning, ruled this land and terrorised everyone in it. The gods could not touch him, so the goddess Parvati took the form of Chamundeshwari, came down to the hill above the city and killed him there. The land was Mahisha's town, Mahishuru, and centuries of speech wore that down to Mysuru. Historians will tell you the region was called buffalo country long before any demon, and that the name probably comes from the animal, not the villain. The city does not mind. It kept the demon's name, put the goddess on the hill, and celebrates her winning every autumn.",
+   "is_legend": true,
+   "source_name": "Devi Purana tradition and Mysore historians, general reference",
+   "source_url": "https://indianexpress.com/article/india/india-news-india/mysore-name-connection-mahishasura-was-seen-as-demon-with-good-qualities-say-historians"
+  },
+  {
+   "n": 6,
+   "chunk_id": 56,
+   "city": "Mysuru",
+   "title": "The adoption record, without the curse",
+   "body": "Set the curse aside and look at the record. The Wadiyar succession has repeatedly gone sideways rather than straight down. Krishnaraja Wadiyar the Third had no surviving son and adopted. Chamaraja Wadiyar the Tenth came to the throne by adoption. Jayachamarajendra Wadiyar, the last ruling maharaja, had a son, but the line after him passed by adoption again in 2015. That much is documented. Sand did cover Talakad, and geologists put it down to the river shifting course and wind moving dune fields. Two true things sitting next to each other is not the same as one causing the other. The family itself has treated the curse seriously, which is also a fact.",
+   "is_legend": false,
+   "source_name": "Karnataka.com, The Legend of Talakad",
+   "source_url": "https://www.karnataka.com/talakad/talakad-legend"
+  },
+  {
+   "n": 7,
+   "chunk_id": 73,
+   "city": "Mysuru",
+   "title": "Rockets before the British had them",
+   "body": "Tipu's army used iron-cased rockets. Not fireworks. Tubes of soft hammered iron packed with powder, strapped to a bamboo shaft, fired in volleys at ranges over a kilometre. They were used against the British at Pollilur and again at Srirangapatna. After 1799 the British collected the wreckage and took it home, and William Congreve worked from it to develop the Congreve rocket, which the Royal Navy then used. The line runs from this island to the rockets in the American national anthem. Some of the recovered casings are in the Royal Artillery collection in England.",
+   "is_legend": false,
+   "source_name": "Royal Artillery Museum collection, general reference",
+   "source_url": null
+  },
+  {
+   "n": 8,
+   "chunk_id": 260,
+   "city": "Mysuru",
+   "title": "One family, six hundred years, two interruptions",
+   "body": "One family has been attached to this city since 1399, when a chieftain called Yaduraya took charge of Mysuru for the Vijayanagara empire. The Wadiyars stayed feudatories until that empire fell, then took Srirangapatna in 1610 and ruled as kings in their own right. Two interruptions matter. From about 1760 the general Hyder Ali, and then his son Tipu Sultan, held the real power with a Wadiyar kept on as a figurehead, until the British stormed Srirangapatna in 1799 and Tipu died in the fighting. The British then put a Wadiyar child of four on the throne and moved the court back to this city. The maharajas ruled, under British oversight, until independence in 1947, and the family still lives in the palace.",
+   "is_legend": false,
+   "source_name": "Karnataka Gazetteer, Mysore District",
+   "source_url": "https://en.wikipedia.org/wiki/Wadiyar_dynasty"
+  },
+  {
+   "n": 9,
+   "chunk_id": 238,
+   "city": "Mysuru",
+   "title": "An entire city was designed as a stage",
+   "body": "Look at how wide the roads are here compared with any other Indian city of this age. That is deliberate. Mysuru was laid out under the Wadiyars and their engineers with the Dasara procession in mind: a fixed route from the palace to the Bannimantap parade ground, wide enough for elephants and crowds, with sightlines to the palace and the hill. The lakes, the parks and the public buildings were placed around it. You are walking through a piece of nineteenth-century urban planning built to hold one ten-day event, and it holds the rest of the year as a side effect.",
+   "is_legend": false,
+   "source_name": "Mysuru city planning history, general reference",
+   "source_url": null
+  },
+  {
+   "n": 10,
+   "chunk_id": 16,
+   "city": "Mysuru",
+   "title": "An island with a short temper",
+   "body": "Srirangapatna is an island. The Kaveri splits, goes around the town, and joins itself again, which is exactly why Hyder Ali and his son Tipu Sultan made it their capital. Water is a wall you do not have to build. For decades this small island held off the most powerful army on earth. It fell on the fourth of May 1799, when British troops broke through the fortifications, and Tipu died fighting in the breach rather than surrendering. The spot where his body was found is marked, and it is an oddly quiet place for somewhere that ended an era. The whole island is a battlefield wearing a town.",
+   "is_legend": false,
+   "source_name": "Archaeological Survey of India",
+   "source_url": "https://collections.vam.ac.uk/item/O61949/tippoos-tiger-mechanical-organ-unknown"
+  },
+  {
+   "n": 11,
+   "chunk_id": 15,
+   "city": "Mysuru",
+   "title": "Butter dosa, no menu required",
+   "body": "There is a small place in Nazarbad called Vinayaka Mylari, and it has been making essentially one thing for decades: a soft, spongy dosa finished with a spoon of butter, served with a coconut chutney and nothing else worth mentioning. You do not really order. You indicate a quantity. The dosa arrives folded, pale gold, and lighter than it has any right to be. They open early, and the queue builds after nine, so make it your breakfast rather than your brunch. There are two Mylari shops near each other and a long-running family disagreement between them. Locals have opinions. Both are good. Pick the shorter line.",
+   "is_legend": false,
+   "source_name": "Vinayaka Mylari, Nazarbad",
+   "source_url": null
+  },
+  {
+   "n": 12,
+   "chunk_id": 2,
+   "city": "Mysuru",
+   "title": "Three palaces burned before this one",
+   "body": "The palace in front of you is the fourth one to stand on this ground. The one before it was mostly wood, and in 1897 it caught fire in the middle of a royal wedding. The family got out. The building did not. The regent queen, Kempananjammanni, decided there would be no more wooden palaces, and gave the job to Henry Irwin, the British consulting architect down in Madras. Stone, iron, and glass this time. It took fifteen years. So when you walk in, remember you are walking through someone's answer to a fire. Look for how little wood there is.",
+   "is_legend": false,
+   "source_name": "Mysore Palace Board",
+   "source_url": null
+  },
+  {
+   "n": 13,
+   "chunk_id": 236,
+   "city": "Mysuru",
+   "title": "More people come here than to the Taj Mahal",
+   "body": "Here is a number that surprises people. This palace draws visitor figures in the same range as the Taj Mahal, and in some years it has been reported ahead of it. Most of those visitors are Indian, and most of them are from Karnataka. That changes what you are standing in. This is not a monument that foreigners discovered and locals tolerate. It is a place families come to on a Sunday, in their good clothes, with children who have been told the stories on the bus. Look at the crowd around you as much as at the building. The crowd is the point.",
+   "is_legend": false,
+   "source_name": "Karnataka tourism visitor statistics, estimated",
+   "source_url": null
+  },
+  {
+   "n": 14,
+   "chunk_id": 6,
+   "city": "Mysuru",
+   "title": "The queen who went into the river",
+   "body": "In 1610, a widowed queen named Alamelamma was pursued to the banks of the Kaveri at Talakad. The new rulers of Mysuru wanted the temple jewels in her keeping. The story goes that she stood at the edge of the water and cursed them before she went in. Let Talakad turn to sand. Let Malangi become a whirlpool. Let the kings of Mysuru never bear children. Talakad today is buried under dunes of sand. And the Wadiyar family has, generation after generation, adopted its heirs. Inside this palace there is an image of Alamelamma, and the family honours it to this day. Make of that what you like. They did not take chances.",
+   "is_legend": true,
+   "source_name": "Karnataka Gazetteer, Mysore District",
+   "source_url": "https://www.karnataka.com/talakad/talakad-legend"
+  }
+ ]
+}

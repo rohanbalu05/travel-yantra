@@ -1,0 +1,13 @@
+# Devaraja Market, 2 minutes
+
+*History.* A flower seller threads jasmine garlands without ever looking down at his hands [1]. He is working against a clock that started ticking in the dark, long before you woke up, driven by a secret vulnerability that will ruin his harvest by midday. If you enter through the Sayyaji Rao Road entrance, you walk straight into rows of bright orange marigolds and piles of green bananas [1]. The floor beneath you is uneven, laid down in 1886 [1, 2], so watch your step as you dodge the shoppers. The market does not perform for you; it simply lets you walk through its morning [1].
+
+*History.* Beside the flowers, you will see neat pyramids of red kumkum and yellow turmeric powder stacked like small volcanoes [1, 2]. Tourists love to photograph these colors, but the sellers prefer that you ask first before snapping a picture [2]. Touch the rough iron columns nearby; they have held up this roof since the nineteenth century, even as parts of it have fallen [2]. You likely know the anxiety of watching something valuable slip away, but here, that loss is measured in the air you breathe.
+
+*History.* The white jasmine here is Mysore mallige, which holds a legal Geographical Indication tag [3]. It was picked in the dark near Srirangapatna and brought here before dawn, carrying a scent far heavier than ordinary jasmine [3]. This morning rush explains the mystery of the seller's urgency: by afternoon, the delicate flowers have been open for hours and their fragrance is dying [3]. The sellers grow impatient because their window to sell this fleeting scent is rapidly closing [3]. Watch a seller's fingers fly as he ties the last buds, racing against the heat of the day.
+
+## Sources
+
+1. Enter through the flowers (Karnataka Tourism)
+2. The pyramids of colour by the entrance (travel-yantra field notes)
+3. The jasmine has a legal identity (Geographical Indications Registry, India)

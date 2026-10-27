@@ -1,0 +1,255 @@
+{
+ "outline": {
+  "theme": "Mysuru is a city that holds its grand celebrations and its deepest wounds in the very same hand.",
+  "hook": "A flower seller sits before you, threading jasmine without looking at her hands, while the roof above her slowly decays. She does not look up at the tourists because she has a morning trade to finish.",
+  "gap": "Why does this market, built by kings, still stand when its own roof is falling down?",
+  "people": [
+   "the flower seller"
+  ],
+  "bridge": "We all carry our own quiet wounds while putting on a brave face for the world, just like this city.",
+  "peak": "The moment the British broke through the walls of Srirangapatna on a hot May afternoon, ending an empire and leaving a wound that the city still carries beneath its electric lights.",
+  "ending": "The flower seller ties one last knot, her fingers moving in the dark, as the heavy scent of jasmine rises into the evening air.",
+  "chapters": [
+   {
+    "title": "The Gateway of Flowers",
+    "hook": "Look down at the uneven floor beneath your feet, worn smooth by a century of sandals. If you look up, you will see old iron columns holding up a roof that has threatened to collapse more than once.",
+    "gap": "How does a market built in 1886 survive in a city that is constantly modernising?",
+    "beats": [
+     {
+      "text": "Enter through the Sayyaji Rao Road entrance and you are immediately hit by the heavy smell of jasmine and the sight of marigolds stacked in walls of orange. The floor is uneven, more than a century old, so watch your feet as you walk past the elders. The market does not perform for tourists; it just goes about its morning and lets you walk through its daily life.",
+      "facts": [
+       1
+      ],
+      "label": "history"
+     },
+     {
+      "text": "Near the entrance, you can see cones of red and yellow powder stacked into neat pyramids like small volcanoes. These are kumkuma and rangoli powders, meant to be bought by the spoon, though visitors always stop to photograph them. The building itself dates back to 1886, and if you walk the outer corridor, you can touch the old iron columns that still hold the structure together despite parts of the roof falling over the years.",
+      "facts": [
+       2
+      ],
+      "label": "history"
+     }
+    ]
+   },
+   {
+    "title": "The Protected Scent",
+    "hook": "Can you legally own the scent of a flower? The small white blossoms in front of you carry a protection that most global brands would envy.",
+    "gap": "How did a delicate blossom become a legal shield for the farmers of this valley?",
+    "beats": [
+     {
+      "text": "The jasmine you smell here is Mysore mallige, and it carries a strict Geographical Indication tag, meaning the name is protected by law and can only be used for flowers grown in this region. These flowers are smaller than ordinary jasmine, but their scent is much heavier. Growers around Srirangapatna and Nanjangud pick them in the dark before dawn so they can reach this market by ten in the morning.",
+      "facts": [
+       3
+      ],
+      "label": "history"
+     },
+     {
+      "text": "The wide, straight roads you walked to get here were designed for a grand stage. Mysuru was laid out by the Wadiyars and their engineers with the Dasara procession in mind, creating a fixed route from the palace to the Bannimantap parade ground that was wide enough for elephants and massive crowds.",
+      "facts": [
+       13
+      ],
+      "label": "history"
+     }
+    ]
+   },
+   {
+    "title": "The Shadow of the Throne",
+    "hook": "Every Sunday night, nearly a lakh of electric bulbs turn the palace nearby into a grid of pure light. Yet, the family that built it has spent four hundred years living under a dark curse.",
+    "gap": "What is the curse that the royal family has feared for generations, even as they built this grand city?",
+    "beats": [
+     {
+      "text": "Mysuru runs on two stories: the electric celebration of its palace lights and a dark, four-hundred-year-old curse involving a queen and a river. The Wadiyar family has taken this curse seriously for centuries, showing how this city knows how to hold a celebration and a wound at the same time.",
+      "facts": [
+       5
+      ],
+      "label": "history"
+     },
+     {
+      "text": "People here say a curse caused the nearby land of Talakad to be swallowed by sand and left the royal family without direct heirs. While geologists explain the sand through the shifting course of the Kaveri river and wind dunes, the historical record shows the Wadiyar succession has repeatedly gone sideways through adoption, including the successions of Chamaraja Wadiyar the Tenth and the transition in 2015.",
+      "facts": [
+       10
+      ],
+      "label": "disputed"
+     },
+     {
+      "text": "The deepest wound of this region lies on the island of Srirangapatna, where the Kaveri river splits to form a natural moat. It was here, on the fourth of May 1799, that British troops breached the fortress walls, and Tipu Sultan died fighting in the mud rather than surrender, ending the island's long defiance.",
+      "facts": [
+       14
+      ],
+      "label": "history"
+     }
+    ]
+   },
+   {
+    "title": "The Demon and the Daily Trade",
+    "hook": "Look at the bright red kumkum powder in front of you, shaped like a small volcano. It is the colour of the blood of a demon who supposedly gave this city its name.",
+    "gap": "Who really named this city—a defeated buffalo demon or the simple beasts of the field?",
+    "beats": [
+     {
+      "text": "People here say that a buffalo demon named Mahishasura once ruled this land until the goddess Chamundeshwari came down to the hill above the city and killed him, giving rise to the name Mahishuru. However, historians argue that the region was simply called buffalo country long before any demon story, and the name likely comes from the local livestock. The city does not mind the debate; it still celebrates the goddess's victory every autumn.",
+      "facts": [
+       9
+      ],
+      "label": "legend"
+     },
+     {
+      "text": "As the midday heat settles over the market, the fruit sellers stack their pyramids of mangoes and bananas, and the flower sellers grow impatient as their stock begins to dry. The market does not pause for history or legends; it simply continues its daily trade under the old iron columns.",
+      "facts": [
+       1
+      ],
+      "label": "history"
+     }
+    ]
+   }
+  ]
+ },
+ "critiques": [
+  "### Scores and Problems\n\n**Scores:**\n- **Hook:** 2/5. The draft opens with an instruction (\"Look down\") rather than a person at a moment, a contradiction, or a question. The third sentence is a rhetorical question about market survival, which is unlikely to grip a tired traveller.\n- **Theme:** 4/5. The theme of Mysuru holding its celebrations and wounds in the same hand is present, but it feels tacked onto the end of the first paragraph rather than naturally driving the narrative.\n- **Specifics:** 4/5. Good use of checkable facts, but the sensory details are somewhat generic (e.g., \"heavy smell of jasmine\").\n- **Peak:** 3/5. The peak is flat. The transition from flowers to the structural decay of the market lacks dramatic tension.\n- **Ending:** 3/5. The draft ends on a dry description of the building's iron columns and roof collapse rather than a strong, lingering image.\n- **Honesty:** 5/5. The facts are cited correctly, and there are no invented details.\n\n**Three Biggest Problems:**\n1. **Weak Hook and Curiosity Gap:** The opening paragraph lacks a compelling human element, a sharp contradiction, or a clear curiosity gap. It starts with a generic command to \"look down\" rather than introducing a person wanting something or a striking paradox.\n2. **Lack of a Bridge to the Reader's Life:** The draft does not connect the market's physical reality or the city's dual nature of celebration and wounds to the reader's own personal experience.\n3. **Flat Narrative Arc (No \"People, Not Lists\"):** The draft reads more like a descriptive list of market features (flowers, powder, columns) rather than a story where someone wants something and meets an obstacle, which weakens the peak and ending.",
+  "### Scores and Problems\n\n**Scores:**\n- **Hook:** 2/5 (The first sentence is a question, but the third sentence is dry and unlikely to hold a tired traveller. The transition to the theme at the end of the first paragraph is jarring and unearned.)\n- **Theme:** 3/5 (The theme is stated, but it feels pasted onto the text rather than woven into the narrative.)\n- **Specifics:** 4/5 (Good use of the jasmine facts, but lacks sensory details of the market itself.)\n- **Peak:** 2/5 (The draft lacks a clear narrative arc or a dramatic peak at the two-thirds mark.)\n- **Ending:** 2/5 (Ends on a confusing mix of imagery with mismatched times of day—\"morning sun\" and \"evening air\" in the same sentence—and fails to leave a sharp final image.)\n- **Honesty:** 3/5 (Cites facts, but invents a flower seller's actions and mixes up times of day to force a poetic image.)\n\n**Three Biggest Problems:**\n1. **Lack of a Narrative Arc and Character:** The draft lacks a central human character facing an obstacle. It reads like a list of facts with a forced philosophical conclusion about wounds and celebrations.\n2. **Violations of House Style and Logic:** The second paragraph contains a major logical error, placing the \"morning sun\" and \"evening air\" in the very same sentence. It also uses a rhetorical question, which weakens the spoken-story format.\n3. **Weak Curiosity Gap:** The question about legally owning a scent is answered immediately in the second sentence, closing the curiosity gap too early.",
+  "### Scores and Problems\n\n* **Hook:** 5/5. The draft sets up a strong contradiction between celebration and a dark curse, which would easily keep a tired traveler reading past the third sentence.\n* **Theme:** 4/5. The theme is present, but the draft wanders away from Devaraja Market (the prompt's stated subject) to Srirangapatna and Talakad, diluting the immediate setting.\n* **Specifics:** 4/5. Good historical details, but lacks the sensory, checkable specifics of the market itself (like the jasmine, the iron columns, or the pyramids of powder).\n* **Peak:** 3/5. The peak in Srirangapatna is historically dramatic but geographically detached from the market where the reader is standing.\n* **Ending:** 3/5. Ends on a summary of the historical wound rather than a sharp, lingering image.\n* **Honesty:** 5/5. The draft correctly labels history and disputed facts with citations.\n\n#### Three Biggest Problems\n1. **Off-topic setting:** The prompt states the story is about Devaraja Market, but the draft spends its entire length at Talakad and Srirangapatna, ignoring the market's sights, smells, and history.\n2. **Missing the market's specific wounds and celebrations:** The market itself has a physical wound (threatened with demolition, falling roof, old iron columns [2]) and its own daily celebration (the protected Mysore mallige jasmine [3] and pyramids of color [2]).\n3. **Weak bridge to the reader:** The bridge (\"We all carry our own quiet wounds...\") is abstract. It needs a physical connection to the reader's immediate surroundings in the market.",
+  "Hook: 4/5\nTheme: 5/5\nSpecifics: 5/5\nPeak: 4/5\nEnding: 4/5\nHonesty: 5/5\n\nThree biggest problems:\n1. The curiosity gap is missing. The draft introduces the concept of the city's wounds and celebrations but fails to open a specific, compelling question early on that is resolved near the end.\n2. The bridge to the reader's own life is weak and generic (\"We all carry our own quiet wounds...\"). It needs to connect more naturally to the sensory experience of the market or the theme of holding joy and pain together.\n3. The draft lacks a strong, immediate sensory presence. It describes the market from a distance rather than pointing the reader's eyes directly at what is in front of them, such as the vibrant mounds of kumkum or the scent of the jasmine."
+ ],
+ "attempts": 2,
+ "facts": [
+  {
+   "n": 1,
+   "chunk_id": 13,
+   "city": "Mysuru",
+   "title": "Enter through the flowers",
+   "body": "Use the Sayyaji Rao Road entrance, because it puts you straight into the flower rows. Jasmine sold by the armlength, marigolds in walls of orange, sellers threading garlands without looking at their hands. Go slowly here. Then the fruit, stacked in pyramids nobody is allowed to touch, and the powdered colours, kumkum in cones of red and yellow like small volcanoes. The floor is uneven, more than a century old, so watch your feet with elders. The market does not perform for tourists. It just goes about its morning, and lets you walk through it.",
+   "is_legend": false,
+   "source_name": "Karnataka Tourism",
+   "source_url": null
+  },
+  {
+   "n": 2,
+   "chunk_id": 59,
+   "city": "Mysuru",
+   "title": "The pyramids of colour by the entrance",
+   "body": "Near the entrance there are cones of powder stacked into neat pyramids: vermilion, turmeric, deep pink, indigo. Those are kumkuma and rangoli powders. They are there to be bought by the spoon, not photographed, though everyone photographs them. Ask before you take a picture and most sellers will say yes and then rebuild a cone for you. The building itself is from 1886 and has been under threat of demolition more than once. Parts of the roof have fallen. Walk the outer corridor to see the old iron columns still holding it up.",
+   "is_legend": false,
+   "source_name": "travel-yantra field notes",
+   "source_url": null
+  },
+  {
+   "n": 3,
+   "chunk_id": 57,
+   "city": "Mysuru",
+   "title": "The jasmine has a legal identity",
+   "body": "Mysore mallige is not a loose description. It carries a Geographical Indication tag, which means the name is protected in law and can only be used for jasmine grown in this region. The flower is smaller than the jasmine you see elsewhere and the scent is heavier. Growers around Srirangapatna and Nanjangud supply this market before dawn. What you buy at ten in the morning was picked in the dark. That is why the sellers are impatient by afternoon: the stock has been open for hours and the scent is going.",
+   "is_legend": false,
+   "source_name": "Geographical Indications Registry, India",
+   "source_url": null
+  },
+  {
+   "n": 4,
+   "chunk_id": 264,
+   "city": "Mysuru",
+   "title": "The places for the second morning",
+   "body": "Devaraja Market is where the city buys its flowers, fruit and kumkum, under a long roof from the maharajas' time: go early, when the jasmine is being strung and the banana sellers are stacking a dozen varieties. St. Philomena's Cathedral, a few streets east, is a neo-Gothic church with twin spires; the maharaja laid its first stone in 1933, and it is quiet on a weekday morning. The Sri Jayachamarajendra Art Gallery in Jaganmohan Palace holds Raja Ravi Varma paintings and the palace's older collections, in the building the kings lived in while the present palace was being built. And the zoo, one of the oldest in the country, is the right afternoon if you have children with you.",
+   "is_legend": false,
+   "source_name": "Mysuru city heritage records, general reference",
+   "source_url": null
+  },
+  {
+   "n": 5,
+   "chunk_id": 1,
+   "city": "Mysuru",
+   "title": "Two stories run this city",
+   "body": "Mysuru runs on two stories. One is electric: on Sunday nights, close to a lakh of bulbs come on across the palace at once, and for about an hour the whole building is drawn in light. The other is much older and much darker, and it involves a queen, a river, and a curse that the royal family has taken seriously for four hundred years. You will hear both before this walk is done. Keep them in your head together, because that is the trick of this city. The lights are for everyone. The curse is family business. Mysuru has always known how to hold a celebration and a wound at the same time.",
+   "is_legend": false,
+   "source_name": "Mysore Palace Board",
+   "source_url": null
+  },
+  {
+   "n": 6,
+   "chunk_id": 258,
+   "city": "Mysuru",
+   "title": "The palace city that kept its capital manners",
+   "body": "Mysuru is the city the old Mysore kingdom was named for, and it still carries itself like a capital. For most of five centuries the Wadiyar kings ruled from here or from Srirangapatna, sixteen kilometres north, and when the British handed the state back to them in 1799 they put the court in this city and kept it here until 1947. So what you get is a royal town built with a plan and a budget: a palace at the centre, wide straight roads leading off it, a hill with a temple watching over everything, and the Kaveri feeding the plain around. Bengaluru took the government. Mysuru kept the palace, the festival, the silk, the sandalwood and the pace.",
+   "is_legend": false,
+   "source_name": "Karnataka Gazetteer, Mysore District",
+   "source_url": "https://en.wikipedia.org/wiki/Wadiyar_dynasty"
+  },
+  {
+   "n": 7,
+   "chunk_id": 17,
+   "city": "Mysuru",
+   "title": "The tiger that eats a soldier",
+   "body": "Tipu Sultan called himself the Tiger of Mysore, and he meant it. His throne had tiger heads. His soldiers wore tiger stripes. And he owned a life-sized mechanical tiger shown mauling a British soldier. Turn a handle and the soldier's arm flails while an organ inside makes the man wail and the tiger grunt. It was equal parts toy, propaganda, and threat. When Srirangapatna fell in 1799, the British took it home as a trophy, which is its own kind of irony. The machine sits in the Victoria and Albert Museum in London today, still working, still mid-bite, one of their most visited objects. Mysuru's anger, on permanent display in England.",
+   "is_legend": false,
+   "source_name": "Victoria and Albert Museum, London",
+   "source_url": "https://collections.vam.ac.uk/item/O61949/tippoos-tiger-mechanical-organ-unknown"
+  },
+  {
+   "n": 8,
+   "chunk_id": 237,
+   "city": "Mysuru",
+   "title": "The wrestlers train through the night",
+   "body": "In the old quarters of this city there are garadi mane, earthen wrestling houses, and men still train in them the way they did when the palace paid for it. The floor is red earth mixed with oil and turmeric, turned over before each session. The Dasara wrestling tournament is the surviving public face of it. If someone offers to take you into a garadi at five in the morning, go. You will see rope climbing, stone weights, and a form of wrestling with rules older than the Wadiyars. Ask before you photograph. These are training halls, not exhibitions.",
+   "is_legend": false,
+   "source_name": "Mysuru garadi tradition, general reference",
+   "source_url": null
+  },
+  {
+   "n": 9,
+   "chunk_id": 259,
+   "city": "Mysuru",
+   "title": "A buffalo demon gave the city its name",
+   "body": "Ask anyone here how the city got its name and you will hear the same story. The story goes that a demon called Mahishasura, a buffalo with a man's cunning, ruled this land and terrorised everyone in it. The gods could not touch him, so the goddess Parvati took the form of Chamundeshwari, came down to the hill above the city and killed him there. The land was Mahisha's town, Mahishuru, and centuries of speech wore that down to Mysuru. Historians will tell you the region was called buffalo country long before any demon, and that the name probably comes from the animal, not the villain. The city does not mind. It kept the demon's name, put the goddess on the hill, and celebrates her winning every autumn.",
+   "is_legend": true,
+   "source_name": "Devi Purana tradition and Mysore historians, general reference",
+   "source_url": "https://indianexpress.com/article/india/india-news-india/mysore-name-connection-mahishasura-was-seen-as-demon-with-good-qualities-say-historians"
+  },
+  {
+   "n": 10,
+   "chunk_id": 56,
+   "city": "Mysuru",
+   "title": "The adoption record, without the curse",
+   "body": "Set the curse aside and look at the record. The Wadiyar succession has repeatedly gone sideways rather than straight down. Krishnaraja Wadiyar the Third had no surviving son and adopted. Chamaraja Wadiyar the Tenth came to the throne by adoption. Jayachamarajendra Wadiyar, the last ruling maharaja, had a son, but the line after him passed by adoption again in 2015. That much is documented. Sand did cover Talakad, and geologists put it down to the river shifting course and wind moving dune fields. Two true things sitting next to each other is not the same as one causing the other. The family itself has treated the curse seriously, which is also a fact.",
+   "is_legend": false,
+   "source_name": "Karnataka.com, The Legend of Talakad",
+   "source_url": "https://www.karnataka.com/talakad/talakad-legend"
+  },
+  {
+   "n": 11,
+   "chunk_id": 73,
+   "city": "Mysuru",
+   "title": "Rockets before the British had them",
+   "body": "Tipu's army used iron-cased rockets. Not fireworks. Tubes of soft hammered iron packed with powder, strapped to a bamboo shaft, fired in volleys at ranges over a kilometre. They were used against the British at Pollilur and again at Srirangapatna. After 1799 the British collected the wreckage and took it home, and William Congreve worked from it to develop the Congreve rocket, which the Royal Navy then used. The line runs from this island to the rockets in the American national anthem. Some of the recovered casings are in the Royal Artillery collection in England.",
+   "is_legend": false,
+   "source_name": "Royal Artillery Museum collection, general reference",
+   "source_url": null
+  },
+  {
+   "n": 12,
+   "chunk_id": 260,
+   "city": "Mysuru",
+   "title": "One family, six hundred years, two interruptions",
+   "body": "One family has been attached to this city since 1399, when a chieftain called Yaduraya took charge of Mysuru for the Vijayanagara empire. The Wadiyars stayed feudatories until that empire fell, then took Srirangapatna in 1610 and ruled as kings in their own right. Two interruptions matter. From about 1760 the general Hyder Ali, and then his son Tipu Sultan, held the real power with a Wadiyar kept on as a figurehead, until the British stormed Srirangapatna in 1799 and Tipu died in the fighting. The British then put a Wadiyar child of four on the throne and moved the court back to this city. The maharajas ruled, under British oversight, until independence in 1947, and the family still lives in the palace.",
+   "is_legend": false,
+   "source_name": "Karnataka Gazetteer, Mysore District",
+   "source_url": "https://en.wikipedia.org/wiki/Wadiyar_dynasty"
+  },
+  {
+   "n": 13,
+   "chunk_id": 238,
+   "city": "Mysuru",
+   "title": "An entire city was designed as a stage",
+   "body": "Look at how wide the roads are here compared with any other Indian city of this age. That is deliberate. Mysuru was laid out under the Wadiyars and their engineers with the Dasara procession in mind: a fixed route from the palace to the Bannimantap parade ground, wide enough for elephants and crowds, with sightlines to the palace and the hill. The lakes, the parks and the public buildings were placed around it. You are walking through a piece of nineteenth-century urban planning built to hold one ten-day event, and it holds the rest of the year as a side effect.",
+   "is_legend": false,
+   "source_name": "Mysuru city planning history, general reference",
+   "source_url": null
+  },
+  {
+   "n": 14,
+   "chunk_id": 16,
+   "city": "Mysuru",
+   "title": "An island with a short temper",
+   "body": "Srirangapatna is an island. The Kaveri splits, goes around the town, and joins itself again, which is exactly why Hyder Ali and his son Tipu Sultan made it their capital. Water is a wall you do not have to build. For decades this small island held off the most powerful army on earth. It fell on the fourth of May 1799, when British troops broke through the fortifications, and Tipu died fighting in the breach rather than surrendering. The spot where his body was found is marked, and it is an oddly quiet place for somewhere that ended an era. The whole island is a battlefield wearing a town.",
+   "is_legend": false,
+   "source_name": "Archaeological Survey of India",
+   "source_url": "https://collections.vam.ac.uk/item/O61949/tippoos-tiger-mechanical-organ-unknown"
+  }
+ ]
+}

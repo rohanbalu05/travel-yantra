@@ -24,6 +24,16 @@ from the same model?
 Vittala Temple (Hampi; a temple), Mysuru (a city) and Devaraja Market
 (Mysuru; a market and its food), each at 2, 5 and 10 minutes.
 
+## How it was built
+
+27 October 2026, Gemini 3.5 Flash on Vertex AI (trial project), facts from the
+seeded corpus. The Vittala and Mysuru 2-minute Katha came from pipeline
+version 1. The other seven came from version 4, which drafts with minimal
+thinking and writes 5-minute stories in two chapters. All nine passed every
+check (slop, citations, legend framing, length) before they were saved.
+`calls.log` lists every call, including the failed attempts and timeouts on
+the way.
+
 ## How to rate
 
 1. Read A and B of a pair, in either order, without opening `key/`.

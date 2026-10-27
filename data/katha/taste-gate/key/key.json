@@ -1,0 +1,38 @@
+{
+ "pair-01": {
+  "subject": "mysuru-10min",
+  "katha": "B"
+ },
+ "pair-02": {
+  "subject": "devaraja-market-10min",
+  "katha": "B"
+ },
+ "pair-03": {
+  "subject": "vittala-temple-2min",
+  "katha": "B"
+ },
+ "pair-04": {
+  "subject": "mysuru-2min",
+  "katha": "A"
+ },
+ "pair-05": {
+  "subject": "mysuru-5min",
+  "katha": "B"
+ },
+ "pair-06": {
+  "subject": "vittala-temple-5min",
+  "katha": "A"
+ },
+ "pair-07": {
+  "subject": "devaraja-market-2min",
+  "katha": "A"
+ },
+ "pair-08": {
+  "subject": "devaraja-market-5min",
+  "katha": "B"
+ },
+ "pair-09": {
+  "subject": "vittala-temple-10min",
+  "katha": "B"
+ }
+}

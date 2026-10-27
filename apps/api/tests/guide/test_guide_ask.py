@@ -257,3 +257,24 @@ def test_warm_up_never_loads_the_model_under_the_fake(monkeypatch) -> None:
 
     monkeypatch.setattr(embed, "model", lambda: pytest.fail("loaded the real model"))
     guide.warm_up()  # EMBEDDER=fake in tests: the corpus warms, the model does not
+
+
+def test_city_is_a_soft_hint() -> None:
+    seen = []
+
+    def retrieve(q, db, *, filters, k, trip_context):
+        seen.append(filters.city if filters else None)
+        return [hit(1)] if filters is None else []
+
+    req = GuideQuestion(question="Who built Mysore Palace?", city="Mysore")
+    answer = asyncio.run(ask(req, NoRows(), Spy("Built by a king [1]."), retrieve=retrieve))
+    assert seen == ["Mysuru", None] and answer.citations  # narrowed first, then everywhere
+    seen.clear()
+    asyncio.run(ask(GuideQuestion(question="q", city="Goa"), NoRows(), Spy("x [1]."), retrieve=retrieve))
+    assert seen == [None]  # not a corpus city: no filter at all
+
+
+def test_a_plan_in_goa_still_answers_about_mysuru(db) -> None:
+    req = GuideQuestion(question="who invented Mysore pak", city="Goa")
+    answer = asyncio.run(ask(req, db, FakeAnswerer(), places()[0]))
+    assert answer.citations

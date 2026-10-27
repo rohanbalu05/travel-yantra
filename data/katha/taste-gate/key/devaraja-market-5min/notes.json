@@ -1,0 +1,168 @@
+{
+ "outline": {
+  "theme": "Mysuru is a city that holds its royal past not as a museum, but as a living, breathing part of its daily routine.",
+  "hook": "A man sits on a low wooden stool, his fingers moving so fast they are a blur, threading white jasmine buds into a rope. He does not look at his hands, yet every knot is perfectly spaced, and the scent of his work fills the air around him.",
+  "gap": "How does a century-old market under a crumbling roof manage to remain the beating heart of a modern city?",
+  "people": [
+   "The flower seller threading jasmine"
+  ],
+  "bridge": "We all have old, worn-out things in our homes that we refuse to throw away because they still work better than anything new.",
+  "peak": "The moment you realize that the heavy scent of the Mysore mallige jasmine you smell at ten in the morning comes from flowers that were picked in total darkness before dawn, miles away.",
+  "ending": "The sight of a seller carefully rebuilding a collapsed cone of red kumkum powder, ready for the next customer's eye.",
+  "chapters": [
+   {
+    "title": "The Fragrant Law of the Flower Rows",
+    "hook": "Step through the Sayyaji Rao Road entrance and the air instantly changes, thick with the heavy scent of jasmine and the sharp tang of damp earth.",
+    "gap": "Why do the flower sellers here grow impatient and lower their prices as the afternoon approaches?",
+    "beats": [
+     {
+      "text": "As you walk the uneven floor of Devaraja Market, which is more than a century old, you will see walls of orange marigolds and pyramids of bright fruits that nobody is allowed to touch.",
+      "facts": [
+       1
+      ],
+      "label": "history"
+     },
+     {
+      "text": "The white jasmine here, known as Mysore mallige, is so distinct that it has a Geographical Indication tag, meaning only flowers grown in this region can legally use the name.",
+      "facts": [
+       3
+      ],
+      "label": "history"
+     },
+     {
+      "text": "These flowers are smaller than usual but carry a much heavier scent because they were harvested in the dark around Srirangapatna and Nanjangud, arriving here before dawn.",
+      "facts": [
+       3
+      ],
+      "label": "history"
+     }
+    ]
+   },
+   {
+    "title": "The Pillars That Refuse to Fall",
+    "hook": "Look up from the bright piles of powder and you will see iron columns holding up a roof that has seen better centuries.",
+    "gap": "How does this market survive in a city that has rebuilt itself around modern palaces and wide, planned roads?",
+    "beats": [
+     {
+      "text": "The market building dates back to 1886 and has faced threats of demolition after parts of its roof collapsed, yet the old iron columns in the outer corridor still stand.",
+      "facts": [
+       2
+      ],
+      "label": "history"
+     },
+     {
+      "text": "Near the entrance, sellers stack vibrant cones of vermilion, turmeric, and indigo powders, which are meant for daily worship and threshold drawings rather than tourist photos.",
+      "facts": [
+       2
+      ],
+      "label": "history"
+     },
+     {
+      "text": "Local lore says the city itself was named Mahishuru after the buffalo demon Mahishasura who was slain on the hill nearby, though historians argue the name simply means buffalo country.",
+      "facts": [
+       9
+      ],
+      "label": "legend"
+     }
+    ]
+   }
+  ]
+ },
+ "critiques": [
+  "Hook: 4/5. The first sentence is good, but the second sentence (\"Why do the flower sellers here grow impatient...\") is a bit dry for a tired traveler.\nTheme: 3/5. The draft focuses heavily on the market's logistics and jasmine, but the theme of the royal past being a living, breathing part of the daily routine is weak and gets lost.\nSpecifics: 4/5. Good specifics (Sayyaji Rao Road, 1886, Srirangapatna, Nanjangud), but some sensory details feel a bit generic.\nPeak: 3/5. The peak is placed in the second paragraph, but it feels like a factual explanation of jasmine harvesting rather than an emotional or sensory high point.\nEnding: 3/5. Ends on a description of a seller rebuilding a cone, which is nice, but it lacks a strong final image that ties back to the theme.\nHonesty: 5/5. The facts are cited correctly.\n\nThree Biggest Problems:\n1. **Theme Dilution**: The theme—how Mysuru holds its royal past as a living, breathing part of daily routine—is barely present. The draft feels like a standard market tour rather than a story about royal heritage surviving in everyday chores.\n2. **Weak Curiosity Gap**: The question about why flower sellers grow impatient is asked in paragraph one and answered immediately in paragraph two, closing the gap way too early.\n3. **Structure of the Peak**: The peak (the realization of the pre-dawn harvest) is flat because it is delivered as a dry explanation of logistics rather than a sensory, human moment.",
+  "Hook: 4/5 (The first sentence is good, but the third sentence is a bit abstract for a tired traveler).\nTheme: 5/5 (The theme of royal past as a living routine is clear).\nSpecifics: 4/5 (Good details, but some sensory elements could be sharper).\nPeak: 3/5 (The peak is stated directly as a summary sentence rather than felt through action).\nEnding: 4/5 (The ending image of the powder is good, but the transition is slightly abrupt).\nHonesty: 5/5 (The draft labels and cites correctly).\n\nThree biggest problems:\n1. **Directly stating the theme instead of showing it:** The draft explicitly writes \"That is the peak of this place. The city holds its royal past...\" out loud. A spoken story should make the listener feel the theme through the action, not read the thesis statement.\n2. **Weak peak placement and tension:** The peak (the jasmine harvested in darkness) is rushed and lacks a human element or obstacle. We need to see a seller struggling with the ticking clock of the fading scent to make it a real story.\n3. **Lack of a clear bridge to the reader's life:** While the draft mentions \"old, worn-out things in our homes,\" it does not connect the reader's daily routine to the grander idea of living inside a historic, royal habit."
+ ],
+ "attempts": 1,
+ "facts": [
+  {
+   "n": 1,
+   "chunk_id": 13,
+   "city": "Mysuru",
+   "title": "Enter through the flowers",
+   "body": "Use the Sayyaji Rao Road entrance, because it puts you straight into the flower rows. Jasmine sold by the armlength, marigolds in walls of orange, sellers threading garlands without looking at their hands. Go slowly here. Then the fruit, stacked in pyramids nobody is allowed to touch, and the powdered colours, kumkum in cones of red and yellow like small volcanoes. The floor is uneven, more than a century old, so watch your feet with elders. The market does not perform for tourists. It just goes about its morning, and lets you walk through it.",
+   "is_legend": false,
+   "source_name": "Karnataka Tourism",
+   "source_url": null
+  },
+  {
+   "n": 2,
+   "chunk_id": 59,
+   "city": "Mysuru",
+   "title": "The pyramids of colour by the entrance",
+   "body": "Near the entrance there are cones of powder stacked into neat pyramids: vermilion, turmeric, deep pink, indigo. Those are kumkuma and rangoli powders. They are there to be bought by the spoon, not photographed, though everyone photographs them. Ask before you take a picture and most sellers will say yes and then rebuild a cone for you. The building itself is from 1886 and has been under threat of demolition more than once. Parts of the roof have fallen. Walk the outer corridor to see the old iron columns still holding it up.",
+   "is_legend": false,
+   "source_name": "travel-yantra field notes",
+   "source_url": null
+  },
+  {
+   "n": 3,
+   "chunk_id": 57,
+   "city": "Mysuru",
+   "title": "The jasmine has a legal identity",
+   "body": "Mysore mallige is not a loose description. It carries a Geographical Indication tag, which means the name is protected in law and can only be used for jasmine grown in this region. The flower is smaller than the jasmine you see elsewhere and the scent is heavier. Growers around Srirangapatna and Nanjangud supply this market before dawn. What you buy at ten in the morning was picked in the dark. That is why the sellers are impatient by afternoon: the stock has been open for hours and the scent is going.",
+   "is_legend": false,
+   "source_name": "Geographical Indications Registry, India",
+   "source_url": null
+  },
+  {
+   "n": 4,
+   "chunk_id": 264,
+   "city": "Mysuru",
+   "title": "The places for the second morning",
+   "body": "Devaraja Market is where the city buys its flowers, fruit and kumkum, under a long roof from the maharajas' time: go early, when the jasmine is being strung and the banana sellers are stacking a dozen varieties. St. Philomena's Cathedral, a few streets east, is a neo-Gothic church with twin spires; the maharaja laid its first stone in 1933, and it is quiet on a weekday morning. The Sri Jayachamarajendra Art Gallery in Jaganmohan Palace holds Raja Ravi Varma paintings and the palace's older collections, in the building the kings lived in while the present palace was being built. And the zoo, one of the oldest in the country, is the right afternoon if you have children with you.",
+   "is_legend": false,
+   "source_name": "Mysuru city heritage records, general reference",
+   "source_url": null
+  },
+  {
+   "n": 5,
+   "chunk_id": 1,
+   "city": "Mysuru",
+   "title": "Two stories run this city",
+   "body": "Mysuru runs on two stories. One is electric: on Sunday nights, close to a lakh of bulbs come on across the palace at once, and for about an hour the whole building is drawn in light. The other is much older and much darker, and it involves a queen, a river, and a curse that the royal family has taken seriously for four hundred years. You will hear both before this walk is done. Keep them in your head together, because that is the trick of this city. The lights are for everyone. The curse is family business. Mysuru has always known how to hold a celebration and a wound at the same time.",
+   "is_legend": false,
+   "source_name": "Mysore Palace Board",
+   "source_url": null
+  },
+  {
+   "n": 6,
+   "chunk_id": 258,
+   "city": "Mysuru",
+   "title": "The palace city that kept its capital manners",
+   "body": "Mysuru is the city the old Mysore kingdom was named for, and it still carries itself like a capital. For most of five centuries the Wadiyar kings ruled from here or from Srirangapatna, sixteen kilometres north, and when the British handed the state back to them in 1799 they put the court in this city and kept it here until 1947. So what you get is a royal town built with a plan and a budget: a palace at the centre, wide straight roads leading off it, a hill with a temple watching over everything, and the Kaveri feeding the plain around. Bengaluru took the government. Mysuru kept the palace, the festival, the silk, the sandalwood and the pace.",
+   "is_legend": false,
+   "source_name": "Karnataka Gazetteer, Mysore District",
+   "source_url": "https://en.wikipedia.org/wiki/Wadiyar_dynasty"
+  },
+  {
+   "n": 7,
+   "chunk_id": 17,
+   "city": "Mysuru",
+   "title": "The tiger that eats a soldier",
+   "body": "Tipu Sultan called himself the Tiger of Mysore, and he meant it. His throne had tiger heads. His soldiers wore tiger stripes. And he owned a life-sized mechanical tiger shown mauling a British soldier. Turn a handle and the soldier's arm flails while an organ inside makes the man wail and the tiger grunt. It was equal parts toy, propaganda, and threat. When Srirangapatna fell in 1799, the British took it home as a trophy, which is its own kind of irony. The machine sits in the Victoria and Albert Museum in London today, still working, still mid-bite, one of their most visited objects. Mysuru's anger, on permanent display in England.",
+   "is_legend": false,
+   "source_name": "Victoria and Albert Museum, London",
+   "source_url": "https://collections.vam.ac.uk/item/O61949/tippoos-tiger-mechanical-organ-unknown"
+  },
+  {
+   "n": 8,
+   "chunk_id": 237,
+   "city": "Mysuru",
+   "title": "The wrestlers train through the night",
+   "body": "In the old quarters of this city there are garadi mane, earthen wrestling houses, and men still train in them the way they did when the palace paid for it. The floor is red earth mixed with oil and turmeric, turned over before each session. The Dasara wrestling tournament is the surviving public face of it. If someone offers to take you into a garadi at five in the morning, go. You will see rope climbing, stone weights, and a form of wrestling with rules older than the Wadiyars. Ask before you photograph. These are training halls, not exhibitions.",
+   "is_legend": false,
+   "source_name": "Mysuru garadi tradition, general reference",
+   "source_url": null
+  },
+  {
+   "n": 9,
+   "chunk_id": 259,
+   "city": "Mysuru",
+   "title": "A buffalo demon gave the city its name",
+   "body": "Ask anyone here how the city got its name and you will hear the same story. The story goes that a demon called Mahishasura, a buffalo with a man's cunning, ruled this land and terrorised everyone in it. The gods could not touch him, so the goddess Parvati took the form of Chamundeshwari, came down to the hill above the city and killed him there. The land was Mahisha's town, Mahishuru, and centuries of speech wore that down to Mysuru. Historians will tell you the region was called buffalo country long before any demon, and that the name probably comes from the animal, not the villain. The city does not mind. It kept the demon's name, put the goddess on the hill, and celebrates her winning every autumn.",
+   "is_legend": true,
+   "source_name": "Devi Purana tradition and Mysore historians, general reference",
+   "source_url": "https://indianexpress.com/article/india/india-news-india/mysore-name-connection-mahishasura-was-seen-as-demon-with-good-qualities-say-historians"
+  }
+ ]
+}

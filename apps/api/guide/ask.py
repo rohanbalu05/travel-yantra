@@ -22,6 +22,7 @@ from urllib.parse import quote
 from ty_contracts import Citation, GuideAnswer, GuideQuestion, Place
 
 from .places import PlacesClient
+from .planner import corpus_city
 from .retrieval.retrieve import Filters, Hit, TripContext, search
 
 K = 6  # sources handed to the model
@@ -182,13 +183,16 @@ async def ask(
         return answer_emergency(kinds, _locate(db, req), places)
     # place_id is accepted but not matched: the corpus does not store itinerary ids yet.
     poi = _poi(db, req.place_name, req.city)
-    hits = (retrieve or search)(
-        req.question,
-        db,
-        filters=Filters(city=req.city) if req.city and not poi else None,
-        k=K,
-        trip_context=TripContext(current_poi=poi[0] if poi else None, has_elderly=req.has_elderly),
-    )
+    # city is a soft hint: the plan's destination, not necessarily what the question is
+    # about ("Who built Mysore Palace?" asked on a Goa trip). Narrow to it first, and
+    # search everywhere when it is not a corpus city or finds nothing.
+    city = corpus_city(req.city) if req.city and not poi else None
+    context = TripContext(current_poi=poi[0] if poi else None, has_elderly=req.has_elderly)
+    hits = []
+    for filters in ([Filters(city=city)] if city else []) + [None]:
+        hits = (retrieve or search)(req.question, db, filters=filters, k=K, trip_context=context)
+        if hits:
+            break
     if not hits:
         return GuideAnswer(text=REFUSAL)
     return ground(await answerer(req.question, hits), hits) or GuideAnswer(text=REFUSAL)

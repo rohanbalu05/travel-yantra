@@ -1,0 +1,274 @@
+{
+ "outline": {
+  "theme": "The Vittala Temple is a monument of stone that was built to sing, move, and endure, yet it stands as a silent, empty shell because a city's life depends on its water, not its gold.",
+  "hook": "A traveller stands before a massive stone chariot in the heat of Hampi, holding a fifty-rupee note against the granite wheels. The paper in their hand is crisp and new, but the stone vehicle in front of them has been anchored to this earth for five centuries, unable to move yet designed to look as if it is about to roll away.",
+  "gap": "Why does this grandest of all southern temples, built with pillars that sing and stone wheels that once turned, stand completely empty of any gods or worshippers today?",
+  "people": [
+   "Krishnadevaraya",
+   "Colin Mackenzie"
+  ],
+  "bridge": "Just like the modern utility pipes hidden beneath your own street at home, the survival of this entire ancient metropolis depended not on its golden temples, but on the simple stone water channels running through the dirt.",
+  "peak": "The emotional high point comes when you stand in the silent, empty inner sanctum and realize that before the enemy army arrived to burn the city, the priests themselves carried the deity away to Maharashtra, leaving behind a magnificent, hollow shell of stone that would never hear a prayer again.",
+  "ending": "The low morning light casts long shadows from the lotus medallions on the ceiling, illuminating the pink, flaked scars of ancient fire on the granite pillars.",
+  "chapters": [
+   {
+    "title": "The King's Chariot and the Fifty-Rupee Note",
+    "hook": "Pull a fifty-rupee note from your pocket and hold it up against the sky.",
+    "gap": "How did an emperor's obsession with a temple hundreds of miles away result in a stone chariot that actually used to roll?",
+    "beats": [
+     {
+      "text": "Look at the back of your fifty-rupee note and then look at the stone structure in front of you; they are the exact same chariot [4]. This structure is actually a shrine to Garuda, built to look like a processional vehicle, and its stone wheels were carved so perfectly that for a long time they could actually be turned by hand before being fixed in place to protect them [4].",
+      "facts": [
+       4
+      ],
+      "label": "history"
+     },
+     {
+      "text": "People here say that King Krishnadevaraya returned from a military campaign in Odisha, where he had been deeply moved by the stone wheels of the Konark temple, and declared he must have one just like it in his own capital [2]. He expanded the ongoing construction of the Vittala complex to add this chariot, but the temple was never fully consecrated before the empire fell in 1565 [2].",
+      "facts": [
+       2
+      ],
+      "label": "legend"
+     }
+    ]
+   },
+   {
+    "title": "The Pillars That Sing and the Empire That Sawed",
+    "hook": "Step inside the main hall and look at the slender granite pillars rising around you like a frozen forest.",
+    "gap": "What did British surveyors find when they used iron saws to cut open the musical pillars of Hampi?",
+    "beats": [
+     {
+      "text": "These slender granite pillars are famous for ringing with musical notes when struck, and musicians once used them to accompany sacred ceremonies [1]. Skeptical British officers, convinced there must be a trick like hidden metal or hollow chambers inside, sawed two of the pillars open only to find solid, uniform stone [1].",
+      "facts": [
+       1
+      ],
+      "label": "legend"
+     },
+     {
+      "text": "You can still see the sawed pillars today, though tapping on them is strictly banned to prevent further damage [1]. Stand at the east end of the hall in the morning light, look along the axis of the pillars, and touch the cool, deeply carved lotus medallions overhead [5].",
+      "facts": [
+       1,
+       5
+      ],
+      "label": "history"
+     }
+    ]
+   },
+   {
+    "title": "The Silent Sanctum and the Missing God",
+    "hook": "Walk into the inner sanctum of the temple and listen to the absolute silence.",
+    "gap": "Where did the main deity of this massive temple go when the enemy army marched toward the city gates?",
+    "beats": [
+     {
+      "text": "There is no smell of incense, no sound of bells, and no queue of devotees because the temple is entirely empty [3]. Before the devastating sack of the city in 1565, the priests moved the image of Vitthala out to Pandharpur in Maharashtra, leaving this vast stone complex as a monument of architecture rather than a living temple [3].",
+      "facts": [
+       3
+      ],
+      "label": "legend"
+     },
+     {
+      "text": "As you walk through the empty halls, look closely at the pinkish, flaked, and crumbly texture on some of the granite pillars [7]. This is fire damage from when the victorious army spent months burning the city after the Battle of Talikota, leaving a physical record of destruction on the stone [7].",
+      "facts": [
+       7
+      ],
+      "label": "history"
+     }
+    ]
+   },
+   {
+    "title": "The Street of Gems and the Water of Life",
+    "hook": "Walk out of the east gate and look down the long, empty avenue lined with stone colonnades.",
+    "gap": "How did a city that once sold rubies like grain on the street turn into a silent field of boulders?",
+    "beats": [
+     {
+      "text": "This empty avenue was once a bustling market street over half a kilometre long, where Portuguese traders saw precious gems sold openly by the heap under the stone roofs [6, 9]. In 1799, a Scottish surveyor named Colin Mackenzie arrived here to make the first systematic drawings and record the history of these ruins for the outside world [13].",
+      "facts": [
+       6,
+       9,
+       13
+      ],
+      "label": "history"
+     },
+     {
+      "text": "Look down at the low stone gutters and aqueducts cut into the bedrock near your feet [10]. While the temples are what visitors photograph, these hand-cut channels carrying water from the Tungabhadra river were what made life possible here; when the water system fell out of repair after 1565, the population simply could not survive, leaving the city to the boulders and the monkeys [10, 11, 12].",
+      "facts": [
+       10,
+       11,
+       12
+      ],
+      "label": "history"
+     }
+    ]
+   }
+  ]
+ },
+ "critiques": [
+  "Scores:\n- Hook: 4/5 (The fifty-rupee note is a strong visual hook, but it lacks a person at a moment or a clear contradiction in the first two sentences).\n- Theme: 3/5 (The draft focuses on the chariot's construction and origin, missing the core theme of water versus gold and the silent, empty shell).\n- Specifics: 4/5 (Good use of the fifty-rupee note and the king's name, but lacks sensory details like sound, smell, or touch).\n- Peak: 2/5 (The draft is too short to build to a peak at the two-thirds mark; it ends abruptly on the historical timeline).\n- Ending: 2/5 (Ends on a dry historical date rather than a lingering image).\n- Honesty: 5/5 (The labels are correct and the facts are cited accurately).\n\nThree biggest problems:\n1. **Theme deviation**: The draft completely ignores the second half of the theme—that the temple is a silent, empty shell because a city's life depends on water, not gold.\n2. **Missing house style elements**: There is no bridge to the reader's own life, no curiosity gap opened early and closed late, and no sensory details (touch, hear, smell).\n3. **Structure and Peak**: The draft lacks a narrative arc. It does not build to a peak at the two-thirds mark, nor does it end on a powerful, non-summary image of the silent, waterless ruin.",
+  "Scores:\n- Hook: 3/5. The second sentence is a question, but the first sentence uses \"Step inside\" and \"look at\", which are slightly generic.\n- Theme: 4/5. The theme of water versus gold is introduced well in the second paragraph, but the first paragraph focuses entirely on the singing pillars without connecting to the theme.\n- Specifics: 4/5. Good use of facts [1] and [5], but could ground the physical details more tightly.\n- Peak: 3/5. The transition between the musical pillars and the water channels is a bit abrupt, dampening the emotional peak.\n- Ending: 4/5. The image of the pink, flaked scars of fire is strong, but it doesn't fully resolve the water-versus-gold theme.\n- Honesty: 5/5. Clear labels and correct citations used.\n\nThree biggest problems:\n1. The hook violates the house style by using \"Step inside\" and \"look at\" (direct instructions to the reader) instead of focusing on a person at a moment or a sharp contradiction.\n2. The theme of water versus gold is completely absent from the first paragraph, making the draft feel like two disconnected stories.\n3. The curiosity gap about what the British found inside the pillars is opened and closed too quickly within the first paragraph, leaving no tension for the rest of the piece.",
+  "### Scores and Problems\n\n*   **Hook**: 4/5. The draft opens with a sensory experience and a contradiction (an empty temple), but it does not introduce a specific person at a moment or a clear curiosity gap in the first two sentences.\n*   **Theme**: 5/5. The theme is clearly stated and supported by the contrast between the empty, fire-damaged stone temple and the vital water channels.\n*   **Specifics**: 4/5. Good use of the pinkish granite and the water channels, but it misses the opportunity to weave in more checkable details from the rich facts provided (like the singing pillars, the fifty-rupee note, or the Portuguese accounts of gems).\n*   **Peak**: 3/5. The peak of the draft is flat; it transitions too quickly from the fire damage to a general statement about water pipes without a dramatic build-up.\n*   **Ending**: 4/5. The ending image of water channels is strong, but it reads a bit like a summary of the theme rather than a poetic final image.\n*   **Honesty**: 5/5. The draft correctly labels the legend of the deity's relocation and cites the historical facts of the fire damage accurately.\n\n#### Three Biggest Problems\n1.  **Weak Hook and Missing Curiosity Gap**: The opening paragraph lacks a person at a specific moment and fails to open a clear curiosity gap early in the narrative to keep a tired traveler reading.\n2.  **Underutilized Peak**: The story of the British sawing into the musical pillars to find a trick—only to find solid stone—is a perfect, dramatic peak that is completely missing from the draft.\n3.  **Lack of Reader Bridge and Sensory Details**: The transition to the reader's life (the utility pipes) is abrupt, and the draft lacks the rich sensory details of Hampi's past wealth (like gems sold like grain) to contrast with the dry stone.",
+  "### Scores and Problems\n\n*   **Hook**: 4/5. The second sentence (\"How did a city...\") is a strong, thematic question that would keep a tired traveler reading. However, the first sentence is a bit generic.\n*   **Theme**: 4/5. The theme of water versus gold is clear, but the draft lacks the \"built to sing, move, and endure\" aspect of the temple and chariot from the theme statement.\n*   **Specifics**: 5/5. Excellent use of checkable facts (Colin Mackenzie [13], Portuguese traders [6], Tungabhadra river [10], 1565 [12]). Sensory details (pink flaked scars of fire, low morning light) are present.\n*   **Peak**: 3/5. The peak is currently flat; it ends on a description of fire damage rather than a dramatic realization about the city's collapse.\n*   **Ending**: 3/5. The draft ends abruptly on a visual detail of fire damage rather than returning to the core theme of water or closing the curiosity gap.\n*   **Honesty**: 5/5. The facts are accurately labeled and cited.\n\n#### Three Biggest Problems\n1.  **Missing Theme Elements**: The draft completely ignores the stone chariot and the musical pillars (\"built to sing, move, and endure\") [1, 4], which are central to the prompt's theme.\n2.  **No Curiosity Gap**: The draft does not open a clear curiosity gap early on to close near the end.\n3.  **Weak Peak and Ending**: The narrative peak is misplaced, and the ending fails to deliver a strong final image that ties the gold of the temples to the water of the channels."
+ ],
+ "attempts": 1,
+ "facts": [
+  {
+   "n": 1,
+   "chunk_id": 24,
+   "city": "Hampi",
+   "title": "The pillars that play",
+   "body": "Inside the Vittala complex stands a hall whose slender granite pillars ring with musical notes when struck, each cluster tuned differently. Musicians are said to have accompanied temple ceremonies on stone. The story goes that the British, refusing to believe solid granite could sing, sawed into two of the pillars looking for the trick, hollow chambers, hidden metal, anything, and found only stone. The cut pillars are still there. Tapping is banned now, for good reason, after generations of visitors testing the legend. So you cannot hear them. But stand in the hall and look at the sawed ones. Empire came here with a full toolkit and left without the answer.",
+   "is_legend": true,
+   "source_name": "Archaeological Survey of India",
+   "source_url": null
+  },
+  {
+   "n": 2,
+   "chunk_id": 93,
+   "city": "Hampi",
+   "title": "Krishnadevaraya saw a chariot and wanted one",
+   "body": "The story told here is that Krishnadevaraya came back from a campaign in Odisha having seen the temple at Konark with its stone wheels, and decided he would have one too. The Vittala complex was already being built. He expanded it and added the chariot. Whether the Konark link is true or a good story attached later, the pattern is real: this king took what he saw on campaign and put it in his capital. The temple was never fully consecrated. Work stopped, and then in 1565 there was no more work to be done.",
+   "is_legend": false,
+   "source_name": "Karnataka.com, Vittala Temple",
+   "source_url": "https://www.karnataka.com/hampi/vittala-temple"
+  },
+  {
+   "n": 3,
+   "chunk_id": 98,
+   "city": "Hampi",
+   "title": "Where the deity went when the army came",
+   "body": "The Vittala image is not here. Before the sack of 1565 the deity was moved out, and Vitthala is worshipped at Pandharpur in Maharashtra, where the tradition holds that the image came from Hampi and went back. So this vast complex is empty by design now, not only by damage. That is why it feels like architecture rather than a temple when you stand in it. There is no bell, no queue, no oil lamp. What survives is the building thinking out loud about stone. The silence here is administrative rather than spiritual.",
+   "is_legend": true,
+   "source_name": "Pandharpur Vitthala tradition, general reference",
+   "source_url": null
+  },
+  {
+   "n": 4,
+   "chunk_id": 23,
+   "city": "Hampi",
+   "title": "The chariot on the fifty rupee note",
+   "body": "Take out a fifty rupee note. The stone chariot on the back is the one in front of you. It is actually a shrine to Garuda, built to look like a processional chariot, and the wheels are cut so convincingly that for a long time they could genuinely be turned. They are fixed in place now, to save them from a century of enthusiastic hands. Walk around it once at a distance, then once close. From far, it is a vehicle. From near, it is all carving, wheels included, every surface worked. Then hold up the note next to it. Everyone does. Do it anyway.",
+   "is_legend": false,
+   "source_name": "Archaeological Survey of India",
+   "source_url": null
+  },
+  {
+   "n": 5,
+   "chunk_id": 94,
+   "city": "Hampi",
+   "title": "Stand at the east end of the hall and look along it",
+   "body": "Go to the far east end of the main pillared hall, stand in the centre, and look back along the axis. The pillars line up in avenues and the ceiling opens above you in carved panels. Each of the big composite pillars is a bundle: a central shaft with attached colonnettes, and animals carved at the base. Find the ones with yalis, the lion-like creatures with riders. Then look at the ceiling directly overhead. The lotus medallions are cut so deep that the shadow does the work. Morning light, coming in low from the east, is when this hall is best.",
+   "is_legend": false,
+   "source_name": "travel-yantra field notes",
+   "source_url": null
+  },
+  {
+   "n": 6,
+   "chunk_id": 95,
+   "city": "Hampi",
+   "title": "The bazaar in front was a market street",
+   "body": "Walk out of the east gate and look at the long avenue running away from you with colonnades on both sides. That is not a ruin of houses. It was a market street, over half a kilometre long, and traders sold there under those stone roofs. Portuguese visitors described gems being sold openly by the heap in streets like this. Walk a hundred metres down it and turn round. From there you get the temple gopura framed by the colonnade, which is how it was meant to be approached. Almost nobody walks this far. It is the quietest good view at Hampi.",
+   "is_legend": false,
+   "source_name": "BA Notes, Paes and Nuniz on Vijayanagara",
+   "source_url": "https://banotes.org/history-writing-india/vijayanagara-empire-domingo-paes-fernao-nuniz-16th-century"
+  },
+  {
+   "n": 7,
+   "chunk_id": 99,
+   "city": "Hampi",
+   "title": "Look for the burn marks",
+   "body": "On some of the pillars and lintels here the granite has a pinkish, flaked, crumbly look, quite different from the smooth grey elsewhere. That is fire damage. Granite spalls when it is heated hard and then cooled. After Talikota the city was worked over for months and fire was one of the tools. You are looking at the physical record of that. Once you learn to see it you will find it across Hampi, on the Krishna temple, on the Achyutaraya complex. It is the difference between a building that fell down and a building that was destroyed.",
+   "is_legend": false,
+   "source_name": "Archaeological Survey of India, Hampi conservation notes",
+   "source_url": null
+  },
+  {
+   "n": 8,
+   "chunk_id": 100,
+   "city": "Hampi",
+   "title": "Bring water in, there is nothing to buy",
+   "body": "There are no stalls inside the Vittala complex and the ones at the drop-off point are limited. Carry at least a litre a person. There is no proper food nearby either. The nearest reliable meal is back in Hampi Bazaar or across at the Mango Tree. If you are doing Vittala in the morning, eat first at your guesthouse and plan lunch for after. Doing this site hungry, in the sun, with a small child, is how good days go wrong here. A hat and a packet of salt biscuits are worth carrying too, and so is a spare bottle for the walk back.",
+   "is_legend": false,
+   "source_name": "travel-yantra field notes",
+   "source_url": null
+  },
+  {
+   "n": 9,
+   "chunk_id": 19,
+   "city": "Hampi",
+   "title": "Gems on the ground like grain",
+   "body": "Foreign travellers who reached this city in its prime struggled to be believed back home. A Persian envoy in the 1440s wrote about markets where pearls and rubies were sold openly on the street, the way other towns sold grain. A Portuguese visitor named Paes, around 1520, called it as large as Rome and the best provided city in the world. This was Vijayanagara, the City of Victory, one of the largest cities on the planet in its day. What you are standing in now is what was left after it fell. Hold both pictures in your head as you walk. The boulders were always here. Everything between them was gold.",
+   "is_legend": false,
+   "source_name": "Domingo Paes, Chronica dos Reis de Bisnaga",
+   "source_url": null
+  },
+  {
+   "n": 10,
+   "chunk_id": 242,
+   "city": "Hampi",
+   "title": "The city was watered by hand-cut stone channels",
+   "body": "Look for the low stone gutters running across the ground, sometimes cut straight into bedrock, sometimes carried on short aqueducts. Those are the arteries. Water was taken from the Tungabhadra upstream, run through channels along contour lines, and fed to tanks, baths, fields and the palace enclosure. Some of those channels are still delivering water to farmers today, five hundred years after the court that dug them was destroyed. Once you start noticing them you cannot stop. The temples are what people photograph. The channels are what made a city possible in a place with no soil and no shade.",
+   "is_legend": false,
+   "source_name": "Archaeological Survey of India, Vijayanagara research reports",
+   "source_url": null
+  },
+  {
+   "n": 11,
+   "chunk_id": 27,
+   "city": "Hampi",
+   "title": "The monkey kingdom across the river",
+   "body": "Long before Vijayanagara, tradition places another kingdom in this same landscape: Kishkindha, the monkey kingdom of the Ramayana. The story goes that these very hills are where Rama met Hanuman, where Sugriva hid from his brother, where the search for Sita was planned. Across the river, the whitewashed steps up Anjanadri hill lead to a shrine marking what believers hold to be Hanuman's birthplace. Pilgrims climb it barefoot. Whatever your own reading, notice how well the geography fits the tale, boulders stacked by giants, caves everywhere, and actual monkeys supervising all of it with a proprietary air. Guard your sunglasses. They consider those tribute.",
+   "is_legend": true,
+   "source_name": "Karnataka Gazetteer, Bellary District",
+   "source_url": null
+  },
+  {
+   "n": 12,
+   "chunk_id": 138,
+   "city": "Hampi",
+   "title": "An empty capital, and why nobody came back",
+   "body": "Cities usually recover. This one did not. After 1565 the court moved south to Penukonda and then Chandragiri, the trade routes shifted, and the irrigation works that fed a quarter of a million people fell out of repair. Without the canals the land could not hold the population. So the ruin you are walking through is not only the work of an army. It is what happens when the water system behind a city stops being maintained. Look for the stone aqueducts and channels as you walk. They are the reason there was ever a city here.",
+   "is_legend": false,
+   "source_name": "Archaeological Survey of India, Vijayanagara research reports",
+   "source_url": null
+  },
+  {
+   "n": 13,
+   "chunk_id": 241,
+   "city": "Hampi",
+   "title": "Colin Mackenzie found it, in a way",
+   "body": "After 1565 this place was known locally and ignored elsewhere. In 1799, the same year Tipu died, a Scottish surveyor named Colin Mackenzie came through and made the first systematic drawings and notes of the ruins. He collected inscriptions, hired local scholars to read them, and sent the material to Calcutta. That is where the modern archaeological record of Vijayanagara begins. The people living here had never forgotten what it was. What Mackenzie did was write it down in a language the rest of the world would read, which is a different thing from finding it.",
+   "is_legend": false,
+   "source_name": "Mackenzie Collection, British Library, general reference",
+   "source_url": null
+  },
+  {
+   "n": 14,
+   "chunk_id": 243,
+   "city": "Hampi",
+   "title": "Horses were the empire's great weakness",
+   "body": "Vijayanagara could not breed good warhorses. The climate and the grazing were wrong. So it bought them, thousands a year, from Arabia and Persia through the ports of the west coast, and later from the Portuguese at Goa. That dependency shaped everything: foreign policy, the wars with the sultanates, the welcome given to Portuguese traders, the wealth that had to be raised to keep paying. Look at the horses carved on the Mahanavami platform and on the temple wall bands. They are not decoration. They are the most expensive thing the empire imported.",
+   "is_legend": false,
+   "source_name": "BA Notes, Paes and Nuniz on Vijayanagara",
+   "source_url": "https://banotes.org/history-writing-india/vijayanagara-empire-domingo-paes-fernao-nuniz-16th-century"
+  },
+  {
+   "n": 15,
+   "chunk_id": 244,
+   "city": "Hampi",
+   "title": "Two brothers, a sage, and a conversion",
+   "body": "The founding story adds a figure the textbooks sometimes drop. Harihara and Bukka had been captured and taken north, and tradition says they converted to Islam there before returning south. The sage Vidyaranya of Sringeri is said to have received them back and set them to found a Hindu kingdom on the Tungabhadra. Whether the conversion happened is argued. What is certain is that the Sringeri monastery backed the new state, that its head was honoured in the capital, and that you can see Vidyaranya carried in procession painted on the ceiling of the Virupaksha hall.",
+   "is_legend": true,
+   "source_name": "Vijayanagara foundation traditions, general reference",
+   "source_url": null
+  },
+  {
+   "n": 16,
+   "chunk_id": 20,
+   "city": "Hampi",
+   "title": "Two brothers and a river",
+   "body": "The empire began in 1336, founded by two brothers, Harihara and Bukka, on the southern bank of the Tungabhadra. Tradition says a sage named Vidyaranya guided them to the spot. What is certain is that the spot was superb: a river on one side, ridges of granite on the others, a natural fortress with water running through it. From this base the Vijayanagara empire grew until it controlled most of the peninsula south of the Krishna river. For more than two centuries, this was the counterweight of the south. Every ruin you will see today sits on that one decision about where to stand.",
+   "is_legend": false,
+   "source_name": "Archaeological Survey of India",
+   "source_url": "https://prepp.in/news/e-492-vijayanagara-kingdom-1336-1672-ce-medieval-india-history-notes"
+  }
+ ]
+}
