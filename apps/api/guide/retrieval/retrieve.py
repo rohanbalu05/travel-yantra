@@ -203,7 +203,10 @@ def search(
     context = trip_context or TripContext()
     text = _expand(db, query, context) if context.current_poi is not None else query
 
-    found = {"dense": dense(db, text, filters), "lexical": lexical(db, text, filters)}
+    # Only the embedding gets the expansion. The strict lexical query ANDs every
+    # term, and the city name is not in body_tsv, so expanding it there would
+    # turn every in-trip question into a miss. POI_BOOST lifts the stop instead.
+    found = {"dense": dense(db, text, filters), "lexical": lexical(db, query, filters)}
     # Dense last, so a row both retrievers returned keeps the cosine it carries.
     by_id = {row["id"]: row for row in found["lexical"]}
     by_id.update({row["id"]: row for row in found["dense"]})

@@ -69,9 +69,14 @@ def test_seed_loads_the_expected_counts(db) -> None:
     assert n("SELECT count(*) FROM doc_chunk WHERE NOT retired AND embedding IS NULL") == 0
 
 
+# The DB tests run on the fake embedder, a hashed bag of words whose cosine is
+# noise on this corpus. So they lean on names the lexical side can match, and
+# paraphrase recall stays a live-smoke check against the real model.
+
+
 def test_a_named_question_finds_its_chunk(db) -> None:
-    hits = search("what happened at the battle of Talikota", db, k=8)
-    assert hits
+    hits = search("the battle of Talikota", db, k=8)
+    assert "Six months of burning" in {h.title for h in hits}
     for hit in hits:
         assert hit.retrievers and set(hit.retrievers) <= {"dense", "lexical"}
         assert (hit.dense_rank is not None) == ("dense" in hit.retrievers)
@@ -95,8 +100,10 @@ def test_trip_context_lifts_the_stop_you_are_standing_at(db) -> None:
     (poi_id,) = db.execute(
         "SELECT id FROM poi WHERE name = 'Chamundeshwari Temple'"
     ).fetchone()
+    plain = search("climb", db, k=5)
+    assert plain and plain[0].poi_id != poi_id
     aware = search(
-        "what should I know before I go",
+        "climb",
         db,
         k=5,
         trip_context=TripContext(current_poi=poi_id, has_elderly=True),
