@@ -21,6 +21,8 @@ const REVISE_TIMEOUT_MS = 90_000;
 const PACE_NAME = { relaxed: "gentle pace", balanced: "balanced pace", packed: "packed pace" } as const;
 
 function dayTitle(day: DayPlan, t: (text: string, vars?: Vars) => string): string {
+  // TY1's "Day 1 · Sat 31 Oct · Arrive in Mysuru": the tab already shows the date, so keep the last part.
+  if (day.title) return day.title.split(" · ").at(-1)!;
   const names = (day.stops ?? []).map((s) => s.name);
   if (!names.length) return day.notes?.[0] ?? t("Free day");
   return names.length > 2 ? t("{name} and {n} more", { name: names[0], n: names.length - 1 }) : names.join(` ${t("and")} `);
