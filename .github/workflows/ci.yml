@@ -37,7 +37,7 @@ jobs:
           echo "$changed" | grep -q '^.github/workflows/ci.yml$' && changed=$(git ls-files)
           hit() { echo "$changed" | grep -q "^$1/" && [ -f "$1/$2" ]; }
           out=()
-          for pair in contracts:packages/contracts translate:services/translate bots:apps/bots mcp:apps/mcp; do
+          for pair in contracts:packages/contracts translate:services/translate whatsapp:apps/bots/whatsapp mcp:apps/mcp; do
             name=${pair%%:*}; dir=${pair#*:}
             hit "$dir" pyproject.toml && out+=("{\"name\":\"$name\",\"dir\":\"$dir\"}")
           done
@@ -115,7 +115,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build every service image from the repo root
         run: |
-          for d in apps/api apps/mcp apps/bots; do  # services/translate joins once its Dockerfile uses the root context
+          for d in apps/api apps/mcp apps/bots/whatsapp; do  # services/translate joins once its Dockerfile uses the root context
             [ -f "$d/Dockerfile" ] || { echo "skip $d: no Dockerfile"; continue; }
             docker build -f "$d/Dockerfile" -t "ci-$(basename "$d")" .
           done
