@@ -52,6 +52,8 @@ def identity(authorization: str | None = Header(default=None),
             claims = auth.verify(token.strip())
         except auth.AuthError as exc:
             raise HTTPException(401, str(exc)) from exc
+        except auth.AuthUnavailable as exc:
+            raise HTTPException(503, str(exc)) from exc
         if anon:
             link_browser(anon, claims.uid)
         return Identity(claims.uid, claims.email, claims.name)
@@ -79,8 +81,11 @@ def link_browser(anon: str, uid: str) -> None:
     accounts = get_accounts()
     if accounts.linked(anon):
         return
-    moved = get_store().reassign_owner(anon, uid)
-    moved += accounts.link(anon, uid)
+    # Claim the browser first: if two accounts race, only the one whose claim lands moves the trips.
+    moved = accounts.link(anon, uid)
+    if moved is None:
+        return
+    moved += get_store().reassign_owner(anon, uid)
     log.warning("linked a browser to an account: %d items moved", moved)  # no ids in the log
 
 
@@ -100,7 +105,7 @@ class AccountStore(Protocol):
     def delete(self, uid: str, plan_ids: list[str] | None = None) -> int: ...
     def linked(self, anon: str) -> bool: ...
     def delete_ratings_for(self, plan_ids: list[str]) -> int: ...
-    def link(self, anon: str, uid: str) -> int: ...
+    def link(self, anon: str, uid: str) -> int | None: ...
 
 
 class MemoryAccounts:
@@ -146,9 +151,12 @@ class MemoryAccounts:
             n, self.ratings = len(self.ratings) - len(kept), kept
             return n
 
-    def link(self, anon: str, uid: str) -> int:
-        """Move the browser's ratings and (if the account has none yet) consents to the account."""
+    def link(self, anon: str, uid: str) -> int | None:
+        """Claim the browser for the account and move its ratings and (if the account has none yet) consents.
+        None when another account claimed it first."""
         with self._lock:
+            if anon in self._links:
+                return None
             self._links[anon] = uid
             n = 0
             for r in self.ratings:
@@ -213,11 +221,11 @@ class PgAccounts:
         with self._connect() as conn:
             return conn.execute("SELECT 1 FROM account_links WHERE anon_id = %s", (anon,)).fetchone() is not None
 
-    def link(self, anon: str, uid: str) -> int:
+    def link(self, anon: str, uid: str) -> int | None:
         with self._connect() as conn, conn.transaction():
             if conn.execute("INSERT INTO account_links (anon_id, uid) VALUES (%s, %s) ON CONFLICT DO NOTHING",
                             (anon, uid)).rowcount == 0:
-                return 0  # another request linked it first
+                return None  # another request claimed it first
             n = conn.execute("UPDATE ratings SET uid = %s WHERE uid = %s", (uid, anon)).rowcount
             # The account keeps its own choices if it has any; else it takes the browser's.
             n += conn.execute("INSERT INTO consents (uid, plan_history, location, analytics, updated_at) "

@@ -116,8 +116,36 @@ def test_postgres_link_moves_once():
     acc.add_rating(Rating(anon, None, 4, None, "en"))
     assert not acc.linked(anon)
     assert store.reassign_owner(anon, uid) == 1 and acc.link(anon, uid) == 2  # 1 rating + consents
-    assert acc.linked(anon) and acc.link(anon, uid) == 0
+    assert acc.linked(anon) and acc.link(anon, uid) is None
     assert acc.consents(uid)[0].plan_history and len(store.by_owner(uid)) == 1
     acc.delete(uid)
     store.delete_owner(uid)
     assert not acc.linked(anon)
+
+
+def test_cert_outage_is_503_without_cache_and_uses_the_cache_otherwise(monkeypatch):
+    monkeypatch.undo()
+    monkeypatch.setenv("TY_FIREBASE_PROJECT_ID", "sample-project")
+
+    def down():
+        raise OSError("network down")
+
+    monkeypatch.setattr(auth, "_fetch_certs", down)
+    monkeypatch.setattr(auth, "_certs", {})
+    with pytest.raises(auth.AuthUnavailable):
+        auth.certs()
+    assert client.get("/me", headers={"Authorization": "Bearer x.y.z"}).status_code == 503
+    monkeypatch.setattr(auth, "_certs", {"kid": "cert"})
+    monkeypatch.setattr(auth, "_certs_at", -10_000.0)  # stale
+    assert auth.certs() == {"kid": "cert"}
+
+
+def test_a_second_account_cannot_claim_an_already_linked_browser(memory_accounts):
+    anon = {"X-Client-Id": BROWSER}
+    client.put("/me/consents", json={"plan_history": True}, headers=anon)
+    done(client.post("/plan", json=MYSURU, headers=anon))
+    client.get("/me", headers=bearer("good-token", BROWSER))
+    assert memory_accounts.link(BROWSER, "fb:sample-sub-2") is None
+    client.get("/me", headers=bearer("other-token", BROWSER))
+    assert client.get("/me/trips", headers=bearer("other-token")).json() == []
+    assert len(client.get("/me/trips", headers=bearer("good-token")).json()) == 1
