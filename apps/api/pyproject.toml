@@ -14,7 +14,7 @@ dependencies = [
 
 [project.optional-dependencies]
 # local multilingual-e5-small embeddings; tests set EMBEDDER=fake and skip this
-embeddings = ["sentence-transformers>=3"]
+embeddings = ["sentence-transformers>=3", "torch>=2.4"]
 
 [dependency-groups]
 dev = ["httpx>=0.27", "pytest>=8", "ruff>=0.6"]
@@ -29,6 +29,13 @@ package = false
 
 [tool.uv.sources]
 ty-contracts = { path = "../../packages/contracts", editable = true }
+# CPU-only torch on Linux (the API image and CI): no CUDA wheels. Other platforms keep PyPI's build.
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 
 [tool.ruff.lint]
 # Pin the rule set so a new ruff release cannot turn every lane red.
