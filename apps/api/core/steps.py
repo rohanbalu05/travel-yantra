@@ -5,6 +5,8 @@ Only intake (Flash-Lite), story (Flash-Lite) and narrator (Flash) call the model
 
 from __future__ import annotations
 
+from functools import lru_cache
+
 from ty_contracts import (
     Itinerary,
     KathaStory,
@@ -49,10 +51,34 @@ async def intake(state: dict, model: Model):
     return {"request": r.model_dump(mode="json")}, f"Planning {r.origin} to {', '.join(r.destinations)}"
 
 
-# The three data planners are sample-backed until TY2 (places) and TY3 (transport, stays) expose planners.
+@lru_cache
+def _compare():
+    # TY3's in-process service; it loads the rail graph once.
+    from routes.compare import get_service
+
+    return get_service()
+
+
+def transport_options(request: TripRequest) -> list[TransportOption]:
+    """Ranked options from TY3's /routes/compare service for origin to first destination (one way).
+    Falls back to the sample options when routes does not know a city."""
+    from routes.compare import CompareRequest, UnknownPlace
+
+    try:
+        found = _compare().compare(CompareRequest(origin=request.origin, destination=request.destinations[0],
+                                                  date=request.start_date))
+        options = [o.option for o in found.options]
+    except UnknownPlace:
+        options = []
+    return options or fakes.transport(request)
+
+
 async def transport(state: dict, model: Model):
-    options = fakes.transport(_request(state))
+    options = transport_options(_request(state))
     return {"transport": _dump(options)}, f"Found {len(options)} ways to travel"
+
+
+# Places and stays are sample-backed until TY2 (places) and TY3 (stays) expose planners.
 
 
 async def places(state: dict, model: Model):

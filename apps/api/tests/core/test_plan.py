@@ -79,7 +79,7 @@ def test_over_budget_plan_streams_a_repair_round(monkeypatch):
     def air_first(request):
         return list(reversed(cheap_first(request)))
 
-    monkeypatch.setattr(steps.fakes, "transport", air_first)
+    monkeypatch.setattr(steps, "transport_options", air_first)
     events = frames(client.post("/plan", json=GOA))
     s = stages(events)
     assert s[6:9] == ["checking", "repairing", "checking"]
