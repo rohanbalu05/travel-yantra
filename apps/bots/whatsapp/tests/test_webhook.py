@@ -364,3 +364,11 @@ def test_long_reply_goes_out_in_parts(monkeypatch):
     with TestClient(create_app(brain=Long(base=""), sender=fake)) as client:
         post(client, load("text_en.json"))
     assert [len(b) for _, b in fake.sent] == [3000, 3000, 3000]
+
+
+def test_health_reports_the_deployed_version(bot, monkeypatch):
+    client, _ = bot
+    monkeypatch.delenv("GIT_SHA", raising=False)
+    assert client.get("/health").json() == {"ok": True, "version": "dev"}
+    monkeypatch.setenv("GIT_SHA", "abc1234")
+    assert client.get("/health").json() == {"ok": True, "version": "abc1234"}

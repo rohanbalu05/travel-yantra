@@ -108,7 +108,8 @@ def create_app(brain: Brain | None = None, sender: Sender | None = None) -> Fast
 
     @app.get("/health")
     def health() -> dict:
-        return {"ok": True}
+        # GIT_SHA is set by the deploy (infra/gcp/run-services.sh, deploy.yml), as for ty-api.
+        return {"ok": True, "version": os.environ.get("GIT_SHA") or "dev"}
 
     @app.get("/webhook", response_class=PlainTextResponse)
     def verify(
