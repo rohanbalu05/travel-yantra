@@ -6,7 +6,7 @@ import { PlanHttpError, streamPlan, streamRevise } from "@/lib/plan";
 import { initialPlanState, planReducer } from "@/lib/planState";
 import { OSM_ATTRIBUTION, OSM_TILES, pinHtml } from "@/lib/map";
 import { dayRows, pickIndex, planMode, planRailLeg, tripCost } from "@/lib/planView";
-import { formFromDraft, formProblems, goaForm, splitOf, toTripRequest, tripDays } from "@/lib/tripForm";
+import { formFromDraft, formProblems, goaForm, leaveSample, splitOf, toTripRequest, tripDays } from "@/lib/tripForm";
 
 const sse = (evs: PlanEvent[]) => evs.map((e) => `: ping\n\ndata: ${JSON.stringify(e)}\n\n`).join("");
 
@@ -280,5 +280,15 @@ describe("a plan mode with no matching option (review P1)", () => {
     const i = pickIndex(road);
     expect(i).toBe(pickIndex(GOA_ITINERARY));
     expect(tripCost(road, road.transport![i])).toBeGreaterThan(0);
+  });
+});
+
+describe("the form leaves the Goa sample (QA #117)", () => {
+  it("clears the sample's choices when the trip changes, once", () => {
+    const f = leaveSample({ ...goaForm(), to: "Mysuru" });
+    expect(f).toMatchObject({ stepFree: false, interests: [], pace: "balanced", food: "Anything", budget: "", sample: false });
+    expect(toTripRequest(f).constraints?.mobility_needs).toEqual([]);
+    const mine = { ...f, food: "Jain" };
+    expect(leaveSample(mine)).toBe(mine); // the traveller's own choices stay
   });
 });

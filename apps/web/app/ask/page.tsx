@@ -8,18 +8,20 @@ import { Problem, problemOf } from "@/components/Problem";
 import type { GuideAnswer, Place } from "@/lib/contracts";
 import { useAccount } from "@/lib/account";
 import { askGuide } from "@/lib/guide";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, type Vars } from "@/lib/i18n";
 import { osmLink } from "@/lib/map";
 import { usePlanResult } from "@/lib/plan";
 import "../guide.css";
 
 type Turn = { id: number; q: string; a?: GuideAnswer; problem?: { message: string; retryable: boolean } };
 
-// Fixed questions and topics: dictionary keys, asked in the traveller's language.
-const TRIES = [
-  { q: "Why is the Basilica of Bom Jesus famous?", k: "History" },
-  { q: "What should we wear to the Basilica?", k: "Etiquette" },
-  { q: "Where is the nearest hospital?", k: "Emergency" },
+// Starter questions and topics: dictionary keys, asked in the traveller's language. With a plan they
+// name its first stop (QA #119); without one, the Goa sample's Basilica.
+const SAMPLE_PLACE = "the Basilica of Bom Jesus";
+const tries = (place: string): { q: string; v: Vars; k: string }[] => [
+  { q: "Why is {place} famous?", v: { place }, k: "History" },
+  { q: "What should we wear to {place}?", v: { place }, k: "Etiquette" },
+  { q: "Where is the nearest hospital?", v: {}, k: "Emergency" },
 ];
 
 function Emergency({ places }: { places: Place[] }) {
@@ -44,6 +46,8 @@ export default function AskGuide() {
   const { lang, t } = useI18n();
   const account = useAccount();
   const city = plan?.itinerary.request.destinations[0] ?? null;
+  const firstStop = plan?.itinerary.days.flatMap((d) => d.stops ?? [])[0];
+  const TRIES = tries(firstStop ? firstStop.native_names?.[lang] ?? firstStop.name : t(SAMPLE_PLACE));
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
@@ -129,7 +133,7 @@ export default function AskGuide() {
               <h2 className="h3" id="try-h" style={{ marginBottom: 12 }}>{t("Try asking")}</h2>
               <div className="tries">
                 {TRIES.map((x) => (
-                  <button key={x.q} type="button" className="try" disabled={busy} onClick={() => ask(t(x.q))}><b>{t(x.q)}</b><span>{t(x.k)}</span></button>
+                  <button key={x.q} type="button" className="try" disabled={busy} onClick={() => ask(t(x.q, x.v))}><b>{t(x.q, x.v)}</b><span>{t(x.k)}</span></button>
                 ))}
               </div>
             </section>

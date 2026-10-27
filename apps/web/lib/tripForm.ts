@@ -20,7 +20,18 @@ export type TripForm = {
   split?: number[] | null;
   /** How the traveller wants to go; null lets the planner pick. */
   transport?: Mode | null;
+  /** Still the Goa sample's choices (step-free, interests, food, budget), untouched by the traveller. */
+  sample?: boolean;
 };
+
+/**
+ * The traveller changed where from or to: the Goa family's choices are theirs, not this trip's
+ * (QA #117), so the form goes neutral. The group and dates stay; they are easy to see and change.
+ */
+export function leaveSample(f: TripForm): TripForm {
+  if (!f.sample) return f;
+  return { ...f, sample: false, stepFree: false, interests: [], pace: "balanced", food: "Anything", budget: "", transport: null };
+}
 
 export const destinationsOf = (f: TripForm) => f.to.split(",").map((s) => s.trim()).filter(Boolean);
 
@@ -67,6 +78,7 @@ export function goaForm(): TripForm {
     pace: c.pace ?? "relaxed",
     food: "Vegetarian",
     budget: String(c.budget_inr ?? ""),
+    sample: true,
   };
 }
 

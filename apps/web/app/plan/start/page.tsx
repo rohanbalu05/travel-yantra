@@ -8,7 +8,7 @@ import type { Lang, TripDraft } from "@/lib/contracts";
 import { LANGS, useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { savePlanInput } from "@/lib/plan";
-import { FOODS, INTERESTS, PACES, TRANSPORTS, destinationsOf, formFromDraft, formProblems, goaForm, splitOf, toTripRequest, tripDays, type TripForm } from "@/lib/tripForm";
+import { FOODS, INTERESTS, PACES, TRANSPORTS, destinationsOf, formFromDraft, formProblems, goaForm, leaveSample, splitOf, toTripRequest, tripDays, type TripForm } from "@/lib/tripForm";
 import "../plan.css";
 
 const PLAN_LANGS: [Lang, string][] = LANGS.map((l) => [l.code, l.native]);
@@ -41,6 +41,10 @@ function PlanStart() {
   const [tried, setTried] = useState(false);
 
   const set = <K extends keyof TripForm>(k: K, v: TripForm[K]) => setForm((f) => ({ ...f, [k]: v }));
+  // A new from or to: the sample's choices go (leaveSample); everything else the traveller set stays.
+  const setPlace = (k: "from" | "to", v: string) => setForm((f) => ({ ...leaveSample(f), [k]: v }));
+  // Any choice made by hand means the rest is no longer just the sample.
+  const choose = <K extends keyof TripForm>(k: K, v: TripForm[K]) => setForm((f) => ({ ...f, [k]: v, sample: false }));
   const cities = destinationsOf(form);
   const split = splitOf(form);
   const problems = mode === "form" ? formProblems(form) : text.trim().length < 1 ? ["Tell us about the trip first."] : text.length > 4000 ? ["Keep it under 4,000 characters."] : [];
@@ -117,8 +121,8 @@ function PlanStart() {
             <section className="panel panel-pad fsec" aria-labelledby="f1">
               <h2 className="h3" id="f1">{t("Where and when")}</h2>
               <div className="two">
-                <div className="field"><label htmlFor="from">{t("From")}</label><input className="input" id="from" value={form.from} onChange={(e) => set("from", e.target.value)} /></div>
-                <div className="field"><label htmlFor="to">{t("To")}</label><input className="input" id="to" value={form.to} onChange={(e) => set("to", e.target.value)} /></div>
+                <div className="field"><label htmlFor="from">{t("From")}</label><input className="input" id="from" value={form.from} onChange={(e) => setPlace("from", e.target.value)} /></div>
+                <div className="field"><label htmlFor="to">{t("To")}</label><input className="input" id="to" value={form.to} onChange={(e) => setPlace("to", e.target.value)} /></div>
               </div>
               <div className="two">
                 <div className="field"><label htmlFor="start">{t("First day")}</label><input className="input" id="start" type="date" value={form.start} onChange={(e) => set("start", e.target.value)} /></div>
@@ -164,7 +168,7 @@ function PlanStart() {
                   </div>
                 ))}
               </div>
-              <label className="check"><input type="checkbox" checked={form.stepFree} onChange={(e) => set("stepFree", e.target.checked)} /><span>{t("Someone needs step-free access or a wheelchair")}</span></label>
+              <label className="check"><input type="checkbox" checked={form.stepFree} onChange={(e) => choose("stepFree", e.target.checked)} /><span>{t("Someone needs step-free access or a wheelchair")}</span></label>
             </section>
 
             <section className="panel panel-pad fsec" aria-labelledby="f3">
@@ -173,24 +177,24 @@ function PlanStart() {
                 {INTERESTS.map((i) => {
                   const on = form.interests.includes(i);
                   return (
-                    <button key={i} type="button" className={on ? "chip on" : "chip"} aria-pressed={on} onClick={() => set("interests", on ? form.interests.filter((x) => x !== i) : [...form.interests, i])}>{t(i)}</button>
+                    <button key={i} type="button" className={on ? "chip on" : "chip"} aria-pressed={on} onClick={() => choose("interests", on ? form.interests.filter((x) => x !== i) : [...form.interests, i])}>{t(i)}</button>
                   );
                 })}
               </div>
               <div className="field"><span className="label">{t("How you travel")}</span>
                 <div className="toggle wrap-toggle" role="group" aria-label={t("How you travel")}>
-                  {TRANSPORTS.map(([v, label]) => <button key={label} type="button" className={(form.transport ?? null) === v ? "on" : undefined} aria-pressed={(form.transport ?? null) === v} onClick={() => set("transport", v)}>{t(label)}</button>)}
+                  {TRANSPORTS.map(([v, label]) => <button key={label} type="button" className={(form.transport ?? null) === v ? "on" : undefined} aria-pressed={(form.transport ?? null) === v} onClick={() => choose("transport", v)}>{t(label)}</button>)}
                 </div>
                 <span className="hint">{t("We compare all three either way; the plan's journeys follow your choice.")}</span>
               </div>
               <div className="field"><span className="label">{t("Pace")}</span>
                 <div className="toggle" role="group" aria-label={t("Pace")}>
-                  {PACES.map(([v, label]) => <button key={v} type="button" className={form.pace === v ? "on" : undefined} aria-pressed={form.pace === v} onClick={() => set("pace", v)}>{t(label)}</button>)}
+                  {PACES.map(([v, label]) => <button key={v} type="button" className={form.pace === v ? "on" : undefined} aria-pressed={form.pace === v} onClick={() => choose("pace", v)}>{t(label)}</button>)}
                 </div>
               </div>
               <div className="field"><span className="label">{t("Food")}</span>
                 <div className="toggle wrap-toggle" role="group" aria-label={t("Food")}>
-                  {FOODS.map((v) => <button key={v} type="button" className={form.food === v ? "on" : undefined} aria-pressed={form.food === v} onClick={() => set("food", v)}>{t(v)}</button>)}
+                  {FOODS.map((v) => <button key={v} type="button" className={form.food === v ? "on" : undefined} aria-pressed={form.food === v} onClick={() => choose("food", v)}>{t(v)}</button>)}
                 </div>
               </div>
             </section>
@@ -199,7 +203,7 @@ function PlanStart() {
               <h2 className="h3" id="f4">{t("Budget and language")}</h2>
               <div className="field">
                 <label htmlFor="budget">{t("Budget for everyone")}</label>
-                <div className="money"><span>₹</span><input className="input" id="budget" inputMode="numeric" value={form.budget} onChange={(e) => set("budget", e.target.value)} /></div>
+                <div className="money"><span>₹</span><input className="input" id="budget" inputMode="numeric" value={form.budget} onChange={(e) => choose("budget", e.target.value)} /></div>
                 <span className="hint">{t("For everything, including getting there. We show the split before you book.")}</span>
               </div>
               {langPicker}

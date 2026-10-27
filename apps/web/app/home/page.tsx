@@ -2,16 +2,17 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { PlayIcon, Wave } from "@/components/Wave";
-import { useAccount } from "@/lib/account";
+import { listTrips, useAccount, type SavedTrip } from "@/lib/account";
+import { dayLabel } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { savePlanInput } from "@/lib/plan";
 import "./home.css";
 
-// Sample data only (Arjun Rao and family). TY4-02 swaps these for API data.
+// Sample data only (Arjun Rao and family), shown and labelled as samples until the person has trips.
 const trips = [
   { href: "/plan/itinerary/", name: "Goa with family", badge: "badge badge-sea", when: "In 6 weeks", dates: "Fri 11 to Mon 14 Dec · 4 travellers", to: "Goa", status: [["st st-ok", "3 of 5 booked"], ["st st-wait", "Return train waitlisted"]] },
   { href: "/katha/day/", name: "Mysuru weekend", badge: "badge badge-ok", when: "This weekend", dates: "Sat 31 Oct to Sun 1 Nov · 3 travellers", to: "Mysuru", status: [["st st-ok", "Plan and Day Katha ready"]] },
@@ -36,6 +37,17 @@ export default function HomePage() {
   // Signed in with Google: their own first name. Otherwise the sample persona (Arjun Rao and family).
   const firstName = user && !user.demo && user.name ? user.name.split(" ")[0] : "Arjun";
   const [playing, setPlaying] = useState(false);
+  // Saved trips from the API (signed in) or this browser; null until known.
+  const [mine, setMine] = useState<SavedTrip[] | null>(null);
+  useEffect(() => {
+    let live = true;
+    listTrips()
+      .then((r) => live && setMine(r.trips))
+      .catch(() => live && setMine([]));
+    return () => {
+      live = false;
+    };
+  }, []);
   const [ask, setAsk] = useState("");
   // Typed text goes straight to planning; an empty box opens the full start page.
   const planIt = () => {
@@ -119,13 +131,27 @@ export default function HomePage() {
       <div className="split">
         <section className="main" aria-labelledby="trips-h">
           <div className="sec-title">
-            <h2 className="h2" id="trips-h">{t("Your trips")}</h2>
+            <h2 className="h2" id="trips-h">{mine?.length ? t("Your trips") : t("Sample trips")}</h2>
             <Link href="/trips/" style={{ fontWeight: 700 }}>{t("See all trips")}</Link>
           </div>
+          {/* Home and My trips agree (QA #116): the person's own trips when there are any, else samples marked as such. */}
+          {mine?.length ? (
+            <div className="trips">
+              {mine.slice(0, 3).map((trip) => (
+                <Link key={trip.plan_id} className="trip" href={trip.share_token ? `/t/${encodeURIComponent(trip.share_token)}/` : "/trips/"}>
+                  <div className="trip-top"><b>{trip.title}</b></div>
+                  <small>{t("{from} to {to}", { from: dayLabel(trip.start_date, lang), to: dayLabel(trip.end_date, lang) })}</small>
+                  <div className="trip-route"><span>{trip.origin}</span><i /><span>{trip.destinations.at(-1)}</span></div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+          <>
+          <p className="hint" style={{ margin: "0 0 12px" }}>{t("Examples from the sample family (Arjun Rao and family), to show how trips look. Yours appear here once you plan one with Keep my trips on.")}</p>
           <div className="trips">
             {trips.map((trip) => (
               <Link key={trip.name} className="trip" href={trip.href}>
-                <div className="trip-top"><b>{t(trip.name)}</b><span className={trip.badge}>{t(trip.when)}</span></div>
+                <div className="trip-top"><b>{t(trip.name)}</b><span className="badge">{t("Sample")}</span></div>
                 <small>{t(trip.dates)}</small>
                 <div className="trip-route"><span>Bengaluru</span><i /><span>{trip.to}</span></div>
                 <div className="trip-foot">
@@ -136,10 +162,12 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
+          </>
+          )}
         </section>
 
         <aside className="side panel panel-pad" aria-labelledby="needs-h">
-          <h2 className="h3" id="needs-h" style={{ marginBottom: 12 }}>{t("Needs you")}</h2>
+          <h2 className="h3" id="needs-h" style={{ marginBottom: 12 }}>{t("Needs you")} <span className="badge">{t("Sample")}</span></h2>
           <div className="needs">
             {needs.map((n) => (
               <div className="need" key={n.title}>
