@@ -1,31 +1,40 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Suspense } from "react";
-import { AppShell } from "@/components/AppShell";
+import { StudyFrame, useStudyParams, useTaskBrief } from "@/components/Study";
 import { useI18n } from "@/lib/i18n";
-import { startStudy, type Study } from "@/lib/metrics";
+import { startStudy } from "@/lib/metrics";
 import "../settings/settings.css";
 
 // The study's one-screen consent (V3-AA): measuring this session only, nothing personal.
-// Organisers open /study/?task=plan_mysuru&arm=ty for each participant.
 function StudyConsent() {
   const router = useRouter();
-  const params = useSearchParams();
   const { t } = useI18n();
-  const task = (params.get("task") ?? "plan_trip").replace(/[^a-z0-9_-]/gi, "").slice(0, 40) || "plan_trip";
-  const arm: Study["arm"] = params.get("arm") === "baseline" ? "baseline" : "ty";
+  const { task, arm } = useStudyParams();
+  const brief = useTaskBrief(task);
 
   const agree = () => {
     startStudy({ task, arm });
-    router.push("/home/");
+    // ty: plan in the app (start is sent when the plan is asked for); baseline: the timer page.
+    router.push(arm === "ty" ? "/plan/start/" : `/study/baseline/?task=${encodeURIComponent(task)}&arm=baseline`);
   };
 
   return (
-    <AppShell>
+    <StudyFrame arm={arm}>
       <section className="panel panel-pad st-sec study" aria-labelledby="study-h">
         <h1 className="page-title" id="study-h">{t("Before you start")}</h1>
-        <p className="page-sub" style={{ margin: 0 }}>{t("You are taking part in a short study of Travel Yantra. Plan a trip as you normally would.")}</p>
+        <p className="page-sub" style={{ margin: 0 }}>
+          {arm === "ty"
+            ? t("You are taking part in a short study of Travel Yantra. Plan a trip as you normally would.")
+            : t("You are taking part in a short study of trip planning. Plan this trip with any websites or apps you usually use, except Travel Yantra.")}
+        </p>
+        {brief && (
+          <div className="study-brief">
+            <b>{brief.title}</b>
+            <p>{brief.brief}</p>
+          </div>
+        )}
         <div className="study-cols">
           <div>
             <b>{t("What we measure")}</b>
@@ -45,10 +54,10 @@ function StudyConsent() {
         <p className="hint" style={{ margin: 0 }}>{t("This stops when you close this tab. You can stop at any time.")}</p>
         <div className="row-wrap">
           <button type="button" className="btn btn-primary btn-lg" onClick={agree}>{t("I agree, start")}</button>
-          <button type="button" className="btn btn-quiet" onClick={() => router.push("/home/")}>{t("No, just use the app")}</button>
+          {arm === "ty" && <button type="button" className="btn btn-quiet" onClick={() => router.push("/home/")}>{t("No, just use the app")}</button>}
         </div>
       </section>
-    </AppShell>
+    </StudyFrame>
   );
 }
 

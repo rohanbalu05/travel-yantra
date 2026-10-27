@@ -45,6 +45,25 @@ export function currentStudy(): Study | null {
   }
 }
 
+/** A study task from TY3 (GET /routes/metrics/tasks): what the participant is asked to plan. */
+export type StudyTask = { id: string; title: string; brief: string; arms: ("ty" | "baseline")[] };
+
+const SAMPLE_TASKS: StudyTask[] = [
+  { id: "plan_goa_family", title: "Goa with the family", brief: "Plan Bengaluru to Goa for a family of four (two parents in their 60s), 11 to 14 Dec, about ₹60,000 in all. Choose how to travel and where to book.", arms: ["ty", "baseline"] },
+  { id: "plan_mysuru_weekend", title: "A weekend in Mysuru", brief: "Plan a weekend in Mysuru for two adults, 19 to 20 Dec. Choose how to travel and where to book.", arms: ["ty", "baseline"] },
+];
+
+/** The study tasks; the sample pair when there is no API or the route is not there. */
+export async function studyTasks(base = API_BASE_URL): Promise<StudyTask[]> {
+  if (!base) return SAMPLE_TASKS;
+  try {
+    const res = await fetch(`${base}/routes/metrics/tasks`, { headers: { Accept: "application/json" } });
+    return res.ok ? ((await res.json()) as StudyTask[]) : SAMPLE_TASKS;
+  } catch {
+    return SAMPLE_TASKS;
+  }
+}
+
 export function track(event: MetricEvent, task?: string, base = API_BASE_URL): boolean {
   if (!base || typeof window === "undefined") return false;
   const study = currentStudy();

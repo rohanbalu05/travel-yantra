@@ -85,6 +85,24 @@ test("language, consents and delete my data", async ({ page }) => {
   await expect(page.getByRole("switch", { name: "Keep my trips" })).toHaveAttribute("aria-checked", "false");
 });
 
+test("study: ty arm plans in the app, baseline arm uses the timer with no app navigation", async ({ page }) => {
+  await page.goto("/study/?task=plan_goa_family&arm=ty");
+  await expect(page.getByText("Goa with the family")).toBeVisible();
+  await page.getByRole("button", { name: "I agree, start" }).click();
+  await expect(page).toHaveURL(/\/plan\/start\/$/);
+
+  await page.goto("/study/?task=plan_mysuru_weekend&arm=baseline");
+  await expect(page.getByRole("navigation", { name: "Main" })).toHaveCount(0);
+  await page.getByRole("button", { name: "I agree, start" }).click();
+  await expect(page).toHaveURL(/\/study\/baseline\//);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("A weekend in Mysuru");
+  await expect(page.getByRole("button", { name: "I have my plan" })).toBeDisabled();
+  await page.getByRole("button", { name: "Start" }).click();
+  await page.getByRole("button", { name: "I have my plan" }).click();
+  await page.getByRole("button", { name: "I chose where to book" }).click();
+  await expect(page.getByText("Thank you. You can close this tab.")).toBeVisible();
+});
+
 test("a shared plan opens read only", async ({ page }) => {
   await page.goto("/t/sample-goa-family/");
   await expect(page.getByText("Shared plan, read only")).toBeVisible();
