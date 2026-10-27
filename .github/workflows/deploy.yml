@@ -89,19 +89,29 @@ jobs:
       - name: Build ${{ matrix.service.name }}
         env:
           IMAGE: asia-south1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/ty/${{ matrix.service.name }}:${{ github.sha }}
+          PROJECT: ${{ vars.GCP_PROJECT_ID }}
+          DEPLOY_SA: ${{ vars.GCP_DEPLOY_SA }}
         run: |
-          # ty-translate's Dockerfile still expects its own directory as context.
-          if [ "${{ matrix.service.name }}" = "ty-translate" ]; then
-            gcloud builds submit "${{ matrix.service.dir }}" --config infra/cloudbuild/image.yaml \
-              --substitutions "_DOCKERFILE=Dockerfile,_IMAGE=$IMAGE" \
-              --project "${{ vars.GCP_PROJECT_ID }}"
-            exit 0
+          # The web build inlines the live API URL (empty until ty-api exists).
+          api_url=""
+          if [ "${{ matrix.service.name }}" = "ty-web" ]; then
+            api_url=$(gcloud run services describe ty-api --region asia-south1 --project "$PROJECT" \
+              --format 'value(status.url)' 2>/dev/null || true)
           fi
-          gcloud builds submit . --config infra/cloudbuild/image.yaml \
-            --substitutions "_DOCKERFILE=${{ matrix.service.dockerfile }},_IMAGE=$IMAGE" \
-            --project "${{ vars.GCP_PROJECT_ID }}"
+          # ty-translate's Dockerfile still expects its own directory as context.
+          context=. dockerfile="${{ matrix.service.dockerfile }}"
+          if [ "${{ matrix.service.name }}" = "ty-translate" ]; then
+            context="${{ matrix.service.dir }}" dockerfile=Dockerfile
+          fi
+          gcloud builds submit "$context" --config infra/cloudbuild/image.yaml \
+            --region asia-south1 --service-account "projects/$PROJECT/serviceAccounts/$DEPLOY_SA" \
+            --substitutions "_DOCKERFILE=$dockerfile,_IMAGE=$IMAGE,_API_BASE_URL=$api_url" \
+            --project "$PROJECT"
       - name: Deploy ${{ matrix.service.name }}
+        # Only the image and GIT_SHA change here. Runtime service account,
+        # secrets and env are set once by infra/gcp/run-services.sh and kept.
         run: |
           gcloud run deploy "${{ matrix.service.name }}" \
             --image "asia-south1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/ty/${{ matrix.service.name }}:${{ github.sha }}" \
+            --update-env-vars "GIT_SHA=${{ github.sha }}" \
             --region asia-south1 --project "${{ vars.GCP_PROJECT_ID }}" --quiet
