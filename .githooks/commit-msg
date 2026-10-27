@@ -1,0 +1,12 @@
+#!/bin/sh
+# Rejects attribution lines in commit messages (see .claude/rules/no-attribution.md).
+msg_file="$1"
+if grep -qiE 'co-authored-by|generated with claude|claude-session|claude\.ai/|claude\.com/' "$msg_file"; then
+  echo "commit-msg: attribution text is not allowed (see .claude/rules/no-attribution.md)." >&2
+  exit 1
+fi
+if LC_ALL=C grep -q "$(printf '\360\237\244\226')" "$msg_file"; then
+  echo "commit-msg: the robot emoji footer is not allowed." >&2
+  exit 1
+fi
+exit 0

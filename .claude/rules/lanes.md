@@ -1,32 +1,44 @@
-# Lanes and the paths they own
+# Lanes and the paths they own (v3)
 
 A lane edits only its own paths. Everything else is read-only to it.
 
-| Lane | Name | Owns |
-| --- | --- | --- |
-| TY1 | core | `packages/contracts/`, `apps/api/core/`, `apps/api/pyproject.toml`, `apps/api/main.py`, `apps/api/Dockerfile`, `apps/api/tests/core/` |
-| TY2 | guide | `apps/api/guide/`, `apps/api/tests/guide/`, `data/` |
-| TY3 | routes | `apps/api/routes/`, `apps/api/tests/routes/` |
-| TY4 | web | `apps/web/` |
-| TY5 | channels | `services/translate/`, `apps/bots/` (WhatsApp, Telegram), `apps/mcp/` |
-| TY6 | ops | `.github/` (except the PR template), `infra/` (except `infra/lanes/`), `fixtures/recorded/` |
-| TY7 | docs | `report/`, `deck/`, `paper/`, `bench/` |
-| HQ | — | `CLAUDE.md`, `AGENTS.md`, `SECURITY.md`, `.claude/`, `.github/pull_request_template.md`, `infra/lanes/`, `design/`, root files |
+| Lane | Session name | Colour | Belt | Worktree | Owns |
+| --- | --- | --- | --- | --- | --- |
+| TY1 | TY1-core | blue | ty-back | `C:\TravelYantra\ty1` | `packages/contracts/`, `apps/api/core/`, `apps/api/main.py`, `apps/api/pyproject.toml`, `apps/api/uv.lock`, `apps/api/Dockerfile`, `apps/api/tests/core/`, `apps/api/tests/conftest.py` |
+| TY2 | TY2-guide | green | ty-back | `C:\TravelYantra\ty2` | `apps/api/guide/`, `apps/api/tests/guide/`, `data/` |
+| TY3 | TY3-routes | orange | ty-back | `C:\TravelYantra\ty3` | `apps/api/routes/`, `apps/api/tests/routes/` |
+| TY4 | TY4-web | purple | ty-front | `C:\TravelYantra\ty4` | `apps/web/` |
+| TY5 | TY5-channels | cyan | ty-back | `C:\TravelYantra\ty5` | `services/translate/`, `apps/bots/` (WhatsApp; Telegram only if WhatsApp fails), `apps/mcp/` |
+| TY6 | TY6-infra | red | ty-infra | `C:\TravelYantra\ty6` | `.github/`, `infra/` (except `infra/lanes/`), `fixtures/recorded/` |
+| TY7 | TY7-docs | grey | — | later | `report/`, `deck/`, `paper/`, `bench/` |
+| HQ | — | — | — | — | `CLAUDE.md`, `AGENTS.md`, `SECURITY.md`, `.claude/`, `.githooks/`, `infra/lanes/`, `design/`, root files |
+
+The main checkout is `C:\TravelYantra\main`. Each lane works on a local
+branch `lane/tyN` in its own worktree and pushes `HEAD:main`.
+
+## One owner per dependency file
+
+- `apps/api/pyproject.toml` and `apps/api/uv.lock`: TY1. TY2 and TY3 message
+  TY1 with the package and version they need; TY1 adds it within the hour.
+- `apps/web/package.json` and `apps/web/pnpm-lock.yaml`: TY4.
+- `apps/mcp/`, `apps/bots/`, `services/translate/` dependency files: TY5.
+- Workflows and Dockerfiles under `infra/`: TY6. `apps/api/Dockerfile`: TY1.
 
 ## How the API fits together
 
 - `apps/api/main.py` (TY1) builds the FastAPI app and includes the routers
   `core.router`, `guide.router` and `routes.router`. TY2 and TY3 expose an
   `APIRouter` named `router` in their package `__init__.py`; TY1 mounts it.
-- Service images (api, mcp, translate) build from the repo root context with their own Dockerfile path, so they can copy `packages/contracts` (HQ decision, 27 Oct).
-- TY2 and TY3 add dependencies by asking TY1 (an ask card) or, if TY1's
-  pyproject already lists them, simply using them. If a card needs a new
-  dependency immediately, note it under Assumptions and file the ask.
+- Service images (api, mcp, translate, web) build with their own Dockerfile
+  path; api and mcp build from the repo root so they can copy
+  `packages/contracts`.
 - Every lane imports shared types from `packages/contracts` (Python package
   `ty_contracts`). Web uses the generated types in `packages/contracts/ts/`.
 
-## Cross-lane asks
+## Talking to other lanes
 
-Need a change in another lane's paths? File a new issue for the owning lane
-with labels `lane:tyN`, `status:ready`, `size:S`, `from:tyM`, and say so in
-your STOP. Never edit the other lane's files yourself.
+- Interfaces (an endpoint shape, a field, a dependency) are agreed directly
+  between lanes with cross-session messages. Name the lane, say exactly what
+  you need, and say what you will do meanwhile (mock it, skip it).
+- Decisions (scope, cost, architecture, anything Rohan must do) go to HQ in
+  your STOP.

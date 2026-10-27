@@ -2,6 +2,10 @@
 
 Instructions for automated agents working on this repository, including
 code reviewers. Lane build rules are in `CLAUDE.md` and `.claude/rules/`.
+Since 27 Oct 2026 (v3) lanes push commits straight to `main`; there are no
+per-change PRs. A review covers a commit range or the whole repository, and
+"the card's done when" means the package goal or the old card issue it
+names.
 
 ## Code Review Rules
 
@@ -33,7 +37,7 @@ or P1 findings, say so plainly.
   Exception: the files that define this rule and the check that enforces
   it (`AGENTS.md`, `CLAUDE.md`, `.claude/rules/no-attribution.md`,
   `.github/workflows/guard.yml`, `.github/workflows/strip-attribution.yml`,
-  `.github/scripts/strip_attribution*.js`
+  `.github/scripts/strip_attribution*.js`, `.githooks/commit-msg`
   and their test fixtures) may list them.
 - PR and issue bodies: a footer appended by the hosting environment is
   removed automatically by `strip-attribution` on `main`; flag it only if

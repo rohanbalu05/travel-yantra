@@ -1,0 +1,23 @@
+#!/bin/sh
+# Blocks secrets and secret files from being committed (see .claude/rules/security.md).
+# A test line that must contain a fake key can end with: pragma: allowlist secret
+fail=0
+
+for f in $(git diff --cached --name-only --diff-filter=ACM); do
+  case "$f" in
+    *.env.example) ;;
+    .env|.env.*|*/.env|*/.env.*)
+      echo "pre-commit: $f looks like a secrets file" >&2; fail=1 ;;
+    *.pem|*-key.json|*credentials*.json|*application_default_credentials.json)
+      echo "pre-commit: $f looks like a key file" >&2; fail=1 ;;
+  esac
+done
+
+pattern='AIza[0-9A-Za-z_-]{35}|ghp_[0-9A-Za-z]{36}|gho_[0-9A-Za-z]{36}|github_pat_[0-9A-Za-z_]{40,}|sk-ant-[0-9A-Za-z_-]{20,}|sk-[0-9A-Za-z]{32,}|xox[abprs]-[0-9A-Za-z-]{10,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|"private_key": *"|EAA[0-9A-Za-z]{60,}|[0-9]{8,10}:AA[0-9A-Za-z_-]{33}'
+
+if git diff --cached -U0 --no-color | grep -E '^\+' | grep -v '^+++' | grep -v 'pragma: allowlist secret' | grep -qE "$pattern"; then
+  echo "pre-commit: a staged line looks like a key or token. Remove it and read it from an env var instead." >&2
+  fail=1
+fi
+
+exit $fail
