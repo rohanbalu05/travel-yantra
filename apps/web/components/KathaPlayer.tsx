@@ -24,19 +24,14 @@ export function KathaPlayer({ audio }: { audio: KathaAudio[] }) {
   const [length, setLength] = useState(0);
   const [speed, setSpeed] = useState<number>(1);
   const [failed, setFailed] = useState(false);
-  // Moving to another part while playing keeps playing (the traveller pressed Play).
+  // Nothing loads until the first Play; after that each next part may load by itself.
+  const [started, setStarted] = useState(false);
+  // Moving to another part while playing keeps playing, once that part can play.
   const keepPlaying = useRef(false);
 
   useEffect(() => {
     if (el.current) el.current.playbackRate = speed;
   }, [speed]);
-  // A new part: play on only if the last one was playing.
-  useEffect(() => {
-    const a = el.current;
-    if (!a || !keepPlaying.current) return;
-    keepPlaying.current = false;
-    a.play().catch(() => setPlaying(false));
-  }, [part]);
 
   if (!parts.length) return null;
   const go = (i: number, keep = playing) => {
@@ -50,6 +45,7 @@ export function KathaPlayer({ audio }: { audio: KathaAudio[] }) {
     if (!a) return;
     if (a.paused) {
       setFailed(false);
+      setStarted(true);
       a.play().catch(() => setFailed(true));
     } else a.pause();
   };
@@ -59,13 +55,19 @@ export function KathaPlayer({ audio }: { audio: KathaAudio[] }) {
       <audio
         ref={el}
         src={parts[part].url}
-        preload="none"
+        preload={started ? "auto" : "none"}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
         onTimeUpdate={(e) => setAt(e.currentTarget.currentTime)}
         onLoadedMetadata={(e) => {
           setLength(e.currentTarget.duration);
           e.currentTarget.playbackRate = speed;
+        }}
+        onCanPlay={(e) => {
+          // A new part has loaded: play on only if the last one was playing.
+          if (!keepPlaying.current) return;
+          keepPlaying.current = false;
+          e.currentTarget.play().catch(() => setPlaying(false));
         }}
         onEnded={() => {
           if (part + 1 < parts.length) go(part + 1, true);

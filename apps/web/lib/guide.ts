@@ -1,5 +1,6 @@
 import { API_BASE_URL } from "@/lib/api";
 import type { GuideAnswer, GuideQuestion, KathaStory, Lang } from "@/lib/contracts";
+import { withAuth } from "@/lib/account";
 import { ApiError, apiJSON } from "@/lib/http";
 import { sampleAnswer, sampleKatha } from "@/lib/samples/guide";
 
@@ -17,7 +18,7 @@ export async function askGuide(q: GuideQuestion, signal?: AbortSignal, base = AP
     await wait(350);
     return sampleAnswer(q);
   }
-  return apiJSON<GuideAnswer>("/guide/ask", { body: q, signal, base });
+  return withAuth((headers) => apiJSON<GuideAnswer>("/guide/ask", { body: q, signal, base, headers }));
 }
 
 /**
@@ -33,7 +34,7 @@ export async function getKatha(req: KathaRequest, signal?: AbortSignal, base = A
     return sample();
   }
   try {
-    return { ...(await apiJSON<KathaStory>("/guide/katha", { body: req, signal, base })), sample: false };
+    return { ...(await withAuth((headers) => apiJSON<KathaStory>("/guide/katha", { body: req, signal, base, headers }))), sample: false };
   } catch (e) {
     if (e instanceof ApiError && ((e.status === 404 && e.message === "Not Found") || e.status === 405)) return sample();
     throw e;

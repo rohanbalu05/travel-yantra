@@ -59,6 +59,9 @@ describe("Katha audio player", () => {
     fireEvent.click(screen.getByRole("button", { name: "Play the Katha" }));
     await act(async () => void media().dispatchEvent(new Event("ended")));
     expect(media().getAttribute("src")).toBe(AUDIO[0].url);
+    expect(media().getAttribute("preload")).toBe("auto"); // played once, so the next part loads
+    expect(play).toHaveBeenCalledTimes(1); // not before the next part can play
+    await act(async () => void media().dispatchEvent(new Event("canplay")));
     expect(play).toHaveBeenCalledTimes(2);
   });
 

@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "@/lib/api";
+import { withAuth } from "@/lib/account";
 import type { CompareRequest, CompareResponse, Itinerary } from "@/lib/contracts";
 import { apiJSON, query } from "@/lib/http";
 import { sampleCompare, sampleIrctcCard, samplePnr } from "@/lib/samples/routes";
@@ -48,7 +49,7 @@ export async function compareRoutes(req: CompareRequest, it: Itinerary, signal?:
     await wait(250);
     return sampleCompare(req, it);
   }
-  return apiJSON<CompareResponse>("/routes/compare", { body: req, signal, base });
+  return withAuth((headers) => apiJSON<CompareResponse>("/routes/compare", { body: req, signal, base, headers }));
 }
 
 export async function irctcCard(p: { from: string; to: string; date: string; party: Party; travel_class?: string; train?: string | null; travellers?: number }, signal?: AbortSignal, base = API_BASE_URL): Promise<IrctcCard> {
@@ -56,7 +57,7 @@ export async function irctcCard(p: { from: string; to: string; date: string; par
     await wait(200);
     return sampleIrctcCard(p);
   }
-  return apiJSON<IrctcCard>(`/routes/irctc-card?${query({ ...p, travel_class: p.travel_class ?? "3A" })}`, { signal, base });
+  return withAuth((headers) => apiJSON<IrctcCard>(`/routes/irctc-card?${query({ ...p, travel_class: p.travel_class ?? "3A" })}`, { signal, base, headers }));
 }
 
 export async function pnrStatus(pnr: string, signal?: AbortSignal, base = API_BASE_URL): Promise<PnrStatus> {
@@ -64,7 +65,7 @@ export async function pnrStatus(pnr: string, signal?: AbortSignal, base = API_BA
     await wait(200);
     return samplePnr(pnr);
   }
-  return apiJSON<PnrStatus>(`/routes/pnr-mock?${query({ pnr })}`, { signal, base });
+  return withAuth((headers) => apiJSON<PnrStatus>(`/routes/pnr-mock?${query({ pnr })}`, { signal, base, headers }));
 }
 
 /** The sample party whose names TY3 fills into the IRCTC card (no names travel in the URL). */

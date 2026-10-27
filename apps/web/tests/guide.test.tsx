@@ -79,6 +79,9 @@ describe("getKatha", () => {
     await getKatha({ subject_kind: "day", subject: "Day 1, Goa", length_min: 5, lang: "en", places: ["Basilica of Bom Jesus", "Se Cathedral"] }, undefined, "http://api.test");
     const body = JSON.parse((fn.mock.calls[0] as unknown as [string, RequestInit])[1].body as string);
     expect(body.places).toEqual(["Basilica of Bom Jesus", "Se Cathedral"]);
+    // Through withAuth like every API call: the browser's id (and the Google token when signed in).
+    const headers = (fn.mock.calls[0] as unknown as [string, RequestInit])[1].headers as Record<string, string>;
+    expect(headers["X-Client-Id"]).toBeTruthy();
   });
 });
 
