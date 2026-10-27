@@ -5,6 +5,7 @@ Only intake (Flash-Lite), story (Flash-Lite) and narrator (Flash) call the model
 
 from __future__ import annotations
 
+import asyncio
 from datetime import date, datetime, time, timedelta
 from functools import lru_cache
 
@@ -139,12 +140,19 @@ async def transport(state: dict, model: Model):
 
 
 
-def city_places(request: TripRequest, city: str) -> list[Place]:
-    """Ranked places for one city from TY2's corpus planner (Karnataka); samples where it has none."""
+def city_places(request: TripRequest, city: str, hours: bool = False) -> list[Place]:
+    """Ranked places for one city from TY2's corpus planner; samples where it has none. With hours=True,
+    TY2's live_hours fills opening hours from Places where the corpus has a place_id (cached, capped; a no-op
+    without DATABASE_URL or a Maps key). That can call the network, so call it off the event loop."""
     from guide.planner import places_for
 
     elderly = bool(request.constraints.mobility_needs) or any(t.age >= ELDERLY_AGE for t in request.constraints.travellers)
-    return places_for(city, elderly=elderly) or fakes.places(request.model_copy(update={"destinations": [city]}))
+    found = places_for(city, elderly=elderly)
+    if found and hours:
+        from guide.hours import live_hours
+
+        found = live_hours(found)
+    return found or fakes.places(request.model_copy(update={"destinations": [city]}))
 
 
 def place_options(request: TripRequest) -> list[Place]:
@@ -153,7 +161,7 @@ def place_options(request: TripRequest) -> list[Place]:
 
 async def places(state: dict, model: Model):
     r = _request(state)
-    pools = {city: city_places(r, city) for city in r.destinations}
+    pools = {city: await asyncio.to_thread(city_places, r, city, True) for city in r.destinations}
     found = sum(len(v) for v in pools.values())
     return {"pools": {c: _dump(v) for c, v in pools.items()}}, f"Found {found} places to see"
 
@@ -335,7 +343,7 @@ def season_notes(r: TripRequest) -> list[SeasonNote]:
 def replan(r: TripRequest) -> Itinerary:
     """The whole deterministic plan for a request, without the agents (revise uses it)."""
     options = chosen_options(r)
-    pools = {city: city_places(r, city) for city in r.destinations}
+    pools = {city: city_places(r, city, hours=True) for city in r.destinations}
     return assemble(r, pools, options, hops(r, options), home(r), stay_options(r))
 
 

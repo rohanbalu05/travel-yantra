@@ -50,3 +50,15 @@ def test_days_have_titles_and_journeys_read_like_a_timetable():
     assert it.days[0].notes[0] == f"Train Bengaluru → Mysuru, {out.depart:%H:%M}–{out.arrive:%H:%M}, " \
                                   f"{out.minutes // 60}h{out.minutes % 60:02d}"
     assert it.days[-1].notes[-1].startswith(f"Train home Mysuru → Bengaluru, {home.depart:%H:%M}–")
+
+
+def test_opening_hours_are_filled_only_where_asked(monkeypatch):
+    import guide.hours
+
+    calls = []
+    monkeypatch.setattr(guide.hours, "live_hours", lambda places, *a, **k: calls.append(len(places)) or places)
+    steps.city_places(DEMO, "Mysuru")  # coordinates only (e.g. a road estimate): no Places lookup
+    assert calls == []
+    steps.city_places(DEMO, "Mysuru", hours=True)
+    steps.replan(DEMO)
+    assert len(calls) == 2 and all(n > 0 for n in calls)

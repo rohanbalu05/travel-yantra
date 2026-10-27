@@ -36,13 +36,15 @@ class ReviseError(ValueError):
 def candidates(it: Itinerary, city: str | None = None) -> list[Place]:
     """Places the planner could use that this plan does not, for one city (or all): TY2's corpus, then
     the samples."""
+    from guide.hours import live_hours
     from guide.planner import places_for
 
     used = {p.id for d in it.days for p in d.stops}
     pool: list[Place] = []
     for c in [city] if city else it.request.destinations:
         one = it.request.model_copy(update={"destinations": [c]})
-        pool += [*places_for(c, exclude=frozenset(used)), *fakes.places(one), *fakes.alternatives(one)]
+        # Revise runs in a worker thread, so live_hours (Places, cached) may call the network here.
+        pool += [*live_hours(places_for(c, exclude=frozenset(used))), *fakes.places(one), *fakes.alternatives(one)]
     return [p for p in {p.id: p for p in pool}.values() if p.id not in used]
 
 
