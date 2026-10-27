@@ -115,14 +115,15 @@ def qa():
     judged = json.loads((OUT / "judge.json").read_text(encoding="utf-8"))["scores"]
     md, js = [], {}
     for system, by in systems().items():
+        base = system.split("+")[0]  # gemini+norm reuses gemini's back-translations and scores
 
         class Back:
-            def translate_to_en(self, texts, source, _s=system.split("+")[0]):
+            def translate_to_en(self, texts, source, _s=base):
                 return back[_s][source]
 
         results = []
         for lang in LANGS:
-            sc = iter(judged[f"{system.split('+')[0]}/{lang}"])
+            sc = iter(judged[f"{base}/{lang}"])
 
             class Judge:
                 def score(self, src, out, lang, _sc=sc):
