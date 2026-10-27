@@ -28,3 +28,7 @@ package = false
 
 [tool.uv.sources]
 ty-contracts = { path = "../../packages/contracts" }
+
+[tool.ruff.lint.isort]
+# Fixed list so import order does not drift with what is on each machine's path.
+known-first-party = ["core", "guide", "routes", "ty_contracts"]

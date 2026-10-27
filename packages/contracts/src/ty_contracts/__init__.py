@@ -11,9 +11,9 @@ from .models import (
     Mode,
     OpeningHours,
     Pace,
+    Place,
     PlanEvent,
     PlanStage,
-    Place,
     SellerOffer,
     Stay,
     StorySegment,
@@ -22,4 +22,26 @@ from .models import (
     TripRequest,
 )
 
-__all__ = [n for n in dir() if not n.startswith("_")]
+__all__ = [
+    "BudgetSummary",
+    "Citation",
+    "Constraints",
+    "DayPlan",
+    "GuideAnswer",
+    "Itinerary",
+    "KathaStory",
+    "Lang",
+    "Leg",
+    "Mode",
+    "OpeningHours",
+    "Pace",
+    "Place",
+    "PlanEvent",
+    "PlanStage",
+    "SellerOffer",
+    "Stay",
+    "StorySegment",
+    "TransportOption",
+    "Traveller",
+    "TripRequest",
+]

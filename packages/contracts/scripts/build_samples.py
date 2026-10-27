@@ -5,8 +5,21 @@ from datetime import date, datetime, time, timedelta
 from pathlib import Path
 
 from ty_contracts import (
-    BudgetSummary, Constraints, DayPlan, Itinerary, Lang, Leg, Mode, OpeningHours, Pace,
-    Place, SellerOffer, Stay, TransportOption, Traveller, TripRequest,
+    BudgetSummary,
+    Constraints,
+    DayPlan,
+    Itinerary,
+    Lang,
+    Leg,
+    Mode,
+    OpeningHours,
+    Pace,
+    Place,
+    SellerOffer,
+    Stay,
+    TransportOption,
+    Traveller,
+    TripRequest,
 )
 
 OUT = Path(__file__).resolve().parent.parent / "samples"

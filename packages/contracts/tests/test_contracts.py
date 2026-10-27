@@ -7,7 +7,13 @@ import pytest
 from pydantic import ValidationError
 
 from ty_contracts import (
-    GuideAnswer, Itinerary, KathaStory, Lang, PlanEvent, PlanStage, TripRequest,
+    GuideAnswer,
+    Itinerary,
+    KathaStory,
+    Lang,
+    PlanEvent,
+    PlanStage,
+    TripRequest,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -75,7 +81,7 @@ def test_rejects_bad_input():
 
 
 def test_generated_outputs_are_fresh():
-    r = subprocess.run([sys.executable, str(ROOT / "scripts" / "gen_ts.py"), "--check"])
+    r = subprocess.run([sys.executable, str(ROOT / "scripts" / "gen_ts.py"), "--check"], check=False)
     assert r.returncode == 0, "run: python packages/contracts/scripts/gen_ts.py"
 
 
