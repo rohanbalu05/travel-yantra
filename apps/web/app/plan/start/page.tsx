@@ -8,7 +8,7 @@ import type { Lang, TripDraft } from "@/lib/contracts";
 import { LANGS, useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { savePlanInput } from "@/lib/plan";
-import { FOODS, INTERESTS, PACES, destinationsOf, formFromDraft, formProblems, goaForm, splitOf, toTripRequest, tripDays, type TripForm } from "@/lib/tripForm";
+import { FOODS, INTERESTS, PACES, TRANSPORTS, destinationsOf, formFromDraft, formProblems, goaForm, splitOf, toTripRequest, tripDays, type TripForm } from "@/lib/tripForm";
 import "../plan.css";
 
 const PLAN_LANGS: [Lang, string][] = LANGS.map((l) => [l.code, l.native]);
@@ -176,6 +176,12 @@ function PlanStart() {
                     <button key={i} type="button" className={on ? "chip on" : "chip"} aria-pressed={on} onClick={() => set("interests", on ? form.interests.filter((x) => x !== i) : [...form.interests, i])}>{t(i)}</button>
                   );
                 })}
+              </div>
+              <div className="field"><span className="label">{t("How you travel")}</span>
+                <div className="toggle wrap-toggle" role="group" aria-label={t("How you travel")}>
+                  {TRANSPORTS.map(([v, label]) => <button key={label} type="button" className={(form.transport ?? null) === v ? "on" : undefined} aria-pressed={(form.transport ?? null) === v} onClick={() => set("transport", v)}>{t(label)}</button>)}
+                </div>
+                <span className="hint">{t("We compare all three either way; the plan's journeys follow your choice.")}</span>
               </div>
               <div className="field"><span className="label">{t("Pace")}</span>
                 <div className="toggle" role="group" aria-label={t("Pace")}>

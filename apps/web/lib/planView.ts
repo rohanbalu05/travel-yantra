@@ -1,4 +1,4 @@
-import type { DayPlan, Itinerary, Leg, Place, TransportOption } from "@/lib/contracts";
+import type { DayPlan, Itinerary, Leg, Mode, Place, TransportOption } from "@/lib/contracts";
 import { daysBetween } from "@/lib/format";
 
 export type DayRow = { kind: "stop"; n: number; place: Place } | { kind: "move"; leg: Leg } | { kind: "stay"; name: string };
@@ -48,9 +48,22 @@ export const travellerCount = (it: Itinerary) => it.request.constraints?.travell
 
 export const nights = (it: Itinerary) => Math.max(0, daysBetween(it.request.start_date, it.request.end_date));
 
-/** The plan's own choice comes first in `transport`; fall back to the cheapest that fits. */
+/**
+ * The mode the days were built with: the traveller's choice (TripRequest.transport_mode),
+ * else the mode of the first journey out, else null (no journeys in the plan).
+ */
+export function planMode(it: Itinerary): Mode | null {
+  if (it.request.transport_mode) return it.request.transport_mode;
+  for (const d of it.days) for (const l of d.legs ?? []) if (l.role === "outbound") return l.mode;
+  return null;
+}
+
+/** The option the days follow: the first of the plan's mode; else the cheapest that fits the budget. */
 export function pickIndex(it: Itinerary): number {
   const opts = it.transport ?? [];
+  const m = planMode(it);
+  const own = m ? opts.findIndex((o) => o.mode === m) : -1;
+  if (own >= 0) return own;
   if (opts.length < 2) return 0;
   const fits = opts.map((o, i) => ({ i, cost: tripCost(it, o), ok: againstBudget(it, tripCost(it, o))?.ok ?? true }));
   const ok = fits.filter((f) => f.ok);

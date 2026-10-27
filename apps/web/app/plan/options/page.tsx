@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { NoPlan } from "@/components/NoPlan";
 import { Trail } from "@/components/Trail";
@@ -9,12 +9,15 @@ import { MODE_ICON, MODE_NAME, clock, dayLabel, duration, inr } from "@/lib/form
 import { useI18n, type Vars } from "@/lib/i18n";
 import { saveChoice, useChoice, usePlanResult } from "@/lib/plan";
 import { againstBudget, nights, pickIndex, travellerCount, tripCost } from "@/lib/planView";
+import { useRevise } from "@/lib/useRevise";
 import "../plan.css";
 
 const star = <path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7Z" />;
 
-function Options({ it }: { it: Itinerary }) {
+function Options({ it, planId }: { it: Itinerary; planId: string | null }) {
   const { t } = useI18n();
+  const router = useRouter();
+  const { busy, said, revise } = useRevise(planId, it.lang);
   const mode = (m: Mode) => t(MODE_NAME[m]);
   const opts = it.transport ?? [];
   const best = pickIndex(it);
@@ -29,6 +32,17 @@ function Options({ it }: { it: Itinerary }) {
   const vs = againstBudget(it, cost);
   const b = it.budget;
   const bestOpt = opts[best];
+  // The traveller chose this mode (form or an earlier switch): the plan follows it, so no "our pick".
+  const yours = !!it.request.transport_mode;
+
+  // The days follow opts[best]. Another mode is a transport revise: TY1 rebuilds every journey in it.
+  const go = async () => {
+    if (o && planId && o.mode !== bestOpt?.mode) {
+      const ok = await revise({ intent: "transport", mode: o.mode }, t("Done: the plan now goes by {mode}.", { mode: mode(o.mode).toLowerCase() }));
+      if (!ok) return;
+    }
+    router.push("/plan/itinerary/");
+  };
 
   return (
     <>
@@ -44,7 +58,7 @@ function Options({ it }: { it: Itinerary }) {
         </div>
       </div>
 
-      {bestOpt && opts.length > 1 && (
+      {bestOpt && opts.length > 1 && !yours && (
         <div className="pick-note">
           <svg className="ic" viewBox="0 0 24 24" aria-hidden="true">{star}</svg>
           <div>
@@ -59,7 +73,7 @@ function Options({ it }: { it: Itinerary }) {
           const c = tripCost(it, x);
           const v = againstBudget(it, c);
           return (
-            <button key={`${x.mode}-${i}`} type="button" role="radio" aria-checked={i === sel} className={i === sel ? "opt on" : "opt"} onClick={() => choose(i)}>
+            <button key={`${x.mode}-${i}`} type="button" role="radio" disabled={!!busy} aria-checked={i === sel} className={i === sel ? "opt on" : "opt"} onClick={() => choose(i)}>
               <span className="opt-top">
                 <span className="opt-ic"><svg className="ic" viewBox="0 0 24 24" aria-hidden="true"><path d={MODE_ICON[x.mode]} /></svg></span>
                 <b>{x.legs[0] ? t("{mode}: {from} to {to}", { mode: mode(x.mode), from: x.legs[0].from, to: x.legs.at(-1)!.to }) : mode(x.mode)}</b>
@@ -71,7 +85,7 @@ function Options({ it }: { it: Itinerary }) {
               <span className="badges">
                 {v && <span className={v.ok ? "badge badge-ok" : "badge badge-warn"}>{v.ok ? t("{amount} to spare", { amount: inr(v.diff) }) : t("Over by {amount}", { amount: inr(v.diff) })}</span>}
                 <span className="badge">{t("Comfort {n} of 5", { n: x.comfort })}</span>
-                {i === best && opts.length > 1 && <span className="badge badge-sea">{t("Our pick")}</span>}
+                {i === best && opts.length > 1 && <span className="badge badge-sea">{t(yours ? "In your plan" : "Our pick")}</span>}
               </span>
               <span className="opt-line">{x.legs.length === 1 ? t("Direct, no changes.") : x.legs.length === 2 ? t("{legs} legs, 1 change.", { legs: x.legs.length }) : t("{legs} legs, {changes} changes.", { legs: x.legs.length, changes: x.legs.length - 1 })}</span>
             </button>
@@ -117,8 +131,11 @@ function Options({ it }: { it: Itinerary }) {
       <p className="hint" style={{ margin: "16px 0 0" }}>{t("Fares are estimates from sample data until live prices are wired in. You pay the seller directly when you book.")}</p>
 
       <div className="go">
-        <div><b>{o ? t("Go by {mode}", { mode: mode(o.mode).toLowerCase() }) : t("See the plan")}</b><span>{t("Next, the day-by-day plan. You can still switch later.")}</span></div>
-        <Link className="btn btn-primary btn-lg" href="/plan/itinerary/">{t("See the day-by-day plan")}</Link>
+        <div>
+          <b>{o ? t("Go by {mode}", { mode: mode(o.mode).toLowerCase() }) : t("See the plan")}</b>
+          <span role="status">{busy ? t("Rebuilding every journey by {mode}…", { mode: mode(o!.mode).toLowerCase() }) : said?.bad ? said.text : o && o.mode !== bestOpt?.mode ? t("Every journey is rebuilt by {mode}, then the day-by-day plan.", { mode: mode(o.mode).toLowerCase() }) : t("Next, the day-by-day plan. You can still switch later.")}</span>
+        </div>
+        <button type="button" className="btn btn-primary btn-lg" disabled={!!busy} onClick={go}>{busy ? t("Rebuilding…") : t("See the day-by-day plan")}</button>
       </div>
     </>
   );
@@ -137,6 +154,5 @@ function pickReason(it: Itinerary, best: number, t: (text: string, vars?: Vars) 
 
 export default function PlanOptions() {
   const res = usePlanResult();
-  const it = res === undefined ? undefined : (res?.itinerary ?? null);
-  return <AppShell>{it === undefined ? null : it ? <div><Options it={it} /></div> : <NoPlan />}</AppShell>;
+  return <AppShell>{res === undefined ? null : res ? <div><Options it={res.itinerary} planId={res.plan_id} /></div> : <NoPlan />}</AppShell>;
 }

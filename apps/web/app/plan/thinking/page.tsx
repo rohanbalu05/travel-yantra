@@ -10,7 +10,7 @@ import { rememberTrip } from "@/lib/account";
 import { useI18n, type Vars } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { GOA_REQUEST } from "@/lib/mockPlan";
-import { PlanHttpError, savePlanInput, savePlanResult, streamPlan, usePlanInput, type PlanBody } from "@/lib/plan";
+import { PlanHttpError, clearChoice, savePlanInput, savePlanResult, streamPlan, usePlanInput, type PlanBody } from "@/lib/plan";
 import { AGENTS, initialPlanState, planReducer, type Agent, type PlanState } from "@/lib/planState";
 import "../plan.css";
 
@@ -159,6 +159,7 @@ export default function PlanThinking() {
   useEffect(() => {
     if (state.status !== "done" || !state.itinerary) return;
     savePlanResult({ itinerary: state.itinerary, plan_id: state.planId, share_token: state.shareToken });
+    clearChoice(); // a choice made on an earlier plan's options does not carry over
     void rememberTrip(state.itinerary, state.planId, state.shareToken); // only with the Keep my trips consent
     track("plan_shown");
   }, [state.status, state.itinerary, state.planId, state.shareToken]);

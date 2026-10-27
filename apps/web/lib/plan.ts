@@ -108,3 +108,12 @@ export const savePlanResult = (r: PlanResult) => write(RESULT_KEY, r);
 export const usePlanResult = () => useStored<PlanResult>(RESULT_KEY);
 export const saveChoice = (i: number) => write(CHOICE_KEY, i);
 export const useChoice = () => useStored<number>(CHOICE_KEY);
+/** Forget the highlighted option, so pages follow the plan's own mode (a new plan or a transport switch). */
+export function clearChoice() {
+  try {
+    sessionStorage.removeItem(CHOICE_KEY);
+    window.dispatchEvent(new Event(CHANGED));
+  } catch {
+    // Storage blocked: nothing was stored either.
+  }
+}

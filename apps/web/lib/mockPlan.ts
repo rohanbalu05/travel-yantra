@@ -36,6 +36,18 @@ export function goaEvents(): PlanEvent[] {
 /** The mock's version of a revise: drop the named stop, or the day's last stop for a lighter day. */
 export function revisedItinerary(it: Itinerary, req: ReviseRequest): Itinerary {
   if (req.intent === "rain") return it;
+  if (req.intent === "transport" && req.mode) {
+    // Like TY1's change_transport: the chosen mode's options first, every journey in that mode.
+    const m = req.mode;
+    const opts = it.transport ?? [];
+    const journey = (r: string | null | undefined) => r === "outbound" || r === "between" || r === "home";
+    return {
+      ...it,
+      request: { ...it.request, transport_mode: m },
+      transport: [...opts.filter((o) => o.mode === m), ...opts.filter((o) => o.mode !== m)],
+      days: it.days.map((d) => ({ ...d, legs: (d.legs ?? []).map((l) => (journey(l.role) ? { ...l, mode: m } : l)) })),
+    };
+  }
   const days = it.days.map((d) => {
     const stops = d.stops ?? [];
     const drop = req.intent === "swap_stop" ? stops.find((s) => s.id === req.place_id) : d.date === req.day ? stops.at(-1) : undefined;

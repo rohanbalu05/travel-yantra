@@ -1,4 +1,4 @@
-import type { Pace, Traveller, TripDraft, TripRequest } from "@/lib/contracts";
+import type { Mode, Pace, Traveller, TripDraft, TripRequest } from "@/lib/contracts";
 import { GOA_REQUEST } from "@/lib/mockPlan";
 
 export type TripForm = {
@@ -18,6 +18,8 @@ export type TripForm = {
   people?: Traveller[];
   /** Days in each destination, in order, when the traveller changed TY1's even split. */
   split?: number[] | null;
+  /** How the traveller wants to go; null lets the planner pick. */
+  transport?: Mode | null;
 };
 
 export const destinationsOf = (f: TripForm) => f.to.split(",").map((s) => s.trim()).filter(Boolean);
@@ -44,6 +46,7 @@ export function splitOf(f: TripForm): number[] {
 export const INTERESTS = ["Churches", "Temples", "Beaches", "Forts and palaces", "Food", "Nature and waterfalls", "Museums", "Markets"];
 export const PACES: [Pace, string][] = [["relaxed", "Gentle"], ["balanced", "Balanced"], ["packed", "Packed"]];
 export const FOODS = ["Vegetarian", "Jain", "Eggs are fine", "Anything"];
+export const TRANSPORTS: [Mode | null, string][] = [[null, "You pick"], ["rail", "Train"], ["road", "Road"], ["air", "Flight"]];
 
 const isSenior = (t: Traveller) => t.age >= 60;
 const isKid = (t: Traveller) => t.age < 18;
@@ -141,5 +144,7 @@ export function toTripRequest(f: TripForm, lang: TripRequest["lang"] = "en"): Tr
     notes: f.interests.length ? `Interests: ${f.interests.join(", ")}.` : null,
     // Only a split the traveller chose; otherwise TY1 splits evenly.
     days_per_destination: f.split && f.split.length === destinationsOf(f).length && f.split.length > 1 ? f.split : null,
+    // TY1 builds every journey (out, between cities, home) in this mode where it exists.
+    transport_mode: f.transport ?? null,
   };
 }

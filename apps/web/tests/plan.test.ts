@@ -4,7 +4,7 @@ import { translate } from "@/lib/i18n";
 import { GOA_ITINERARY, goaEvents, revisedItinerary } from "@/lib/mockPlan";
 import { PlanHttpError, streamPlan, streamRevise } from "@/lib/plan";
 import { initialPlanState, planReducer } from "@/lib/planState";
-import { dayRows, pickIndex, tripCost } from "@/lib/planView";
+import { dayRows, pickIndex, planMode, tripCost } from "@/lib/planView";
 import { formFromDraft, formProblems, goaForm, splitOf, toTripRequest, tripDays } from "@/lib/tripForm";
 
 const sse = (evs: PlanEvent[]) => evs.map((e) => `: ping\n\ndata: ${JSON.stringify(e)}\n\n`).join("");
@@ -196,5 +196,32 @@ describe("trip form", () => {
       "Add at least one traveller.",
       "Write the budget as a number of rupees.",
     ]);
+  });
+});
+
+describe("the chosen way to travel", () => {
+  it("sends the form's mode as transport_mode, null when the planner picks", () => {
+    expect(toTripRequest(goaForm()).transport_mode).toBeNull();
+    expect(toTripRequest({ ...goaForm(), transport: "road" }).transport_mode).toBe("road");
+  });
+
+  it("follows the plan's mode: transport_mode, else the first journey out", () => {
+    const air = GOA_ITINERARY.transport!.findIndex((o) => o.mode === "air");
+    const chosen = { ...GOA_ITINERARY, request: { ...GOA_ITINERARY.request, transport_mode: "air" as const } };
+    expect(planMode(chosen)).toBe("air");
+    expect(pickIndex(chosen)).toBe(air);
+    const out = { ...GOA_ITINERARY, days: [{ date: "2026-12-11", legs: [{ from: "Bengaluru", to: "Madgaon", mode: "air" as const, depart: "2026-12-11T06:00:00+05:30", arrive: "2026-12-11T07:15:00+05:30", minutes: 75, cost_inr: 20000, role: "outbound" as const }] }] };
+    expect(planMode(out)).toBe("air");
+    expect(pickIndex(out)).toBe(air);
+    expect(planMode(GOA_ITINERARY)).toBeNull(); // the sample has no journey roles: cheapest that fits
+  });
+
+  it("the mock's transport revise puts the mode first and switches every journey", () => {
+    const base = { ...GOA_ITINERARY, days: [{ date: "2026-12-11", legs: [{ from: "Bengaluru", to: "Madgaon", mode: "rail" as const, depart: "2026-12-11T06:00:00+05:30", arrive: "2026-12-11T14:00:00+05:30", minutes: 480, cost_inr: 3000, role: "outbound" as const }, { from: "A", to: "B", mode: "road" as const, depart: "2026-12-11T15:00:00+05:30", arrive: "2026-12-11T15:20:00+05:30", minutes: 20, cost_inr: 300 }] }] };
+    const r = revisedItinerary(base, { intent: "transport", mode: "air" });
+    expect(r.request.transport_mode).toBe("air");
+    expect(r.transport![0].mode).toBe("air");
+    expect(r.days[0].legs!.map((l) => l.mode)).toEqual(["air", "road"]);
+    expect(pickIndex(r)).toBe(0);
   });
 });

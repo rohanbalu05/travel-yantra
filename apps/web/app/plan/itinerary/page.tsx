@@ -1,22 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { NoPlan } from "@/components/NoPlan";
 import { Rating } from "@/components/Rating";
 import { StopsMap } from "@/components/StopsMap";
 import { Trail } from "@/components/Trail";
-import type { DayPlan, Itinerary, Mode, ReviseRequest } from "@/lib/contracts";
+import type { DayPlan, Itinerary, Mode } from "@/lib/contracts";
 import { MODE_NAME, clock, dayLabel, duration, inr, weekday } from "@/lib/format";
 import { useI18n, type Vars } from "@/lib/i18n";
-import { PlanHttpError, savePlanResult, streamRevise, useChoice, usePlanResult } from "@/lib/plan";
-import { initialPlanState, planReducer } from "@/lib/planState";
+import { usePlanResult } from "@/lib/plan";
 import { againstBudget, dayRows, pickIndex, travellerCount, tripCost } from "@/lib/planView";
+import { useRevise } from "@/lib/useRevise";
 import "../plan.css";
-
-// A revise is one day's solve and check; past this the connection has stalled.
-const REVISE_TIMEOUT_MS = 90_000;
 
 const PACE_NAME = { relaxed: "gentle pace", balanced: "balanced pace", packed: "packed pace" } as const;
 
@@ -42,41 +39,11 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
       setShared(url);
     }
   };
-  const choice = useChoice() ?? null;
-  const [busy, setBusy] = useState<string | null>(null);
-  const [said, setSaid] = useState<{ text: string; bad: boolean } | null>(null);
-  const live = useRef<AbortController | null>(null);
-  useEffect(() => () => live.current?.abort(), []);
-
-  // Revise streams like /plan and ends in done with a new plan; only the day touched changes.
-  // `done` is the whole message shown when it works, already translated.
-  const revise = async (req: Omit<ReviseRequest, "lang">, done: string) => {
-    if (!planId || busy) return;
-    setBusy(done);
-    setSaid(null);
-    const ctl = new AbortController();
-    live.current = ctl;
-    const timer = setTimeout(() => ctl.abort(), REVISE_TIMEOUT_MS);
-    try {
-      let s = initialPlanState();
-      for await (const ev of streamRevise(planId, { ...req, lang: it.lang ?? "en" }, ctl.signal)) s = planReducer(s, ev);
-      if (s.status === "done" && s.itinerary) {
-        savePlanResult({ itinerary: s.itinerary, plan_id: s.planId, share_token: s.shareToken });
-        setSaid({ text: done, bad: false });
-      } else {
-        setSaid({ text: t(s.error?.message ?? "The planner stopped before finishing. Try again."), bad: true });
-      }
-    } catch (e) {
-      const text = e instanceof PlanHttpError ? e.message : ctl.signal.aborted ? t("The planner took too long. Try again.") : t("We could not reach the planner. Check your connection.");
-      setSaid({ text, bad: true });
-    } finally {
-      clearTimeout(timer);
-      setBusy(null);
-    }
-  };
+  const { busy, said, revise } = useRevise(planId, it.lang);
 
   const opts = it.transport ?? [];
-  const way = opts[choice !== null && choice < opts.length ? choice : pickIndex(it)];
+  // The way the days were built, not what is highlighted on Options: switching is a revise there.
+  const way = opts[pickIndex(it)];
   const cost = way ? tripCost(it, way) : it.budget.total_inr;
   const vs = againstBudget(it, cost);
   const budget = it.request.constraints?.budget_inr;
