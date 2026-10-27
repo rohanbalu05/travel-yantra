@@ -52,6 +52,16 @@ def test_fare_scales_with_class_and_party():
     assert four.fare_estimate_inr == 2 * two.fare_estimate_inr
 
 
+def test_passengers_match_the_trip_party_size():
+    d = dt.date(2026, 10, 31)
+    three = irctc_card("SBC", "MYS", d, "CC", "mysuru_weekend", travellers=3)
+    assert [p.name for p in three.passengers] == ["Arjun Rao", "Meera", "Venkatesh"]
+    assert three.fare_estimate_inr == 3 * irctc_card("SBC", "MYS", d, "CC", travellers=1).fare_estimate_inr
+    six = irctc_card("SBC", "MYS", d, "SL", "goa_family", travellers=6)
+    assert len(six.passengers) == 6 and six.passengers[-1].name == "Traveller 6"
+    assert [p.name for p in irctc_card("SBC", "MYS", d, travellers=1).passengers] == ["Arjun Rao"]
+
+
 @pytest.mark.parametrize("src,dst,train", [("MAO", "MYS", None), ("SBC", "MAO", "90004"), ("XXX", "MAO", None)])
 def test_card_not_found(src, dst, train):
     with pytest.raises(NotFound):
@@ -68,6 +78,10 @@ def test_http_irctc_card(client):
                                                     "date": "2026-12-11"}).status_code == 404
     assert client.get("/routes/irctc-card", params={"from": "SBC", "to": "MAO", "date": "2026-12-11",
                                                     "travel_class": "XL"}).status_code == 422
+    three = client.get("/routes/irctc-card", params={"from": "SBC", "to": "MAO", "date": "2026-12-11", "travellers": 3})
+    assert len(three.json()["passengers"]) == 3
+    assert client.get("/routes/irctc-card", params={"from": "SBC", "to": "MAO", "date": "2026-12-11",
+                                                    "travellers": 7}).status_code == 422
 
 
 def test_pnr_timeline_replays_up_to_at():

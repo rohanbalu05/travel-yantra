@@ -47,10 +47,27 @@ def test_serpapi_prices_merge_into_registry_and_unknown_sellers_get_check_price(
     assert len(offers) == 5
 
 
-def test_stay_quotes_keep_the_property_link():
-    q = StayQuery("Panaji", GOA_STAY.check_in, GOA_STAY.check_out, adults=2, hotel="River Side Suites")
-    found = [Found("Booking.com", 7440, "https://www.google.com/travel/lodging/x"), Found("Agoda", 7432, None)]
+LODGING = "https://www.google.com/travel/lodging/clk?pc=x&pcurl="
+ACLK = "https://www.google.com/aclk?sa=l&ai=x&gclid=y&adurl"
+
+
+def test_stay_quotes_use_sellers_own_indian_pages():
+    q = StayQuery("Mysuru", GOA_STAY.check_in, GOA_STAY.check_out, adults=3, hotel="Royal Tusker")
+    found = [
+        Found("Booking.com", 7440, LODGING + "https%3A%2F%2Fwww.booking.com%2Fhotel%2Fin%2Fx.html%3Fgroup_adults%3D2"),
+        Found("Agoda", 7432, ACLK),  # an ad click and nothing else: left out
+        Found("Royal Tusker", 5544, LODGING + "https%3A%2F%2Flive.ipms247.com%2Fbooking%2Fx%3Fadults%3D2"),
+        Found("Trip.com", 6274, LODGING + "https%3A%2F%2Fuk.trip.com%2Fhotels%2Fx"),  # UK locale: left out
+        Found("Vio.com", 5678, LODGING + "https%3A%2F%2Fdeals.vio.com%2F%3FuserCountry%3DGB"),
+        Found("Bluepillow", 6914, "https://www.bluepillow.co.uk/x"),
+        Found("Hotels.com", 5744, None),
+    ]
     by = _by_seller(stay_offers(q, found, at=AT))
-    assert by["Booking.com"].url == "https://www.google.com/travel/lodging/x" and by["Booking.com"].price_inr == 7440
-    assert by["Agoda"].kind == "check_price" and "River+Side+Suites" in by["Agoda"].url.replace("%20", "+")
-    assert parse_qs(urlsplit(by["Airbnb"].url).query)["adults"] == ["2"]
+    # a registry seller keeps its own link for the party (3 adults, 2 rooms) with SerpApi's price
+    assert by["Booking.com"].url.startswith("https://www.booking.com/searchresults.html?") and by["Booking.com"].price_inr == 7440
+    assert parse_qs(urlsplit(by["Booking.com"].url).query)["group_adults"] == ["3"]
+    assert parse_qs(urlsplit(by["Booking.com"].url).query)["no_rooms"] == ["2"]
+    assert by["Royal Tusker"].url == "https://live.ipms247.com/booking/x?adults=2" and by["Royal Tusker"].kind == "deep_link"
+    assert not {"Agoda", "Trip.com", "Vio.com", "Bluepillow", "Hotels.com"} & set(by)
+    assert all("google.com" not in o.url for o in by.values())
+    assert parse_qs(urlsplit(by["Airbnb"].url).query)["adults"] == ["3"]

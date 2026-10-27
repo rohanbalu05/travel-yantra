@@ -14,6 +14,7 @@ from .compare import (
     get_service,
 )
 from .irctc import (
+    MAX_TRAVELLERS,
     IrctcCard,
     NotFound,
     Party,
@@ -56,9 +57,10 @@ def get_irctc_card(
     travel_class: TravelClass = "3A",
     party: Party = "goa_family",
     train: str | None = Query(default=None, pattern=r"^\d{5}$"),
+    travellers: int | None = Query(default=None, ge=1, le=MAX_TRAVELLERS),
 ) -> IrctcCard:
     try:
-        return irctc_card(from_, to, date, travel_class, party, train)
+        return irctc_card(from_, to, date, travel_class, party, train, travellers=travellers)
     except NotFound as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 

@@ -3,16 +3,17 @@ prices so one booking shows every seller.
 
 Booking.com, Airbnb and MakeMyTrip get deep links (the search filled in, no API
 keys); Goibibo, Cleartrip and ixigo get a "Check price" link to their search.
-A seller that SerpApi names but the registry does not know keeps SerpApi's link
-when it gave one (kind deep_link), else gets a Google search "Check price" link.
-No affiliate parameters."""
+A seller that SerpApi names but the registry does not know gets its own page
+from SerpApi's link (Google redirects unwrapped; ad clicks and other countries'
+locales dropped), else a Google search "Check price" link for flights and
+nothing for stays. No affiliate parameters."""
 from __future__ import annotations
 
 import datetime as dt
 import math
 import re
 from dataclasses import dataclass
-from urllib.parse import quote, urlencode
+from urllib.parse import parse_qs, quote, urlencode, urlsplit
 
 from ty_contracts import SellerOffer
 
@@ -98,8 +99,28 @@ def _norm(name: str) -> str:
     return re.sub(r"[^a-z0-9]", "", name.lower())
 
 
-def _merge(links: dict[str, tuple[str, str]], found: list[Found], fallback_text: str,
-           prefer_found_url: bool, at: dt.datetime) -> list[SellerOffer]:
+FOREIGN_LOCALE = ("usercountry=gb", "country=gb", "pl=gb", "locale=en_gb", "lang_gb", ".co.uk/", "//uk.")
+
+
+def own_url(url: str | None) -> str | None:
+    """The seller's own page for a SerpApi link: a Google hotel redirect unwrapped to the
+    seller URL it carries (pcurl). None for a Google ad click or other Google link with no
+    seller URL, for anything not https, and for a page in another country's locale."""
+    if not url or not url.startswith("https://"):
+        return None
+    host = urlsplit(url).hostname or ""
+    if host == "google.com" or host.endswith(".google.com") or host.startswith("google."):
+        url = (parse_qs(urlsplit(url).query).get("pcurl") or [None])[0]
+        if not url or not url.startswith("https://"):
+            return None
+    return None if any(m in url.lower() for m in FOREIGN_LOCALE) else url
+
+
+def _merge(links: dict[str, tuple[str, str]], found: list[Found], fallback_text: str | None,
+           at: dt.datetime) -> list[SellerOffer]:
+    """Registry sellers keep their own link (the party's adults and rooms) with SerpApi's
+    price. Other sellers get their own page (own_url); without one, a Google search
+    "Check price" link when fallback_text is given, else they are left out."""
     known = {_norm(k): k for k in links}
     offers: dict[str, SellerOffer] = {
         k: SellerOffer(seller=k, url=url, kind=kind, fetched_at=at) for k, (kind, url) in links.items()}
@@ -108,12 +129,14 @@ def _merge(links: dict[str, tuple[str, str]], found: list[Found], fallback_text:
         have = offers.get(name)
         if have is not None and have.price_inr is not None and f.price_inr is not None and have.price_inr <= f.price_inr:
             continue  # keep the seller's cheapest quote
-        if have is not None and not (prefer_found_url and f.url):
+        if name in links:
             url, kind = have.url, have.kind
-        elif f.url and f.url.startswith("https://"):
-            url, kind = f.url, "deep_link"
-        else:
+        elif (own := own_url(f.url)) is not None:
+            url, kind = own, "deep_link"
+        elif fallback_text is not None:
             url, kind = _google(f"{f.seller} {fallback_text}"), "check_price"
+        else:
+            continue
         offers[name] = SellerOffer(seller=name, price_inr=f.price_inr, url=url, kind=kind, fetched_at=at)
     # priced offers cheapest first, then the rest in registry order
     order = {k: i for i, k in enumerate(offers)}
@@ -124,13 +147,11 @@ def flight_offers(q: FlightQuery, found: list[Found] = (), at: dt.datetime | Non
     """Every seller for one flight search. SerpApi's flight booking links need a
     POST, so known sellers keep the registry link and unknown ones a Google search."""
     at = at or dt.datetime.now(dt.UTC)
-    return _merge(_flight_links(q), list(found), f"flight {q.origin} to {q.destination} {q.date:%d %b %Y}",
-                  prefer_found_url=False, at=at)
+    return _merge(_flight_links(q), list(found), f"flight {q.origin} to {q.destination} {q.date:%d %b %Y}", at=at)
 
 
 def stay_offers(q: StayQuery, found: list[Found] = (), at: dt.datetime | None = None) -> list[SellerOffer]:
-    """Every seller for one stay. SerpApi's per-property links win over the
-    registry's search links for the same seller."""
+    """Every seller for one stay: registry links for the party's adults and rooms, and
+    other sellers only with their own Indian-locale page (no Google ad clicks)."""
     at = at or dt.datetime.now(dt.UTC)
-    return _merge(_stay_links(q), list(found), f"{q.hotel or 'hotels'} {q.city}",
-                  prefer_found_url=True, at=at)
+    return _merge(_stay_links(q), list(found), None, at=at)

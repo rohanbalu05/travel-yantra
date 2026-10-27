@@ -37,6 +37,19 @@ PARTIES: dict[str, list[tuple[str, int, str]]] = {
     "mysuru_weekend": [("Arjun Rao", 34, "Male"), ("Meera", 22, "Female")],
 }
 Party = Literal["goa_family", "mysuru_weekend"]
+MAX_TRAVELLERS = 6  # IRCTC books up to six passengers on one ticket
+
+
+def _people(party: Party, travellers: int | None) -> list[tuple[str, int, str]]:
+    """The sample party, made up to the trip's traveller count: the party first, then the
+    other sample personas, then numbered sample travellers."""
+    base = PARTIES[party]
+    if travellers is None:
+        return base
+    pool = base + [p for ps in PARTIES.values() for p in ps if p not in base]
+    pool = list(dict.fromkeys(pool))
+    pool += [(f"Traveller {i}", 30, "Female" if i % 2 else "Male") for i in range(len(pool) + 1, MAX_TRAVELLERS + 1)]
+    return pool[:travellers]
 
 
 class NotFound(LookupError):
@@ -150,12 +163,13 @@ def _berths(party: list[tuple[str, int, str]], cls: str) -> list[str]:
 
 def irctc_card(src: str, dst: str, date: dt.date, travel_class: TravelClass = "3A",
                party: Party = "goa_family", train: str | None = None,
-               data_dir: Path | None = None) -> IrctcCard:
+               data_dir: Path | None = None, travellers: int | None = None) -> IrctcCard:
+    """travellers: the trip's party size (the sample party is made up or cut to it)."""
     a, b = resolve_station(src, data_dir), resolve_station(dst, data_dir)
     t, dep, arr = _find_run(a["code"], b["code"], train, data_dir)
     dep_min = dep["dep"] if dep["dep"] is not None else dep["arr"]
     arr_min = arr["arr"] if arr["arr"] is not None else arr["dep"]
-    people = PARTIES[party]
+    people = _people(party, travellers)
     passengers = [Passenger(name=n, age=age, gender=g, berth=berth)
                   for (n, age, g), berth in zip(people, _berths(people, travel_class), strict=True)]
     km = haversine_km(a["lat"], a["lon"], b["lat"], b["lon"]) * RAIL_DETOUR
