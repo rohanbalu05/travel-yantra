@@ -44,10 +44,14 @@ def _fake_api(monkeypatch, handler):
 
 
 def _sse(itinerary):
-    done = {"stage": "done", "message": "done", "partial": itinerary}
-    return "data: " + json.dumps({"stage": "planning", "message": "p"}) + "\n\ndata: " + json.dumps(
-        done
-    ) + "\n\n"
+    done = {"stage": "done", "message": "done", "partial": itinerary, "plan_id": "p2"}
+    return (
+        "data: "
+        + json.dumps({"stage": "planning", "message": "p"})
+        + "\n\ndata: "
+        + json.dumps(done)
+        + "\n\n"
+    )
 
 
 async def test_lists_all_six_tools():
@@ -64,7 +68,7 @@ async def test_each_tool_answers_offline(monkeypatch, name):
 
 async def test_offline_revise_says_it_did_not_revise(monkeypatch):
     monkeypatch.delenv("API_BASE_URL", raising=False)
-    it = Itinerary.model_validate(await _call("revise_trip"))
+    it = Itinerary.model_validate((await _call("revise_trip"))["itinerary"])
     assert "offline sample: not revised" in it.warnings
 
 
@@ -83,7 +87,7 @@ async def test_compare_transport_calls_routes_compare(monkeypatch):
 
 async def test_revise_trip_streams_from_plan_revise(monkeypatch):
     seen = _fake_api(monkeypatch, lambda req: httpx.Response(200, text=_sse(SAMPLE)))
-    it = Itinerary.model_validate(await _call("revise_trip"))
+    it = Itinerary.model_validate((await _call("revise_trip"))["itinerary"])
     assert seen[0].url.path == "/plan/p1/revise"
     assert json.loads(seen[0].content) == {
         "intent": "rain",
@@ -114,7 +118,11 @@ async def test_ask_guide_calls_guide_ask(monkeypatch):
     seen = _fake_api(monkeypatch, lambda req: httpx.Response(200, json=OFFLINE["guide"]))
     ans = GuideAnswer.model_validate(await _call("ask_guide"))
     assert seen[0].method == "POST" and seen[0].url.path == "/guide/ask"
-    assert json.loads(seen[0].content) == {"question": CALLS["ask_guide"]["question"], "lang": "hi"}
+    assert json.loads(seen[0].content) == {
+        "question": CALLS["ask_guide"]["question"],
+        "lang": "hi",
+        "has_elderly": False,
+    }
     assert ans.citations
 
 
@@ -135,7 +143,9 @@ async def test_api_error_surfaces_as_tool_error(monkeypatch):
 
 async def test_plan_needs_input_surfaces_questions(monkeypatch):
     ask = {"stage": "needs_input", "message": "q", "questions": ["Which dates?", "How many?"]}
-    _fake_api(monkeypatch, lambda req: httpx.Response(200, text="data: " + json.dumps(ask) + "\n\n"))
+    _fake_api(
+        monkeypatch, lambda req: httpx.Response(200, text="data: " + json.dumps(ask) + "\n\n")
+    )
     async with connect(server.mcp._mcp_server) as client:
         res = await client.call_tool("plan_trip", CALLS["plan_trip"])
     assert res.isError
@@ -147,3 +157,76 @@ async def test_revise_trip_escapes_plan_id(monkeypatch):
     async with connect(server.mcp._mcp_server) as client:
         await client.call_tool("revise_trip", {**CALLS["revise_trip"], "plan_id": "../admin?x=1"})
     assert seen[0].url.raw_path == b"/plan/..%2Fadmin%3Fx%3D1/revise"
+
+
+async def test_plan_trip_returns_plan_id(monkeypatch):
+    sse = ": ping\n\n" + _sse(SAMPLE)
+    _fake_api(monkeypatch, lambda req: httpx.Response(200, text=sse))
+    out = await _call("plan_trip")
+    assert out["plan_id"] == "p2"
+    assert Itinerary.model_validate(out["itinerary"]).days
+
+
+async def test_offline_plan_id_works_with_offline_revise(monkeypatch):
+    monkeypatch.delenv("API_BASE_URL", raising=False)
+    planned = await _call("plan_trip")
+    assert planned["plan_id"] == server.SAMPLE_PLAN_ID
+
+
+def _tagging(req: httpx.Request) -> httpx.Response:
+    body = json.loads(req.content)
+    outs = [f"<{body['target']}>{t}" for t in body["texts"]]
+    return httpx.Response(
+        200,
+        json={
+            "translations": outs,
+            "target": body["target"],
+            "via": [],
+            "flags": [[] for _ in outs],
+        },
+    )
+
+
+async def test_ask_guide_translates_text_only_and_sends_location(monkeypatch):
+    answer = {"text": "Fish curry [1].", "citations": [{"title": "Goan food"}], "lang": "en"}
+    monkeypatch.setenv("TRANSLATE_URL", "http://translate.test")
+    seen = _fake_api(
+        monkeypatch,
+        lambda req: (
+            _tagging(req) if req.url.host == "translate.test" else httpx.Response(200, json=answer)
+        ),
+    )
+    async with connect(server.mcp._mcp_server) as client:
+        res = await client.call_tool(
+            "ask_guide", {"question": "nearest hospital", "lang": "ta", "lat": 15.5, "lng": 73.8}
+        )
+    out = GuideAnswer.model_validate(res.structuredContent)
+    body = json.loads(seen[0].content)
+    assert (body["lat"], body["lng"], body["lang"]) == (15.5, 73.8, "ta")
+    assert "[1]" in json.loads(seen[1].content)["entities"]
+    assert out.text == "<ta>Fish curry [1]." and out.lang == "ta"
+    assert out.citations[0].title == "Goan food"
+
+
+async def test_ask_guide_stays_english_without_translate(monkeypatch):
+    monkeypatch.delenv("TRANSLATE_URL", raising=False)
+    _fake_api(monkeypatch, lambda req: httpx.Response(200, json=OFFLINE["guide"]))
+    out = GuideAnswer.model_validate(await _call("ask_guide"))
+    assert out.text == OFFLINE["guide"]["text"] and out.lang == "en"
+
+
+async def test_get_katha_translates_text_and_segments(monkeypatch):
+    monkeypatch.delenv("API_BASE_URL", raising=False)
+    monkeypatch.setenv("TRANSLATE_URL", "http://translate.test")
+    real = httpx.AsyncClient  # one patch covers the translate client too (same httpx module)
+    monkeypatch.setattr(
+        server.httpx,
+        "AsyncClient",
+        lambda **kw: real(transport=httpx.MockTransport(_tagging), **kw),
+    )
+    async with connect(server.mcp._mcp_server) as client:
+        res = await client.call_tool("get_katha", {"place_id": "goa-basilica", "lang": "kn"})
+    story = KathaStory.model_validate(res.structuredContent)
+    assert story.lang == "kn" and story.text.startswith("<kn>")
+    assert all(s.text.startswith("<kn>") for s in story.segments)
+    assert story.sources == OFFLINE["katha"]["sources"]

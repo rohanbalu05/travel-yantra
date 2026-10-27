@@ -12,8 +12,10 @@ from urllib.parse import quote
 
 import httpx
 from mcp.server.fastmcp import FastMCP
+from pydantic import BaseModel
 from ty_contracts import (
     GuideAnswer,
+    GuideQuestion,
     Itinerary,
     KathaStory,
     Lang,
@@ -23,8 +25,20 @@ from ty_contracts import (
     TripRequest,
 )
 
+from translate import Translator
+
 SAMPLE = Path(__file__).parent / "samples/goa_family.json"
 OFFLINE = Path(__file__).parent / "samples/offline.json"
+
+SAMPLE_PLAN_ID = "sample-goa"
+
+
+class PlannedTrip(BaseModel):
+    """A plan and its id; pass plan_id to revise_trip (ids last until the API restarts)."""
+
+    plan_id: str | None
+    itinerary: Itinerary
+
 
 mcp = FastMCP("travel-yantra", host="0.0.0.0", port=int(os.environ.get("PORT", "8080")))
 
@@ -49,8 +63,8 @@ async def _request(method: str, path: str, **kw: Any) -> Any:
         return resp.json()
 
 
-async def _stream_plan(path: str, body: Any) -> Itinerary:
-    final = None
+async def _stream_plan(path: str, body: Any) -> PlannedTrip:
+    final, plan_id = None, None
     async with (
         httpx.AsyncClient(timeout=120) as client,
         client.stream("POST", f"{_base()}{path}", json=body) as resp,
@@ -67,17 +81,18 @@ async def _stream_plan(path: str, body: Any) -> Itinerary:
             if event.partial is not None:
                 final = event.partial
             if event.stage == PlanStage.done:
+                plan_id = event.plan_id
                 break
     if final is None:
         raise RuntimeError("plan finished without an itinerary")
-    return final
+    return PlannedTrip(plan_id=plan_id, itinerary=final)
 
 
 @mcp.tool()
-async def plan_trip(request: TripRequest) -> Itinerary:
-    """Plan a multi-city trip in India and return the final itinerary."""
+async def plan_trip(request: TripRequest) -> PlannedTrip:
+    """Plan a multi-city trip in India; returns the itinerary and a plan_id for revise_trip."""
     if not _base():
-        return _sample_itinerary()
+        return PlannedTrip(plan_id=SAMPLE_PLAN_ID, itinerary=_sample_itinerary())
     return await _stream_plan("/plan", json.loads(request.model_dump_json()))
 
 
@@ -101,32 +116,54 @@ async def revise_trip(
     intent: Literal["lighter_day", "swap_stop", "rain"],
     day: date | None = None,
     place_id: str | None = None,
-) -> Itinerary:
-    """Revise a planned trip: make a day lighter, swap a stop, or re-plan a day for rain."""
+) -> PlannedTrip:
+    """Revise a planned trip (plan_id from plan_trip): lighter day, swap a stop, or rain plan."""
     if not _base():
         it = _sample_itinerary()
-        return it.model_copy(update={"warnings": [*it.warnings, "offline sample: not revised"]})
+        it = it.model_copy(update={"warnings": [*it.warnings, "offline sample: not revised"]})
+        return PlannedTrip(plan_id=plan_id, itinerary=it)
     body = {"intent": intent, "day": day.isoformat() if day else None, "place_id": place_id}
     return await _stream_plan(f"/plan/{quote(plan_id, safe='')}/revise", body)
 
 
 @mcp.tool()
-async def get_katha(place_id: str, length: Literal[2, 5, 10] = 2) -> KathaStory:
+async def get_katha(
+    place_id: str, length: Literal[2, 5, 10] = 2, lang: Lang = Lang.en
+) -> KathaStory:
     """Tell the story (Katha) of a place in 2, 5 or 10 minutes, legend and history labelled."""
     if not _base():
-        return KathaStory.model_validate(_offline("katha"))
-    data = await _request("GET", "/guide/katha", params={"place_id": place_id, "length": length})
-    return KathaStory.model_validate(data)
+        story = KathaStory.model_validate(_offline("katha"))
+    else:
+        # ponytail: assumes GET /guide/katha?place_id=&length= (card #24; TY2 P2 will confirm)
+        params = {"place_id": place_id, "length": length}
+        story = KathaStory.model_validate(await _request("GET", "/guide/katha", params=params))
+    tr = Translator()
+    text = await tr.text(story.text, lang)
+    if text == story.text:
+        return story  # English, or translation unavailable
+    segs = [s.model_copy(update={"text": await tr.text(s.text, lang)}) for s in story.segments]
+    return story.model_copy(update={"text": text, "segments": segs, "lang": lang})
 
 
 @mcp.tool()
-async def ask_guide(question: str, lang: Lang = Lang.en) -> GuideAnswer:
-    """Ask the travel guide about history, food, culture or emergencies; answers cite sources."""
+async def ask_guide(
+    question: str, lang: Lang = Lang.en, lat: float | None = None, lng: float | None = None
+) -> GuideAnswer:
+    """Ask the travel guide about history, food, culture or emergencies; answers cite sources.
+
+    [n] in the text is citations[n-1]. Pass lat/lng for emergencies (hospital, police, pharmacy).
+    """
     if not _base():
-        return GuideAnswer.model_validate(_offline("guide"))
-    # ponytail: assumes POST /guide/ask takes {question, lang} (card #23)
-    data = await _request("POST", "/guide/ask", json={"question": question, "lang": lang})
-    return GuideAnswer.model_validate(data)
+        answer = GuideAnswer.model_validate(_offline("guide"))
+    else:
+        q = GuideQuestion(question=question, lang=lang, lat=lat, lng=lng)
+        body = q.model_dump(mode="json", exclude_none=True)
+        answer = GuideAnswer.model_validate(await _request("POST", "/guide/ask", json=body))
+    # The guide answers in English; only the text is translated, [n] markers kept.
+    text = await Translator().text(answer.text, lang)
+    if text == answer.text:
+        return answer
+    return answer.model_copy(update={"text": text, "lang": lang})
 
 
 @mcp.tool()

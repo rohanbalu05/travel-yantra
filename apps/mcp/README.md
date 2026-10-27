@@ -4,15 +4,17 @@ FastMCP server over streamable HTTP at `/mcp`. Six tools:
 
 | Tool | API call | Returns |
 | --- | --- | --- |
-| `plan_trip(request)` | `POST /plan` (SSE PlanEvents) | `Itinerary` |
+| `plan_trip(request)` | `POST /plan` (SSE PlanEvents) | `{plan_id, itinerary}` |
 | `compare_transport(origin, destination, on)` | `POST /routes/compare` | `list[TransportOption]` |
-| `revise_trip(plan_id, intent, day?, place_id?)` | `POST /plan/{id}/revise` (SSE) | `Itinerary` |
-| `get_katha(place_id, length)` | `GET /guide/katha` | `KathaStory` |
-| `ask_guide(question, lang)` | `POST /guide/ask` | `GuideAnswer` |
+| `revise_trip(plan_id, intent, day?, place_id?)` | `POST /plan/{id}/revise` (SSE) | `{plan_id, itinerary}` |
+| `get_katha(place_id, length, lang)` | `GET /guide/katha` | `KathaStory` |
+| `ask_guide(question, lang, lat?, lng?)` | `POST /guide/ask` | `GuideAnswer` |
 | `track_booking(pnr)` | `GET /routes/pnr-mock` | PNR timeline (mock) |
 
 - `API_BASE_URL` set: each tool calls the API.
 - Not set: each tool answers from `samples/` (the Goa sample and `offline.json`).
+- `TRANSLATE_URL` set: `ask_guide` and `get_katha` text is translated to `lang` by services/translate, with
+  `[n]` citation markers kept (`[n]` is `citations[n-1]`). Unset, or a flagged translation: English.
 
 ## Run
 

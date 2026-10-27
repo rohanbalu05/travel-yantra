@@ -5,6 +5,6 @@ COPY packages/contracts/pyproject.toml /build/contracts/pyproject.toml
 COPY packages/contracts/src /build/contracts/src
 RUN pip install /build/contracts "mcp>=1.2,<2" "httpx>=0.27" && rm -rf /build
 WORKDIR /srv
-COPY apps/mcp/server.py .
+COPY apps/mcp/server.py apps/mcp/translate.py ./
 COPY apps/mcp/samples samples
 CMD ["python", "server.py"]
