@@ -251,6 +251,15 @@ class KathaRequest(_Model):
     places: list[str] = Field(default_factory=list)
 
 
+class KathaAudio(_Model):
+    """One narrated chapter of a Katha story (TY2), played in chapter order."""
+
+    chapter: int = Field(ge=1)  # 1-based; a 2-minute story has one
+    url: str  # MP3 in TY6's bucket
+    voice: str  # e.g. "hi-IN-Chirp3-HD-Kore"
+    characters: int = Field(ge=0)  # what text-to-speech billed for this chapter
+
+
 class KathaStory(_Model):
     subject_kind: Literal["place", "city", "day"]
     subject: str
@@ -259,6 +268,7 @@ class KathaStory(_Model):
     segments: list[StorySegment] = Field(default_factory=list)
     sources: list[str] = Field(default_factory=list)
     lang: Lang = Lang.en
+    audio: list[KathaAudio] = Field(default_factory=list)
 
 
 class Citation(_Model):

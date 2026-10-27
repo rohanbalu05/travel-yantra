@@ -98,6 +98,13 @@ export interface Itinerary {
   season_notes?: SeasonNote[];
 }
 
+export interface KathaAudio {
+  chapter: number;
+  url: string;
+  voice: string;
+  characters: number;
+}
+
 export interface KathaRequest {
   subject_kind: "place" | "city" | "day";
   subject: string;
@@ -114,6 +121,7 @@ export interface KathaStory {
   segments?: StorySegment[];
   sources?: string[];
   lang?: Lang;
+  audio?: KathaAudio[];
 }
 
 export type Lang = "en" | "hi" | "kn" | "ta" | "te" | "bn";

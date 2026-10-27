@@ -571,6 +571,38 @@
       "title": "Itinerary",
       "type": "object"
     },
+    "KathaAudio": {
+      "additionalProperties": false,
+      "description": "One narrated chapter of a Katha story (TY2), played in chapter order.",
+      "properties": {
+        "chapter": {
+          "minimum": 1,
+          "title": "Chapter",
+          "type": "integer"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        },
+        "voice": {
+          "title": "Voice",
+          "type": "string"
+        },
+        "characters": {
+          "minimum": 0,
+          "title": "Characters",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "chapter",
+        "url",
+        "voice",
+        "characters"
+      ],
+      "title": "KathaAudio",
+      "type": "object"
+    },
     "KathaRequest": {
       "additionalProperties": false,
       "description": "Body of the Katha story endpoint (TY2).",
@@ -665,6 +697,13 @@
         "lang": {
           "$ref": "#/$defs/Lang",
           "default": "en"
+        },
+        "audio": {
+          "items": {
+            "$ref": "#/$defs/KathaAudio"
+          },
+          "title": "Audio",
+          "type": "array"
         }
       },
       "required": [

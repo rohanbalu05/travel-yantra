@@ -191,3 +191,12 @@ def test_transport_choice():
     for bad in ({"intent": "transport"}, {"intent": "transport", "mode": "boat"}):
         with pytest.raises(ValidationError):
             ReviseRequest.model_validate(bad)
+
+
+def test_katha_audio():
+    base = {"subject_kind": "place", "subject": "Mysore Palace", "length_min": 2, "text": "t"}
+    assert KathaStory.model_validate(base).audio == []
+    clip = {"chapter": 1, "url": "https://storage.example/katha/1.mp3", "voice": "hi-IN-Chirp3-HD-Kore", "characters": 1800}
+    assert roundtrip(KathaStory, {**base, "audio": [clip]}).audio[0].characters == 1800
+    with pytest.raises(ValidationError):
+        KathaStory.model_validate({**base, "audio": [{**clip, "chapter": 0}]})

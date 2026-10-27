@@ -5,6 +5,7 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.115",
     "google-adk>=1.0",
+    "google-auth>=2.40",
     "numpy>=1.26",
     "psycopg[binary]>=3.2",
     "pydantic>=2.7",
