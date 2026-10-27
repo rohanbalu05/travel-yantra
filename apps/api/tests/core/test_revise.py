@@ -40,7 +40,10 @@ def test_swap_stop_replaces_it_with_a_place_not_already_planned():
     out, what, _ = revise(it, ReviseRequest(intent="swap_stop", place_id="goa-fontainhas"))
     assert "goa-fontainhas" not in ids(out) and what.startswith("Swapped Fontainhas")
     new = (set(ids(out)) - set(ids(it))).pop()
-    assert new in {p.id for p in fakes.alternatives(GOA.request)}
+    # From TY2's corpus when it covers the city, else from the sample alternatives.
+    from guide.planner import places_for
+
+    assert new in {p.id for p in places_for("Goa")} | {p.id for p in fakes.alternatives(GOA.request)}
     assert len(ids(out)) == len(ids(it)) and check(out) == []
 
 
