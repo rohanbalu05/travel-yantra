@@ -1,0 +1,12 @@
+{
+  "mcp": {
+    "servers": {
+      "travel-yantra": {
+        "url": "https://ty-mcp-643396702106.asia-south1.run.app/mcp",
+        "transport": "streamable-http",
+        "connectionTimeoutMs": 30000,
+        "requestTimeoutMs": 180000
+      }
+    }
+  }
+}
