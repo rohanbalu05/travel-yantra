@@ -10,6 +10,7 @@ export type {
   DayPlan,
   GuideAnswer,
   GuideQuestion,
+  KathaAudio,
   KathaStory,
   RankedOption,
   SellerOffer,

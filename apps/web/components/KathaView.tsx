@@ -1,12 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { Cited, Sources, citationFrom } from "@/components/Cited";
+import { KathaPlayer } from "@/components/KathaPlayer";
 import { Problem, problemOf } from "@/components/Problem";
 import { getKatha, type KathaRequest, type KathaResult } from "@/lib/guide";
 import { useI18n } from "@/lib/i18n";
 
 const LENGTHS = [2, 5, 10] as const;
+type Length = (typeof LENGTHS)[number];
+const LENGTH_KEY = "ty.katha.length";
+
+const noSubscribe = () => () => {};
+
+function savedLength(): Length | null {
+  try {
+    const n = Number(localStorage.getItem(LENGTH_KEY));
+    return (LENGTHS as readonly number[]).includes(n) ? (n as Length) : null;
+  } catch {
+    return null;
+  }
+}
 // Labels TY2 may add later still show, as plain text with no tag. The English names are dictionary keys.
 const LABEL: Record<string, string> = { history: "History", legend: "Legend", disputed: "Disputed" };
 const TAG: Record<string, string> = { history: "tag tag-history k-label", legend: "tag tag-legend k-label", disputed: "tag k-label" };
@@ -17,13 +31,26 @@ const KATHA_TIMEOUT_MS = 210_000;
 /** The story for one subject with a 2, 5 or 10 minute switch, labelled segments and numbered sources. */
 export function KathaView({ req }: { req: Omit<KathaRequest, "length_min" | "lang"> }) {
   const { lang, t } = useI18n();
-  const [length, setLength] = useState<2 | 5 | 10>(5);
+  // No story is asked for until a length is picked (each first telling is a live model call, QA #113);
+  // the last length picked is remembered in this browser.
+  const [picked, setPicked] = useState<Length | null>(null);
+  const saved = useSyncExternalStore(noSubscribe, savedLength, () => null);
+  const length = picked ?? saved;
+  const pick = (n: Length) => {
+    setPicked(n);
+    try {
+      localStorage.setItem(LENGTH_KEY, String(n));
+    } catch {
+      // Storage blocked: picked for this page only.
+    }
+  };
   const [run, setRun] = useState(0);
   const [result, setResult] = useState<{ key: string; story?: KathaResult; problem?: { message: string; retryable: boolean } } | null>(null);
   // A new language or length is a new request.
   const reqKey = JSON.stringify({ ...req, lang, length_min: length });
 
   useEffect(() => {
+    if (!length) return;
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort("timeout"), KATHA_TIMEOUT_MS);
     getKatha(JSON.parse(reqKey) as KathaRequest, ctl.signal)
@@ -37,7 +64,7 @@ export function KathaView({ req }: { req: Omit<KathaRequest, "length_min" | "lan
       clearTimeout(timer);
       ctl.abort("left");
     };
-  }, [reqKey, run]);
+  }, [reqKey, run, length]);
 
   // A result for an older request (length switched mid-load) counts as loading.
   const current = result?.key === reqKey ? result : null;
@@ -49,17 +76,21 @@ export function KathaView({ req }: { req: Omit<KathaRequest, "length_min" | "lan
       <div className="k-bar">
         <div className="toggle" role="group" aria-label={t("Length")}>
           {LENGTHS.map((n) => (
-            <button key={n} type="button" className={n === length ? "on" : undefined} aria-pressed={n === length} onClick={() => setLength(n)}>{n} {t("Minutes")}</button>
+            <button key={n} type="button" className={n === length ? "on" : undefined} aria-pressed={n === length} onClick={() => pick(n)}>{n} {t("Minutes")}</button>
           ))}
         </div>
         {story?.sample && <span className="badge">{t("Sample story")}</span>}
       </div>
-      {!current ? (
+      {!length ? (
+        <p className="hint">{t("Pick a length to hear the story.")}</p>
+      ) : !current ? (
         <p className="hint" role="status">{t("Writing your story. The first telling can take one to three minutes (longer stories take longer); after that it opens at once.")}</p>
       ) : current.problem ? (
         <Problem {...current.problem} onRetry={() => { setResult(null); setRun((r) => r + 1); }} />
       ) : story && (story.segments ?? []).length ? (
         <div className="k-story">
+          {/* Read aloud by TY2 for some stories; none is not an error. The sources stay on screen (they are not read out). */}
+          {(story.audio ?? []).length > 0 && <KathaPlayer key={story.audio![0].url} audio={story.audio!} />}
           {story.segments!.map((s, i) => (
             <div key={i} className={s.label === "legend" ? "seg legend" : "seg"}>
               {LABEL[s.label] ? <span className={TAG[s.label]}>{t(LABEL[s.label])}</span> : null}
