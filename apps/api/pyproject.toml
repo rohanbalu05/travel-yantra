@@ -7,6 +7,7 @@ dependencies = [
     "numpy>=1.26",
     "psycopg[binary]>=3.2",
     "pydantic>=2.7",
+    "ty-contracts",
     "uvicorn>=0.30",
 ]
 
@@ -24,3 +25,6 @@ testpaths = ["tests"]
 
 [tool.uv]
 package = false
+
+[tool.uv.sources]
+ty-contracts = { path = "../../packages/contracts" }
