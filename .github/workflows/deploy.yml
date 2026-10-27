@@ -6,13 +6,26 @@ name: deploy
 on:
   push:
     branches: [main]
+    paths:
+      - apps/api/**
+      - apps/web/**
+      - apps/mcp/**
+      - apps/bots/**
+      - services/translate/**
+      - packages/contracts/**
+      - infra/web/**
+      - infra/cloudbuild/**
+      - .github/workflows/deploy.yml
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+# A newer push supersedes an older deploy; Cloud Run swaps revisions
+# atomically, so a cancelled run leaves the previous revision serving.
 concurrency:
   group: deploy-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   plan:
@@ -34,12 +47,22 @@ jobs:
           fi
           base=${{ github.event.before }}; git cat-file -e "$base" 2>/dev/null || base=HEAD~1
           changed=$(git diff --name-only "$base" HEAD)
+          # A manual run or a change to the deploy plumbing redeploys everything.
+          all=false
+          [ "${{ github.event_name }}" = "workflow_dispatch" ] && all=true
+          echo "$changed" | grep -qE '^(\.github/workflows/deploy\.yml|infra/cloudbuild/)' && all=true
           out=()
-          for pair in ty-api:apps/api ty-translate:services/translate ty-bots:apps/bots ty-mcp:apps/mcp; do
-            name=${pair%%:*}; dir=${pair#*:}
-            [ -f "$dir/Dockerfile" ] || { echo "skip $name: no Dockerfile in $dir"; continue; }
-            echo "$changed" | grep -q "^$dir/" || echo "$changed" | grep -q "^packages/contracts/" || { echo "skip $name: unchanged"; continue; }
-            out+=("{\"name\":\"$name\",\"dir\":\"$dir\"}")
+          # name:source dir:Dockerfile (ty-translate still builds from its own directory)
+          for entry in ty-api:apps/api:apps/api/Dockerfile ty-web:apps/web:infra/web/Dockerfile \
+                       ty-translate:services/translate:services/translate/Dockerfile \
+                       ty-bots:apps/bots:apps/bots/Dockerfile ty-mcp:apps/mcp:apps/mcp/Dockerfile; do
+            IFS=: read -r name dir dockerfile <<< "$entry"
+            [ -f "$dockerfile" ] || { echo "skip $name: no $dockerfile"; continue; }
+            [ -f "$dir/package.json" ] || [ -f "$dir/pyproject.toml" ] || { echo "skip $name: no project in $dir"; continue; }
+            if [ "$all" != "true" ] && ! echo "$changed" | grep -qE "^($dir/|packages/contracts/|$(dirname "$dockerfile")/)"; then
+              echo "skip $name: unchanged"; continue
+            fi
+            out+=("{\"name\":\"$name\",\"dir\":\"$dir\",\"dockerfile\":\"$dockerfile\"}")
           done
           echo "matrix=[$(IFS=,; echo "${out[*]}")]" >> "$GITHUB_OUTPUT"
 
@@ -75,7 +98,7 @@ jobs:
             exit 0
           fi
           gcloud builds submit . --config infra/cloudbuild/image.yaml \
-            --substitutions "_DOCKERFILE=${{ matrix.service.dir }}/Dockerfile,_IMAGE=$IMAGE" \
+            --substitutions "_DOCKERFILE=${{ matrix.service.dockerfile }},_IMAGE=$IMAGE" \
             --project "${{ vars.GCP_PROJECT_ID }}"
       - name: Deploy ${{ matrix.service.name }}
         run: |

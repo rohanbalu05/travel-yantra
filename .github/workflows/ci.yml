@@ -1,7 +1,7 @@
 name: ci
 
+# Lanes push straight to main; CI is informational there (no PRs).
 on:
-  pull_request:
   push:
     branches: [main]
 
@@ -26,7 +26,7 @@ jobs:
           fetch-depth: 0
       - id: scope
         env:
-          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          BASE: ${{ github.event.before }}
         run: |
           # Which folders changed, and do they have a project file yet?
           if [ -n "$BASE" ] && git cat-file -e "$BASE" 2>/dev/null; then
