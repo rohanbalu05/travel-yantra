@@ -21,37 +21,25 @@ def found(periods, lat=15.5009, lng=73.9116, text=None):
             "location": {"latitude": lat, "longitude": lng}, "regularOpeningHours": hours}  # fmt: skip
 
 
-def test_hours_collapse_to_common_times_and_closed_days():
-    # Mon-Sat 09:00-18:30, Sunday 10:30-18:30, no Wednesday
-    periods = [_p(d, 9, 0, 18, 30) for d in (1, 2, 4, 5, 6)] + [_p(0, 10, 30, 18, 30)]
-    h = ep.hours_from({"periods": periods})
-    assert (h["opens"], h["closes"]) == ("09:00", "18:30")
-    assert h["closed_on"] == [3]  # ISO Wednesday
-    assert h["tags"] == ["hours-vary"]
-
-
-def test_hours_midday_break_is_tagged():
-    periods = [p for d in range(7) for p in (_p(d, 9, 0, 12, 30), _p(d, 15, 0, 18, 30))]
-    h = ep.hours_from({"periods": periods})
-    assert (h["opens"], h["closes"], h["closed_on"]) == ("09:00", "18:30", [])
-    assert h["tags"] == ["hours-break"]
-
-
-def test_hours_open_24_and_past_midnight():
-    h = ep.hours_from({"periods": [{"open": {"day": 0, "hour": 0, "minute": 0}}]})
-    assert (h["opens"], h["closes"], h["closed_on"]) == ("00:00", "23:59", [])
-    late = ep.hours_from({"periods": [_p(d, 18, 0, 2, 0, cday=(d + 1) % 7) for d in range(7)]})
-    assert (late["opens"], late["closes"]) == ("18:00", "23:59")
-    assert ep.hours_from(None) is None and ep.hours_from({"periods": []}) is None
-
-
-def test_enrich_confirms_hours_but_never_fees():
-    out = ep.enrich(BOM, found([_p(d, 9, 0, 18, 30) for d in range(7)]), "2026-10-27")
+def test_enrich_keeps_the_place_id_and_never_the_hours():
+    out = ep.enrich(BOM, found([_p(d, 9, 0, 18, 30) for d in range(7)]), "2026-10-28")
     assert out["places_status"] == "hours" and out["place_id"] == "ChIJsampleBomJesus0001"
-    assert (out["opens"], out["closes"], out["closed_on"]) == ("09:00", "18:30", [])
-    assert out["hours_source"] == "google_places" and out["hours_text"]
-    assert out["tags"] == ["fee-unverified", "hours-places"]
-    assert "entry_fee_inr" not in out and BOM["opens"] is None  # input untouched
+    assert (out["opens"], out["closes"], out["closed_on"]) == (None, None, [])
+    assert "hours_text" not in out and "hours_source" not in out
+    assert out["tags"] == ["hours-unverified", "fee-unverified"]
+    assert "entry_fee_inr" not in out and "place_id" not in BOM  # input untouched
+
+
+def test_enrich_strips_hours_an_earlier_run_copied_in():
+    old = dict(BOM, opens="09:00", closes="17:00", closed_on=[7], hours_source="google_places",
+               hours_text=["Monday: 9 AM-5 PM"], place_id="ChIJold",
+               tags=["fee-unverified", "hours-places", "hours-vary"])  # fmt: skip
+    out = ep.enrich(old, found([]), "2026-10-28")
+    assert (out["opens"], out["closes"], out["closed_on"]) == (None, None, [])
+    assert not {"hours_text", "hours_source"} & set(out) and out["place_id"] == "ChIJsampleBomJesus0001"
+    assert out["tags"] == ["fee-unverified", "hours-unverified"] and out["places_status"] == "no-hours"
+    curated = dict(BOM, opens="10:00", closes="17:30", tags=[])  # a person's hours stay
+    assert ep.enrich(curated, None, "2026-10-28")["opens"] == "10:00"
 
 
 @pytest.mark.parametrize(
@@ -68,6 +56,16 @@ def test_enrich_marks_what_places_cannot_confirm(hit, status):
     assert out["opens"] is None and "hours-unverified" in out["tags"]
     assert "fee-unverified" in out["tags"] and out["hours_checked"] == "2026-10-27"
     assert ("place_id" in out) == (status == "no-hours")
+
+
+def test_the_repo_holds_no_places_hours():
+    from guide.retrieval.seed import load_pois
+
+    for p in load_pois()["pois"]:
+        assert not {"hours_text", "hours_source"} & set(p), p["name"]
+        assert not {"hours-places", "hours-break", "hours-vary"} & set(p["tags"]), p["name"]
+        if p.get("place_id"):  # Places-matched: hours only at runtime
+            assert p["opens"] is None and p["places_status"] in {"hours", "no-hours"}
 
 
 class Fake:

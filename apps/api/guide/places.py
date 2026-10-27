@@ -9,7 +9,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
+import threading
 import time as _time
 import urllib.request
 from collections.abc import Callable
@@ -18,6 +20,8 @@ from typing import Any, Protocol
 
 from ty_contracts import Place
 from ty_contracts.models import OpeningHours
+
+log = logging.getLogger(__name__)
 
 BASE = "https://places.googleapis.com/v1"
 TIMEOUT_S = 8.0
@@ -127,6 +131,8 @@ class PlacesClient:
         self.cache = cache or MemoryCache()
         self._transport = transport
         self._api_key = api_key
+        self.calls = 0  # live requests (cache misses), each also logged
+        self._count = threading.Lock()
 
     def _call(self, method: str, path: str, mask: str, body: dict | None, ttl_s: int) -> dict:
         key = hashlib.sha256(
@@ -140,6 +146,9 @@ class PlacesClient:
             "X-Goog-Api-Key": api_key,
             "X-Goog-FieldMask": mask,
         }
+        with self._count:
+            self.calls += 1
+        log.warning("places live call: %s %s fields=%s", method, path.split("/")[1][:40], mask)
         payload = self._transport(method, BASE + path, headers, body, TIMEOUT_S)
         self.cache.set(key, payload, ttl_s)
         return payload
@@ -163,6 +172,10 @@ class PlacesClient:
         }
         raw = self._call("POST", "/places:searchText", FIND_HOURS_MASK, body, DETAILS_TTL_S)
         return (raw.get("places") or [None])[0]
+
+    def hours(self, place_id: str) -> list[OpeningHours]:
+        """Regular opening hours, per day (Enterprise Details); empty if Places has none."""
+        return self.details(place_id, with_hours=True).opening_hours
 
     def details(self, place_id: str, *, with_hours: bool = False) -> Place:
         mask = HOURS_MASK if with_hours else DETAILS_MASK

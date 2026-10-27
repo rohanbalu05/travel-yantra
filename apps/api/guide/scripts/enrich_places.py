@@ -1,12 +1,14 @@
-"""Fill opening hours of corridor POIs from Google Places API (New). Goa first.
+"""Match corridor POIs to Google Places (API New) and keep only their place_id. Goa first.
 
     cd apps/api && uv run python -m guide.scripts.enrich_places [goa] [--refresh]
 
 One Enterprise Text Search per place (name + region, biased to the Wikidata
-coordinates) returns the place id and its regular opening hours. A match more
-than MAX_KM from our coordinates is rejected. Places has no admission-fee field,
-so every fee stays tagged fee-unverified; hours Places can't confirm stay
-hours-unverified. Places already checked are skipped unless --refresh.
+coordinates) finds the place and whether Places has opening hours for it. A match
+more than MAX_KM from our coordinates is rejected. Places terms let us store the
+place_id and nothing else (V3-AD), so the repo gets the id and a status; the
+hours are fetched at runtime by guide.hours. Hours stay tagged hours-unverified in
+the repo and every fee fee-unverified (Places has no admission fees). Places
+already checked are skipped unless --refresh.
 
 Every live call is counted against MAX_CALLS and appended to
 data/corridor/places_calls.log; responses are cached in .lanes/ (not committed),
@@ -84,73 +86,28 @@ def km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
     return 6371 * 2 * math.asin(math.sqrt(a))
 
 
-def _hhmm(m: int) -> str:
-    return f"{m // 60:02d}:{m % 60:02d}"
-
-
-def hours_from(raw_hours: dict | None) -> dict | None:
-    """Places regularOpeningHours -> corpus opens/closes/closed_on, or None if absent.
-
-    The corpus keeps one opening and one closing time, so they are the most common
-    first opening and last closing across open days; a midday break or a day with
-    different hours adds a tag, and hours_text keeps Places' own wording."""
-    periods = (raw_hours or {}).get("periods") or []
-    if not periods:
-        return None
-    days: dict[int, list[tuple[int, int]]] = {}
-    for p in periods:
-        o, c = p.get("open") or {}, p.get("close")
-        if "day" not in o:
-            continue
-        iso = o["day"] or 7  # Places 0 = Sunday; corpus closed_on 1 = Mon .. 7 = Sun
-        start = o.get("hour", 0) * 60 + o.get("minute", 0)
-        if c is None:  # open 24 hours
-            end = 24 * 60 - 1
-        elif c.get("day") != o["day"]:
-            end = 24 * 60 - 1  # past midnight: the corpus can't say so, close at 23:59
-        else:
-            end = c.get("hour", 0) * 60 + c.get("minute", 0)
-        days.setdefault(iso, []).append((start, end))
-    if not days:
-        return None
-    if len(periods) == 1 and periods[0].get("close") is None:
-        days = {d: [(0, 24 * 60 - 1)] for d in range(1, 8)}  # one open-only period = always open
-    firsts = Counter(min(s for s, _ in v) for v in days.values())
-    lasts = Counter(max(e for _, e in v) for v in days.values())
-    tags = []
-    if any(len(v) > 1 for v in days.values()):
-        tags.append("hours-break")
-    if len(firsts) > 1 or len(lasts) > 1:
-        tags.append("hours-vary")
-    return {
-        "opens": _hhmm(firsts.most_common(1)[0][0]),
-        "closes": _hhmm(lasts.most_common(1)[0][0]),
-        "closed_on": sorted(set(range(1, 8)) - set(days)),
-        "tags": tags,
-        "text": (raw_hours or {}).get("weekdayDescriptions") or [],
-    }
+#: Tags an earlier run derived from Places' hours: Places content, so never kept.
+DERIVED_TAGS = {"hours-places", "hours-break", "hours-vary"}
+#: Fields an earlier run copied from Places: dropped, the corpus has no hours of its own.
+DERIVED_FIELDS = ("hours_text", "hours_source")
 
 
 def enrich(poi: dict, found: dict | None, today: str) -> dict:
-    """A copy of poi with what Places confirmed; unconfirmed fields stay as they were."""
-    out = dict(poi)
+    """A copy of poi with the Places match: place_id and places_status, nothing else."""
+    out = {k: v for k, v in poi.items() if k not in DERIVED_FIELDS and k != "place_id"}
+    if poi.get("hours_source") == "google_places":  # hours an earlier run copied in
+        out.update(opens=None, closes=None, closed_on=[])
     out["hours_checked"] = today
-    tags = [t for t in poi.get("tags") or [] if t not in ("hours-break", "hours-vary", "hours-places")]
     if found is None:
         out["places_status"] = "not-found"
     elif km(poi["lat"], poi["lng"], found["location"]["latitude"], found["location"]["longitude"]) > MAX_KM:
         out["places_status"] = "no-match"
-    elif (h := hours_from(found.get("regularOpeningHours"))) is None:
-        out["places_status"] = "no-hours"
-        out["place_id"] = found["id"]
     else:
-        out["places_status"] = "hours"
         out["place_id"] = found["id"]
-        out.update(opens=h["opens"], closes=h["closes"], closed_on=h["closed_on"])
-        out["hours_text"] = h["text"]
-        out["hours_source"] = "google_places"
-        tags = [t for t in tags if t != "hours-unverified"] + ["hours-places"] + h["tags"]
-    if out["places_status"] != "hours" and "hours-unverified" not in tags:
+        periods = (found.get("regularOpeningHours") or {}).get("periods")
+        out["places_status"] = "hours" if periods else "no-hours"
+    tags = [t for t in poi.get("tags") or [] if t not in DERIVED_TAGS]
+    if not out.get("opens") and "hours-unverified" not in tags:
         tags.append("hours-unverified")
     if "fee-unverified" not in tags and "entry_fee_inr" not in poi:
         tags.append("fee-unverified")  # Places has no admission fees
@@ -179,9 +136,10 @@ def run(region: str, client: PlacesClient, *, refresh: bool = False, today: str 
         pois += data["pois"][len(pois):]  # the rest unchanged; a re-run picks them up
     data["pois"] = pois
     data["_places"] = (
-        "Opening hours with tag hours-places come from Google Places API (New) on the "
-        "hours_checked date (place_id kept). Places has no admission fees, so fees stay "
-        "fee-unverified; hours-unverified means Places had no match or no hours."
+        "place_id and places_status come from Google Places API (New) on the hours_checked "
+        "date. Places terms allow storing the id only, so hours are fetched at runtime "
+        "(guide.hours) where places_status is 'hours'. Places has no admission fees, so "
+        "fees stay fee-unverified."
     )
     path.write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
     return status

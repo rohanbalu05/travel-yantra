@@ -70,6 +70,16 @@ def _pois() -> tuple[dict, ...]:
     return tuple(load_pois()["pois"])
 
 
+@lru_cache(maxsize=1)
+def place_ids() -> dict[str, str]:
+    """Planner id -> Google place_id, for corpus places Places matched and has hours for.
+    The repo keeps only the id (Places terms); guide.hours fetches the hours."""
+    return {
+        _slug(f"{p['city']} {p['name']}"): p["place_id"]
+        for p in _pois() if p.get("place_id") and p.get("places_status") == "hours"
+    }  # fmt: skip
+
+
 def places_for(
     city: str,
     *,

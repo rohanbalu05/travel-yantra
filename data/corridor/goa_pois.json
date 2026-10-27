@@ -17,31 +17,20 @@
    "category": "monument",
    "tags": [
     "fee-unverified",
-    "hours-places",
-    "hours-vary"
+    "hours-unverified"
    ],
    "typical_dwell_min": 60,
-   "opens": "09:00",
-   "closes": "17:00",
+   "opens": null,
+   "closes": null,
    "closed_on": [],
    "popularity": 5,
    "elderly_friendly": true,
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q391123",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "hours",
-   "place_id": "ChIJiQKbufK-vzsRuKcVn2hWgB4",
-   "hours_text": [
-    "Monday: 9:00 AM – 5:00 PM",
-    "Tuesday: 9:00 AM – 5:00 PM",
-    "Wednesday: 9:00 AM – 5:00 PM",
-    "Thursday: 9:00 AM – 5:00 PM",
-    "Friday: 9:00 AM – 5:00 PM",
-    "Saturday: 9:00 AM – 5:00 PM",
-    "Sunday: 11:00 AM – 5:00 PM"
-   ],
-   "hours_source": "google_places"
+   "place_id": "ChIJiQKbufK-vzsRuKcVn2hWgB4"
   },
   {
    "name": "Se Cathedral",
@@ -54,31 +43,20 @@
    "category": "monument",
    "tags": [
     "fee-unverified",
-    "hours-places",
-    "hours-vary"
+    "hours-unverified"
    ],
    "typical_dwell_min": 45,
-   "opens": "09:00",
-   "closes": "17:00",
+   "opens": null,
+   "closes": null,
    "closed_on": [],
    "popularity": 5,
    "elderly_friendly": true,
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q2942482",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "hours",
-   "place_id": "ChIJE0a0LfO-vzsR8JyKJEBHTMk",
-   "hours_text": [
-    "Monday: 9:00 AM – 5:00 PM",
-    "Tuesday: 9:00 AM – 5:00 PM",
-    "Wednesday: 9:00 AM – 5:00 PM",
-    "Thursday: 9:00 AM – 5:00 PM",
-    "Friday: 9:00 AM – 5:00 PM",
-    "Saturday: 9:00 AM – 5:00 PM",
-    "Sunday: 11:00 AM – 3:00 PM"
-   ],
-   "hours_source": "google_places"
+   "place_id": "ChIJE0a0LfO-vzsR8JyKJEBHTMk"
   },
   {
    "name": "Church of St. Francis of Assisi",
@@ -91,32 +69,20 @@
    "category": "monument",
    "tags": [
     "fee-unverified",
-    "hours-places"
+    "hours-unverified"
    ],
    "typical_dwell_min": 30,
-   "opens": "09:00",
-   "closes": "17:00",
-   "closed_on": [
-    7
-   ],
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
    "popularity": 4,
    "elderly_friendly": true,
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q5117224",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "hours",
-   "place_id": "ChIJ78JjO_O-vzsRRzk9_PvVgE0",
-   "hours_text": [
-    "Monday: 9:00 AM – 5:00 PM",
-    "Tuesday: 9:00 AM – 5:00 PM",
-    "Wednesday: 9:00 AM – 5:00 PM",
-    "Thursday: 9:00 AM – 5:00 PM",
-    "Friday: 9:00 AM – 5:00 PM",
-    "Saturday: 9:00 AM – 5:00 PM",
-    "Sunday: Closed"
-   ],
-   "hours_source": "google_places"
+   "place_id": "ChIJ78JjO_O-vzsRRzk9_PvVgE0"
   },
   {
    "name": "Fontainhas",
@@ -140,7 +106,7 @@
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q5465121",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "no-hours",
    "place_id": "ChIJBQKjg4XAvzsReu5VP9GM5q0"
   },
@@ -166,7 +132,7 @@
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q7111015",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "no-hours",
    "place_id": "ChIJ952ZWo_AvzsRLoL0JZhAmKM"
   },
@@ -186,30 +152,20 @@
    "category": "monument",
    "tags": [
     "fee-unverified",
-    "hours-places"
+    "hours-unverified"
    ],
    "typical_dwell_min": 75,
-   "opens": "09:30",
-   "closes": "18:00",
+   "opens": null,
+   "closes": null,
    "closed_on": [],
    "popularity": 5,
    "elderly_friendly": true,
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q4991900",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "hours",
-   "place_id": "ChIJa72MxnXBvzsRHHtpszB2g6M",
-   "hours_text": [
-    "Monday: 9:30 AM – 6:00 PM",
-    "Tuesday: 9:30 AM – 6:00 PM",
-    "Wednesday: 9:30 AM – 6:00 PM",
-    "Thursday: 9:30 AM – 6:00 PM",
-    "Friday: 9:30 AM – 6:00 PM",
-    "Saturday: 9:30 AM – 6:00 PM",
-    "Sunday: 9:30 AM – 6:00 PM"
-   ],
-   "hours_source": "google_places"
+   "place_id": "ChIJa72MxnXBvzsRHHtpszB2g6M"
   },
   {
    "name": "Reis Magos Fort",
@@ -226,32 +182,20 @@
    "category": "monument",
    "tags": [
     "fee-unverified",
-    "hours-places"
+    "hours-unverified"
    ],
    "typical_dwell_min": 60,
-   "opens": "09:30",
-   "closes": "17:00",
-   "closed_on": [
-    1
-   ],
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
    "popularity": 4,
    "elderly_friendly": true,
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q2248527",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "hours",
-   "place_id": "ChIJYeGT3PDAvzsRS8Ckp0KjgGs",
-   "hours_text": [
-    "Monday: Closed",
-    "Tuesday: 9:30 AM – 5:00 PM",
-    "Wednesday: 9:30 AM – 5:00 PM",
-    "Thursday: 9:30 AM – 5:00 PM",
-    "Friday: 9:30 AM – 5:00 PM",
-    "Saturday: 9:30 AM – 5:00 PM",
-    "Sunday: 9:30 AM – 5:00 PM"
-   ],
-   "hours_source": "google_places"
+   "place_id": "ChIJYeGT3PDAvzsRS8Ckp0KjgGs"
   },
   {
    "name": "Chapora Fort",
@@ -266,30 +210,20 @@
    "category": "viewpoint",
    "tags": [
     "fee-unverified",
-    "hours-places"
+    "hours-unverified"
    ],
    "typical_dwell_min": 60,
-   "opens": "10:00",
-   "closes": "17:00",
+   "opens": null,
+   "closes": null,
    "closed_on": [],
    "popularity": 4,
    "elderly_friendly": true,
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q5073352",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "hours",
-   "place_id": "ChIJ56FVYsbpvzsRB6GFWwDiCzc",
-   "hours_text": [
-    "Monday: 10:00 AM – 5:00 PM",
-    "Tuesday: 10:00 AM – 5:00 PM",
-    "Wednesday: 10:00 AM – 5:00 PM",
-    "Thursday: 10:00 AM – 5:00 PM",
-    "Friday: 10:00 AM – 5:00 PM",
-    "Saturday: 10:00 AM – 5:00 PM",
-    "Sunday: 10:00 AM – 5:00 PM"
-   ],
-   "hours_source": "google_places"
+   "place_id": "ChIJ56FVYsbpvzsRB6GFWwDiCzc"
   },
   {
    "name": "Calangute Beach",
@@ -317,7 +251,7 @@
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q861976",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "no-hours",
    "place_id": "ChIJK-30SAHqvzsRF30lXa0vWcs"
   },
@@ -345,7 +279,7 @@
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q4765908",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "no-hours",
    "place_id": "ChIJmQGrEY_pvzsRof_MwgLMd9c"
   },
@@ -375,7 +309,7 @@
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q2048357",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "no-hours",
    "place_id": "ChIJuwJb0FFFvjsR9bsPS33GGx4"
   },
@@ -407,7 +341,7 @@
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q37545",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "no-hours",
    "place_id": "ChIJQ4srFBimvzsRJQI7KOdIlP0"
   },
@@ -428,30 +362,20 @@
    "category": "temple",
    "tags": [
     "fee-unverified",
-    "hours-places"
+    "hours-unverified"
    ],
    "typical_dwell_min": 45,
-   "opens": "05:30",
-   "closes": "21:30",
+   "opens": null,
+   "closes": null,
    "closed_on": [],
    "popularity": 4,
    "elderly_friendly": true,
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q4789425",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "hours",
-   "place_id": "ChIJAQAAALy6vzsR9rv-XA9g7a8",
-   "hours_text": [
-    "Monday: 5:30 AM – 9:30 PM",
-    "Tuesday: 5:30 AM – 9:30 PM",
-    "Wednesday: 5:30 AM – 9:30 PM",
-    "Thursday: 5:30 AM – 9:30 PM",
-    "Friday: 5:30 AM – 9:30 PM",
-    "Saturday: 5:30 AM – 9:30 PM",
-    "Sunday: 5:30 AM – 9:30 PM"
-   ],
-   "hours_source": "google_places"
+   "place_id": "ChIJAQAAALy6vzsR9rv-XA9g7a8"
   },
   {
    "name": "Shantadurga Temple",
@@ -468,30 +392,20 @@
    "category": "temple",
    "tags": [
     "fee-unverified",
-    "hours-places"
+    "hours-unverified"
    ],
    "typical_dwell_min": 45,
-   "opens": "06:00",
-   "closes": "20:30",
+   "opens": null,
+   "closes": null,
    "closed_on": [],
    "popularity": 4,
    "elderly_friendly": true,
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q7489022",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "hours",
-   "place_id": "ChIJrYu521bAvzsRMZ5n0rjkYnA",
-   "hours_text": [
-    "Monday: 6:00 AM – 8:30 PM",
-    "Tuesday: 6:00 AM – 8:30 PM",
-    "Wednesday: 6:00 AM – 8:30 PM",
-    "Thursday: 6:00 AM – 8:30 PM",
-    "Friday: 6:00 AM – 8:30 PM",
-    "Saturday: 6:00 AM – 8:30 PM",
-    "Sunday: 6:00 AM – 8:30 PM"
-   ],
-   "hours_source": "google_places"
+   "place_id": "ChIJrYu521bAvzsRMZ5n0rjkYnA"
   },
   {
    "name": "Goa State Museum",
@@ -507,33 +421,20 @@
    "category": "museum",
    "tags": [
     "fee-unverified",
-    "hours-places"
+    "hours-unverified"
    ],
    "typical_dwell_min": 60,
-   "opens": "10:00",
-   "closes": "17:30",
-   "closed_on": [
-    6,
-    7
-   ],
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
    "popularity": 3,
    "elderly_friendly": true,
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q5575115",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "hours",
-   "place_id": "ChIJC_YOKJvAvzsRxHcRKHiw_JQ",
-   "hours_text": [
-    "Monday: 10:00 AM – 5:30 PM",
-    "Tuesday: 10:00 AM – 5:30 PM",
-    "Wednesday: 10:00 AM – 5:30 PM",
-    "Thursday: 10:00 AM – 5:30 PM",
-    "Friday: 10:00 AM – 5:30 PM",
-    "Saturday: Closed",
-    "Sunday: Closed"
-   ],
-   "hours_source": "google_places"
+   "place_id": "ChIJC_YOKJvAvzsRxHcRKHiw_JQ"
   },
   {
    "name": "Naval Aviation Museum",
@@ -548,32 +449,20 @@
    "category": "museum",
    "tags": [
     "fee-unverified",
-    "hours-places"
+    "hours-unverified"
    ],
    "typical_dwell_min": 75,
-   "opens": "09:30",
-   "closes": "17:30",
-   "closed_on": [
-    1
-   ],
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
    "popularity": 3,
    "elderly_friendly": true,
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q12063607",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "hours",
-   "place_id": "ChIJoW7X1f7HvzsRsbml_wpjpE4",
-   "hours_text": [
-    "Monday: Closed",
-    "Tuesday: 9:30 AM – 5:30 PM",
-    "Wednesday: 9:30 AM – 5:30 PM",
-    "Thursday: 9:30 AM – 5:30 PM",
-    "Friday: 9:30 AM – 5:30 PM",
-    "Saturday: 9:30 AM – 5:30 PM",
-    "Sunday: 9:30 AM – 5:30 PM"
-   ],
-   "hours_source": "google_places"
+   "place_id": "ChIJoW7X1f7HvzsRsbml_wpjpE4"
   },
   {
    "name": "Cabo de Rama",
@@ -597,7 +486,7 @@
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q5015741",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "no-hours",
    "place_id": "ChIJ5fHaRP1LvjsRRHv-U2LzeGY"
   },
@@ -625,10 +514,10 @@
    "trust": "draft",
    "source_url": "https://www.wikidata.org/wiki/Q5283830",
    "last_verified": "2026-10-27",
-   "hours_checked": "2026-10-27",
+   "hours_checked": "2026-10-28",
    "places_status": "no-hours",
    "place_id": "ChIJyf_9rkW-vzsRGWg3rwspqME"
   }
  ],
- "_places": "Opening hours with tag hours-places come from Google Places API (New) on the hours_checked date (place_id kept). Places has no admission fees, so fees stay fee-unverified; hours-unverified means Places had no match or no hours."
+ "_places": "place_id and places_status come from Google Places API (New) on the hours_checked date. Places terms allow storing the id only, so hours are fetched at runtime (guide.hours) where places_status is 'hours'. Places has no admission fees, so fees stay fee-unverified."
 }

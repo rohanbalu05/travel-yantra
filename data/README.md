@@ -2,11 +2,12 @@
 
 Sample and seed data only. No real phone numbers or personal data.
 
-## Opening hours from Google Places (corridors)
+## Google Places ids (corridors)
 
-`guide/scripts/enrich_places.py` fills `opens`, `closes` and `closed_on` of corridor
-POIs from Places API (New), one Enterprise Text Search per place, every call logged in
-`corridor/places_calls.log`. Tags say what is confirmed: `hours-places` (with `place_id`,
-`hours_checked` and Places' own `hours_text`), `hours-break` (closed at midday),
-`hours-vary` (some days differ), `hours-unverified` (no match, or Places has no hours).
-Places has no admission fees, so every corridor fee stays `fee-unverified`.
+`guide/scripts/enrich_places.py` matches corridor POIs to Google Places API (New),
+one Enterprise Text Search per place, every call logged in `corridor/places_calls.log`.
+Places terms let us store the `place_id` only, so that and `places_status` (`hours`,
+`no-hours`, `no-match`, `not-found`) are all the repo keeps. Opening hours are fetched
+at runtime by `guide.hours.live_hours` for places with status `hours`, cached privately
+in Cloud SQL. In the repo, corridor hours stay `hours-unverified` and fees
+`fee-unverified` (Places has no admission fees).
