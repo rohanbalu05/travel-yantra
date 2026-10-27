@@ -2,7 +2,7 @@ import json
 
 import httpx
 import pytest
-from ty_contracts import Lang
+from ty_contracts import GuideAnswer, Lang
 
 from app import brain as brain_mod
 from app import translate as translate_mod
@@ -273,7 +273,7 @@ async def test_location_is_sent_with_emergency_questions(monkeypatch):
     reply = await brain.handle(text("nearest hospital"))
     body = json.loads(seen[0].content)
     assert (body["lat"], body["lng"]) == (15.5, 73.8)
-    assert "Sample Hospital https://maps.google.com/?q=15.5,73.8" in reply
+    assert "[1] Sample Hospital https://maps.google.com/?q=15.5,73.8" in reply
     clock.now += 61 * 60
     await brain.handle(text("nearest hospital"))
     assert "lat" not in json.loads(seen[1].content)
@@ -431,3 +431,31 @@ async def test_no_token_means_english(monkeypatch):
     monkeypatch.setenv("K_SERVICE", "ty-bots")
     fake_http(monkeypatch, lambda req: httpx.Response(500))
     assert await Translator("https://translate.example").text("Hello.", Lang.hi) == "Hello."
+
+
+def test_places_follow_citations_numbered_with_short_links():
+    from app.brain import sources
+
+    place = {
+        "name": "Sample Clinic",
+        "lat": 15.498912345678,
+        "lng": 73.827812345678,
+        "category": "clinic",
+        "typical_visit_minutes": 0,
+        "source": "places",
+    }
+    answer = GuideAnswer.model_validate(
+        {
+            "text": "Two clinics are close [1].",
+            "citations": [{"title": "Goa health", "url": "https://w.example/h"}],
+            "emergency_places": [
+                {**place, "id": "c1"},
+                {**place, "id": "c2", "name": "Other Clinic"},
+            ],
+        }
+    )
+    assert sources(answer).split("\n") == [
+        "[1] Goa health https://w.example/h",
+        "[2] Sample Clinic https://maps.google.com/?q=15.4989,73.8278",
+        "[3] Other Clinic https://maps.google.com/?q=15.4989,73.8278",
+    ]

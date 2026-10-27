@@ -276,13 +276,16 @@ def names(it: Itinerary) -> list[str]:
 
 
 def sources(answer: GuideAnswer) -> str:
-    """Numbered to match the [n] markers in the answer text; never translated."""
+    """Numbered to match the [n] markers in the answer text; never translated. Nearby places
+    follow, numbered on, one per line, with a short map link (4 decimals is about 10 m)."""
     lines = [
         f"[{i}] {c.title}" + (f" {c.url}" if c.url else "")
         for i, c in enumerate(answer.citations, 1)
     ]
+    first = len(lines) + 1
     lines += [
-        f"{p.name} https://maps.google.com/?q={p.lat},{p.lng}" for p in answer.emergency_places
+        f"[{i}] {p.name} https://maps.google.com/?q={round(p.lat, 4)},{round(p.lng, 4)}"
+        for i, p in enumerate(answer.emergency_places, first)
     ]
     return "\n".join(lines)
 
