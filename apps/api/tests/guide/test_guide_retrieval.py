@@ -2,6 +2,7 @@
 
 import numpy as np
 import pytest
+
 from guide.retrieval import embed
 from guide.retrieval.retrieve import Filters, TripContext, fuse, rank, search
 
