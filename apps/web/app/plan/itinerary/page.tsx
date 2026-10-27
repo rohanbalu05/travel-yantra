@@ -51,6 +51,13 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
     }
   };
   const { busy, said, revise } = useRevise(planId, it.lang);
+  // After a revise, the stops that are new on a day flash once, as in the prototype.
+  const [seen, setSeen] = useState(it);
+  const [before, setBefore] = useState<Itinerary | null>(null);
+  if (seen !== it) {
+    setBefore(seen);
+    setSeen(it);
+  }
 
   const opts = it.transport ?? [];
   // The way the days were built, not what is highlighted on Options: switching is a revise there.
@@ -62,6 +69,8 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
   const pace = it.request.constraints?.pace;
   const day = it.days[sel];
   const rows = day ? dayRows(day, it) : [];
+  const was = before?.days.find((d) => d.date === day?.date);
+  const isNew = (id: string) => !!was && !(was.stops ?? []).some((s) => s.id === id);
   const travelMin = (day?.legs ?? []).reduce((a, l) => a + l.minutes, 0);
   const travelCost = (day?.legs ?? []).reduce((a, l) => a + l.cost_inr, 0);
   const stay = it.stays?.[0];
@@ -119,7 +128,7 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
             ))}
           </div>
           {day && (
-            <div id="day-panel" role="tabpanel" aria-labelledby={`tab-${sel}`}>
+            <div id="day-panel" key={day.date} className="day-in" role="tabpanel" aria-labelledby={`tab-${sel}`}>
               <div className="day-sum">
                 <span><b>{t("Day")}</b><span>{dayLabel(day.date, lang)}</span></span>
                 <span><b>{t("Stops")}</b><span>{(day.stops ?? []).length}</span></span>
@@ -128,7 +137,7 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
               <div>
                 {rows.map((r, i) =>
                   r.kind === "stop" ? (
-                    <div className="it-row" key={i}>
+                    <div className={isNew(r.place.id) ? "it-row chg" : "it-row"} key={`${r.place.id}-${i}`}>
                       <span className="it-time">{r.at ? clock(r.at.start) : duration(r.place.typical_visit_minutes)}</span>
                       <span className="mk mk-stop">{r.n}</span>
                       <div className="it-body">

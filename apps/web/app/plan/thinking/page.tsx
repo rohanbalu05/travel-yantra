@@ -46,15 +46,16 @@ function title(body: PlanBody | null, s: PlanState, t: (text: string, vars?: Var
   return dest.length ? t("Planning your {dest} trip", { dest: dest.join(` ${t("and")} `) }) : t("Planning your trip");
 }
 
-function AgentCard({ agent, find, planning }: { agent: Agent; find: string | null; planning: boolean }) {
+function AgentCard({ agent, find, planning, n }: { agent: Agent; find: string | null; planning: boolean; n: number }) {
   const { t } = useI18n();
   const a = AGENT_INFO[agent];
   return (
-    <article className="agent" aria-label={t("{name} specialist", { name: t(a.name) })}>
+    // The prototype's motion: cards come in one after another; Working turns to Done; the bar fills.
+    <article className="agent" style={{ animationDelay: `${n * 90}ms` }} aria-label={t("{name} specialist", { name: t(a.name) })}>
       <div className="agent-top">
         <span className="agent-ic"><svg className="ic" viewBox="0 0 24 24" aria-hidden="true">{a.icon}</svg></span>
         <div><b>{t(a.name)}</b><span className="agent-sub">{t(a.sub)}</span></div>
-        {find ? <span className="st st-ok">{t("Done")}</span> : <span className="st st-wait">{planning ? t("Working") : t("Waiting")}</span>}
+        {find ? <span key="done" className="st st-ok swap-in">{t("Done")}</span> : <span key="wait" className="st st-wait">{planning ? t("Working") : t("Waiting")}</span>}
       </div>
       <div className="bar"><i className={find ? undefined : planning ? "run" : undefined} style={{ transform: find ? "scaleX(1)" : planning ? undefined : "scaleX(0)" }} /></div>
       <ul className="finds">
@@ -213,7 +214,7 @@ export default function PlanThinking() {
         <div className="split">
           <div className="main" style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             <div className="agents">
-              {AGENTS.map((a) => <AgentCard key={a} agent={a} find={state.agents[a]} planning={planning && state.status === "running"} />)}
+              {AGENTS.map((a, i) => <AgentCard key={a} n={i} agent={a} find={state.agents[a]} planning={planning && state.status === "running"} />)}
             </div>
           </div>
           <aside className="side" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -234,7 +235,7 @@ export default function PlanThinking() {
             </div>
           </div>
         ) : state.status !== "needs_input" && (
-          <div className="ready" aria-live="polite">
+          <div className="ready" key={state.status} aria-live="polite">
             {state.status === "done" ? (
               <>
                 <div><b>{t("Your plan is ready")}</b><span>{ways > 1 ? t("{ways} ways to get there, compared for all of you.", { ways }) : t("Checked stop by stop.")}</span></div>

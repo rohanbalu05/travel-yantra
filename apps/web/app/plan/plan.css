@@ -149,8 +149,20 @@
   .it-row,.it-row:has(.it-swap){grid-template-columns:62px 30px minmax(0,1fr)}
   .it-swap{grid-column:3;justify-self:start;margin-top:8px}
 }
+/* The prototype's motion (QA #99) */
+.agent{animation:show .45s ease-out both}
+.swap-in{animation:show .45s ease-out both}
+.ready{animation:show .45s ease-out both}
+.day-in{animation:show .35s ease-out both}
+.day-in .it-row{animation:show .4s ease-out both}
+.day-in .it-row:nth-child(2){animation-delay:60ms}
+.day-in .it-row:nth-child(3){animation-delay:120ms}
+.day-in .it-row:nth-child(4){animation-delay:180ms}
+.day-in .it-row:nth-child(n+5){animation-delay:240ms}
+.it-row.chg{background:#FBF1DE;animation:show .4s ease-out both,flash 1.2s ease-out}
+@keyframes flash{from{background:#F3D79F}to{background:#FBF1DE}}
 @media (prefers-reduced-motion:reduce){
-  .finds li,.checks li,.fix{animation:none}
+  .finds li,.checks li,.fix,.agent,.swap-in,.ready,.day-in,.day-in .it-row,.it-row.chg{animation:none}
   .bar i.run{animation:none;transform:scaleX(.5)}
 }
 .lang-note{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:0 0 16px}
