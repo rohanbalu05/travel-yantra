@@ -50,7 +50,7 @@ def _adjective(word: str) -> bool:
 def slop(text: str) -> list[str]:
     """Every banned phrase or shape found, in a readable form. Empty means clean."""
     low = text.lower()
-    # \w* after the phrase: "delves", "boasted" and "tapestries" are the same slop.
+    # \w* after the stem: "delves" and "boasted" are the same slop as "delve" and "boasts".
     found = [p for p in BANNED if re.search(rf"\b{re.escape(p.removesuffix('s'))}\w*", low)]
     found += [f"whether…or: {m.group(0)!r}" for m in WHETHER.finditer(text)]
     for m in _TRIPLE.finditer(text):
