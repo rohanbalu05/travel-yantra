@@ -22,6 +22,7 @@ COLS = "id, poi_id, city, title, body, is_legend, source_name, source_url"
 #: source URL (field notes, "general reference") are left out, and thin sources make a
 #: shorter story (rule 9).
 LINKED = "coalesce(source_url, '') <> ''"
+LINKED_C = "coalesce(c.source_url, '') <> ''"  # the same, for the joined query
 #: Story material first. Practical notes (tickets, water) never make a story.
 STORY_ORDER = """CASE chunk_type WHEN 'hook' THEN 0 WHEN 'story' THEN 1 WHEN 'sensory' THEN 2
     WHEN 'fact' THEN 3 ELSE 4 END"""
@@ -105,7 +106,7 @@ def gather(db: Any, subject: Subject, length_min: int) -> list[Fact]:
             rows += db.execute(
                 f"SELECT {', '.join('c.' + c.strip() for c in COLS.split(','))} "
                 "FROM doc_chunk c JOIN poi p ON p.id = c.poi_id "
-                f"WHERE NOT c.retired AND c.chunk_type <> 'practical' AND {LINKED.replace('source_url', 'c.source_url')} AND c.city = %s "
+                f"WHERE NOT c.retired AND c.chunk_type <> 'practical' AND {LINKED_C} AND c.city = %s "
                 f"ORDER BY p.popularity DESC NULLS LAST, {STORY_ORDER.replace('chunk_type', 'c.chunk_type')}, "
                 "c.id LIMIT %s",
                 (subject.city, cap - len(rows)),

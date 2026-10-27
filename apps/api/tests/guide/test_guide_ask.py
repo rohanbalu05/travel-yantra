@@ -381,6 +381,12 @@ def test_a_plain_hospital_question_still_lists_the_nearest() -> None:
     ("ambulance near the Basilica of Bom Jesus", "Basilica of Bom Jesus"),
     ("nearest hospital", None), ("pharmacy near me", None), ("hospital near my hotel", None),
     ("in an emergency what do I do", None),
+    # review round 2: times, vehicles and generic places are never names
+    ("I need a doctor at night", None), ("chest pain in the car", None), ("help in the morning", None),
+    ("accident at the airport", None), ("stolen at the station", None),
+    ("ambulance at my hotel in Panaji", "Panaji"),  # a later preposition still counts
+    ("hospital near panaji", "panaji"),  # a corpus city, however it is written
+    ("hospital near calangute", None),  # lowercase and not a corpus city: not trusted
 ])  # fmt: skip
 def test_named_place(question, name) -> None:
     assert ask_mod.named_place(question) == name
@@ -431,3 +437,17 @@ def test_a_named_place_google_cannot_find_falls_back_to_the_city() -> None:
     req = GuideQuestion(question="hospital near Nowhereville", city="Goa")
     answer = asyncio.run(ask(req, CityOnly(), Spy(), client))
     assert "couldn't reach Google Maps" in answer.text  # located (city), then nearby failed
+
+
+def test_a_places_match_far_from_the_trip_is_ignored() -> None:
+    class FarAway(Geocode):
+        def __call__(self, method, url, headers, body, timeout):
+            out = super().__call__(method, url, headers, body, timeout)
+            if url.endswith("/places:searchText"):  # a "Panaji" business in another state
+                out["places"][0]["location"] = {"latitude": 28.61, "longitude": 77.21}
+            return out
+
+    t = FarAway()
+    client = PlacesClient(cache=MemoryCache(), transport=t, api_key="test-key")
+    asyncio.run(ask(GuideQuestion(question="hospital near Panaji", city="Goa"), CityOnly(), Spy(), client))
+    assert t.centres == [(15.35, 74.05)]  # the trip's city, not Delhi

@@ -93,31 +93,59 @@ def _poi(db: Any, name: str | None, city: str | None) -> tuple[int, float, float
 
 
 #: "hospital near Panaji", "police station in Calangute": the place the traveller named.
-NAMED = re.compile(
-    r"\b(?:near|in|at|around|close to|nearest to)\s+(?:the\s+)?([a-z][\w'.-]*(?:\s+[a-z][\w'.-]*){0,3}?)"
-    r"\s*(?:[?.!,]|$|\s+(?:please|now|urgently|right now|today|tonight)\b)",
+#: Every preposition is a starting point, so "at my hotel in Panaji" still finds Panaji.
+PREPOSITION = re.compile(r"\b(?:near|in|at|around|close to|nearest to)\s+(?:the\s+)?", re.I)
+NAME_AT = re.compile(
+    r"([^\W\d][\w'.-]*(?:\s+(?!(?:near|in|at|around|please|now|urgently|today|tonight)\b)"
+    r"[^\W\d][\w'.-]*){0,3}?)\s*(?=[?.!,]|$|\s+(?:near|in|at|around|please|now|urgently|today|tonight)\b)",
     re.I,
 )
-NOT_A_PLACE = {"me", "here", "my", "our", "this", "that", "a", "an", "case", "emergency", "india",
-               "pain", "trouble", "danger", "the", "it", "there", "hotel", "my hotel"}  # fmt: skip
+#: Never places, however they are written ("at night", "in the car", "at the station").
+NOT_A_PLACE = {
+    "me", "here", "my", "our", "this", "that", "a", "an", "case", "emergency", "india", "pain",
+    "trouble", "danger", "the", "it", "there", "hotel", "night", "morning", "evening", "afternoon",
+    "day", "car", "taxi", "cab", "auto", "bus", "train", "flight", "station", "airport", "road",
+    "street", "highway", "beach", "time", "hurry", "front", "back", "middle", "town", "city",
+}  # fmt: skip
+#: A Places match further than this from the traveller's stop or city is someone else's place.
+NAMED_MAX_KM = 150
 
 
 def named_place(question: str) -> str | None:
-    """The place a question names for its help, if any ("near Panaji" -> "Panaji")."""
-    for m in NAMED.finditer(question):
+    """The place a question names for its help, if any ("near Panaji" -> "Panaji"): a name
+    written as one (capitalised) or a corpus city however it is written ("near panaji")."""
+    for p in PREPOSITION.finditer(question):
+        m = NAME_AT.match(question, p.end())
+        if not m:
+            continue
         name = m.group(1).strip(" .")
-        if name.lower() not in NOT_A_PLACE and name.split()[0].lower() not in NOT_A_PLACE:
+        words = name.lower().split()
+        if not words or name.lower() in NOT_A_PLACE or words[0] in NOT_A_PLACE or len(name) < 3:
+            continue
+        if name[0].isupper() or corpus_city(name):
             return name
     return None
+
+
+def _city_centre(db: Any, city: str | None) -> tuple[float, float] | None:
+    if not city:
+        return None
+    row = db.execute(
+        "SELECT avg(lat), avg(lng) FROM poi WHERE lower(city) = lower(%s)", (corpus_city(city) or city,)
+    ).fetchone()
+    return (float(row[0]), float(row[1])) if row and row[0] is not None else None
 
 
 def _locate(
     db: Any, req: GuideQuestion, places: PlacesClient | None = None
 ) -> tuple[float, float] | None:
     """Where to search for help: the traveller; else the place the question names (a
-    corpus place, or Google's match for the name); else their stop; else their city."""
+    corpus place, or Google's match for the name near the trip); else their stop; else
+    their city."""
     if req.lat is not None and req.lng is not None:
         return req.lat, req.lng
+    stop = _poi(db, req.place_name, req.city)
+    known = (stop[1], stop[2]) if stop else _city_centre(db, req.city)
     if name := named_place(req.question):
         if poi := _poi(db, name, req.city):
             return poi[1], poi[2]
@@ -125,17 +153,9 @@ def _locate(
             found = places.search(f"{name}, India", limit=1) if places else []
         except Exception:  # no key, quota, network: fall back to the stop and city
             found = []
-        if found:
+        if found and (known is None or _km(*known, found[0].lat, found[0].lng) <= NAMED_MAX_KM):
             return found[0].lat, found[0].lng
-    if poi := _poi(db, req.place_name, req.city):
-        return poi[1], poi[2]
-    if req.city:
-        row = db.execute(
-            "SELECT avg(lat), avg(lng) FROM poi WHERE lower(city) = lower(%s)", (req.city,)
-        ).fetchone()
-        if row and row[0] is not None:
-            return float(row[0]), float(row[1])
-    return None
+    return known
 
 
 def _km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
