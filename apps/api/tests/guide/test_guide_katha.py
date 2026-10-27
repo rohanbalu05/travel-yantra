@@ -444,3 +444,40 @@ def test_pregenerate_logs_model_calls_at_info(monkeypatch) -> None:
     log_calls()
     assert logging.getLogger("guide.katha").isEnabledFor(logging.INFO)
     assert logging.getLogger("core.llm").isEnabledFor(logging.INFO)
+
+
+# --- Kannada, like Hindi (rule 12) ---
+
+
+@pytest.mark.parametrize("phrase", checks.BANNED_LANG["kn"])
+def test_every_kannada_banned_phrase_is_caught(phrase) -> None:
+    assert phrase in checks.slop(f"ಅರಮನೆ {phrase} ಕಲ್ಲಿನ ಗಂಟೆ ಇದೆ.", "kn")
+
+
+def test_kannada_cues_counts_and_band() -> None:
+    assert checks.legend_told("ಜನ ಹೇಳುತ್ತಾರೆ, ಇಲ್ಲಿ ಒಬ್ಬ ರಾಕ್ಷಸ ಇದ್ದ [1].", "kn")
+    assert checks.legend_told("ತಲಕಾಡಿನ ಶಾಪದ ಪ್ರತೀತಿ ಇದೆ.", "kn")
+    assert not checks.legend_told("ಇಲ್ಲಿ ಒಬ್ಬ ರಾಕ್ಷಸ ಇದ್ದ [1].", "kn")
+    assert checks.words("ಮೈಸೂರು ಅರಮನೆಯನ್ನು 1912ರಲ್ಲಿ ಕಟ್ಟಲಾಯಿತು [1, 2].", "kn") == 4
+    assert checks.band(2, "kn") == (165, 300) and checks.band(2, "hi") == (242, 440)
+    assert checks.band(2) == checks.BANDS[2]
+    assert checks.slop("ಅರಮನೆಯ ಮುಂದೆ ಮಲ್ಲಿಗೆ ಮಾರುವವರು ಕುಳಿತಿದ್ದಾರೆ.", "kn") == []
+
+
+def test_kannada_is_told_from_the_same_outline_through_katha(monkeypatch) -> None:
+    import sys
+
+    from guide.katha.facts import Subject
+
+    k = sys.modules["guide.katha"]
+    subject = Subject(kind="place", name="Devaraja Market", city="Mysuru", poi_ids=[1])
+    monkeypatch.setattr(k, "resolve", lambda *a: subject)
+    monkeypatch.setattr(k, "gather", lambda *a: long_facts())
+    db, model = CacheDB(), LongWinded()
+    req = KathaRequest(subject_kind="place", subject="x", length_min=2, lang="kn")
+    kn = asyncio.run(katha(req, db, model))
+    assert kn.lang == "kn" and model.labels.count("katha outline") == 1
+    en_notes, kn_notes = (n for _, n in db.rows.values())
+    assert kn_notes["outline"] == en_notes["outline"] and kn_notes["key_inputs"][-1] == "kn"
+    low, high = checks.band(2, "kn")
+    assert low <= checks.words(kn.text, "kn") <= high

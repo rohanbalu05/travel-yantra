@@ -122,14 +122,27 @@ No title, no headings, no lists, no notes to the editor, nothing before the firs
 
 #: Rule 12: every language is written from the shared outline in its own voice, never
 #: translated. The facts stay in English; the model reads them and tells them in Hindi.
+def _voice_rule(lang: str, how: str, legend_openers: str) -> str:
+    return (
+        f"Language: {how}, not a translation of English. Say names the way its speakers say "
+        "them. Keep the label lines ([HISTORY], [LEGEND], [DISPUTED]) in English and the [n] "
+        f"citations as digits. A legend opens the way its tellers do: {legend_openers}. "
+        f"Also never use: {', '.join(checks.BANNED_LANG[lang])}."
+    )
+
+
 VOICE = {
-    "hi": (
-        "Language: write in Hindi, in Devanagari, the way a good storyteller speaks it: everyday "
-        "Hindustani with short sentences, not Sanskritised or official Hindi, and not a "
-        "translation of English. Say names the way Hindi speakers say them. Keep the label lines "
-        "([HISTORY], [LEGEND], [DISPUTED]) in English and the [n] citations as digits. A legend "
-        'opens the way Hindi tellers do: "लोग कहते हैं...", "कहा जाता है...". Also never use: '
-        + ", ".join(checks.BANNED_LANG["hi"]) + "."
+    "hi": _voice_rule(
+        "hi",
+        "write in Hindi, in Devanagari, the way a good storyteller speaks it: everyday "
+        "Hindustani with short sentences, not Sanskritised or official Hindi",
+        '"लोग कहते हैं...", "कहा जाता है..."',
+    ),
+    "kn": _voice_rule(
+        "kn",
+        "write in Kannada, in Kannada script, the way a storyteller in Mysuru tells it aloud: "
+        "everyday spoken Kannada with short sentences, not bookish (granthika) Kannada",
+        '"ಜನ ಹೇಳುತ್ತಾರೆ...", "ಎಂಬ ಪ್ರತೀತಿ ಇದೆ..."',
     ),
 }
 LANGS = {"en", *VOICE}
@@ -167,7 +180,7 @@ def draft_prompt(
     subject: Subject, length: int, outline: Outline, chapter: int, facts: list[Fact], lang: str = "en"
 ) -> str:
     n = len(outline.chapters)
-    low, high = checks.BANDS[length]
+    low, high = checks.band(length, lang)
     lo, hi = low * 11 // 10 // n, high * 9 // 10 // n  # aim inside the band, not at its edge
     place = "the whole story" if n == 1 else f"chapter {chapter + 1} of {n}"
     if n > 1 and chapter == n - 1:
@@ -270,7 +283,7 @@ def _words(text: str, lang: str = "en") -> int:
 async def _trim(model: Any, subject: Subject, text: str, length: int, lang: str = "en") -> tuple[str, str | None]:
     """(text, note): one cut when the story runs past its band. The cut is kept only if it
     lands inside the band and cites nothing the story did not already cite."""
-    low, high = checks.BANDS[length]
+    low, high = checks.band(length, lang)
     if (before := _words(text, lang)) <= high:
         return text, None
     cut = await _timed(f"trim {subject.name} {length}min {lang}", model.text(
@@ -292,7 +305,7 @@ async def plan(model: Any, subject: Subject, length: int, facts: list[Fact]) -> 
 async def tell(model: Any, subject: Subject, length: int, facts: list[Fact], outline: Outline,
                lang: str = "en") -> tuple[KathaStory | None, dict, list[str], str]:  # fmt: skip
     """Steps 3-5 in one language: (story or None, notes, problems, the text that was checked)."""
-    low, _ = checks.BANDS[length]
+    low, _ = checks.band(length, lang)
     words = low * 11 // 10 // max(len(outline.chapters), 1)
     texts, critiques = [], []
     for i in range(len(outline.chapters)):

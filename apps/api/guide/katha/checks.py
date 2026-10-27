@@ -29,10 +29,26 @@ BANNED_LANG = {
         "मंत्रमुग्ध कर", "समय में पीछे", "अवश्य देख", "ज़रूर देखें", "जरूर देखें",
         "निष्कर्ष में", "निष्कर्षतः", "का मिश्रण", "कालातीत", "समृद्ध विरासत", "गोद में बसा",
     ],
+    "kn": [
+        "ಬೆರಗುಗೊಳಿಸುವ", "ಉಸಿರುಬಿಗಿ", "ಮನಮೋಹಕ", "ವಿಸ್ಮಯಕಾರಿ", "ರೋಮಾಂಚಕ", "ಗಿಜಿಗುಡುವ",
+        "ಶ್ರೀಮಂತ ಪರಂಪರೆ", "ಸಮೃದ್ಧ ಪರಂಪರೆ", "ಕಾಲಾತೀತ", "ಗುಪ್ತ ರತ್ನ", "ಅಡಗಿರುವ ರತ್ನ",
+        "ಇತಿಹಾಸದಲ್ಲಿ ಮುಳುಗಿ", "ಸಾಕ್ಷಿಯಾಗಿ ನಿಂತಿದೆ", "ಕಾಲದಲ್ಲಿ ಹಿಂದಕ್ಕೆ", "ನೋಡಲೇಬೇಕಾದ",
+        "ಭೇಟಿ ನೀಡಲೇಬೇಕಾದ", "ಕೊನೆಯದಾಗಿ ಹೇಳುವುದಾದರೆ", "ಒಟ್ಟಿನಲ್ಲಿ ಹೇಳುವುದಾದರೆ", "ಮಡಿಲಲ್ಲಿ",
+    ],
 }  # fmt: skip
 
 #: Read-aloud budgets (rule 10): about 300, 750 and 1,500 words.
 BANDS = {2: (220, 400), 5: (580, 950), 10: (1150, 1850)}
+#: The same minutes hold a different number of words in each language. Hindi keeps its
+#: postpositions apart (the live Mysore Palace pair: 377 Hindi words for 344 English);
+#: Kannada joins them into long words, so fewer (an estimate; recheck with live samples).
+WORD_FACTOR = {"en": 1.0, "hi": 1.1, "kn": 0.75}
+
+
+def band(length_min: int, lang: str = "en") -> tuple[int, int]:
+    low, high = BANDS[length_min]
+    f = WORD_FACTOR.get(lang, 1.0)
+    return round(low * f), round(high * f)
 
 #: Rule 9: a legend is told as a legend.
 LEGEND_CUES = re.compile(
@@ -44,6 +60,10 @@ LEGEND_CUES_LANG = {
     "hi": re.compile(
         r"लोग कहते|कहा जाता|कहते हैं|किंवदंती|दंतकथा|लोककथा|कथा है|कहानी है कि|मान्यता|मानते हैं"
         r"|माना जाता|किस्सा|क़िस्सा|सुनाते हैं"
+    ),
+    "kn": re.compile(
+        r"ಹೇಳುತ್ತಾರೆ|ಹೇಳಲಾಗುತ್ತದೆ|ಎನ್ನುತ್ತಾರೆ|ಎನ್ನಲಾಗುತ್ತದೆ|ದಂತಕಥೆ|ಐತಿಹ್ಯ|ಪ್ರತೀತಿ"
+        r"|ನಂಬಿಕೆ|ನಂಬುತ್ತಾರೆ|ಕಥೆ ಇದೆ|ಕತೆ ಇದೆ|ಎಂಬ ಕಥೆ|ಜಾನಪದ"
     ),
 }
 
@@ -127,7 +147,7 @@ def problems(segments: list[tuple[str, str]], n_facts: int, length_min: int, lan
             out.append(f"legend not told as legend: {text[:60]!r}")
     full = "\n\n".join(t for _, t in segments)
     out += [f"slop: {s}" for s in slop(full, lang)]
-    low, high = BANDS[length_min]
+    low, high = band(length_min, lang)
     if not low <= (n := words(full, lang)) <= high:
         out.append(f"length {n} words, want {low}-{high} for {length_min} min")
     return out

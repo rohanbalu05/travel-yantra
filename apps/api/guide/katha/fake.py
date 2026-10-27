@@ -53,7 +53,8 @@ class FakeKathaModel:
             return f"(sample) A plain story. {prompt}"
         target = int(re.search(r"between (\d+) and \d+ words", prompt).group(1))
         facts = _facts(prompt)
-        cue = "लोग कहते हैं कि" if "Language: write in Hindi" in prompt else "People here say"
+        cue = ("लोग कहते हैं कि" if "Language: write in Hindi" in prompt
+               else "ಜನ ಹೇಳುತ್ತಾರೆ," if "Language: write in Kannada" in prompt else "People here say")  # fmt: skip
         paras, words, i = [], 0, 0
         while words < target and facts:
             n, legend, first = facts[i % len(facts)]
