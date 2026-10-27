@@ -162,6 +162,19 @@ Approved by Rohan (V3-V).
 - ty-api env: `KATHA_AUDIO_BUCKET`, and `KATHA_AUDIO_BASE_URL` =
   `https://storage.googleapis.com/<bucket>`.
 
+## Google sign-in (V3-AG)
+
+- Firebase is on the trial project itself, so the Firebase project id is
+  `project-cea09bbb-b5f7-4fc4-95b`. Both ty-web URLs are authorized domains in
+  Firebase Auth.
+- ty-api env: `TY_FIREBASE_PROJECT_ID` = the project id. TY1 verifies ID
+  tokens against Google's public certificates, with no key file.
+- ty-web build args come from GitHub repo variables, passed by `deploy.yml`:
+  `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`,
+  `NEXT_PUBLIC_FIREBASE_PROJECT_ID` and `NEXT_PUBLIC_FIREBASE_APP_ID`. These
+  are public client config, but the commit hooks block the key pattern, so
+  they aren't in the repo. If any is empty, sign-in is off.
+
 ## Logging
 
 - Exclusion `ty-bots-verify-token` on the `_Default` sink drops ty-bots

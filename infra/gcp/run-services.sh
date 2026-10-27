@@ -72,6 +72,9 @@ case "${1:-}" in
       ${sec:+"$sec"}
     ;;
   ty-web)
+    # One-time setup only: this build has no Firebase config (sign-in off). Normal
+    # ty-web builds come from deploy.yml, which adds the NEXT_PUBLIC_FIREBASE_*
+    # repo variables; the next push to apps/web restores sign-in.
     build ty-web infra/web/Dockerfile "$(url_of ty-api)"
     gcloud run deploy ty-web --image "$R-docker.pkg.dev/$P/ty/ty-web:$SHA" "${common[@]}" \
       --service-account "ty-web-run@$P.iam.gserviceaccount.com" --memory 512Mi \
