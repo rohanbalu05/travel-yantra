@@ -60,6 +60,9 @@ from .timetable import BOARD_MIN, Journey, get_timetable
 
 WEIGHTS = Weights(alpha=1.0, beta=0.0, gamma=30.0)  # minutes, plus 30 min per change
 CHANGE_WEIGHT = 0.25  # balanced score: one change counts as a quarter of the best time or cost
+OVERNIGHT_PENALTY = 1.5  # balanced score: an overnight train when a daytime option exists (see _overnight_penalised)
+SHORT_TRIP_MIN = 8 * 60  # a daytime option this fast makes the trip "short"
+NIGHT_END_HOUR = 5  # a train moving between midnight and 05:00 is overnight
 MODE_ORDER = {Mode.rail: 0, Mode.road: 1, Mode.air: 2}
 SEATS_PER_CAR = 4  # road fares are per vehicle; rail and air fares are per person
 AIRPORT_KM = 60  # airports considered for a city
@@ -388,7 +391,7 @@ class CompareService:
         return CompareResponse(
             origin=CityRef(name=src.name, lat=src.lat, lng=src.lon),
             destination=CityRef(name=dst.name, lat=dst.lat, lng=dst.lon),
-            date=day, rank_by=req.rank_by, options=rank(found, req.rank_by), unavailable=unavailable,
+            date=day, rank_by=req.rank_by, options=rank(found, req.rank_by, req.travellers), unavailable=unavailable,
             notes=[_rail_note(self.rail_source), _air_note(found)],
         )
 
@@ -407,14 +410,32 @@ def _air_note(found: list[Found]) -> str:
     return "Air uses estimated fares and times; seller links search the same route and date."
 
 
-def rank(found: list[Found], rank_by: RankBy) -> list[RankedOption]:
+def is_overnight(opt: TransportOption) -> bool:
+    """A train ride that runs past midnight, or before 05:00."""
+    return any(leg.mode is Mode.rail and (leg.arrive.date() > leg.depart.date() or leg.depart.hour < NIGHT_END_HOUR
+                                          or leg.arrive.hour < NIGHT_END_HOUR)
+               for leg in opt.legs)
+
+
+def _overnight_penalised(f: Found, found: list[Found], travellers: int) -> bool:
+    """An overnight train is pushed down when a daytime option exists and either the trip
+    is short (that option takes at most SHORT_TRIP_MIN) or one person travels alone. When
+    every option is overnight, or the night train is the only one, it keeps its place."""
+    if not is_overnight(f.option):
+        return False
+    day = [g for g in found if not is_overnight(g.option)]
+    return bool(day) and (travellers == 1 or min(g.option.total_minutes for g in day) <= SHORT_TRIP_MIN)
+
+
+def rank(found: list[Found], rank_by: RankBy, travellers: int = 1) -> list[RankedOption]:
     if not found:
         return []
     best_t = min(f.option.total_minutes for f in found) or 1
     best_c = min(f.option.total_cost_inr for f in found) or 1
 
     def score(f: Found) -> float:
-        return f.option.total_minutes / best_t + f.option.total_cost_inr / best_c + CHANGE_WEIGHT * f.changes
+        night = OVERNIGHT_PENALTY if _overnight_penalised(f, found, travellers) else 0.0
+        return f.option.total_minutes / best_t + f.option.total_cost_inr / best_c + CHANGE_WEIGHT * f.changes + night
 
     keys = {
         "balanced": lambda f: (score(f), MODE_ORDER[f.mode]),

@@ -32,7 +32,11 @@ Only `origin` and `destination` are required. Cities come from a sample table in
 `compare.py` (`CITIES`, `ALIASES`; includes Coorg/Madikeri, Hampi and
 Chikmagalur); an unknown city or the same city twice gives 422.
 `rank_by` is `balanced` (time and cost relative to the best, plus a quarter per
-change), `time`, `cost` or `changes`.
+change, plus 1.5 for an overnight train when a daytime option exists and the
+trip is short, its daytime option at most 8 h, or one person travels alone),
+`time`, `cost` or `changes`. An overnight train is one running past midnight or
+before 05:00; when every option is overnight, or it is the only one, it keeps
+its place.
 
 Response: `origin`, `destination`, `date`, `rank_by`, `options[]` and
 `unavailable[]` (a mode with no route and the reason), plus `notes[]`. Each option

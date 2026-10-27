@@ -31,9 +31,8 @@ Maharashtra, Kerala, Tamil Nadu, Andhra Pradesh; 1,173 stations, 1,518 trains).
 `sample/rail_stations.json` and `sample/rail_trains.json` are built from
 `sample_raw/`, a tiny hand-made dataset in the datameet format: 16 stations, 14
 FICTIONAL trains numbered 90001-90014. They are used only when
-`ROUTES_RAIL=sample` is set, when the real files are missing, by the PNR mock
-(`sample_pnrs.json` names sample trains) and by unit tests that need a small
-fixed network.
+`ROUTES_RAIL=sample` is set, when the real files are missing, and by unit
+tests that need a small fixed network.
 
 ```
 python apps/api/routes/scripts/build_rail.py --src apps/api/routes/data/sample_raw --out apps/api/routes/data/sample
@@ -42,4 +41,5 @@ python apps/api/routes/scripts/build_rail.py --src apps/api/routes/data/sample_r
 ## Other files
 
 - `sample_stays.json`: fictional stays, used when SerpApi Hotels is off.
-- `sample_pnrs.json`: fictional PNRs for the PNR timeline mock.
+- `sample_pnrs.json`: fictional PNRs, statuses and travellers for the PNR timeline mock, on real
+  datameet trains (17309 and 17311 Yesvantpur-Vasco, 17310 Madgaon-Yesvantpur).

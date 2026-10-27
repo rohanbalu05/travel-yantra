@@ -1,7 +1,7 @@
 [
   {
     "pnr": "1234567890",
-    "train": "90001", "class": "3A", "date": "2026-12-11", "from": "SBC", "to": "MAO",
+    "train": "17309", "class": "3A", "date": "2026-12-11", "from": "YPR", "to": "VSG",
     "party": "goa_family",
     "berths": ["B2 34", "B2 33", "B2 36", "B2 35"],
     "events": [
@@ -13,7 +13,7 @@
   },
   {
     "pnr": "4521683907",
-    "train": "90002", "class": "3A", "date": "2026-12-10", "from": "SBC", "to": "MAO",
+    "train": "17311", "class": "3A", "date": "2026-12-10", "from": "YPR", "to": "VSG",
     "party": "goa_family",
     "berths": ["B2 9", "B2 12", "B2 10", "B2 11"],
     "events": [
@@ -22,7 +22,7 @@
   },
   {
     "pnr": "4521690144",
-    "train": "90010", "class": "3A", "date": "2026-12-14", "from": "MAO", "to": "SBC",
+    "train": "17310", "class": "3A", "date": "2026-12-14", "from": "MAO", "to": "YPR",
     "party": "goa_family",
     "berths": ["B1 41", "B1 44", "B1 42", "B1 43"],
     "events": [

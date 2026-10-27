@@ -201,3 +201,36 @@ def test_sample_rail_is_the_fallback(monkeypatch):
     svc = CompareService(road=HaversineRoadProvider(), live=False)
     r = svc.compare(CompareRequest(origin="Bengaluru", destination="Goa", date="2026-12-11", modes=["rail"]))
     assert "sample_rail" in r.options[0].sources and "fictional sample" in r.notes[0]
+
+
+def _opt(mode, depart, minutes, cost):
+    start = dt.datetime.fromisoformat(depart)
+    leg = {"from": "a", "to": "b", "mode": mode, "depart": start.isoformat(),
+           "arrive": (start + dt.timedelta(minutes=minutes)).isoformat(), "minutes": minutes, "cost_inr": cost}
+    return TransportOption(mode=mode, legs=[leg], total_minutes=minutes, total_cost_inr=cost, comfort=3)
+
+
+@pytest.mark.parametrize("origin,dest,depart", [("Bengaluru", "Coorg", "08:00"), ("Coorg", "Bengaluru", "18:00")])
+@pytest.mark.parametrize("travellers", [1, 4])
+def test_coorg_prefers_road_over_the_overnight_train(service, origin, dest, depart, travellers):
+    r = service.compare(CompareRequest(origin=origin, destination=dest, date="2026-11-24", depart_time=depart,
+                                       travellers=travellers))
+    assert r.options[0].option.mode is Mode.road
+    assert any(o.option.mode is Mode.rail for o in r.options)  # still offered, just not first
+
+
+def test_overnight_penalty_rules():
+    night = Found(Mode.rail, _opt("rail", "2026-11-24T20:30", 600, 400), 0, [])
+    short_day = Found(Mode.road, _opt("road", "2026-11-24T08:00", 360, 800), 0, [])
+    long_day = Found(Mode.road, _opt("road", "2026-11-24T08:00", 900, 4000), 0, [])
+    # short trip: the night train drops below the day option, alone or as a family
+    for n in (1, 4):
+        assert [o.option.mode for o in rank([night, short_day], "balanced", n)] == [Mode.road, Mode.rail]
+    # long trip for a family: no penalty, the cheap night train stays first
+    assert rank([night, long_day], "balanced", 4)[0].option.mode is Mode.rail
+    # the only option, or all options overnight: no penalty
+    assert rank([night], "balanced", 1)[0].score == pytest.approx(1 + 1)
+    other_night = Found(Mode.road, _opt("road", "2026-11-24T23:00", 420, 1600), 0, [])
+    assert rank([night, other_night], "balanced", 1)[0].option.mode is Mode.rail
+    # other rank_by orders are left alone
+    assert rank([night, short_day], "cost", 1)[0].option.mode is Mode.rail

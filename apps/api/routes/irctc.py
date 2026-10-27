@@ -198,7 +198,7 @@ def pnr_status(pnr: str, at: dt.datetime | None = None, data_dir: Path = DATA_DI
         statuses = [f"CNF {berth}" for berth in row["berths"]]
     else:
         statuses = [current] * len(people)
-    stations, trains = _rail(SAMPLE_RAIL_DIR)  # sample PNRs name the sample trains
+    stations, trains = _rail_at(DATA_DIR)  # sample PNRs and people on real datameet trains
     train_name = next((t["name"] for t in trains if t["number"] == row["train"]), "")
     a, b = stations[row["from"]], stations[row["to"]]
     return PnrStatus(

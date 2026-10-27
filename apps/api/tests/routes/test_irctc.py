@@ -77,7 +77,8 @@ def test_pnr_timeline_replays_up_to_at():
     done = pnr_status("1234567890", dt.datetime(2026, 12, 11, 20, tzinfo=IST))
     assert done.current_status == "CNF" and done.chart_prepared
     assert [p.status for p in done.passengers][:2] == ["CNF B2 34", "CNF B2 33"]
-    assert done.train == "90001 Sample Bengaluru-Vasco Express" and done.from_.code == "SBC"
+    assert done.train == "17309 Yesvantpur - Vasco DA Gama Exp" and done.from_.code == "YPR"
+    assert done.from_.name == "Yesvantpur JN" and done.to.code == "VSG"
 
 
 def test_pnr_before_booking_and_naive_at():
@@ -88,7 +89,7 @@ def test_pnr_before_booking_and_naive_at():
 def test_return_pnr_matches_prototype():
     s = pnr_status("4521690144", dt.datetime(2026, 10, 27, 12, tzinfo=IST))
     assert [e.status for e in s.timeline] == ["WL 19", "WL 15", "WL 12", "WL 7"]
-    assert s.to.code == "SBC" and s.train.startswith("90010")
+    assert s.to.code == "YPR" and s.train.startswith("17310 ")
 
 
 def test_http_pnr_mock(client):
@@ -108,3 +109,12 @@ def test_card_on_the_real_timetable_from_compare_station_names(monkeypatch):
     card = irctc_card("Yesvantpur JN", "Dabolim", dt.date(2026, 12, 11))
     assert card.train.number == "17309" and card.departs == "15:15" and card.from_.code == "YPR"
     assert "datameet" in card.notes[0]
+
+
+def test_every_sample_pnr_names_a_real_train_that_runs_between_its_stations(monkeypatch):
+    monkeypatch.delenv("ROUTES_RAIL")
+    from routes.irctc import _find_run, _pnrs
+
+    for row in _pnrs().values():
+        t, dep, arr = _find_run(row["from"], row["to"], row["train"], None)
+        assert not t["number"].startswith("900") and dep["code"] == row["from"] and arr["code"] == row["to"]
