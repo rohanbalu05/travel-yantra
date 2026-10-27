@@ -6,7 +6,7 @@ Model calls go through core.llm. Each is logged on logger guide.katha with its
 step, so the live calls behind a taste-gate pack can be counted.
 
 The 10-minute story is written and revised chapter by chapter: each call stays
-well inside core.llm's 20 s budget, and each chapter gets its own hook.
+short enough for one timeout, and each chapter gets its own hook.
 """
 
 from __future__ import annotations
@@ -26,9 +26,10 @@ from .facts import Fact, Subject, fitting_length
 log = logging.getLogger("guide.katha")
 
 ATTEMPTS = 2
+TIMEOUT_S = 60  # per call; long-form output does not fit core.llm's 20 s default
 CHAPTERS = {2: 1, 5: 1, 10: 4}
-#: Labels the contract accepts today. "disputed" folds into "history" (the text
-#: still gives both versions) until StorySegment takes it.
+#: Labels the contract accepts. Anything else folds into "history" (the text keeps
+#: both versions of a disputed claim either way).
 CONTRACT_LABELS = set(typing.get_args(StorySegment.model_fields["label"].annotation))
 LABEL_LINE = re.compile(r"^\s*\[(HISTORY|LEGEND|DISPUTED)\]\s*$", re.M)
 
@@ -169,10 +170,12 @@ def renumber(segments: list[tuple[str, str]], facts: list[Fact]) -> tuple[list[S
 async def _chapter(model: Any, subject, length, outline, i, facts, words) -> tuple[str, str]:
     log.info("katha model call: draft %s ch%d/%d", subject.name, i + 1, len(outline.chapters))
     draft = await model.text(draft_prompt(subject, length, outline, i, facts), tier="flash",
-                             thinking="low", max_output_tokens=3000, temperature=0.7)  # fmt: skip
+                             thinking="low", max_output_tokens=3000, temperature=0.7,
+                             timeout_s=TIMEOUT_S)  # fmt: skip
     log.info("katha model call: critique %s ch%d/%d", subject.name, i + 1, len(outline.chapters))
     reply = await model.text(critique_prompt(subject, outline, draft, words, facts), tier="flash",
-                             thinking="low", max_output_tokens=3500, temperature=0.4)  # fmt: skip
+                             thinking="low", max_output_tokens=3500, temperature=0.4,
+                             timeout_s=TIMEOUT_S)  # fmt: skip
     critique, _, revised = reply.partition("\n===")
     # A critique that forgot the separator or the labels: keep the draft rather than lose it.
     return (revised if parse(revised) else draft), critique.strip()
@@ -187,7 +190,7 @@ async def write(model: Any, subject: Subject, length_min: int, facts: list[Fact]
     for attempt in range(1, ATTEMPTS + 1):
         log.info("katha model call: outline %s %dmin (attempt %d)", subject.name, length, attempt)
         outline = await model.json(outline_prompt(subject, length, facts), Outline,
-                                   tier="flash", thinking="low")  # fmt: skip
+                                   tier="flash", thinking="low", timeout_s=TIMEOUT_S)  # fmt: skip
         low, high = checks.BANDS[length]
         words = (low + high) // 2 // max(len(outline.chapters), 1)
         texts, critiques = [], []

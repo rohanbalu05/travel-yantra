@@ -109,7 +109,7 @@ async def main() -> None:
                 print(f"FAILED {folder.name}: {e}")
                 continue
             plain = await model.text(plain_prompt(subject, length), tier="flash", thinking="low",
-                                     max_output_tokens=3500, temperature=0.7)  # fmt: skip
+                                     max_output_tokens=3500, temperature=0.7, timeout_s=60)  # fmt: skip
             (folder / "katha.json").write_text(story.model_dump_json(indent=1), encoding="utf-8")
             (folder / "notes.json").write_text(
                 json.dumps({**notes, "facts": [f.model_dump() for f in facts]}, indent=1,

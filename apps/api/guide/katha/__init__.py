@@ -4,11 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import json
-from typing import Any, Literal
+from typing import Any
 
-from pydantic import BaseModel, Field
-
-from ty_contracts import KathaStory, Lang
+from ty_contracts import KathaRequest, KathaStory, Lang
 
 from .facts import UnknownSubject, gather, resolve
 from .pipeline import KathaFailed, write
@@ -17,14 +15,6 @@ __all__ = ["KathaFailed", "KathaRequest", "UnknownSubject", "katha", "katha_mode
 
 #: Bump when prompts or checks change, so cached stories are rewritten.
 PIPELINE_VERSION = "1"
-
-
-class KathaRequest(BaseModel):
-    subject_kind: Literal["place", "city", "day"]
-    subject: str = Field(min_length=1, max_length=200)
-    length_min: Literal[2, 5, 10]
-    lang: Lang = Lang.en
-    places: list[str] = Field(default_factory=list, max_length=12)  # day only, in order
 
 
 def katha_model() -> Any:
