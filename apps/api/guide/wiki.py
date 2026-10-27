@@ -63,7 +63,12 @@ class WikiClient:
         """(page URL, [(section heading, plain text)]) for a whole article, lead first."""
         params = {"action": "query", "prop": "extracts", "explaintext": 1, "redirects": 1,
                   "exsectionformat": "wiki", "titles": title, "format": "json", "formatversion": 2}  # fmt: skip
-        raw = self._get(f"https://en.{site}.org/w/api.php?{urlencode(params)}")
+        try:
+            raw = self._get(f"https://en.{site}.org/w/api.php?{urlencode(params)}")
+        except HTTPError as e:
+            if e.code != 404:
+                raise
+            raw = {}  # no such page: no sections
         pages = raw.get("query", {}).get("pages") or [{}]
         page = pages[0]
         text = page.get("extract") or ""

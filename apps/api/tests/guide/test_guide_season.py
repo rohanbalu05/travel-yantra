@@ -11,6 +11,7 @@ def test_month_ranges_and_single_months() -> None:
     assert months_in("Winter – November to January") == ["jan", "nov", "dec"]
     assert months_in("every year during the first week of November") == ["nov"]
     assert months_in("You may see rain any time") == []  # "may" the verb
+    assert months_in("rain in March and October") == ["mar", "oct"]  # "and" joins two months, no range
     assert months_in("heaviest from May to July") == ["may", "jun", "jul"]
 
 

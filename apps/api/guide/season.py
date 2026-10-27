@@ -23,7 +23,7 @@ PATH = DATA / "season" / "notes.json"
 MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
 _MONTH = (r"(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|"
           r"sep(?:tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)")  # fmt: skip
-RANGE = re.compile(rf"\b{_MONTH}\b\.?\s*(?:to|till|until|through|and|-|–)\s*(?:mid-|early |late )?{_MONTH}\b", re.I)
+RANGE = re.compile(rf"\b{_MONTH}\b\.?\s*(?:to|till|until|through|-|–)\s*(?:mid-|early |late )?{_MONTH}\b", re.I)
 SINGLE = re.compile(rf"\b{_MONTH}\b", re.I)
 SEASON_WORDS = re.compile(r"\b(climate|monsoon|winter|summer|rain|rainfall|humid|temperature|"
                           r"best time|season|festival|utsav|dasara|carnival|christmas|fog)\w*", re.I)  # fmt: skip
