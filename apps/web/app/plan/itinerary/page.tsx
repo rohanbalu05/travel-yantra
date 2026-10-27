@@ -245,6 +245,22 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
               <ul className="warn-list">{it.warnings!.map((w) => <li key={w}>{w}</li>)}</ul>
             </section>
           )}
+          {/* TY1 quotes Wikivoyage or Wikipedia for each city and month; nothing shows when they say nothing. */}
+          {(it.season_notes ?? []).length > 0 && (
+            <section className="panel panel-pad" aria-labelledby="season-h">
+              <h2 className="h3" id="season-h" style={{ marginBottom: 8 }}>{t("Season and weather")}</h2>
+              <ul className="note-list">
+                {it.season_notes!.map((n) => (
+                  <li key={`${n.city}-${n.kind}-${n.text.slice(0, 24)}`}>
+                    <b>{n.city}:</b> {n.text}{" "}
+                    {/^https?:\/\//i.test(n.source_url) && (
+                      <a href={n.source_url} target="_blank" rel="noopener noreferrer">{new URL(n.source_url).hostname.replace(/^www\./, "")}</a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
         </aside>
       </div>
 

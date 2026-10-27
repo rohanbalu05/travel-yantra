@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AppShell, LangPicker } from "@/components/AppShell";
 import { Problem, problemOf } from "@/components/Problem";
-import { NO_CONSENTS, deleteMyData, firebaseEnabled, saveConsents, signOut, useAccount, type Consents } from "@/lib/account";
+import { NO_CONSENTS, deleteMyData, firebaseEnabled, saveConsents, signOut, syncMe, useAccount, type Consents } from "@/lib/account";
 import { useI18n } from "@/lib/i18n";
 import "./settings.css";
 
@@ -18,6 +18,10 @@ const PURPOSES: { key: keyof Consents; title: string; what: string }[] = [
 
 export default function SettingsPage() {
   const account = useAccount();
+  // The server (TY1's GET /me) is the truth for consents once it has them; no-op without an API.
+  useEffect(() => {
+    void syncMe().catch(() => {});
+  }, []);
   const { t } = useI18n();
   const [saving, setSaving] = useState<keyof Consents | null>(null);
   const [confirm, setConfirm] = useState("");

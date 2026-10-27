@@ -131,6 +131,16 @@ describe("multi-city days", () => {
   });
 });
 
+describe("journeys by Leg.role", () => {
+  it("puts the journey there first and the journey home last, whatever the order in legs", () => {
+    const stop = GOA_ITINERARY.days[0].stops![0];
+    const leg = (from: string, to: string, role: "outbound" | "home" | null) => ({ from, to, mode: "rail" as const, depart: "2026-12-11T08:00:00", arrive: "2026-12-11T10:00:00", minutes: 120, cost_inr: 500, role });
+    const day = { date: "2026-12-14", stops: [stop], legs: [leg("Goa", "Bengaluru", "home"), leg("Bengaluru", "Goa", "outbound")] };
+    const rows = dayRows(day, GOA_ITINERARY).filter((r) => r.kind !== "stay");
+    expect(rows.map((r) => (r.kind === "move" ? r.leg.role : r.kind))).toEqual(["outbound", "stop", "home"]);
+  });
+});
+
 describe("form from intake's draft", () => {
   it("keeps what intake understood and leaves the rest empty to ask", () => {
     const f = formFromDraft({ origin: "Bengaluru", destinations: ["Goa", "Gokarna"], travellers: [{ name: "You", age: 30 }, { name: "Father", age: 60 }] });
