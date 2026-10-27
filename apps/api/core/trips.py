@@ -45,6 +45,7 @@ class TripStore(Protocol):
     def by_share_token(self, token: str) -> Trip | None: ...
     def by_owner(self, owner: str) -> list[Trip]: ...
     def delete_owner(self, owner: str) -> int: ...
+    def reassign_owner(self, old: str, new: str) -> int: ...
 
 
 class MemoryStore:
@@ -71,6 +72,14 @@ class MemoryStore:
     def by_owner(self, owner: str) -> list[Trip]:
         """Newest first."""
         return sorted((t for t in list(self._trips.values()) if t.owner == owner), key=lambda t: t.created_at, reverse=True)
+
+    def reassign_owner(self, old: str, new: str) -> int:
+        with self._lock:
+            mine = [k for k, t in self._trips.items() if t.owner == old]
+            for k in mine:
+                t = self._trips[k]
+                self._trips[k] = Trip(t.id, t.share_token, t.itinerary, new, t.revised_from, t.created_at)
+            return len(mine)
 
     def delete_owner(self, owner: str) -> int:
         with self._lock:
@@ -123,6 +132,10 @@ class PgStore:
             rows = conn.execute(f"SELECT {self._COLUMNS} FROM trips WHERE owner = %s ORDER BY created_at DESC",
                                 (owner,)).fetchall()
         return [self._trip(r) for r in rows]
+
+    def reassign_owner(self, old: str, new: str) -> int:
+        with self._connect() as conn:
+            return conn.execute("UPDATE trips SET owner = %s WHERE owner = %s", (new, old)).rowcount
 
     def delete_owner(self, owner: str) -> int:
         with self._connect() as conn, conn.transaction():
