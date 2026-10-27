@@ -12,7 +12,13 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
 from .service import TranslationService
-from .translator import FakeTranslator, IndicTrans2Translator, Lang, Translator
+from .translator import (
+    FakeTranslator,
+    GeminiTranslator,
+    IndicTrans2Translator,
+    Lang,
+    Translator,
+)
 
 
 class TranslateRequest(BaseModel):
@@ -32,9 +38,15 @@ class TranslateResponse(BaseModel):
 
 
 def build_translator() -> Translator:
-    if os.environ.get("TY_FAKE_TRANSLATOR", "1") == "1":
-        return FakeTranslator()
-    return IndicTrans2Translator()
+    """TY_TRANSLATOR: fake (default), gemini (deployed), or indictrans2 (kept, off)."""
+    kind = os.environ.get("TY_TRANSLATOR")
+    if kind is None:  # older switch, still honoured
+        kind = "fake" if os.environ.get("TY_FAKE_TRANSLATOR", "1") == "1" else "indictrans2"
+    if kind == "gemini":
+        return GeminiTranslator()
+    if kind == "indictrans2":
+        return IndicTrans2Translator()
+    return FakeTranslator()
 
 
 def load_entity_names() -> dict[str, dict[str, str]]:

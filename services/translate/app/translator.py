@@ -1,8 +1,13 @@
-"""Translator interface, a deterministic fake, and the IndicTrans2 implementation."""
+"""Translator interface, a deterministic fake, Gemini (the default live path) and IndicTrans2 (off)."""
 
 from __future__ import annotations
 
-from typing import Literal, Protocol
+import json
+import logging
+import os
+import re
+import time
+from typing import Any, Literal, Protocol
 
 Lang = Literal["hi", "kn", "ta", "te", "bn"]
 LANGS: tuple[str, ...] = ("hi", "kn", "ta", "te", "bn")
@@ -18,6 +23,7 @@ FLORES = {
 }
 
 MODEL_NAME = "ai4bharat/indictrans2-en-indic-dist-200M"
+TIMEOUT_MS = 30_000
 
 
 class Translator(Protocol):
@@ -64,9 +70,9 @@ class IndicTrans2Translator:
             return []
         src, tgt = FLORES[source], FLORES[target]
         batch = self._processor.preprocess_batch(texts, src_lang=src, tgt_lang=tgt)
-        enc = self._tokenizer(
-            batch, truncation=True, padding="longest", return_tensors="pt"
-        ).to(self._device)
+        enc = self._tokenizer(batch, truncation=True, padding="longest", return_tensors="pt").to(
+            self._device
+        )
         with self._torch.inference_mode():
             out = self._model.generate(
                 **enc, num_beams=5, num_return_sequences=1, max_length=256, use_cache=True
@@ -75,3 +81,71 @@ class IndicTrans2Translator:
             out, skip_special_tokens=True, clean_up_tokenization_spaces=True
         )
         return self._processor.postprocess_batch(decoded, lang=tgt)
+
+
+LANG_NAMES = {"hi": "Hindi", "kn": "Kannada", "ta": "Tamil", "te": "Telugu", "bn": "Bengali"}
+GEMINI_MODEL = "gemini-3.1-flash-lite"
+# Flash-Lite ends Hindi lines with " |" and Bengali ones with "。" (bench, 27 Oct 2026).
+_STRAY_STOP = re.compile(r"\s*[|\u3002\uff0e]\s*$")
+log = logging.getLogger("ty.translate.gemini")
+
+
+def normalise(text: str, target: str) -> str:
+    """Danda (or a full stop) for a stray pipe or CJK stop the model left at the end."""
+    stop = "।" if target in ("hi", "bn") else "."
+    return _STRAY_STOP.sub(stop, text).replace("\u3002", stop)
+
+
+class GeminiTranslator:
+    """Gemini 3.1 Flash-Lite on Vertex AI, one call per batch. Logs every call (no text).
+
+    Model from TY_MODEL_LITE; Vertex from GOOGLE_GENAI_USE_VERTEXAI, GOOGLE_CLOUD_PROJECT and
+    GOOGLE_CLOUD_LOCATION. `client` is injectable so tests never import or call the SDK.
+    """
+
+    def __init__(self, client: Any = None, model: str | None = None) -> None:
+        self.model = model or os.environ.get("TY_MODEL_LITE", GEMINI_MODEL)
+        if client is None:
+            from google import genai
+            from google.genai import types
+
+            location = os.environ.get("GOOGLE_CLOUD_LOCATION", "global")
+            client = genai.Client(
+                location=location, http_options=types.HttpOptions(timeout=TIMEOUT_MS)
+            )
+        self._client = client
+
+    def translate(self, texts: list[str], target: str, source: str = "en") -> list[str]:
+        if not texts:
+            return []
+        prompt = (
+            f"Translate each {LANG_NAMES.get(source, 'English')} string in this JSON array into "
+            f"{LANG_NAMES[target]} for a traveller in India. Keep every token like XQ0Z and every "
+            "[n] marker exactly as written, numbers and prices as they are, and the sentence "
+            "punctuation of the target language. Return only a JSON array of "
+            f"{len(texts)} strings in the same order.\n\n{json.dumps(texts, ensure_ascii=False)}"
+        )
+        t = time.perf_counter()
+        r = self._client.models.generate_content(
+            model=self.model,
+            contents=prompt,
+            config={"response_mime_type": "application/json", "temperature": 0},
+        )
+        usage = getattr(r, "usage_metadata", None)
+        log.info(
+            "gemini translate model=%s target=%s texts=%d seconds=%.2f tokens_in=%s tokens_out=%s",
+            self.model,
+            target,
+            len(texts),
+            time.perf_counter() - t,
+            getattr(usage, "prompt_token_count", None),
+            getattr(usage, "candidates_token_count", None),
+        )
+        out = json.loads(r.text)
+        if (
+            not isinstance(out, list)
+            or len(out) != len(texts)
+            or not all(isinstance(o, str) for o in out)
+        ):
+            raise ValueError(f"gemini returned {type(out).__name__} for {len(texts)} texts")
+        return [normalise(o, target) for o in out]

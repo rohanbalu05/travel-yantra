@@ -12,7 +12,8 @@ IndicTrans2 translation service. About 100 UI phrases per language (`app/phraseb
 
 ## Settings (env vars)
 
-- `TY_FAKE_TRANSLATOR` (default `1`): deterministic fake, no model download. The Docker image sets `0`.
+- `TY_TRANSLATOR`: `fake` (default; tests), `gemini` (deployed: Gemini 3.1 Flash-Lite on Vertex AI, model `TY_MODEL_LITE`, Vertex from `GOOGLE_GENAI_USE_VERTEXAI`, `GOOGLE_CLOUD_PROJECT`, `GOOGLE_CLOUD_LOCATION` (default `global`); one call per batch, each call logged without text; a stray ` |` or `。` at the end becomes `।`), or `indictrans2` (kept, off; `Dockerfile.indictrans2`, gated weights). The older `TY_FAKE_TRANSLATOR` still works when `TY_TRANSLATOR` is unset.
+- Image: `docker build -f services/translate/Dockerfile .` from the repo root (275 MB, no weights).
 - `TY_ENTITY_NAMES_FILE` (optional): JSON of Wikidata native names, `{"Hampi": {"hi": "..."}}`.
 - `TY_MAX_BATCH` (default 16), `TY_CACHE_SIZE` (default 4096 entries, LRU on text and target).
 

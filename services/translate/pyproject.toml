@@ -10,7 +10,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Real model stack. Installed in the Docker image and in the slow CI job only.
+# Deployed translator (TY_TRANSLATOR=gemini): Gemini 3.1 Flash-Lite on Vertex AI.
+gemini = ["google-genai>=1.0"]
+# IndicTrans2 stack (TY_TRANSLATOR=indictrans2, off): Dockerfile.indictrans2 and the slow CI job.
 model = [
     "torch>=2.3",
     "transformers>=4.44,<5",
