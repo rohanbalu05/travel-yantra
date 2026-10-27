@@ -104,13 +104,14 @@ AIRPORTS = [
     ("IXE", "Mangaluru", 12.9613, 74.8901),
     ("GOX", "Goa (Mopa)", 15.7444, 73.8606),
     ("VDY", "Vidyanagar (Ballari)", 15.1750, 76.6349),
+    ("MYQ", "Mysuru (Mandakalli)", 12.2300, 76.6558),
 ]
 
 
 class FakeAirProvider:
     """Offline fake: small airport list, block time = overhead + distance / 750 km/h."""
 
-    def __init__(self, min_km: float = 250.0) -> None:
+    def __init__(self, min_km: float = 200.0) -> None:
         self.min_km = min_km
         self._nodes = [Node(f"AP:{c}", KIND_AIRPORT, n, la, lo) for c, n, la, lo in AIRPORTS]
 

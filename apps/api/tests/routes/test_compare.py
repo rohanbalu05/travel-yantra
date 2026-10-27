@@ -58,10 +58,13 @@ def test_bengaluru_to_mysuru_has_rail_and_road_and_explains_no_air(service):
     modes = _by_mode(r)
     assert set(modes) == {Mode.rail, Mode.road}
     assert [u.mode for u in r.unavailable] == [Mode.air]
-    assert "airport" in r.unavailable[0].reason
+    # Mysuru has an airport (MYQ), 140 km from Bengaluru's: no flight, and no invented connection
+    assert r.unavailable[0].reason == "Bengaluru and Mysuru are too close to fly between"
     rail = modes[Mode.rail]
     assert rail.option.legs[0].from_ == "Bengaluru" and rail.option.legs[-1].to == "Mysuru"
-    assert any(leg.mode is Mode.rail for leg in rail.option.legs)
+    # one train to Mysore JN, not off early at Naganahalli for a longer cab
+    trains = [leg for leg in rail.option.legs if leg.mode is Mode.rail]
+    assert [t.to for t in trains] == ["Mysore JN"]
 
 
 def test_legs_chain_from_the_requested_departure(service):
