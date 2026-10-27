@@ -1,7 +1,7 @@
 import { useMemo, useSyncExternalStore } from "react";
 import { API_BASE_URL } from "@/lib/api";
-import type { Itinerary, PlanEvent, PlanStage, PlanText, TripRequest } from "@/lib/contracts";
-import { mockPlanBody } from "@/lib/mockPlan";
+import type { Itinerary, PlanEvent, PlanStage, PlanText, ReviseRequest, TripRequest } from "@/lib/contracts";
+import { mockPlanBody, mockReviseBody } from "@/lib/mockPlan";
 import { parseSSE } from "@/lib/sse";
 
 export type PlanBody = TripRequest | PlanText;
@@ -23,12 +23,27 @@ function detailText(body: unknown): string {
  * POST /plan and yield its events, stopping after the first terminal one.
  * With no `NEXT_PUBLIC_API_BASE_URL`, replays the Goa sample instead.
  */
-export async function* streamPlan(body: PlanBody, signal?: AbortSignal, base = API_BASE_URL): AsyncGenerator<PlanEvent> {
+export function streamPlan(body: PlanBody, signal?: AbortSignal, base = API_BASE_URL): AsyncGenerator<PlanEvent> {
+  return streamEvents("/plan", body, signal, base, () => mockPlanBody());
+}
+
+/** POST /plan/{plan_id}/revise: same event stream, ending in done with a new plan_id. */
+export function streamRevise(planId: string, body: ReviseRequest, signal?: AbortSignal, base = API_BASE_URL): AsyncGenerator<PlanEvent> {
+  return streamEvents(`/plan/${encodeURIComponent(planId)}/revise`, body, signal, base, () => mockReviseBody(body));
+}
+
+async function* streamEvents(
+  path: string,
+  body: unknown,
+  signal: AbortSignal | undefined,
+  base: string,
+  mock: () => ReadableStream<Uint8Array>,
+): AsyncGenerator<PlanEvent> {
   let stream: ReadableStream<Uint8Array>;
   if (!base) {
-    stream = mockPlanBody();
+    stream = mock();
   } else {
-    const res = await fetch(`${base}/plan`, {
+    const res = await fetch(`${base}${path}`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
       body: JSON.stringify(body),
@@ -52,7 +67,7 @@ const RESULT_KEY = "ty.plan.result";
 const CHOICE_KEY = "ty.plan.choice";
 const CHANGED = "ty-plan-stored";
 
-export type PlanResult = { itinerary: Itinerary; plan_id: string | null };
+export type PlanResult = { itinerary: Itinerary; plan_id: string | null; share_token?: string | null };
 
 function write(key: string, value: unknown) {
   try {

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PlanEvent } from "@/lib/contracts";
-import { GOA_ITINERARY, goaEvents } from "@/lib/mockPlan";
-import { PlanHttpError, streamPlan } from "@/lib/plan";
+import { GOA_ITINERARY, goaEvents, revisedItinerary } from "@/lib/mockPlan";
+import { PlanHttpError, streamPlan, streamRevise } from "@/lib/plan";
 import { initialPlanState, planReducer } from "@/lib/planState";
 import { dayRows, pickIndex, tripCost } from "@/lib/planView";
 import { formProblems, goaForm, toTripRequest } from "@/lib/tripForm";
@@ -46,6 +46,31 @@ describe("streamPlan", () => {
     vi.useRealTimers();
     expect(evs.at(-1)?.stage).toBe("done");
     expect(evs.at(-1)?.plan_id).toBe("sample-goa-family");
+  });
+});
+
+describe("streamRevise", () => {
+  it("POSTs the ReviseRequest to /plan/{id}/revise and ends with the new plan", async () => {
+    const it2 = GOA_ITINERARY;
+    const fn = fakeFetch(200, sse([{ stage: "intake", message: "Revising" }, { stage: "done", message: "ok", partial: it2, plan_id: "p2", share_token: "s2" }]));
+    const evs = await collect(streamRevise("p/1", { intent: "lighter_day", day: "2026-12-12", lang: "en" }, undefined, "http://api.test"));
+    const [url, init] = fn.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe("http://api.test/plan/p%2F1/revise");
+    expect(JSON.parse(init.body as string)).toEqual({ intent: "lighter_day", day: "2026-12-12", lang: "en" });
+    const s = evs.reduce(planReducer, initialPlanState());
+    expect([s.status, s.planId, s.shareToken]).toEqual(["done", "p2", "s2"]);
+  });
+
+  it("shows TY1's 422 reason when the day is not in the plan", async () => {
+    fakeFetch(422, JSON.stringify({ detail: "day 2027-01-01 is not in the plan" }), "application/json");
+    await expect(collect(streamRevise("p1", { intent: "rain", day: "2027-01-01" }, undefined, "http://api.test"))).rejects.toThrow("day 2027-01-01 is not in the plan");
+  });
+
+  it("mock: a lighter day drops that day's last stop and its legs; other days are untouched", () => {
+    const out = revisedItinerary(GOA_ITINERARY, { intent: "lighter_day", day: "2026-12-11" });
+    expect(out.days[0].stops?.map((s) => s.id)).toEqual(["goa-basilica"]);
+    expect(out.days[0].legs).toEqual([]);
+    expect(out.days.slice(1)).toEqual(GOA_ITINERARY.days.slice(1));
   });
 });
 

@@ -11,6 +11,8 @@ export type {
   PlanStage,
   PlanStep,
   PlanText,
+  ReviseIntent,
+  ReviseRequest,
   Stay,
   TransportOption,
   Traveller,

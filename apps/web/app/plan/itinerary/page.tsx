@@ -5,9 +5,10 @@ import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { NoPlan } from "@/components/NoPlan";
 import { Trail } from "@/components/Trail";
-import type { DayPlan, Itinerary } from "@/lib/contracts";
+import type { DayPlan, Itinerary, ReviseRequest } from "@/lib/contracts";
 import { MODE_NAME, clock, dayLabel, duration, inr, weekday } from "@/lib/format";
-import { useChoice, usePlanResult } from "@/lib/plan";
+import { PlanHttpError, savePlanResult, streamRevise, useChoice, usePlanResult } from "@/lib/plan";
+import { initialPlanState, planReducer } from "@/lib/planState";
 import { againstBudget, dayRows, pickIndex, travellerCount, tripCost } from "@/lib/planView";
 import "../plan.css";
 
@@ -19,9 +20,32 @@ function dayTitle(day: DayPlan): string {
   return names.length > 2 ? `${names[0]} and ${names.length - 1} more` : names.join(" and ");
 }
 
-function Plan({ it }: { it: Itinerary }) {
+function Plan({ it, planId }: { it: Itinerary; planId: string | null }) {
   const [sel, setSel] = useState(0);
   const choice = useChoice() ?? null;
+  const [busy, setBusy] = useState<string | null>(null);
+  const [said, setSaid] = useState<{ text: string; bad: boolean } | null>(null);
+
+  // Revise streams like /plan and ends in done with a new plan; only the day touched changes.
+  const revise = async (req: Omit<ReviseRequest, "lang">, label: string) => {
+    if (!planId || busy) return;
+    setBusy(label);
+    setSaid(null);
+    try {
+      let s = initialPlanState();
+      for await (const ev of streamRevise(planId, { ...req, lang: it.lang ?? "en" })) s = planReducer(s, ev);
+      if (s.status === "done" && s.itinerary) {
+        savePlanResult({ itinerary: s.itinerary, plan_id: s.planId, share_token: s.shareToken });
+        setSaid({ text: `Done: ${label}. The other days are as before, and the checks ran again.`, bad: false });
+      } else {
+        setSaid({ text: s.error?.message ?? "The planner stopped before finishing. Try again.", bad: true });
+      }
+    } catch (e) {
+      setSaid({ text: e instanceof PlanHttpError ? e.message : "We could not reach the planner. Check your connection.", bad: true });
+    } finally {
+      setBusy(null);
+    }
+  };
 
   const opts = it.transport ?? [];
   const way = opts[choice !== null && choice < opts.length ? choice : pickIndex(it)];
@@ -84,6 +108,12 @@ function Plan({ it }: { it: Itinerary }) {
                         <b>{r.place.name}</b>
                         <small>{r.place.category[0].toUpperCase() + r.place.category.slice(1)} · about {duration(r.place.typical_visit_minutes)} there</small>
                       </div>
+                      {planId && (
+                        <button type="button" className="btn btn-quiet btn-sm it-swap" disabled={!!busy} aria-label={`Swap ${r.place.name} for something else`}
+                          onClick={() => revise({ intent: "swap_stop", day: day.date, place_id: r.place.id }, `swapped ${r.place.name}`)}>
+                          Swap
+                        </button>
+                      )}
                     </div>
                   ) : r.kind === "move" ? (
                     <div className="it-row" key={i}>
@@ -115,6 +145,24 @@ function Plan({ it }: { it: Itinerary }) {
         </section>
 
         <aside className="side" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {planId && day && (
+            <section className="panel" aria-labelledby="ch-h">
+              <div className="panel-head"><h2 className="h3" id="ch-h">Change {weekday(day.date)}</h2><span className="hint">Only this day is rebuilt</span></div>
+              <div className="panel-pad" style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <button type="button" className="btn btn-quiet" disabled={!!busy || !(day.stops ?? []).length}
+                  onClick={() => revise({ intent: "lighter_day", day: day.date }, `${weekday(day.date)} is lighter`)}>
+                  Make {weekday(day.date)} lighter
+                </button>
+                <button type="button" className="btn btn-quiet" disabled={!!busy}
+                  onClick={() => revise({ intent: "rain", day: day.date }, `${weekday(day.date)} is planned for rain`)}>
+                  Plan {weekday(day.date)} for rain
+                </button>
+                <p role="status" className={said?.bad ? "rev-msg bad" : "rev-msg"} hidden={!busy && !said}>
+                  {busy ? "Rebuilding the day…" : said?.text}
+                </p>
+              </div>
+            </section>
+          )}
           <section className="panel panel-pad" aria-labelledby="b-h">
             <h2 className="h3" id="b-h" style={{ marginBottom: 14 }}>The budget</h2>
             <dl className="kv cost">
@@ -154,5 +202,5 @@ function Plan({ it }: { it: Itinerary }) {
 
 export default function ItineraryPage() {
   const res = usePlanResult();
-  return <AppShell>{res === undefined ? null : res ? <div><Plan it={res.itinerary} /></div> : <NoPlan />}</AppShell>;
+  return <AppShell>{res === undefined ? null : res ? <div><Plan it={res.itinerary} planId={res.plan_id} /></div> : <NoPlan />}</AppShell>;
 }

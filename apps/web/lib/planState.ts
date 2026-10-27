@@ -17,6 +17,7 @@ export type PlanState = {
   error: { message: string; retryable: boolean } | null;
   itinerary: Itinerary | null;
   planId: string | null;
+  shareToken: string | null;
 };
 
 export const initialPlanState = (): PlanState => ({
@@ -31,6 +32,7 @@ export const initialPlanState = (): PlanState => ({
   error: null,
   itinerary: null,
   planId: null,
+  shareToken: null,
 });
 
 /** Folds one /plan event into the screen state. Unknown steps are ignored. */
@@ -60,6 +62,7 @@ export function planReducer(s: PlanState, ev: PlanEvent): PlanState {
     case "done":
       next.status = "done";
       next.planId = ev.plan_id ?? null;
+      next.shareToken = ev.share_token ?? null;
       break;
     case "needs_input":
       next.status = "needs_input";

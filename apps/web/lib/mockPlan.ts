@@ -1,4 +1,4 @@
-import type { Itinerary, PlanEvent, TripRequest } from "@/lib/contracts";
+import type { Itinerary, PlanEvent, ReviseRequest, TripRequest } from "@/lib/contracts";
 import goa from "@/lib/samples/goa_family.json";
 
 /** The Goa family sample (Arjun Rao and family), from packages/contracts/samples. */
@@ -31,10 +31,38 @@ export function goaEvents(): PlanEvent[] {
   ];
 }
 
+/** The mock's version of a revise: drop the named stop, or the day's last stop for a lighter day. */
+export function revisedItinerary(it: Itinerary, req: ReviseRequest): Itinerary {
+  if (req.intent === "rain") return it;
+  const days = it.days.map((d) => {
+    const stops = d.stops ?? [];
+    const drop = req.intent === "swap_stop" ? stops.find((s) => s.id === req.place_id) : d.date === req.day ? stops.at(-1) : undefined;
+    if (!drop) return d;
+    return { ...d, stops: stops.filter((s) => s !== drop), legs: (d.legs ?? []).filter((l) => l.from !== drop.name && l.to !== drop.name) };
+  });
+  return { ...it, days };
+}
+
+export function mockReviseBody(req: ReviseRequest, delayMs = 300): ReadableStream<Uint8Array> {
+  const it = revisedItinerary(GOA_ITINERARY, req);
+  return sseBody(
+    [
+      { stage: "intake", message: "Revising your plan…" },
+      { stage: "solving", step: "solver", message: "Rebuilding that day.", partial: it },
+      { stage: "checking", step: "checker", iteration: 1, message: "All checks passed.", violations: [], partial: it },
+      { stage: "done", message: "Your plan is updated.", partial: it, plan_id: "sample-goa-family-r1" },
+    ],
+    delayMs,
+  );
+}
+
 /** A fake `/plan` response body: the Goa events as SSE frames, with pings, one every `delayMs`. */
 export function mockPlanBody(delayMs = 450): ReadableStream<Uint8Array> {
+  return sseBody(goaEvents(), delayMs);
+}
+
+function sseBody(events: PlanEvent[], delayMs: number): ReadableStream<Uint8Array> {
   const enc = new TextEncoder();
-  const events = goaEvents();
   return new ReadableStream({
     async start(ctl) {
       for (const ev of events) {

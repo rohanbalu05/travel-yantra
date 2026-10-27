@@ -117,11 +117,16 @@
 .it-body{min-width:0;display:flex;flex-direction:column;gap:5px}
 .it-body b{font-size:17px;line-height:1.3}
 .it-body small{font-size:14.5px;line-height:1.5;color:#56646E}
+.it-row:has(.it-swap){grid-template-columns:78px 34px minmax(0,1fr) auto}
+.it-swap{align-self:center}
+.rev-msg{margin:0;padding:10px 12px;border-radius:4px;background:#E5EEE9;color:#1B4539;font-size:14.5px;line-height:1.5}
+.rev-msg.bad{background:#F6EAD2;color:#5F3D0B}
 .note-list{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14.5px;line-height:1.5}
 .warn-list{margin:0;padding:12px 14px 12px 32px;border-radius:4px;background:#F6EAD2;color:#5F3D0B;font-size:14.5px;line-height:1.5}
 @media (max-width:600px){
   .leg-row{grid-template-columns:84px 30px minmax(0,1fr)}
-  .it-row{grid-template-columns:62px 30px minmax(0,1fr)}
+  .it-row,.it-row:has(.it-swap){grid-template-columns:62px 30px minmax(0,1fr)}
+  .it-swap{grid-column:3;justify-self:start;margin-top:8px}
 }
 @media (prefers-reduced-motion:reduce){
   .finds li,.checks li,.fix{animation:none}

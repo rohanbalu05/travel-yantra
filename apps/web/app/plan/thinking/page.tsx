@@ -151,8 +151,8 @@ export default function PlanThinking() {
   }, [bodyKey, run]);
 
   useEffect(() => {
-    if (state.status === "done" && state.itinerary) savePlanResult({ itinerary: state.itinerary, plan_id: state.planId });
-  }, [state.status, state.itinerary, state.planId]);
+    if (state.status === "done" && state.itinerary) savePlanResult({ itinerary: state.itinerary, plan_id: state.planId, share_token: state.shareToken });
+  }, [state.status, state.itinerary, state.planId, state.shareToken]);
 
   const retry = () => {
     setState(initialPlanState());
