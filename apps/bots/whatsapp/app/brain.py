@@ -145,13 +145,16 @@ class Brain:
         lang = detect_lang(text)
         trip = parse_trip(text, self.today or date.today())
         if trip is not None:
-            trip = trip.model_copy(update={"lang": lang})
-            return summarise(await self.plan(trip))
+            plan = await self.plan(trip.model_copy(update={"lang": lang}))
+            if isinstance(plan, list):
+                return "To plan this I need a little more:\n" + "\n".join(f"- {q}" for q in plan)
+            return summarise(plan)
         answer = await self.ask(text, lang)
         cites = "\n".join(f"- {c.title}" + (f" {c.url}" if c.url else "") for c in answer.citations)
         return _cap(answer.text + (f"\n\nSources:\n{cites}" if cites else ""))
 
-    async def plan(self, trip: TripRequest) -> Itinerary:
+    async def plan(self, trip: TripRequest) -> Itinerary | list[str]:
+        """The itinerary, or the planner's follow-up questions (needs_input)."""
         if not self.base:
             sample = json.loads(SAMPLE.read_text(encoding="utf-8"))["itinerary"]
             it = Itinerary.model_validate(sample)
@@ -165,12 +168,13 @@ class Brain:
         ):
             r.raise_for_status()
             async for line in r.aiter_lines():
-                # ponytail: assumes /plan streams SSE `data: <PlanEvent json>` lines
                 if not line.startswith("data:"):
                     continue
                 event = PlanEvent.model_validate_json(line[5:].strip())
                 if event.stage == PlanStage.error:
                     raise RuntimeError(event.message)
+                if event.stage == PlanStage.needs_input:
+                    return event.questions
                 if event.partial is not None:
                     final = event.partial
                 if event.stage == PlanStage.done:

@@ -121,3 +121,10 @@ async def test_plan_error_event_raises(monkeypatch):
     _fake_api(monkeypatch, lambda req: httpx.Response(200, text=sse))
     with pytest.raises(RuntimeError, match="no route"):
         await Brain(base="http://api.test", today=TODAY).reply("Bengaluru to Goa 11-14 Dec")
+
+
+async def test_plan_needs_input_replies_with_questions(monkeypatch):
+    ask = {"stage": "needs_input", "message": "q", "questions": ["How many travellers?"]}
+    _fake_api(monkeypatch, lambda req: httpx.Response(200, text="data: " + json.dumps(ask) + "\n\n"))
+    reply = await Brain(base="http://api.test", today=TODAY).reply("Bengaluru to Goa 11-14 Dec")
+    assert reply == "To plan this I need a little more:\n- How many travellers?"

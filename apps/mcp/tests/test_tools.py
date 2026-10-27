@@ -131,3 +131,12 @@ async def test_api_error_surfaces_as_tool_error(monkeypatch):
     async with connect(server.mcp._mcp_server) as client:
         res = await client.call_tool("ask_guide", CALLS["ask_guide"])
     assert res.isError
+
+
+async def test_plan_needs_input_surfaces_questions(monkeypatch):
+    ask = {"stage": "needs_input", "message": "q", "questions": ["Which dates?", "How many?"]}
+    _fake_api(monkeypatch, lambda req: httpx.Response(200, text="data: " + json.dumps(ask) + "\n\n"))
+    async with connect(server.mcp._mcp_server) as client:
+        res = await client.call_tool("plan_trip", CALLS["plan_trip"])
+    assert res.isError
+    assert "Which dates? How many?" in res.content[0].text

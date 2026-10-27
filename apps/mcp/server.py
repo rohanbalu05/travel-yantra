@@ -56,12 +56,13 @@ async def _stream_plan(path: str, body: Any) -> Itinerary:
     ):
         resp.raise_for_status()
         async for line in resp.aiter_lines():
-            # ponytail: assumes /plan streams SSE `data: <PlanEvent json>` lines
             if not line.startswith("data:"):
                 continue
             event = PlanEvent.model_validate_json(line[5:].strip())
             if event.stage == PlanStage.error:
                 raise RuntimeError(event.message)
+            if event.stage == PlanStage.needs_input:
+                raise RuntimeError("The planner needs more details: " + " ".join(event.questions))
             if event.partial is not None:
                 final = event.partial
             if event.stage == PlanStage.done:
