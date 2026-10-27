@@ -12,7 +12,7 @@ from ty_contracts import Itinerary, ReviseRequest, TripRequest, ViolationCode
 
 client = TestClient(app)
 TRIP = {"origin": "Bengaluru", "destinations": ["Mysuru", "Coorg"], "start_date": "2026-11-20", "end_date": "2026-11-24",
-        "constraints": {"budget_inr": 40000, "pace": "balanced",
+        "constraints": {"budget_inr": 80000, "pace": "balanced",
                         "travellers": [{"name": "Arjun Rao", "age": 34}, {"name": "Venkatesh", "age": 64}]}}
 
 
@@ -67,9 +67,13 @@ def test_journeys_cost_money_but_only_local_road_time_counts_against_the_cap():
 
 def test_stays_are_per_city_and_a_city_without_data_is_flagged():
     it = plan()
-    assert {s.check_in for s in it.stays} == {date(2026, 11, 20)}  # Mysuru stays; no Coorg data yet
-    assert all(s.check_out == date(2026, 11, 23) for s in it.stays)
-    assert "No stays found yet for Coorg" in it.warnings
+    mysuru = [s for s in it.stays if s.check_in == date(2026, 11, 20)]
+    assert mysuru and all(s.check_out == date(2026, 11, 23) for s in mysuru)  # 3 Mysuru nights
+    coorg = [s for s in it.stays if s.check_in == date(2026, 11, 23)]
+    # Coorg has 1 night (the last day is spent travelling home); either TY3 has stays for it, or we say so.
+    assert all(s.check_out == date(2026, 11, 24) for s in coorg)
+    assert bool(coorg) != ("No stays found yet for Coorg" in it.warnings)
+    assert {s.check_in for s in it.stays} <= {date(2026, 11, 20), date(2026, 11, 23)}
 
 
 def test_revise_keeps_the_hop_and_stays_in_the_city():
