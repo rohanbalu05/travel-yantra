@@ -89,7 +89,15 @@ def _poi(db: Any, name: str | None, city: str | None) -> tuple[int, float, float
         "ORDER BY (city = %s) DESC, length(name) LIMIT 1",
         (name, name, name, city),
     ).fetchone()
-    return (row[0], float(row[1]), float(row[2])) if row else None
+    if row:
+        return row[0], float(row[1]), float(row[2])
+    # Spellings, filler words and Hindi/Kannada names, as Katha matches them (WA-11).
+    from .katha.facts import _poi_by_name_or_slug
+
+    if hit := _poi_by_name_or_slug(db, name):
+        row = db.execute("SELECT lat, lng FROM poi WHERE id = %s", (hit[0],)).fetchone()
+        return (hit[0], float(row[0]), float(row[1])) if row else None
+    return None
 
 
 #: "hospital near Panaji", "police station in Calangute": the place the traveller named.

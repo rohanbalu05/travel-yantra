@@ -10,6 +10,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from .. import names
 from ..planner import _slug, corpus_city
 
 #: How many facts each length may draw on, and how many it needs.
@@ -60,14 +61,30 @@ class UnknownSubject(LookupError):
 
 
 def _poi_by_name_or_slug(db: Any, key: str) -> tuple[int, str, str] | None:
-    rows = db.execute("SELECT id, name, city FROM poi").fetchall()
+    """The poi a traveller means: exact name, planner slug or Kannada name; then the same
+    after normalizing (case, punctuation, "story of", Mysore/Mysuru, Hindi and Kannada demo
+    names); then a prefix ("Vittala Temple" for "... and Stone Chariot"); then difflib with
+    one clear winner. WA-11, WA-12: "story mysuru palace" used to 404."""
+    rows = [r[:4] for r in db.execute("SELECT id, name, city, name_kn FROM poi").fetchall()]
     k = key.strip().lower()
-    for pid, name, city in rows:  # 112 rows: a scan is simpler than a slug column
+    for pid, name, city, _ in rows:  # 130 rows: a scan is simpler than a slug column
         if k in (name.lower(), _slug(f"{city} {name}")):
             return pid, name, city
-    for pid, name, city in rows:  # "Vittala Temple" for "Vittala Temple and Stone Chariot"
-        if name.lower().startswith(k):
-            return pid, name, city
+    n = names.normalize(key)
+    if not n:
+        return None
+    by_norm = {}
+    for pid, name, city, kn in rows:
+        for form in (name, kn):
+            if form:
+                by_norm.setdefault(names.normalize(form), (pid, name, city))
+    if n in by_norm:
+        return by_norm[n]
+    prefixed = [r for norm, r in by_norm.items() if norm.startswith(n + " ")]
+    if len({r[0] for r in prefixed}) == 1:
+        return prefixed[0]
+    if hit := names.best(key, [name for _, name, _, _ in rows]):
+        return next((pid, name, city) for pid, name, city, _ in rows if name == hit)
     return None
 
 

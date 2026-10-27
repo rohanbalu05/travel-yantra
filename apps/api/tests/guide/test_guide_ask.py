@@ -83,6 +83,9 @@ class NoRows:
     def fetchone(self):
         return None
 
+    def fetchall(self):
+        return []
+
 
 def test_emergency_words_pick_the_right_kinds() -> None:
     assert emergency_kinds("Where is the nearest hospital?") == ["hospital"]
@@ -419,6 +422,9 @@ class CityOnly:
         class R:
             def fetchone(self):
                 return (15.35, 74.05) if "avg(lat)" in sql else None
+
+            def fetchall(self):
+                return []
 
         return R()
 

@@ -32,7 +32,20 @@ ELDERLY_AGE = 65
 
 
 def corpus_city(name: str) -> str | None:
-    return CITY_ALIASES.get(name.strip().lower())
+    """The corpus city a traveller means: an alias as typed; then normalized ("the city of
+    Mysore", "मैसूर", "ಮೈಸೂರು"); then difflib with one clear winner ("Mysuuru")."""
+    if hit := CITY_ALIASES.get(name.strip().lower()):
+        return hit
+    from . import names
+
+    norm = " ".join(w for w in names.normalize(name).split() if w not in ("city", "town"))
+    if not norm:
+        return None
+    by_norm = {names.normalize(alias): city for alias, city in CITY_ALIASES.items()}
+    if norm in by_norm:
+        return by_norm[norm]
+    alias = names.best(norm, CITY_ALIASES)
+    return CITY_ALIASES[alias] if alias else None
 
 
 def _slug(text: str) -> str:
