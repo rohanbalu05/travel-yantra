@@ -34,16 +34,23 @@ build() {  # name dockerfile [api_url]
 }
 
 # Min instances stay 0 (cost gate); max instances cap a runaway bill.
+# Services deploy private. Public access is a one-time grant by Rohan:
+#   gcloud run services add-iam-policy-binding SERVICE --region asia-south1 \
+#     --member=allUsers --role=roles/run.invoker
 common=(--region "$R" --project "$P" --min-instances 0 --max-instances 2 --cpu 1
-        --concurrency 40 --cpu-throttling --allow-unauthenticated --quiet)
+        --concurrency 40 --cpu-throttling --quiet)
 
 case "${1:-}" in
   ty-api)
     build ty-api apps/api/Dockerfile
     sec=$(secrets_flag DATABASE_URL GOOGLE_MAPS_API_KEY SERPAPI_API_KEY)
+    # CORS: the web service's URL, once it exists (TY1's TY_CORS_ORIGINS).
+    web_url=$(gcloud run services describe ty-web --region "$R" --project "$P" --format 'value(status.url)' 2>/dev/null || true)
+    # Gemini models are served at the global location on the trial project.
+    # ^@^ makes "@" the list separator so the comma-separated CORS value survives.
     gcloud run deploy ty-api --image "$R-docker.pkg.dev/$P/ty/ty-api:$SHA" "${common[@]}" \
       --service-account "ty-api-run@$P.iam.gserviceaccount.com" --memory 1Gi \
-      --set-env-vars "GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_PROJECT=$P,GOOGLE_CLOUD_LOCATION=global,GIT_SHA=$SHA" \
+      --set-env-vars "^@^GOOGLE_GENAI_USE_VERTEXAI=true@GOOGLE_CLOUD_PROJECT=$P@GOOGLE_CLOUD_LOCATION=global@TY_MODEL_FLASH=gemini-3.5-flash@TY_MODEL_LITE=gemini-3.1-flash-lite@TY_CORS_ORIGINS=$web_url@GIT_SHA=$SHA" \
       ${sec:+"$sec"}
     ;;
   ty-web)
