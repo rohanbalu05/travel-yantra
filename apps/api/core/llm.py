@@ -5,7 +5,11 @@
 
 from __future__ import annotations
 
+import asyncio
+import logging
 import os
+import random
+import time
 from typing import Literal, Protocol, TypeVar
 
 from pydantic import BaseModel
@@ -15,6 +19,14 @@ Tier = Literal["flash", "lite"]
 Thinking = Literal["minimal", "low", "medium", "high"]
 M = TypeVar("M", bound=BaseModel)
 TIMEOUT_MS = 20_000
+# Retry on quota (429) and overload (503): at most 3 tries, all within 20 s including the calls themselves.
+RETRY_CODES = (429, 503)
+MAX_TRIES = 3
+RETRY_BUDGET_S = 20.0
+BACKOFF_BASE_S = 1.0
+
+log = logging.getLogger(__name__)
+_now = time.monotonic  # patched in tests
 
 
 def fake_enabled() -> bool:
@@ -65,7 +77,7 @@ class GeminiModel:
             response_mime_type="application/json", response_schema=schema, temperature=0,
             thinking_config=self._thinking(thinking),
         )
-        r = await self._client.aio.models.generate_content(model=model_name(tier), contents=prompt, config=config)
+        r = await self._generate(model_name(tier), prompt, config)
         return schema.model_validate_json(r.text)
 
     async def text(self, prompt: str, tier: Tier = "flash", *, thinking: Thinking | None = None,
@@ -73,8 +85,29 @@ class GeminiModel:
         config = self._types.GenerateContentConfig(
             temperature=temperature, max_output_tokens=max_output_tokens, thinking_config=self._thinking(thinking)
         )
-        r = await self._client.aio.models.generate_content(model=model_name(tier), contents=prompt, config=config)
+        r = await self._generate(model_name(tier), prompt, config)
         return (r.text or "").strip()
+
+    async def _generate(self, model: str, prompt: str, config):
+        """generate_content with retries on 429 and 503: exponential backoff with full jitter, each try
+        capped to the time left in the budget. Other errors, and the last failure, are raised."""
+        from google.genai import errors
+
+        start = _now()
+        for attempt in range(1, MAX_TRIES + 1):
+            left = RETRY_BUDGET_S - (_now() - start)
+            config.http_options = self._types.HttpOptions(timeout=int(max(left, 1) * 1000))
+            try:
+                return await self._client.aio.models.generate_content(model=model, contents=prompt, config=config)
+            except errors.APIError as exc:
+                if exc.code not in RETRY_CODES or attempt == MAX_TRIES:
+                    raise
+                wait = random.uniform(0, BACKOFF_BASE_S * 2 ** (attempt - 1))
+                left = RETRY_BUDGET_S - (_now() - start)
+                if wait >= left - 1:  # leave at least a second for the next try
+                    raise
+                log.warning("model %s returned %s; retry %d of %d in %.1f s", model, exc.code, attempt, MAX_TRIES - 1, wait)
+                await asyncio.sleep(wait)
 
 
 _model: Model | None = None
