@@ -136,3 +136,10 @@ async def test_offline_story_sends_no_audio():
     audio = []
     reply = await Brain(base="").handle(text("story Mysore Palace"), audio=audio)
     assert "Mysore Palace" in reply and audio == []
+
+
+async def test_katha_errors_log_the_api_detail(monkeypatch, caplog):
+    fake_http(monkeypatch, katha_api((404, {"detail": "No story for that place yet."}), (404, {})))
+    await Brain(base=API).handle(text("story Atlantis"))
+    assert "katha as place: HTTP 404 'No story for that place yet.'" in caplog.text
+    assert "katha as city: HTTP 404 'HTTP 404'" in caplog.text

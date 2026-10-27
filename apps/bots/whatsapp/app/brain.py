@@ -615,6 +615,7 @@ class Brain:
                 if r.is_success:
                     return KathaStory.model_validate(r.json())
                 err = ApiError(r.status_code, _detail(r))
+                log.warning("katha as %s: HTTP %s %r", kind, r.status_code, err.detail[:200])
                 if r.status_code != 404:
                     break
         raise err
