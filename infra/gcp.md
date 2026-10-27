@@ -103,8 +103,25 @@ More services (P2):
 | Service | Runtime SA | Memory | Public |
 | --- | --- | --- | --- |
 | ty-translate | ty-translate-run (aiplatform.user) | 512 MiB | no; run.invoker for ty-bots-run and ty-mcp-run |
-| ty-bots | ty-bots-run (reads the WHATSAPP_* secrets) | 512 MiB | needed for Meta's webhook (Rohan's grant) |
-| ty-mcp | ty-mcp-run (no roles) | 512 MiB | no (pending HQ) |
+| ty-bots | ty-bots-run (reads the WHATSAPP_* secrets) | 512 MiB | yes (allUsers, for Meta's `/webhook`; the bot checks Meta's signature) |
+| ty-mcp | ty-mcp-run (no roles) | 512 MiB | no (HQ decision) |
+
+ty-deploy has `iam.serviceAccountUser` on all five runtime SAs (Rohan's
+grant). Each new runtime SA needs the same grant before Actions can deploy
+it.
+
+### Deploy pipeline notes
+
+- Deploys run on every push to main that touches a service path, through
+  WIF. Since 28 Oct 2026, no deploys from the laptop.
+- `cancel-in-progress: false`: each run finishes, and only the newest
+  waiting run is kept. The plan diffs from the last green deploy.
+- Builds use `--async` and poll every 15 s, with matrix `max-parallel: 3`.
+  gcloud's own wait polls every second, and five jobs hit Cloud Build's
+  per-minute read quota (429).
+- Builds pass `--gcs-source-staging-dir`; see the ty-deploy row above.
+- After ty-api deploys, one `/guide/ask` warms the e5 model (V3-AC). With
+  request-based CPU, the background warm-up thread barely runs.
 
 ty-api now runs with 2 GiB, `EMBEDDER=e5` and the Cloud SQL connector, and
 mounts `DATABASE_URL`.
