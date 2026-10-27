@@ -79,7 +79,8 @@ class MemoryStore:
 
 class FileStore(MemoryStore):
     """A JSON file shared by the processes on one machine (local runs, scripts).
-    Reloaded before each counter spend so two local processes see each other's calls."""
+    Reloaded before each write so two local processes see each other's calls
+    (no file lock: a race can lose one write; Postgres is the shared store)."""
 
     def __init__(self, path: Path) -> None:
         super().__init__()
@@ -98,6 +99,11 @@ class FileStore(MemoryStore):
         with self._lock:
             self._load()
         return super().spend(provider, period, cap)
+
+    def set(self, key, payload, ttl_s):
+        with self._lock:
+            self._load()  # keep entries and counts another local process wrote
+        super().set(key, payload, ttl_s)
 
     def _saved(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)

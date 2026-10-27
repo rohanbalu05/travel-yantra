@@ -2,6 +2,7 @@ import datetime as dt
 import json
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.exceptions import RequestValidationError
 from pydantic import ValidationError
 
@@ -86,7 +87,7 @@ async def post_metric_event(request: Request, store: Store = Depends(get_store),
     except ValidationError as exc:
         raise RequestValidationError(exc.errors(include_url=False, include_context=False)) from exc
     try:
-        record(store, event)
+        await run_in_threadpool(record, store, event)  # psycopg is blocking
     except StoreFull as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     return {"ok": True}
