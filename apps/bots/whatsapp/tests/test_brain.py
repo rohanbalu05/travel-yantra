@@ -314,3 +314,63 @@ async def test_overlong_sentence_stays_english_and_whole(monkeypatch):
     out = await Translator(TRANSLATE).text(line, Lang.hi)
     assert json.loads(seen[0].content)["texts"] == ["Short one."]
     assert out == "y" * 1500 + ". <hi>Short one."
+
+
+async def test_many_pieces_are_sent_in_batches_of_200(monkeypatch):
+    seen = fake_http(monkeypatch, tagging_translate)
+    out = await Translator(TRANSLATE).texts([f"Line {i}." for i in range(450)], Lang.hi)
+    assert [len(json.loads(r.content)["texts"]) for r in seen] == [200, 200, 50]
+    assert all(t.startswith("<hi>") for t in out)
+
+
+async def test_latin_answer_keeps_hindi_mid_plan(monkeypatch):
+    replies = iter(
+        [
+            sse({"stage": "needs_input", "message": "q", "questions": ["How many?"]}),
+            sse(done()),
+        ]
+    )
+    seen = fake_http(monkeypatch, lambda req: httpx.Response(200, text=next(replies)))
+    brain = Brain(base=API)
+    await brain.handle(text("मुझे गोवा की यात्रा करनी है"))
+    await brain.handle(text("4 people, train"))
+    assert json.loads(seen[1].content)["lang"] == "hi"
+
+
+async def test_question_mid_plan_goes_to_guide_and_keeps_pending(monkeypatch):
+    def handler(req):
+        if req.url.path == "/plan":
+            ask = {"stage": "needs_input", "message": "q", "questions": ["When?"]}
+            return httpx.Response(200, text=sse(ask))
+        return httpx.Response(200, json={"text": "Fish curry."})
+
+    seen = fake_http(monkeypatch, handler)
+    brain = Brain(base=API)
+    await brain.handle(text("Plan a trip to Goa"))
+    assert await brain.handle(text("What should we eat there?")) == "Fish curry."
+    assert seen[1].url.path == "/guide/ask"
+    assert brain.users["15550001111"].pending == "Plan a trip to Goa"
+
+
+async def test_failed_plan_keeps_the_pending_text(monkeypatch):
+    calls = iter(
+        [
+            httpx.Response(
+                200, text=sse({"stage": "needs_input", "message": "q", "questions": ["When?"]})
+            ),
+            httpx.Response(503),
+        ]
+    )
+    fake_http(monkeypatch, lambda req: next(calls))
+    brain = Brain(base=API)
+    await brain.handle(text("Plan a trip to Goa"))
+    with pytest.raises(httpx.HTTPStatusError):
+        await brain.handle(text("11-14 Dec"))
+    assert brain.users["15550001111"].pending == "Plan a trip to Goa"
+
+
+async def test_long_answer_keeps_its_sources(monkeypatch):
+    answer = {"text": "x" * 5000 + " [1]", "citations": [{"title": "Goan food"}]}
+    fake_http(monkeypatch, lambda req: httpx.Response(200, json=answer))
+    reply = await Brain(base=API).handle(text("Tell me everything about Goa"))
+    assert len(reply) <= MAX_REPLY and reply.endswith("\n\n[1] Goan food")

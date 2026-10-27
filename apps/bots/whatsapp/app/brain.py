@@ -108,8 +108,8 @@ def sources(answer: GuideAnswer) -> str:
     return "\n".join(lines)
 
 
-def _cap(text: str) -> str:
-    return text if len(text) <= MAX_REPLY else text[: MAX_REPLY - 1] + "…"
+def _cap(text: str, limit: int = MAX_REPLY) -> str:
+    return text if len(text) <= limit else text[: max(limit - 1, 0)] + "…"
 
 
 @dataclass
@@ -149,27 +149,41 @@ class Brain:
 
     async def say(self, user: User, english: str, keep: list[str] = (), tail: str = "") -> str:
         body = await self.tr.text(english, user.lang, keep) if english else ""
-        return _cap(body + (f"\n\n{tail}" if tail and body else tail))
+        if not tail:
+            return _cap(body)
+        if not body:
+            return _cap(tail)
+        # Cap the body, not the sources: [n] markers must keep their list.
+        return _cap(_cap(body, MAX_REPLY - len(tail) - 2) + "\n\n" + tail)
 
     async def reply(self, user: User, text: str) -> str:
         text = text.strip()
+        waiting = bool(user.pending) and self.clock() - user.pending_at < PENDING_SECONDS
         if text:
-            user.lang = detect_lang(text)
+            lang = detect_lang(text)
+            # A short Latin answer ("4 people, train") keeps a Hindi user's language mid-plan.
+            if lang != Lang.en or not waiting:
+                user.lang = lang
         if not text or text.lower() in GREETINGS:
             return await self.say(user, HELP)
         if text.lower() in CANCEL:
             user.pending = None
             return await self.say(user, HELP)
-        if user.pending and self.clock() - user.pending_at < PENDING_SECONDS:
-            return await self.trip(user, user.pending + "\n" + text)
         if is_trip(text):
-            return await self.trip(user, text)
-        answer = await self.ask(user, text)
+            return await self.trip(user, text)  # a fresh trip replaces any open questions
+        if waiting and not text.endswith(("?", "？")):
+            return await self.trip(user, user.pending + "\n" + text)
+        answer = await self.ask(user, text)  # questions still go to the guide mid-plan
         return await self.say(user, answer.text, tail=sources(answer))
 
     async def trip(self, user: User, text: str) -> str:
+        before = user.pending, user.pending_at
         user.pending = None
-        result = await self.plan(PlanText(text=text[:4000], lang=user.lang))
+        try:
+            result = await self.plan(PlanText(text=text[:4000], lang=user.lang))
+        except Exception:
+            user.pending, user.pending_at = before  # the user can just try their answer again
+            raise
         if isinstance(result, list):
             user.pending, user.pending_at = text, self.clock()
             return await self.say(user, "\n".join([ASKING, *(f"- {q}" for q in result)]))

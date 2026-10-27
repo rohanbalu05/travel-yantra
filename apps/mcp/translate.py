@@ -16,6 +16,7 @@ MARKER = re.compile(r"\[\d+\]")  # guide citation markers, kept as they are
 SENTENCE = re.compile(r"(?<=[.!?।])\s+")
 MAX_TEXT = 1000  # per-text cap of POST /translate
 MAX_ENTITIES = 50
+MAX_TEXTS = 200  # per-request cap of POST /translate
 
 
 def sentences(line: str) -> list[str]:
@@ -39,25 +40,27 @@ class Translator:
         todo = [i for i, t in enumerate(texts) if t.strip() and len(t) <= MAX_TEXT]
         if not todo:
             return texts
-        markers = {m for i in todo for m in MARKER.findall(texts[i])}
-        entities = sorted(markers) + [k for k in dict.fromkeys(keep) if k]
-        body = {
-            "texts": [texts[i] for i in todo],
-            "target": lang.value,
-            "entities": entities[:MAX_ENTITIES],
-        }
-        try:
-            async with httpx.AsyncClient(timeout=60) as client:
-                r = await client.post(f"{self.base}/translate", json=body)
-                r.raise_for_status()
-                data = r.json()
-        except (httpx.HTTPError, ValueError):
-            log.exception("translate failed; replying in English")
-            return texts
         out = list(texts)
-        for i, text, flags in zip(todo, data["translations"], data["flags"]):
-            if not flags and MARKER.findall(text) == MARKER.findall(texts[i]):
-                out[i] = text
+        async with httpx.AsyncClient(timeout=60) as client:
+            for b in range(0, len(todo), MAX_TEXTS):
+                batch = todo[b : b + MAX_TEXTS]
+                markers = {m for i in batch for m in MARKER.findall(texts[i])}
+                entities = sorted(markers) + [k for k in dict.fromkeys(keep) if k]
+                body = {
+                    "texts": [texts[i] for i in batch],
+                    "target": lang.value,
+                    "entities": entities[:MAX_ENTITIES],
+                }
+                try:
+                    r = await client.post(f"{self.base}/translate", json=body)
+                    r.raise_for_status()
+                    data = r.json()
+                except (httpx.HTTPError, ValueError):
+                    log.exception("translate failed; this part stays English")
+                    continue
+                for i, text, flags in zip(batch, data["translations"], data["flags"]):
+                    if not flags and MARKER.findall(text) == MARKER.findall(texts[i]):
+                        out[i] = text
         return out
 
     async def text(self, text: str, lang: Lang, keep: list[str] = ()) -> str:

@@ -145,12 +145,18 @@ async def get_katha(
         # ponytail: assumes GET /guide/katha?place_id=&length= (card #24; TY2 P2 will confirm)
         params = {"place_id": place_id, "length": length}
         story = KathaStory.model_validate(await _request("GET", "/guide/katha", params=params))
-    tr = Translator()
-    text = await tr.text(story.text, lang)
-    if text == story.text:
+    # One translate call for the text and every segment; Translator.text keeps the line count.
+    items = [story.text, *(s.text for s in story.segments)]
+    lines = (await Translator().text("\n".join(items), lang)).split("\n")
+    outs = []
+    for item in items:
+        n = item.count("\n") + 1
+        outs.append("\n".join(lines[:n]))
+        lines = lines[n:]
+    if outs[0] == story.text:
         return story  # English, or translation unavailable
-    segs = [s.model_copy(update={"text": await tr.text(s.text, lang)}) for s in story.segments]
-    return story.model_copy(update={"text": text, "segments": segs, "lang": lang})
+    segs = [s.model_copy(update={"text": t}) for s, t in zip(story.segments, outs[1:])]
+    return story.model_copy(update={"text": outs[0], "segments": segs, "lang": lang})
 
 
 @mcp.tool()

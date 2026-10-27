@@ -224,8 +224,17 @@ async def test_get_katha_translates_text_and_segments(monkeypatch):
         "AsyncClient",
         lambda **kw: real(transport=httpx.MockTransport(_tagging), **kw),
     )
+    sent = []
+    monkeypatch.setattr(
+        server.httpx,
+        "AsyncClient",
+        lambda **kw: real(
+            transport=httpx.MockTransport(lambda req: sent.append(req) or _tagging(req)), **kw
+        ),
+    )
     async with connect(server.mcp._mcp_server) as client:
         res = await client.call_tool("get_katha", {"place_id": "goa-basilica", "lang": "kn"})
+    assert len(sent) == 1  # text and segments in one translate call
     story = KathaStory.model_validate(res.structuredContent)
     assert story.lang == "kn" and story.text.startswith("<kn>")
     assert all(s.text.startswith("<kn>") for s in story.segments)
