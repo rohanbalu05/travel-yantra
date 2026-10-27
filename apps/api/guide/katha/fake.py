@@ -53,10 +53,11 @@ class FakeKathaModel:
             return f"(sample) A plain story. {prompt}"
         target = int(re.search(r"between (\d+) and \d+ words", prompt).group(1))
         facts = _facts(prompt)
+        cue = "लोग कहते हैं कि" if "Language: write in Hindi" in prompt else "People here say"
         paras, words, i = [], 0, 0
         while words < target and facts:
             n, legend, first = facts[i % len(facts)]
-            body = f"People here say {first[0].lower()}{first[1:]} [{n}]." if legend else f"{first} [{n}]."
+            body = f"{cue} {first[0].lower()}{first[1:]} [{n}]." if legend else f"{first} [{n}]."
             paras.append(f"[{'LEGEND' if legend else 'HISTORY'}]\n{body}")
             words += checks.words(body)
             i += 1

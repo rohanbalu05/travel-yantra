@@ -241,7 +241,7 @@ def test_a_rewrite_that_was_cut_short_keeps_the_draft() -> None:
                       chapters=[Chapter(title="c", hook="h", gap="g",
                                         beats=[Beat(text="x", facts=[1], label="history")])])  # fmt: skip
     text, critique = asyncio.run(_chapter(Truncating(), Subject(kind="place", name="X"), 2,
-                                          outline, 0, [fact(1)], 230))  # fmt: skip
+                                          outline, 0, [fact(1)], 230, "en"))  # fmt: skip
     assert "Only this" not in text and "rewrite not used" in critique
     assert parse(text) == [("history", " ".join(["word"] * 200) + " [1].")]  # the note is dropped
 
@@ -318,3 +318,91 @@ def test_cache_key_hashes_exactly_its_logged_inputs() -> None:
     # the request's spelling never reaches the key; the resolved name does
     other = KathaRequest(subject_kind="place", subject="Mysore Palace", length_min=2)
     assert cache_key(other, "Mysore Palace", [3, 1]) == cache_key(req, "Mysore Palace", [3, 1])
+
+
+# --- a second language from the same outline (rule 12), Hindi first ---
+
+
+@pytest.mark.parametrize("phrase", checks.BANNED_LANG["hi"])
+def test_every_hindi_banned_phrase_is_caught(phrase) -> None:
+    assert phrase in checks.slop(f"मंदिर {phrase} और नदी के पास एक पत्थर की घंटी है।", "hi")
+
+
+def test_hindi_checks_keep_the_english_ones_and_count_devanagari_words() -> None:
+    assert checks.slop("यह एक hidden gem है।", "hi")  # English slop leaking into Hindi
+    assert checks.slop("राजा सुबह नदी तक पैदल गए।", "hi") == []
+    assert checks.words("मैसूर का महल 1912 में बना [1, 2]।", "hi") == 6
+    assert checks.legend_told("लोग कहते हैं कि यहाँ एक राक्षस रहता था [1]।", "hi")
+    assert checks.legend_told("कहा जाता है कि खंभे गाते हैं।", "hi")
+    found = checks.problems([("legend", "यहाँ एक राक्षस रहता था [1]।")], 1, 2, "hi")
+    assert any("legend not told as legend" in p for p in found)
+
+
+def test_hindi_is_told_from_the_given_outline() -> None:
+    from guide.katha.facts import Subject
+    from guide.katha.pipeline import plan, write
+
+    subject = Subject(kind="place", name="Devaraja Market", city="Mysuru", poi_ids=[1])
+    facts = long_facts()
+    outline = asyncio.run(plan(FakeKathaModel(), subject, 2, facts))
+    prompts = []
+
+    class Recording(FakeKathaModel):
+        async def json(self, *a, **k):
+            raise AssertionError("a given outline is never re-planned")
+
+        async def text(self, prompt, *a, **k):
+            prompts.append(prompt)
+            return await super().text(prompt, *a, **k)
+
+    story, notes = asyncio.run(write(Recording(), subject, 2, facts, lang="hi", outline=outline))
+    assert story.lang == "hi" and notes["outline"] == outline.model_dump()
+    assert all("Language: write in Hindi" in p for p in prompts[:2])  # draft and critique
+    assert "Write in Hindi" not in outline_prompt_text(subject, facts)
+    with pytest.raises(KathaFailed, match="no Katha voice"):
+        asyncio.run(write(Recording(), subject, 2, facts, lang="xx", outline=outline))
+
+
+def outline_prompt_text(subject, facts) -> str:
+    from guide.katha.pipeline import outline_prompt
+
+    return outline_prompt(subject, 2, facts)
+
+
+class CacheDB:
+    """katha_cache in a dict; resolve and gather are patched out."""
+
+    def __init__(self) -> None:
+        self.rows: dict[str, tuple[dict, dict]] = {}
+
+    def execute(self, sql, params):
+        db = self
+
+        class Result:
+            def fetchone(self):
+                return db.rows.get(params[0]) if sql.startswith("SELECT") else None
+
+        if sql.startswith("INSERT"):
+            self.rows.setdefault(params[0], (json.loads(params[1]), json.loads(params[2])))
+        return Result()
+
+
+def test_katha_hindi_reuses_the_english_outline_and_caches_both(monkeypatch) -> None:
+    import sys
+
+    k = sys.modules["guide.katha"]  # the package; guide.katha the attribute is the function
+    from guide.katha.facts import Subject
+
+    subject = Subject(kind="place", name="Devaraja Market", city="Mysuru", poi_ids=[1])
+    monkeypatch.setattr(k, "resolve", lambda *a: subject)
+    monkeypatch.setattr(k, "gather", lambda *a: long_facts())
+    db, model = CacheDB(), LongWinded()
+    hi = asyncio.run(katha(KathaRequest(subject_kind="place", subject="x", length_min=2, lang="hi"), db, model))
+    assert hi.lang == "hi" and model.labels.count("katha outline") == 1  # one outline, two tellings
+    assert len(db.rows) == 2
+    (en_story, en_notes), (hi_story, hi_notes) = db.rows.values()
+    assert en_story["lang"] == "en" and hi_notes["outline"] == en_notes["outline"]
+    assert hi_notes["key_inputs"][-1] == "hi" and len(en_notes["key_inputs"]) == 5
+    # a language Katha has no voice for gets the English story, for translate to carry
+    ta = asyncio.run(katha(KathaRequest(subject_kind="place", subject="x", length_min=2, lang="ta"), db, model))
+    assert ta.lang == "en" and model.labels.count("katha outline") == 1 and len(db.rows) == 2

@@ -2,6 +2,9 @@
 
 Pure functions over (label, text) segments. A story that fails is regenerated,
 never shipped. Grow BANNED when the taste gate finds more.
+
+Other languages (rule 12) keep every English check, since English slop can leak
+into a Hindi draft, and add their own banned phrases and legend cues.
 """
 
 from __future__ import annotations
@@ -17,6 +20,17 @@ BANNED = [
 ]  # fmt: skip
 WHETHER = re.compile(r"\bwhether you(?:'| a)re an? [^.?!]{1,40}? or an? ", re.I)
 
+#: The same slop in Hindi: literal renderings of rule 11 that Hindi travel copy
+#: leans on. Matched as substrings (word boundaries are unreliable in Devanagari).
+BANNED_LANG = {
+    "hi": [
+        "ताना-बाना", "का प्रमाण है", "का जीता-जागता प्रमाण", "इतिहास में डूबा", "छिपा हुआ रत्न",
+        "छुपा हुआ रत्न", "चहल-पहल भरा", "जीवंत", "लुभावन", "मनमोहक", "विस्मयकारी",
+        "मंत्रमुग्ध कर", "समय में पीछे", "अवश्य देख", "ज़रूर देखें", "जरूर देखें",
+        "निष्कर्ष में", "निष्कर्षतः", "का मिश्रण", "कालातीत", "समृद्ध विरासत", "गोद में बसा",
+    ],
+}  # fmt: skip
+
 #: Read-aloud budgets (rule 10): about 300, 750 and 1,500 words.
 BANDS = {2: (220, 400), 5: (580, 950), 10: (1150, 1850)}
 
@@ -26,6 +40,17 @@ LEGEND_CUES = re.compile(
     r"|according to (tradition|the story|local belief)|believe[sd]?|myth|tradition holds",
     re.I,
 )
+LEGEND_CUES_LANG = {
+    "hi": re.compile(
+        r"लोग कहते|कहा जाता|कहते हैं|किंवदंती|दंतकथा|लोककथा|कथा है|कहानी है कि|मान्यता|मानते हैं"
+        r"|माना जाता|किस्सा|क़िस्सा|सुनाते हैं"
+    ),
+}
+
+
+def legend_told(text: str, lang: str = "en") -> bool:
+    cues = LEGEND_CUES_LANG.get(lang)
+    return bool(LEGEND_CUES.search(text) or (cues and cues.search(text)))
 
 #: Adjectives that turn up in stacked triples ("grand, ancient and majestic").
 # Evaluative suffixes only: "carved, painted and gilded pillars" is concrete, not slop.
@@ -57,8 +82,11 @@ def citations(text: str) -> list[int]:
     return [n for m in MARKER.finditer(text) for n in cited(m.group(1))]
 
 
-def words(text: str) -> int:
-    return len(re.findall(r"[\w’'-]+", MARKER.sub("", text)))
+def words(text: str, lang: str = "en") -> int:
+    text = MARKER.sub("", text)
+    if lang != "en":  # \w splits Devanagari at its vowel signs; count spaced words
+        return sum(1 for t in text.split() if re.search(r"\w", t))
+    return len(re.findall(r"[\w’'-]+", text))
 
 
 def _adjective(word: str) -> bool:
@@ -66,9 +94,10 @@ def _adjective(word: str) -> bool:
     return w in _COMMON_ADJ or (len(w) > 4 and bool(_ADJ_SUFFIX.search(w)))
 
 
-def slop(text: str) -> list[str]:
+def slop(text: str, lang: str = "en") -> list[str]:
     """Every banned phrase or shape found, in a readable form. Empty means clean."""
     low = text.lower()
+    lang_found = [p for p in BANNED_LANG.get(lang, []) if p in text]
     # \w* after the stem: "delves" and "boasted" are the same slop as "delve" and "boasts".
     found = [p for p in BANNED if re.search(rf"\b{re.escape(p.removesuffix('s'))}\w*", low)]
     found += [f"whether…or: {m.group(0)!r}" for m in WHETHER.finditer(text)]
@@ -79,10 +108,10 @@ def slop(text: str) -> list[str]:
     for a, b in zip(sentences, sentences[1:], strict=False):
         if a.endswith("?") and b.endswith("?"):
             found.append(f"rhetorical questions in a row: {a!r} {b!r}")
-    return found
+    return found + lang_found
 
 
-def problems(segments: list[tuple[str, str]], n_facts: int, length_min: int) -> list[str]:
+def problems(segments: list[tuple[str, str]], n_facts: int, length_min: int, lang: str = "en") -> list[str]:
     """Everything wrong with a draft. Empty means it can ship."""
     out: list[str] = []
     if not segments:
@@ -93,11 +122,11 @@ def problems(segments: list[tuple[str, str]], n_facts: int, length_min: int) -> 
             out.append(f"markers point at no fact: {bad}")
         if label in ("history", "disputed") and not numbers:
             out.append(f"uncited {label} segment: {text[:60]!r}")
-        if label == "legend" and not LEGEND_CUES.search(text):
+        if label == "legend" and not legend_told(text, lang):
             out.append(f"legend not told as legend: {text[:60]!r}")
     full = "\n\n".join(t for _, t in segments)
-    out += [f"slop: {s}" for s in slop(full)]
+    out += [f"slop: {s}" for s in slop(full, lang)]
     low, high = BANDS[length_min]
-    if not low <= (n := words(full)) <= high:
+    if not low <= (n := words(full, lang)) <= high:
         out.append(f"length {n} words, want {low}-{high} for {length_min} min")
     return out
