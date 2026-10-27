@@ -144,4 +144,6 @@ def move_day(it: Itinerary, city: str) -> tuple[Itinerary, str]:
     counts[i] += 1
     moved = replan(req.model_copy(update={"days_per_destination": counts}))
     moved.lang = it.lang
+    # A new split re-plans every day, so earlier swaps, rain plans and lighter days do not carry over.
+    moved.warnings.append("The days were re-planned for the new split; earlier changes to this plan were replaced.")
     return moved, f"Moved a day from {req.destinations[donor]} to {req.destinations[i]}"

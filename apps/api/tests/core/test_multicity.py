@@ -143,6 +143,7 @@ def test_move_day_gives_a_city_a_day_from_its_neighbour_and_replans():
     it = plan()
     out, what, _ = revise(it, ReviseRequest(intent="move_day", city="Coorg"))
     assert what == "Moved a day from Mysuru to Coorg"
+    assert any("earlier changes to this plan were replaced" in w for w in out.warnings)
     assert out.request.days_per_destination == [2, 3]
     assert [city_of(out.request, d.date) for d in out.days] == ["Mysuru"] * 2 + ["Coorg"] * 3
     switch = out.days[2]

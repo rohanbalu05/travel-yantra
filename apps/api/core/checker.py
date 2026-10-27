@@ -104,12 +104,13 @@ def _check_day(day, lim: Limits, elderly: bool, travel: Travel) -> list[Violatio
         first_start = first_start or start
         last_leave, t = leave, leave
 
-    if last_leave and home and last_leave > home.depart - timedelta(minutes=RETURN_BUFFER_MIN):
+    missed_home = bool(last_leave and home and last_leave > home.depart - timedelta(minutes=RETURN_BUFFER_MIN))
+    if missed_home:
         out.append(Violation(code=ViolationCode.long_day, day=day.date,
                              message=f"Visits run past {home.depart:%H:%M}, when the {home.mode.value} home leaves"))
-    elif first_start and last_leave:
+    if first_start and last_leave:
         hours = (last_leave - begin).total_seconds() / 3600
-        if hours > LONG_DAY_HOURS:
+        if hours > LONG_DAY_HOURS and not missed_home:  # one long_day per day is enough
             out.append(Violation(code=ViolationCode.long_day, day=day.date,
                                  message=f"{hours:.1f}-hour day; keep it under {LONG_DAY_HOURS}"))
         elif elderly and hours > ELDERLY_MAX_OUT_HOURS and REST_NOTE not in day.notes:
