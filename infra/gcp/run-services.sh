@@ -62,13 +62,16 @@ case "${1:-}" in
     # we hand out; browsers may arrive on either.
     web_url=$(gcloud run services describe ty-web --region "$R" --project "$P" --format 'value(status.url)' 2>/dev/null || true)
     [ -n "$web_url" ] && web_url="$web_url,$WEB_URL"
+    # The chat engine (TY5's ty_chat, mounted at /chat) translates replies through
+    # ty-translate and writes share links. KATHA_TTS_DAILY_CHARS caps on-demand
+    # Katha audio: 30000 a day stays inside TTS's 1M characters a month free.
     # Gemini models are served at the global location on the trial project.
     # ^@^ makes "@" the list separator so the comma-separated CORS value survives.
     # 2 GiB: the image bakes torch and multilingual-e5-small for /guide/ask (V3-T).
     gcloud run deploy ty-api --image "$R-docker.pkg.dev/$P/ty/ty-api:$SHA" "${common[@]}" \
       --service-account "ty-api-run@$P.iam.gserviceaccount.com" --memory 2Gi \
       --add-cloudsql-instances "$CONN" \
-      --set-env-vars "^@^$VERTEX@TY_MODEL_FLASH=gemini-3.5-flash@TY_MODEL_LITE=gemini-3.1-flash-lite@EMBEDDER=e5@TY_CORS_ORIGINS=$web_url@TY_FIREBASE_PROJECT_ID=$P@KATHA_AUDIO_BUCKET=$AUDIO_BUCKET@KATHA_AUDIO_BASE_URL=https://storage.googleapis.com/$AUDIO_BUCKET@GIT_SHA=$SHA" \
+      --set-env-vars "^@^$VERTEX@TY_MODEL_FLASH=gemini-3.5-flash@TY_MODEL_LITE=gemini-3.1-flash-lite@EMBEDDER=e5@TY_CORS_ORIGINS=$web_url@TY_FIREBASE_PROJECT_ID=$P@KATHA_AUDIO_BUCKET=$AUDIO_BUCKET@KATHA_AUDIO_BASE_URL=https://storage.googleapis.com/$AUDIO_BUCKET@KATHA_TTS_DAILY_CHARS=30000@TRANSLATE_URL=$(url_of ty-translate)@SHARE_BASE_URL=$WEB_URL@GIT_SHA=$SHA" \
       ${sec:+"$sec"}
     ;;
   ty-web)
@@ -81,18 +84,18 @@ case "${1:-}" in
       --set-env-vars "GIT_SHA=$SHA"
     ;;
   ty-translate)
-    # Private: only ty-bots and ty-mcp call it, with ID tokens (run.invoker below).
+    # Private: only ty-bots, ty-mcp and ty-api (chat) call it, with ID tokens (run.invoker below).
     build ty-translate services/translate/Dockerfile
     gcloud run deploy ty-translate --image "$R-docker.pkg.dev/$P/ty/ty-translate:$SHA" "${common[@]}" \
       --service-account "ty-translate-run@$P.iam.gserviceaccount.com" --memory 512Mi \
       --set-env-vars "^@^$VERTEX@TY_MODEL_LITE=gemini-3.1-flash-lite@TY_TRANSLATOR=gemini@GIT_SHA=$SHA"
     granted=0
-    for caller in ty-bots-run ty-mcp-run; do
+    for caller in ty-bots-run ty-mcp-run ty-api-run; do
       gcloud run services add-iam-policy-binding ty-translate --region "$R" --project "$P" \
         --member "serviceAccount:$caller@$P.iam.gserviceaccount.com" --role roles/run.invoker --format none \
         && granted=$((granted + 1)) || echo "invoker grant failed for $caller" >&2
     done
-    [ "$granted" -eq 2 ] || exit 1
+    [ "$granted" -eq 3 ] || exit 1
     ;;
   ty-bots)
     # Public for Meta's webhook (the bot verifies Meta's signature itself); the
