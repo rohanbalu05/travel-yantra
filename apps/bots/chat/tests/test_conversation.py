@@ -147,7 +147,8 @@ async def test_plan_summary_and_ids(engine, api):
     assert plan.plan_id == "p1" and plan.share_token == "tok1"
     assert plan.itinerary.request.destinations == ITINERARY["request"]["destinations"]
     body = texts(events)[0]
-    assert "Travel: by train" in body and "Journeys:" in body
+    assert "Travel mode: train" in body and "Journeys:" in body
+    assert body.startswith("Bengaluru to Goa, 11 Dec to 14 Dec")
     assert "per person" not in body and " of you" in body and "Day 1" in body
     assert of(events, "chips")[0].chips[0] == "share"
 

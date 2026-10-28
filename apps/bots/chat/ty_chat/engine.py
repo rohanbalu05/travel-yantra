@@ -201,14 +201,16 @@ def chosen_mode(it: Itinerary) -> str:
         return ""
     word = MODE_WORDS.get(mode.value, mode.value)
     if it.request.transport_mode is not None:
-        return f"Travel: by {word} (your choice)"
-    return f"Travel: by {word}" + (f". {it.transport_reason}" if it.transport_reason else "")
+        # Not "by train": that is a chip, kept English everywhere in the reply.
+        return f"Travel mode: {word} (your choice)"
+    return f"Travel mode: {word}" + (f". {it.transport_reason}" if it.transport_reason else "")
 
 
 def summarise(it: Itinerary) -> str:
     req = it.request
     people = len(req.constraints.travellers)
-    head = f"{', '.join(req.destinations)} from {req.origin}, {req.start_date:%d %b} to "
+    # "Bengaluru to Mysuru": "Mysuru from Bengaluru" came back reversed in Hindi and Tamil.
+    head = f"{req.origin} to {', '.join(req.destinations)}, {req.start_date:%d %b} to "
     lines = [head + f"{req.end_date:%d %b}" + (f", {people} travellers" if people else "")]
     if mode := chosen_mode(it):
         lines.append(mode)
