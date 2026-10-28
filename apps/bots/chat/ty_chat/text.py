@@ -320,10 +320,11 @@ REGIONS = {
         "Kerala", "Kochi", "Cochin", "Munnar", "Alleppey", "Alappuzha", "Thiruvananthapuram",
         "Trivandrum", "Kovalam", "Varkala", "Wayanad", "Thekkady", "Kumarakom", "Kozhikode",
         "Calicut", "Thrissur", "Kollam", "Kannur", "Vagamon", "Athirappilly", "Fort Kochi",
+        "Ernakulam",
     ],
     "Golden Triangle": [
         "Golden Triangle", "Delhi", "New Delhi", "Agra", "Jaipur", "Fatehpur Sikri", "Mathura",
-        "Vrindavan", "Amber",
+        "Vrindavan", "Amber", "Amer", "Old Delhi", "Pink City",
     ],
 }  # fmt: skip
 COVERED = [c for cities in REGIONS.values() for c in cities]

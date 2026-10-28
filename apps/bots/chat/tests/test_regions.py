@@ -23,6 +23,8 @@ def test_help_names_the_regions_and_voice_notes():
         ("Delhi to Agra and Jaipur trip, 2-6 Feb", []),
         ("plan a trip for Arjun and family", []),  # "for X" may be a person
         ("Bangalore to Mysore trip", []),
+        ("Mumbai to Ernakulam trip, 2-4 Mar", []),
+        ("visit Pink City and Amer", []),
     ],
 )
 def test_outside_regions(said, far):
