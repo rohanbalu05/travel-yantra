@@ -34,10 +34,13 @@
           "name": "Meera",
           "age": 22
         }
-      ]
+      ],
+      "budget_style": null
     },
     "lang": "en",
-    "notes": "Sample persona: Arjun Rao and family."
+    "notes": "Sample persona: Arjun Rao and family.",
+    "days_per_destination": null,
+    "transport_mode": null
   },
   "itinerary": {
     "request": {
@@ -75,10 +78,13 @@
             "name": "Meera",
             "age": 22
           }
-        ]
+        ],
+        "budget_style": null
       },
       "lang": "en",
-      "notes": "Sample persona: Arjun Rao and family."
+      "notes": "Sample persona: Arjun Rao and family.",
+      "days_per_destination": null,
+      "transport_mode": null
     },
     "days": [
       {
@@ -131,7 +137,8 @@
               }
             ],
             "typical_visit_minutes": 60,
-            "source": "sample"
+            "source": "sample",
+            "ticket_url": null
           },
           {
             "id": "goa-sechurch",
@@ -178,7 +185,8 @@
               }
             ],
             "typical_visit_minutes": 45,
-            "source": "sample"
+            "source": "sample",
+            "ticket_url": null
           }
         ],
         "legs": [
@@ -189,12 +197,16 @@
             "depart": "2026-12-11T15:00:00",
             "arrive": "2026-12-11T15:20:00",
             "minutes": 20,
-            "cost_inr": 250
+            "cost_inr": 250,
+            "role": null,
+            "ref": null
           }
         ],
         "notes": [
           "Arrive by morning train; rest at the hotel."
-        ]
+        ],
+        "title": null,
+        "schedule": []
       },
       {
         "date": "2026-12-12",
@@ -244,7 +256,8 @@
               }
             ],
             "typical_visit_minutes": 90,
-            "source": "sample"
+            "source": "sample",
+            "ticket_url": null
           },
           {
             "id": "goa-miramar",
@@ -291,7 +304,8 @@
               }
             ],
             "typical_visit_minutes": 75,
-            "source": "sample"
+            "source": "sample",
+            "ticket_url": null
           }
         ],
         "legs": [
@@ -302,12 +316,16 @@
             "depart": "2026-12-12T15:00:00",
             "arrive": "2026-12-12T15:20:00",
             "minutes": 20,
-            "cost_inr": 250
+            "cost_inr": 250,
+            "role": null,
+            "ref": null
           }
         ],
         "notes": [
           "Short hops by cab only."
-        ]
+        ],
+        "title": null,
+        "schedule": []
       },
       {
         "date": "2026-12-13",
@@ -360,13 +378,16 @@
               }
             ],
             "typical_visit_minutes": 60,
-            "source": "sample"
+            "source": "sample",
+            "ticket_url": null
           }
         ],
         "legs": [],
         "notes": [
           "Temple first, then a slow lunch."
-        ]
+        ],
+        "title": null,
+        "schedule": []
       },
       {
         "date": "2026-12-14",
@@ -374,7 +395,9 @@
         "legs": [],
         "notes": [
           "Check out at 11:00; evening train back."
-        ]
+        ],
+        "title": null,
+        "schedule": []
       }
     ],
     "transport": [
@@ -388,7 +411,9 @@
             "depart": "2026-12-11T21:00:00",
             "arrive": "2026-12-12T11:00:00",
             "minutes": 840,
-            "cost_inr": 4800
+            "cost_inr": 4800,
+            "role": null,
+            "ref": null
           }
         ],
         "total_minutes": 840,
@@ -411,7 +436,8 @@
             "kind": "check_price",
             "fetched_at": "2026-10-20T09:00:00"
           }
-        ]
+        ],
+        "trip_total_inr": null
       },
       {
         "mode": "air",
@@ -423,7 +449,9 @@
             "depart": "2026-12-11T08:00:00",
             "arrive": "2026-12-11T09:15:00",
             "minutes": 75,
-            "cost_inr": 16400
+            "cost_inr": 16400,
+            "role": null,
+            "ref": null
           }
         ],
         "total_minutes": 75,
@@ -438,7 +466,8 @@
             "kind": "deep_link",
             "fetched_at": "2026-10-20T09:00:00"
           }
-        ]
+        ],
+        "trip_total_inr": null
       }
     ],
     "stays": [
@@ -457,7 +486,13 @@
             "kind": "deep_link",
             "fetched_at": "2026-10-20T09:00:00"
           }
-        ]
+        ],
+        "id": null,
+        "stars": null,
+        "rating": null,
+        "reviews": null,
+        "kind": null,
+        "sample": false
       }
     ],
     "budget": {
@@ -465,12 +500,16 @@
       "stay_inr": 12600,
       "activities_inr": 3000,
       "food_inr": 12000,
+      "local_transport_inr": 0,
       "total_inr": 46800,
-      "within_budget": true
+      "within_budget": true,
+      "food_per_person_day_inr": null
     },
     "warnings": [
       "Rail fare is a sample (PNR 0000000000)."
     ],
-    "lang": "en"
+    "lang": "en",
+    "season_notes": [],
+    "transport_reason": null
   }
 }

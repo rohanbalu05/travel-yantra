@@ -35,6 +35,14 @@ class Mode(StrEnum):
     air = "air"
 
 
+class BudgetStyle(StrEnum):
+    """How the traveller likes to spend: stay band, food per day, rail class, air or rail."""
+
+    shoestring = "shoestring"
+    comfort = "comfort"
+    luxury = "luxury"
+
+
 class Traveller(_Model):
     name: str
     age: int = Field(ge=0, le=120)
@@ -47,6 +55,8 @@ class Constraints(_Model):
     dietary: list[str] = Field(default_factory=list)
     max_travel_hours_per_day: float = Field(default=8, gt=0, le=24)
     travellers: list[Traveller] = Field(default_factory=list)
+    # None plans as comfort.
+    budget_style: BudgetStyle | None = None
 
 
 class TripRequest(_Model):
@@ -91,6 +101,8 @@ class Place(_Model):
     opening_hours: list[OpeningHours] = Field(default_factory=list)
     typical_visit_minutes: int = Field(ge=0)
     source: str
+    # The official ticket site only (TY2, from the corpus).
+    ticket_url: str | None = None
 
 
 class Leg(_Model):
@@ -133,6 +145,9 @@ class TransportOption(_Model):
     total_cost_inr: int = Field(ge=0)
     comfort: int = Field(ge=1, le=5)
     offers: list[SellerOffer] = Field(default_factory=list)
+    # Set by TY1 on Itinerary.transport: the whole-trip total (BudgetSummary.total_inr) the plan would have
+    # with this option, as the transport revise computes it. The option in use equals Itinerary.budget.total_inr.
+    trip_total_inr: int | None = Field(default=None, ge=0)
 
 
 RankBy = Literal["balanced", "time", "cost", "changes"]
@@ -189,6 +204,14 @@ class Stay(_Model):
     check_out: date
     price_per_night_inr: int = Field(ge=0)
     offers: list[SellerOffer] = Field(default_factory=list)
+    # Stable id for ReviseRequest.stay_id; stars, guest rating (out of 5) and review count when the source has them.
+    id: str | None = None
+    stars: int | None = Field(default=None, ge=1, le=5)
+    rating: float | None = Field(default=None, ge=0, le=5)
+    reviews: int | None = Field(default=None, ge=0)
+    # "hotel" or "rental"; sample is True for illustrative stays that are not a real listing.
+    kind: str | None = None
+    sample: bool = False
 
     @model_validator(mode="after")
     def _dates_in_order(self) -> Stay:
@@ -222,8 +245,12 @@ class BudgetSummary(_Model):
     stay_inr: int = Field(ge=0)
     activities_inr: int = Field(default=0, ge=0)
     food_inr: int = Field(default=0, ge=0)
+    # Getting around in each city: transfers from the station and rides between stops (cabs for the party).
+    local_transport_inr: int = Field(default=0, ge=0)
     total_inr: int = Field(ge=0)
     within_budget: bool | None = None
+    # Food per person per day used for food_inr (a stated estimate for the budget style).
+    food_per_person_day_inr: int | None = Field(default=None, ge=0)
 
 
 class SeasonNote(_Model):
@@ -247,6 +274,8 @@ class Itinerary(_Model):
     lang: Lang = Lang.en
     # Quoted, sourced season notes for the trip's cities and months; empty when the sources say nothing.
     season_notes: list[SeasonNote] = Field(default_factory=list)
+    # Why the plan travels the way it does when the traveller did not choose ("Flight: the train takes ...").
+    transport_reason: str | None = None
 
 
 class StorySegment(_Model):
@@ -284,6 +313,8 @@ class KathaStory(_Model):
     sources: list[str] = Field(default_factory=list)
     lang: Lang = Lang.en
     audio: list[KathaAudio] = Field(default_factory=list)
+    # "pending": narration was started on demand; poll the same POST /guide/katha until "ready" (audio filled).
+    audio_status: Literal["ready", "pending", "none"] | None = None
 
 
 class Citation(_Model):
@@ -404,13 +435,46 @@ class ReviseIntent(StrEnum):
     rain = "rain"
     move_day = "move_day"
     transport = "transport"
+    add_stop = "add_stop"
+    remove_stop = "remove_stop"
+    move_stop = "move_stop"
+    change_stay = "change_stay"
+    budget_style = "budget_style"
+    booked = "booked"
+    rest_of_day = "rest_of_day"
+
+
+class BookedJourney(_Model):
+    """A train or flight the traveller has already booked (ReviseIntent.booked)."""
+
+    mode: Mode
+    # Train number or flight number, e.g. "17309" or "6E 512".
+    ref: str = Field(min_length=1, max_length=20)
+    from_: str = Field(alias="from", min_length=1)
+    to: str = Field(min_length=1)
+    depart: datetime
+    arrive: datetime
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    @model_validator(mode="after")
+    def _times_in_order(self) -> BookedJourney:
+        if self.arrive < self.depart:
+            raise ValueError("arrive must not be before depart")
+        return self
 
 
 class ReviseRequest(_Model):
-    """Body of POST /plan/{plan_id}/revise. lighter_day needs day; swap_stop needs place_id; rain takes
-    an optional day (all days when missing); move_day needs city (the destination that gains a day from a
-    neighbour); transport needs mode (every journey switches to it, stops are kept). The response streams
-    PlanEvents like /plan."""
+    """Body of POST /plan/{plan_id}/revise. The response streams PlanEvents like /plan; done keeps the
+    trip's plan_id and share_token (one trip, a new version).
+
+    lighter_day: day. swap_stop: place_id. rain: optional day (all days when missing). move_day: city (that
+    destination gains a day from a neighbour). transport: mode (every journey switches, stops are kept).
+    add_stop: place (a name; a corpus place id works too) or place_id, optional day (else the best-fitting
+    day). remove_stop: place_id. move_stop: place_id and day. change_stay: stay_id, or stay_pick "cheaper" or
+    "better_rated", optional city. budget_style: style. booked: booked (the plan is re-timed around it).
+    rest_of_day: now, optional lat and lng (today's remaining stops are re-planned from there; the stay
+    and the journey home are kept)."""
 
     intent: ReviseIntent
     day: date | None = None
@@ -418,17 +482,35 @@ class ReviseRequest(_Model):
     city: str | None = None
     mode: Mode | None = None
     lang: Lang | None = None
+    place: str | None = Field(default=None, max_length=200)
+    stay_id: str | None = None
+    stay_pick: Literal["cheaper", "better_rated"] | None = None
+    style: BudgetStyle | None = None
+    booked: BookedJourney | None = None
+    # rest_of_day: the traveller's local time and position.
+    now: datetime | None = None
+    lat: float | None = Field(default=None, ge=-90, le=90)
+    lng: float | None = Field(default=None, ge=-180, le=180)
 
     @model_validator(mode="after")
     def _needs(self) -> ReviseRequest:
-        if self.intent is ReviseIntent.lighter_day and self.day is None:
-            raise ValueError("lighter_day needs day")
-        if self.intent is ReviseIntent.swap_stop and not self.place_id:
-            raise ValueError("swap_stop needs place_id")
-        if self.intent is ReviseIntent.move_day and not self.city:
-            raise ValueError("move_day needs city")
-        if self.intent is ReviseIntent.transport and self.mode is None:
-            raise ValueError("transport needs mode")
+        i = ReviseIntent
+        need = {
+            i.lighter_day: (self.day is not None, "lighter_day needs day"),
+            i.swap_stop: (bool(self.place_id), "swap_stop needs place_id"),
+            i.move_day: (bool(self.city), "move_day needs city"),
+            i.transport: (self.mode is not None, "transport needs mode"),
+            i.add_stop: (bool(self.place or self.place_id), "add_stop needs place or place_id"),
+            i.remove_stop: (bool(self.place_id), "remove_stop needs place_id"),
+            i.move_stop: (bool(self.place_id) and self.day is not None, "move_stop needs place_id and day"),
+            i.change_stay: (bool(self.stay_id or self.stay_pick), "change_stay needs stay_id or stay_pick"),
+            i.budget_style: (self.style is not None, "budget_style needs style"),
+            i.booked: (self.booked is not None, "booked needs booked"),
+            i.rest_of_day: (self.now is not None, "rest_of_day needs now"),
+        }
+        ok, message = need.get(self.intent, (True, ""))
+        if not ok:
+            raise ValueError(message)
         return self
 
 
@@ -460,7 +542,7 @@ class Me(_Model):
 
 
 class TripSummary(_Model):
-    """One row of GET /me/trips, newest first."""
+    """One row of GET /me/trips per trip (its latest version), most recently changed first."""
 
     plan_id: str
     share_token: str
@@ -470,6 +552,22 @@ class TripSummary(_Model):
     start_date: date
     end_date: date
     created_at: datetime
+    # When the latest version was saved (created_at for a trip never revised).
+    updated_at: datetime | None = None
+    # The way the plan travels (the chosen mode, else the outbound journey's), and how many travel.
+    mode: Mode | None = None
+    travellers: int = Field(default=1, ge=1)
+    total_inr: int | None = Field(default=None, ge=0)
+
+
+class SavedPlan(_Model):
+    """GET /plan/{plan_id}: the owner's own trip, latest version, to reopen it editable."""
+
+    plan_id: str
+    share_token: str
+    itinerary: Itinerary
+    version: int = Field(default=1, ge=1)
+    updated_at: datetime | None = None
 
 
 class RatingIn(_Model):

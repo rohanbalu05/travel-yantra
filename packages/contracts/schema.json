@@ -1,6 +1,61 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$defs": {
+    "BookedJourney": {
+      "additionalProperties": false,
+      "description": "A train or flight the traveller has already booked (ReviseIntent.booked).",
+      "properties": {
+        "mode": {
+          "$ref": "#/$defs/Mode"
+        },
+        "ref": {
+          "maxLength": 20,
+          "minLength": 1,
+          "title": "Ref",
+          "type": "string"
+        },
+        "from": {
+          "minLength": 1,
+          "title": "From",
+          "type": "string"
+        },
+        "to": {
+          "minLength": 1,
+          "title": "To",
+          "type": "string"
+        },
+        "depart": {
+          "format": "date-time",
+          "title": "Depart",
+          "type": "string"
+        },
+        "arrive": {
+          "format": "date-time",
+          "title": "Arrive",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "ref",
+        "from",
+        "to",
+        "depart",
+        "arrive"
+      ],
+      "title": "BookedJourney",
+      "type": "object"
+    },
+    "BudgetStyle": {
+      "description": "How the traveller likes to spend: stay band, food per day, rail class, air or rail.",
+      "enum": [
+        "shoestring",
+        "comfort",
+        "luxury"
+      ],
+      "title": "BudgetStyle",
+      "type": "string"
+    },
     "BudgetSummary": {
       "additionalProperties": false,
       "properties": {
@@ -26,6 +81,12 @@
           "title": "Food Inr",
           "type": "integer"
         },
+        "local_transport_inr": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Local Transport Inr",
+          "type": "integer"
+        },
         "total_inr": {
           "minimum": 0,
           "title": "Total Inr",
@@ -42,6 +103,19 @@
           ],
           "default": null,
           "title": "Within Budget"
+        },
+        "food_per_person_day_inr": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Food Per Person Day Inr"
         }
       },
       "required": [
@@ -339,6 +413,17 @@
           },
           "title": "Travellers",
           "type": "array"
+        },
+        "budget_style": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BudgetStyle"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "title": "Constraints",
@@ -568,6 +653,18 @@
           },
           "title": "Season Notes",
           "type": "array"
+        },
+        "transport_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Transport Reason"
         }
       },
       "required": [
@@ -711,6 +808,23 @@
           },
           "title": "Audio",
           "type": "array"
+        },
+        "audio_status": {
+          "anyOf": [
+            {
+              "enum": [
+                "ready",
+                "pending",
+                "none"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Audio Status"
         }
       },
       "required": [
@@ -970,6 +1084,18 @@
         "source": {
           "title": "Source",
           "type": "string"
+        },
+        "ticket_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ticket Url"
         }
       },
       "required": [
@@ -1242,14 +1368,21 @@
         "swap_stop",
         "rain",
         "move_day",
-        "transport"
+        "transport",
+        "add_stop",
+        "remove_stop",
+        "move_stop",
+        "change_stay",
+        "budget_style",
+        "booked",
+        "rest_of_day"
       ],
       "title": "ReviseIntent",
       "type": "string"
     },
     "ReviseRequest": {
       "additionalProperties": false,
-      "description": "Body of POST /plan/{plan_id}/revise. lighter_day needs day; swap_stop needs place_id; rain takes\nan optional day (all days when missing); move_day needs city (the destination that gains a day from a\nneighbour); transport needs mode (every journey switches to it, stops are kept). The response streams\nPlanEvents like /plan.",
+      "description": "Body of POST /plan/{plan_id}/revise. The response streams PlanEvents like /plan; done keeps the\ntrip's plan_id and share_token (one trip, a new version).\n\nlighter_day: day. swap_stop: place_id. rain: optional day (all days when missing). move_day: city (that\ndestination gains a day from a neighbour). transport: mode (every journey switches, stops are kept).\nadd_stop: place (a name; a corpus place id works too) or place_id, optional day (else the best-fitting\nday). remove_stop: place_id. move_stop: place_id and day. change_stay: stay_id, or stay_pick \"cheaper\" or\n\"better_rated\", optional city. budget_style: style. booked: booked (the plan is re-timed around it).\nrest_of_day: now, optional lat and lng (today's remaining stops are re-planned from there; the stay\nand the journey home are kept).",
       "properties": {
         "intent": {
           "$ref": "#/$defs/ReviseIntent"
@@ -1312,12 +1445,159 @@
             }
           ],
           "default": null
+        },
+        "place": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Place"
+        },
+        "stay_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stay Id"
+        },
+        "stay_pick": {
+          "anyOf": [
+            {
+              "enum": [
+                "cheaper",
+                "better_rated"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stay Pick"
+        },
+        "style": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BudgetStyle"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "booked": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BookedJourney"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "now": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Now"
+        },
+        "lat": {
+          "anyOf": [
+            {
+              "maximum": 90,
+              "minimum": -90,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lat"
+        },
+        "lng": {
+          "anyOf": [
+            {
+              "maximum": 180,
+              "minimum": -180,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lng"
         }
       },
       "required": [
         "intent"
       ],
       "title": "ReviseRequest",
+      "type": "object"
+    },
+    "SavedPlan": {
+      "additionalProperties": false,
+      "description": "GET /plan/{plan_id}: the owner's own trip, latest version, to reopen it editable.",
+      "properties": {
+        "plan_id": {
+          "title": "Plan Id",
+          "type": "string"
+        },
+        "share_token": {
+          "title": "Share Token",
+          "type": "string"
+        },
+        "itinerary": {
+          "$ref": "#/$defs/Itinerary"
+        },
+        "version": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Version",
+          "type": "integer"
+        },
+        "updated_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Updated At"
+        }
+      },
+      "required": [
+        "plan_id",
+        "share_token",
+        "itinerary"
+      ],
+      "title": "SavedPlan",
       "type": "object"
     },
     "SeasonNote": {
@@ -1439,6 +1719,76 @@
           },
           "title": "Offers",
           "type": "array"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        },
+        "stars": {
+          "anyOf": [
+            {
+              "maximum": 5,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stars"
+        },
+        "rating": {
+          "anyOf": [
+            {
+              "maximum": 5,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rating"
+        },
+        "reviews": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reviews"
+        },
+        "kind": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kind"
+        },
+        "sample": {
+          "default": false,
+          "title": "Sample",
+          "type": "boolean"
         }
       },
       "required": [
@@ -1544,6 +1894,19 @@
           },
           "title": "Offers",
           "type": "array"
+        },
+        "trip_total_inr": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Trip Total Inr"
         }
       },
       "required": [
@@ -1743,7 +2106,7 @@
     },
     "TripSummary": {
       "additionalProperties": false,
-      "description": "One row of GET /me/trips, newest first.",
+      "description": "One row of GET /me/trips per trip (its latest version), most recently changed first.",
       "properties": {
         "plan_id": {
           "title": "Plan Id",
@@ -1782,6 +2145,49 @@
           "format": "date-time",
           "title": "Created At",
           "type": "string"
+        },
+        "updated_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Updated At"
+        },
+        "mode": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Mode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "travellers": {
+          "default": 1,
+          "minimum": 1,
+          "title": "Travellers",
+          "type": "integer"
+        },
+        "total_inr": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Total Inr"
         }
       },
       "required": [
