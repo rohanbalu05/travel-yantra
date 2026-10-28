@@ -112,6 +112,41 @@ def test_usage_counts_live_calls_against_the_caps(monkeypatch):
     app = FastAPI()
     app.include_router(router)
     body = TestClient(app).get("/routes/usage").json()
-    assert body["serpapi"] == {"month": 1, "month_cap": 90, "today": 1, "day_cap": 20}
+    assert body["serpapi"] == {"month": 1, "month_cap": 90, "today": 1, "day_cap": 20, "plan_left": None}
     assert body["routes_api"]["month"] == 0 and body["routes_api"]["month_cap"] > 0
     assert "key" not in str(body).lower()
+
+
+def test_live_calls_stop_ten_short_of_the_plans_remainder():
+    """The Account API (free) says how many searches the plan has left; live calls stop RESERVE short."""
+    from routes.apicache import MemoryStore
+    from routes.serpapi import SerpApi
+
+    left = {"n": 12}
+    calls = []
+
+    def transport(url, timeout):
+        calls.append(url.split("?")[0])
+        if "account.json" in url:
+            return {"total_searches_left": left["n"], "api_key": "secret", "account_email": "x@example.com"}
+        return {"ok": len(calls)}
+
+    store = MemoryStore()
+    api = SerpApi(store=store, transport=transport, api_key="k", daily_cap=100, monthly_cap=100, account=True)
+    assert api.get({"q": "a"}, 60) is not None and api.get({"q": "b"}, 60) is not None
+    assert api.get({"q": "c"}, 60) is None  # 12 left, 2 spent since the check: 10, the reserve
+    assert calls.count("https://serpapi.com/account.json") == 1  # cached between calls
+    assert "secret" not in str(store.get("serpapi:account")) and "example" not in str(store.get("serpapi:account"))
+
+
+def test_unknown_remainder_falls_back_to_the_caps():
+    from routes.apicache import MemoryStore
+    from routes.serpapi import SerpApi
+
+    def transport(url, timeout):
+        if "account.json" in url:
+            raise TimeoutError
+        return {"ok": True}
+
+    api = SerpApi(store=MemoryStore(), transport=transport, api_key="k", daily_cap=1, monthly_cap=5, account=True)
+    assert api.get({"q": "a"}, 60) is not None and api.get({"q": "b"}, 60) is None  # the daily cap

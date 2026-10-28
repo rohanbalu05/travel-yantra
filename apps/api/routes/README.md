@@ -98,7 +98,10 @@ up to `at` (default now): `timeline`, `current_status`, per-passenger status,
 
 Live calls counted in the shared store: `serpapi` (this month and today, with
 `SERPAPI_MONTHLY_CAP` and `SERPAPI_DAILY_CAP`) and `routes_api` (this month, with
-`ROUTES_MONTHLY_CAP`). Counts only. At a cap, calls stop and cached answers are used.
+`ROUTES_MONTHLY_CAP`). Counts only. At a cap, calls stop and cached answers are used. `serpapi.plan_left`
+is the plan's remainder at the last account check (null before one). Before each live SerpApi call
+the client reads the plan's searches left from SerpApi's Account API (free, not counted; cached 10
+minutes) and stops `SERPAPI_RESERVE` (default 10) short of it, whatever the caps say.
 
 ## Metrics
 

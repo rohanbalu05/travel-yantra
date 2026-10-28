@@ -116,7 +116,8 @@ def get_usage() -> dict:
         "serpapi": {"month": store.count(serpapi.PROVIDER, month), "month_cap": serpapi._cap("SERPAPI_MONTHLY_CAP",
                                                                                              serpapi.MONTHLY_CAP),
                     "today": store.count(serpapi.PROVIDER, day), "day_cap": serpapi._cap("SERPAPI_DAILY_CAP",
-                                                                                          serpapi.DAILY_CAP)},
+                                                                                          serpapi.DAILY_CAP),
+                    "plan_left": (store.get("serpapi:account", stale=True) or {}).get("left")},
         "routes_api": {"month": store.count(roads.REF, month),
                        "month_cap": int(os.environ.get("ROUTES_MONTHLY_CAP") or roads.MONTHLY_CAP)},
     }
