@@ -25,7 +25,7 @@ from .graph import (
 IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
 BOOKING_URL = "https://www.irctc.co.in/nget/train-search"
 TravelClass = Literal["SL", "3E", "3A", "2A", "1A", "CC", "EC", "2S"]
-Style = Literal["budget", "mid", "luxury"]
+Style = Literal["budget", "mid", "luxury", "shoestring", "comfort"]  # fares.style_key
 SEAT_CLASSES = {"CC", "EC", "2S"}
 DEFAULT_AFTER = dt.time(6, 0)  # with no train named, the first that leaves at or after this
 LOWER_BERTH_AGE = 45

@@ -76,7 +76,7 @@ In process (no HTTP): `routes.compare.get_service().compare(CompareRequest(...))
 
 ## GET /routes/irctc-card
 
-`?from=SBC&to=MAO&date=2026-12-11&party=goa_family[&train=17309][&after=07:00][&travel_class=3A][&style=mid]`.
+`?from=SBC&to=MAO&date=2026-12-11&party=goa_family[&train=17309][&after=07:00][&travel_class=3A][&style=mid]`. `style` is budget, mid or luxury, or the plan's own budget_style words (shoestring = budget, comfort = mid).
 With no `train`, the first train leaving at or after `after` (default 06:00). `classes` lists the
 classes the train carries (Shatabdis: CC, EC); with no `travel_class`, or one the train lacks (a note
 says so), the card uses the class compare prices the train in for `style`, so its fare is the plan's.

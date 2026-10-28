@@ -208,3 +208,13 @@ def test_slip_portion_books_as_its_train():
                           travellers=2, after=slip.depart.time())
         assert card.train.number == "17603" and card.departs == slip.depart.strftime("%H:%M")
         assert card.fare_estimate_inr == slip.cost_inr
+
+
+def test_card_takes_the_plans_budget_style_words():
+    """The web passes Constraints.budget_style as it is: shoestring rides SL on 17309, as the option is priced."""
+    d = dt.date(2026, 12, 11)
+    shoe = irctc_card("YPR", "DBM", d, party="none", train="17309", data_dir=DATA_DIR, travellers=4, style="shoestring")
+    comfort = irctc_card("YPR", "DBM", d, party="none", train="17309", data_dir=DATA_DIR, travellers=4, style="comfort")
+    assert shoe.travel_class == "SL" and comfort.travel_class == "3A"
+    assert shoe.fare_estimate_inr == irctc_card("YPR", "DBM", d, party="none", train="17309", data_dir=DATA_DIR,
+                                                travellers=4, style="budget").fare_estimate_inr

@@ -19,6 +19,7 @@ from pathlib import Path
 from ty_contracts import Stay
 
 from .compare import UnknownPlace, resolve_city
+from .fares import style_key
 from .graph import DATA_DIR
 from .hotels import Property, SerpApiHotels, default_hotel_provider
 from .sellers import ROOM_SLEEPS, Found, StayQuery, stay_offers
@@ -76,6 +77,7 @@ def party_price(r: dict, party: int) -> int:
 def _style_key(style: str | None):
     """Sort key within the stays that fit the budget: budget, cheapest of the good ones;
     mid, 3-4 star (or unrated class) by score then price; luxury, most stars then score."""
+    style = style_key(style)
     if style == "budget":
         return lambda r, price: (score(r) < GOOD_SCORE, price, -score(r))
     if style == "luxury":
@@ -142,7 +144,7 @@ def estimates(city: str, key: str, check_in: dt.date, check_out: dt.date, party:
               budget_style: str | None = None) -> list[Stay]:
     """Labelled estimate stays (see ESTIMATES), the budget style's tier first, then the
     others from the cheapest; links search the city on each seller."""
-    first = budget_style if budget_style in ("budget", "mid", "luxury") else "mid"
+    first = style_key(budget_style) if style_key(budget_style) in ("budget", "mid", "luxury") else "mid"
     tiers = sorted(ESTIMATES, key=lambda t: (t[0] != first, t[2]))
     rooms = math.ceil(party / ROOM_SLEEPS)
     q = StayQuery(city, check_in, check_out, adults=party, hotel=None)

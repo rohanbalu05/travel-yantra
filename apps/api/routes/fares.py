@@ -18,6 +18,13 @@ from typing import Literal
 
 RailClass = Literal["2S", "SL", "CC", "3E", "3A", "2A", "1A", "EC"]
 BudgetStyle = Literal["budget", "mid", "luxury"]
+# TY1's Constraints.budget_style words are accepted too.
+STYLE_ALIASES = {"shoestring": "budget", "comfort": "mid"}
+
+
+def style_key(style: str | None) -> str | None:
+    """budget | mid | luxury for either vocabulary; None stays None."""
+    return STYLE_ALIASES.get(style, style) if style else None
 
 # Rail. Sleeper fare per person = SL_A * km ** SL_P (fitted, see the module note).
 SL_A, SL_P = 7.1, 0.615
@@ -52,7 +59,7 @@ CAB_BASE_INR, CAB_INR_PER_KM, CAB_MIN_INR = 60.0, 18.0, 100.0
 
 def rail_class(classes: list[str] | tuple[str, ...], style: str | None = None) -> str:
     """The class a party of this budget style rides on a train carrying `classes`."""
-    for c in STYLE_CLASSES.get(style or DEFAULT_STYLE, STYLE_CLASSES[DEFAULT_STYLE]):
+    for c in STYLE_CLASSES.get(style_key(style) or DEFAULT_STYLE, STYLE_CLASSES[DEFAULT_STYLE]):
         if c in classes:
             return c
     return classes[0] if classes else "2S"
