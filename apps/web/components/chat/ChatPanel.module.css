@@ -1,0 +1,215 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  min-height: 360px;
+  max-height: 70vh;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--card);
+  color: var(--ink);
+  font-family: var(--f-body);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.log {
+  flex: 1 1 auto;
+  min-height: 160px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.log li {
+  max-width: 92%;
+  padding: 8px 12px;
+  border-radius: var(--r);
+  font-size: 15px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.log p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.log a {
+  color: var(--sea);
+  text-decoration: underline;
+}
+
+.user,
+.heard {
+  align-self: flex-end;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.heard {
+  background: var(--ink-2);
+}
+
+.bot {
+  align-self: flex-start;
+  background: var(--white);
+  border: 1px solid var(--line-2);
+}
+
+.note,
+.updated {
+  align-self: center;
+  color: var(--muted);
+  font-size: 14px !important;
+  font-style: italic;
+}
+
+.updated {
+  color: var(--ok);
+  font-style: normal;
+  font-weight: 600;
+}
+
+.error {
+  align-self: flex-start;
+  color: var(--bad);
+  border: 1px solid var(--bad);
+  background: var(--white);
+}
+
+.audio {
+  align-self: flex-start;
+  background: var(--white);
+  border: 1px solid var(--line-2);
+}
+
+.audioEl {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin-top: 4px;
+}
+
+.who {
+  display: block;
+  font-size: 12px;
+  font-weight: 650;
+  opacity: 0.8;
+  margin-bottom: 2px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chip:hover {
+  border-color: var(--ink-2);
+}
+
+.voiceNote {
+  margin: 0;
+  font-size: 14px;
+  color: var(--warn);
+}
+
+.form {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.input {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 48px;
+  max-height: 140px;
+  padding: 12px;
+  border: 1px solid var(--field);
+  border-radius: var(--r);
+  background: var(--white);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px; /* 16px keeps iOS from zooming in */
+  resize: vertical;
+}
+
+.mic,
+.send {
+  flex: 0 0 auto;
+  min-height: 48px;
+  border-radius: var(--r);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.mic {
+  width: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.mic.on {
+  background: var(--laterite);
+  border-color: var(--laterite);
+  color: #fbf6ee;
+}
+
+.send {
+  padding: 0 16px;
+  border: 1px solid transparent;
+  background: var(--laterite);
+  color: #fbf6ee;
+}
+
+.mic:disabled,
+.send:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
