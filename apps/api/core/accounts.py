@@ -9,6 +9,7 @@ Postgres when DATABASE_URL is set (core/migrations), else in memory.
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import logging
 import os
 import re
@@ -66,6 +67,19 @@ def identity(authorization: str | None = Header(default=None),
             link_browser(anon, claims.uid)
         return Identity(claims.uid, claims.email, claims.name)
     return Identity(anon) if anon else None
+
+
+def creator_key(cid: str) -> str:
+    """A one-way key for a trip's maker: the trip store never holds the browser, chat or account id itself."""
+    return hashlib.sha256(f"ty-creator:{cid}".encode()).hexdigest()[:32]
+
+
+def caller_ids(who: Identity | None = Depends(identity), x_client_id: str | None = Header(default=None)) -> tuple[str, ...]:
+    """Every id the caller speaks for: the account (or browser) id, and the browser id sent with a sign-in."""
+    ids = [who.uid] if who else []
+    if x_client_id and CLIENT_ID.fullmatch(x_client_id) and x_client_id not in ids:
+        ids.append(x_client_id)
+    return tuple(ids)
 
 
 def client_id(who: Identity | None = Depends(identity)) -> str | None:
@@ -344,7 +358,9 @@ def put_consents(body: ConsentsUpdate, who: Identity = Depends(require_identity)
 def delete_me(uid: str = Depends(require_client)) -> dict:
     """Everything for this id: its trips (their share links stop working), consents and ratings."""
     plan_ids = [t.id for t in get_store().by_owner(uid)]
-    items = get_store().delete_owner(uid) + get_accounts().delete(uid, plan_ids)
+    # Its own trips, and the ones it made without keeping a history (no owner, its maker key).
+    items = get_store().delete_owner(uid) + get_store().delete_creator(creator_key(uid)) \
+        + get_accounts().delete(uid, plan_ids)
     log.warning("deleted account data: %d items", items)  # no id in the log
     return {"deleted": True, "items": items}
 

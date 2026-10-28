@@ -15,7 +15,7 @@ from ty_contracts import (
     TripRequest,
 )
 
-from .accounts import client_id, get_accounts, keeps_history
+from .accounts import caller_ids, client_id, creator_key, get_accounts, keeps_history
 from .accounts import router as accounts_router
 from .checker import settled
 from .pipeline import revise_events, run_plan
@@ -68,32 +68,37 @@ async def plan(body: TripRequest | PlanText, client: str | None = Depends(client
     return stream(run_plan(body, client))
 
 
-def _own(plan_id: str, client: str | None):
-    """The trip, if the caller may change it: a trip with an owner needs that caller (403); one without is
-    the plan_id holder's (the id is the capability)."""
+def _own(plan_id: str, client: str | None, ids: tuple[str, ...] = ()):
+    """The trip, if the caller may change it: a trip with an owner needs that caller; one without needs the
+    browser, chat or account that made it (older trips without a maker: whoever holds the plan_id). 404 and
+    403 say so in a plain sentence."""
     trip = get_store().get(plan_id)
     if trip is None:
-        raise HTTPException(404, "plan not found")
+        raise HTTPException(404, "This plan was not found. It may have been deleted.")
     if trip.owner is not None and trip.owner != client:
-        raise HTTPException(403, "this plan belongs to someone else")
+        raise HTTPException(403, "This plan belongs to someone else.")
+    if trip.owner is None and trip.creator and trip.creator not in {creator_key(c) for c in (*ids, client) if c}:
+        raise HTTPException(403, "Only the browser or chat that made this plan can change it. "
+                                 "Its share link still shows it.")
     return trip
 
 
 @router.get("/plan/{plan_id}", response_model=SavedPlan, response_model_by_alias=True)
-def get_plan(plan_id: str, client: str | None = Depends(client_id)) -> SavedPlan:
+def get_plan(plan_id: str, client: str | None = Depends(client_id), ids: tuple[str, ...] = Depends(caller_ids)) -> SavedPlan:
     """The latest version of a trip, to reopen it editable. Same rules as revise: 404, or 403 for a trip
     that belongs to another account or browser."""
-    trip = _own(plan_id, client)
+    trip = _own(plan_id, client, ids)
     return SavedPlan(plan_id=trip.id, share_token=trip.share_token, itinerary=settled(trip.itinerary, log),
                      version=trip.version, updated_at=trip.changed_at)
 
 
 @router.post("/plan/{plan_id}/revise")
-async def revise_plan(plan_id: str, body: ReviseRequest, client: str | None = Depends(client_id)):
+async def revise_plan(plan_id: str, body: ReviseRequest, client: str | None = Depends(client_id),
+                      ids: tuple[str, ...] = Depends(caller_ids)):
     """Apply one change. 404 for an unknown plan, 403 for someone else's, 422 when the change does not fit
     it; otherwise streams PlanEvents ending in done with the same plan_id and share_token (a new version)."""
     # Store calls (Postgres) and the solver are blocking; keep them off the event loop.
-    trip = await asyncio.to_thread(_own, plan_id, client)
+    trip = await asyncio.to_thread(_own, plan_id, client, ids)
     try:
         revised, what, rounds = await asyncio.to_thread(revise, settled(trip.itinerary, log), body)
     except ReviseError as exc:
@@ -109,10 +114,10 @@ async def revise_plan(plan_id: str, body: ReviseRequest, client: str | None = De
 
 
 @router.delete("/plan/{plan_id}", status_code=204)
-def delete_plan(plan_id: str, client: str | None = Depends(client_id)) -> Response:
+def delete_plan(plan_id: str, client: str | None = Depends(client_id), ids: tuple[str, ...] = Depends(caller_ids)) -> Response:
     """Delete one plan by its id (the creator's capability; a share token is not enough). A plan linked to an
     account or browser needs that caller (403 otherwise). Its share link stops working; ratings of it go too."""
-    _own(plan_id, client)
+    _own(plan_id, client, ids)
     get_store().delete(plan_id)
     get_accounts().delete_ratings_for([plan_id])
     return Response(status_code=204)

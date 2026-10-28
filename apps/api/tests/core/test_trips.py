@@ -48,6 +48,36 @@ def test_postgres_store_and_migration_is_idempotent():
     roundtrip(PgStore(url))  # applies it again, then round-trips
 
 
+def test_only_its_maker_may_change_a_trip_without_an_owner():
+    import json
+
+    from fastapi.testclient import TestClient
+
+    from main import app
+
+    client = TestClient(app)
+    maker, other = {"X-Client-Id": "sample-browser-maker-0001"}, {"X-Client-Id": "sample-browser-other-0002"}
+    body = GOA.request.model_dump(mode="json")
+    lines = client.post("/plan", json=body, headers=maker).text.splitlines()
+    done = [json.loads(x[6:]) for x in lines if x.startswith("data: ")][-1]
+    pid = done["plan_id"]
+    r = client.post(f"/plan/{pid}/revise", json={"intent": "rain"}, headers=other)
+    assert r.status_code == 403 and r.json()["detail"].startswith("Only the browser or chat that made this plan")
+    assert client.get(f"/plan/{pid}", headers=other).status_code == 403
+    assert client.get(f"/plan/{pid}").status_code == 403 and client.delete(f"/plan/{pid}", headers=other).status_code == 403
+    assert client.get(f"/trips/{done['share_token']}").status_code == 200  # the share link still shows it
+    assert client.post(f"/plan/{pid}/revise", json={"intent": "rain"}, headers=maker).status_code == 200
+    # Signed in later on the same browser: the browser id sent with the sign-in still counts.
+    assert client.get(f"/plan/{pid}", headers=maker).status_code == 200
+    assert client.get("/plan/not-a-plan").json() == {"detail": "This plan was not found. It may have been deleted."}
+    # Deleting the browser's data takes its trips, kept or not.
+    assert client.delete("/me", headers=maker).status_code == 202 and client.get(f"/trips/{done['share_token']}").status_code == 404
+    # A plan made without any id (older clients) stays the plan_id holder's.
+    lines = client.post("/plan", json=body).text.splitlines()
+    anon = [json.loads(x[6:]) for x in lines if x.startswith("data: ")][-1]["plan_id"]
+    assert client.get(f"/plan/{anon}", headers=other).status_code == 200
+
+
 def test_a_stale_revise_never_overwrites_a_newer_version():
     from core.trips import TripChanged
 

@@ -36,6 +36,9 @@ class Trip:
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     version: int = 1
     updated_at: datetime | None = None
+    # A one-way key of the browser, chat or account that made the trip (accounts.creator_key), kept even without
+    # the plan_history consent, so only its maker can change a trip that has no owner. None for older trips.
+    creator: str | None = None
 
     @property
     def changed_at(self) -> datetime:
@@ -48,13 +51,15 @@ def new_ids() -> tuple[str, str]:
 
 
 class TripStore(Protocol):
-    def save(self, itinerary: Itinerary, owner: str | None = None, revised_from: str | None = None) -> Trip: ...
+    def save(self, itinerary: Itinerary, owner: str | None = None, revised_from: str | None = None,
+             creator: str | None = None) -> Trip: ...
     def get(self, trip_id: str) -> Trip | None: ...
     def update(self, trip_id: str, itinerary: Itinerary, owner: str | None = None,
                version: int | None = None) -> Trip | None: ...
     def by_share_token(self, token: str) -> Trip | None: ...
     def by_owner(self, owner: str) -> list[Trip]: ...
     def delete_owner(self, owner: str) -> int: ...
+    def delete_creator(self, creator: str) -> int: ...
     def reassign_owner(self, old: str, new: str) -> int: ...
     def delete(self, trip_id: str) -> bool: ...
 
@@ -69,9 +74,10 @@ class MemoryStore:
         self._trips: OrderedDict[str, Trip] = OrderedDict()
         self._lock = threading.Lock()
 
-    def save(self, itinerary: Itinerary, owner: str | None = None, revised_from: str | None = None) -> Trip:
+    def save(self, itinerary: Itinerary, owner: str | None = None, revised_from: str | None = None,
+             creator: str | None = None) -> Trip:
         trip_id, token = new_ids()
-        trip = Trip(trip_id, token, itinerary.model_copy(deep=True), owner, revised_from)
+        trip = Trip(trip_id, token, itinerary.model_copy(deep=True), owner, revised_from, creator=creator)
         with self._lock:
             self._trips[trip_id] = trip
             while len(self._trips) > self.limit:
@@ -125,6 +131,14 @@ class MemoryStore:
                 del self._trips[k]
         return len(gone)
 
+    def delete_creator(self, creator: str) -> int:
+        """Trips with no owner that this maker made (DELETE /me)."""
+        with self._lock:
+            gone = [k for k, t in self._trips.items() if t.owner is None and t.creator == creator]
+            for k in gone:
+                del self._trips[k]
+        return len(gone)
+
 
 class PgStore:
     """One short-lived connection per call; Cloud Run scales to zero, so no pool to keep warm."""
@@ -140,16 +154,18 @@ class PgStore:
 
         return psycopg.connect(self.url, autocommit=True, connect_timeout=5)
 
-    def save(self, itinerary: Itinerary, owner: str | None = None, revised_from: str | None = None) -> Trip:
+    def save(self, itinerary: Itinerary, owner: str | None = None, revised_from: str | None = None,
+             creator: str | None = None) -> Trip:
         trip_id, token = new_ids()
         with self._connect() as conn:
             conn.execute(
-                "INSERT INTO trips (id, share_token, owner, revised_from, itinerary) VALUES (%s, %s, %s, %s, %s::jsonb)",
-                (trip_id, token, owner, revised_from, itinerary.model_dump_json(by_alias=True)),
+                "INSERT INTO trips (id, share_token, owner, revised_from, itinerary, creator) "
+                "VALUES (%s, %s, %s, %s, %s::jsonb, %s)",
+                (trip_id, token, owner, revised_from, itinerary.model_dump_json(by_alias=True), creator),
             )
-        return Trip(trip_id, token, itinerary, owner, revised_from)
+        return Trip(trip_id, token, itinerary, owner, revised_from, creator=creator)
 
-    _COLUMNS = "id, share_token, itinerary, owner, revised_from, created_at, version, updated_at"
+    _COLUMNS = "id, share_token, itinerary, owner, revised_from, created_at, version, updated_at, creator"
     _SELECT = {
         "id": f"SELECT {_COLUMNS} FROM trips WHERE id = %s",
         "share_token": f"SELECT {_COLUMNS} FROM trips WHERE share_token = %s",
@@ -157,7 +173,7 @@ class PgStore:
 
     @staticmethod
     def _trip(row) -> Trip:
-        return Trip(row[0], row[1], Itinerary.model_validate(row[2]), row[3], row[4], row[5], row[6], row[7])
+        return Trip(row[0], row[1], Itinerary.model_validate(row[2]), row[3], row[4], row[5], row[6], row[7], row[8])
 
     def _one(self, key: str, value: str) -> Trip | None:
         with self._connect() as conn:
@@ -187,6 +203,12 @@ class PgStore:
             conn.execute("UPDATE trips SET revised_from = NULL WHERE revised_from IN "
                          "(SELECT id FROM trips WHERE owner = %s)", (owner,))
             return conn.execute("DELETE FROM trips WHERE owner = %s", (owner,)).rowcount
+
+    def delete_creator(self, creator: str) -> int:
+        with self._connect() as conn, conn.transaction():
+            conn.execute("UPDATE trips SET revised_from = NULL WHERE revised_from IN "
+                         "(SELECT id FROM trips WHERE owner IS NULL AND creator = %s)", (creator,))
+            return conn.execute("DELETE FROM trips WHERE owner IS NULL AND creator = %s", (creator,)).rowcount
 
     def get(self, trip_id: str) -> Trip | None:
         return self._one("id", trip_id)

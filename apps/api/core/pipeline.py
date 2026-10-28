@@ -25,7 +25,7 @@ from ty_contracts import (
 )
 
 from . import llm, steps
-from .accounts import keeps_history
+from .accounts import creator_key, keeps_history
 from .checker import settled
 from .repair import MAX_ROUNDS
 from .trips import TripChanged, get_store
@@ -125,7 +125,8 @@ async def run_plan(body: TripRequest | PlanText, client: str | None = None) -> A
         final = settled(Itinerary.model_validate(state["itinerary"]), log)
         # Linked to the caller's id only if it opted in to plan history (checked here, not before the first event).
         owner = client if client and await asyncio.to_thread(keeps_history, client) else None
-        trip = await asyncio.to_thread(lambda: get_store().save(final, owner=owner))
+        maker = creator_key(client) if client else None  # only its maker may change a trip with no owner
+        trip = await asyncio.to_thread(lambda: get_store().save(final, owner=owner, creator=maker))
         yield PlanEvent(stage=PlanStage.done, message="Done", partial=final, plan_id=trip.id, share_token=trip.share_token)
     except Exception as exc:
         log.exception("plan failed")
