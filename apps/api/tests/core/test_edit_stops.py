@@ -179,3 +179,34 @@ def test_a_night_train_the_day_before_and_bad_bookings():
         revise(it, booking("Delhi", "Goa", "2026-12-11T06:00", "2026-12-11T09:00"))
     with pytest.raises(ReviseError, match="leaves Sun 20 Dec"):
         revise(it, booking("Bengaluru", "Goa", "2026-12-20T06:00", "2026-12-20T20:00"))
+
+
+def test_running_late_re_plans_the_rest_of_today_and_keeps_the_journey_home():
+    from datetime import datetime, timedelta
+
+    from core.solver import out_of
+
+    it = steps.replan(steps.TripRequest.model_validate(MYSURU))
+    day = max(it.days, key=lambda d: len(d.stops))
+    first = day.schedule[0]
+    late = first.start + timedelta(minutes=5)  # the first visit has started; the rest is re-planned from here
+    near = day.stops[-1]
+    out, what, rounds = revise(it, ReviseRequest(intent="rest_of_day", now=late.isoformat(),
+                                                 lat=near.lat, lng=near.lng))
+    new = next(d for d in out.days if d.date == day.date)
+    assert new.stops[0].id == day.stops[0].id and new.schedule[0] == first  # already started: kept
+    assert all(s.start >= late for s in new.schedule[1:])
+    assert new.legs and any(leg.from_ == "Your location" for leg in new.legs)
+    assert what.startswith(f"Re-planned the rest of {day.date:%a %d %b} from {late:%H:%M}: ")
+    assert f"Re-planned at {late:%H:%M}" in new.notes and out.stays == it.stays
+    if out_of(day):
+        assert out_of(new) == out_of(day)  # the journey home stays
+    # Very late: what no longer fits moves to another day or is dropped with a warning; nothing is lost silently.
+    evening = datetime.combine(day.date, first.start.time()).replace(hour=18)
+    out, what, _ = revise(it, ReviseRequest(intent="rest_of_day", now=evening.isoformat()))
+    before = {p.id for d in it.days for p in d.stops}
+    after = {p.id for d in out.days for p in d.stops}
+    assert after <= before and all(any(p.name in w for w in out.warnings) for d in it.days for p in d.stops
+                                   if p.id in before - after)
+    with pytest.raises(ReviseError, match="not a day of this trip"):
+        revise(it, ReviseRequest(intent="rest_of_day", now="2027-01-01T10:00:00"))

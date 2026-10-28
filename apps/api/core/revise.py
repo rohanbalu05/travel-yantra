@@ -8,7 +8,8 @@ from __future__ import annotations
 import difflib
 import math
 import re
-from datetime import date, timedelta
+from dataclasses import replace
+from datetime import date, datetime, timedelta, timezone
 
 from ty_contracts import (
     BookedJourney,
@@ -23,6 +24,7 @@ from ty_contracts import (
 )
 
 from . import fakes
+from .checker import budget
 from .repair import check_and_repair
 from .solver import (
     _KEEP,
@@ -382,6 +384,83 @@ def fill_day(it: Itinerary, d: date, travel: Travel, lim: Limits) -> list[str]:
     return [p.name for p in chosen]
 
 
+IST = timezone(timedelta(hours=5, minutes=30))
+
+
+def rest_of_day(it: Itinerary, now: datetime, lat: float | None, lng: float | None, travel: Travel,
+                lim: Limits) -> str:
+    """Live help: from the traveller's time and place, re-plan today's stops not yet started (nearest first;
+    the lowest-priority ones move to another day or drop when time runs out). Visits already started, the
+    stay and the journey home stay as they are."""
+    from ty_contracts import StopTime
+
+    from .solver import _city_point, frame, order, schedule
+
+    if now.tzinfo is not None:
+        now = now.astimezone(IST).replace(tzinfo=None)
+    now = now.replace(second=0, microsecond=0)
+    day = next((x for x in it.days if x.date == now.date()), None)
+    if day is None:
+        raise ReviseError(f"{now:%a %d %b} is not a day of this trip")
+    city = city_of(it.request, day.date) or it.request.destinations[0]
+    when = {s.place_id: s for s in day.schedule}
+    done = [p for p in day.stops if p.id in when and when[p.id].start <= now]
+    left = [p for p in day.stops if p not in done]
+    if not left:
+        return f"Nothing left to re-plan today; enjoy the rest of {day.date:%a %d %b}"
+    if lat is not None and lng is not None:
+        here = Place(id="here", name="Your location", lat=lat, lng=lng, category="here", typical_visit_minutes=0,
+                     source="traveller")
+    else:
+        here = done[-1] if done else (_city_point(city) or left[0])
+    start = max(now, when[done[-1].id].leave) if done else now
+    out = out_of(day)
+    hop = hop_of(day)
+    end_lim = frame(lim, hop, out, day.date)
+    rank = ranks(it, city)
+    tour = [p for p in order([here, *left], travel) if p.id != here.id]
+
+    def timed(stops: list[Place]):
+        first = travel.minutes(here, stops[0]) if here.id != stops[0].id else 0
+        opened = replace(end_lim, start=(start + timedelta(minutes=first)).time())
+        if (start + timedelta(minutes=first)).date() != day.date:
+            return [], "past midnight"
+        mins = [travel.minutes(a, b) for a, b in zip(stops, stops[1:])]
+        return schedule(day.date, stops, mins, opened)
+
+    gone: list[Place] = []
+    while tour and timed(tour)[1] is not None:
+        lowest = max(tour, key=lambda p: (rank.get(p.id, LOW), p.typical_visit_minutes, p.id))
+        tour.remove(lowest)
+        gone.append(lowest)
+    visits, _ = timed(tour) if tour else ([], None)
+    names = {p.name for p in done}
+    legs = [leg for leg in day.legs if leg.role in ("outbound", "between")
+            or (done and leg.role == "transfer")
+            or (leg.role is None and leg.from_ in names and leg.to in names)]
+    if visits and here.id != visits[0].place.id:
+        m, cost = travel.edge(here, visits[0].place)
+        legs.append(Leg(**{"from": here.name}, to=visits[0].place.name, mode=Mode.road, depart=start,
+                        arrive=start + timedelta(minutes=m), minutes=m, cost_inr=cost))
+    for a, b in zip(visits, visits[1:]):
+        m, cost = travel.edge(a.place, b.place)
+        legs.append(Leg(**{"from": a.place.name}, to=b.place.name, mode=Mode.road, depart=a.leave,
+                        arrive=a.leave + timedelta(minutes=m), minutes=m, cost_inr=cost))
+    if out:
+        legs.append(out)
+    schedule_ = [s for s in day.schedule if s.place_id in {p.id for p in done}] + [
+        StopTime(place_id=v.place.id, arrive=v.arrive, start=v.start, leave=v.leave) for v in visits]
+    note = f"Re-planned at {now:%H:%M}"
+    notes = [n for n in day.notes if not n.startswith("Re-planned at ")] + [note]
+    i = it.days.index(day)
+    it.days[i] = day.model_copy(update={"stops": [*done, *(v.place for v in visits)], "legs": legs,
+                                        "schedule": schedule_, "notes": notes})
+    moved = [_relocate(it, p, day.date, travel, lim, "(no time left that day)") for p in gone]
+    what = f"Re-planned the rest of {day.date:%a %d %b} from {now:%H:%M}: " + (
+        ", then ".join(v.place.name for v in visits) or "no more visits fit today")
+    return what + (f" ({'; '.join(moved)})" if moved else "")
+
+
 def _key(name: str) -> str:
     from guide.planner import corpus_city
 
@@ -487,6 +566,15 @@ def revise(it: Itinerary, req: ReviseRequest, travel: Travel | None = None,
         what = budget_style(it, req.style, travel)
     elif req.intent is ReviseIntent.booked:
         what = booked(it, req.booked, travel, lim)
+    elif req.intent is ReviseIntent.rest_of_day:
+        # Live help keeps today's times as re-planned (no repair re-plans the day from its morning), the
+        # stay and the journey home.
+        what = rest_of_day(it, req.now, req.lat, req.lng, travel, lim)
+        it.budget = budget(it)
+        it.days = day_titles(it.days, it.request)
+        if priced:
+            price_options(it)
+        return it, what, 0
     else:
         raise ReviseError(f"{req.intent.value}: this change is not available yet")
     from .repair import finish

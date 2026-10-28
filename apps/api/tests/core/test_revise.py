@@ -131,12 +131,31 @@ def test_swap_then_lighter_changes_the_day_through_the_endpoint():
     assert lighter[1]["message"].startswith(("Moved", "Dropped"))
 
 
-def test_an_intent_without_a_handler_is_a_422_never_a_silent_rain_plan():
-    done = plan_goa()
-    r = client.post(f"/plan/{done['plan_id']}/revise", json={"intent": "rest_of_day", "now": "2026-12-12T10:00:00"})
-    assert r.status_code == 422 and "not available yet" in r.json()["detail"]
-    with pytest.raises(ReviseError):
-        revise(goa_plan(), ReviseRequest(intent="rest_of_day", now="2026-12-12T10:00:00"))
+def test_every_intent_has_its_own_handler_never_a_silent_rain_plan(monkeypatch):
+    # TY5's live test: "squeeze in Fort Aguada" (add_stop, before it had a handler) came back as a rain plan.
+    import importlib
+
+    revise_mod = importlib.import_module("core.revise")
+
+    def no_rain(*a, **k):
+        raise AssertionError("rain ran for another intent")
+
+    monkeypatch.setattr(revise_mod, "rain", no_rain)
+    it = goa_plan()
+    stop = it.days[1].stops[0]
+    bodies = {
+        "lighter_day": {"day": it.days[1].date}, "swap_stop": {"place_id": stop.id}, "transport": {"mode": "rail"},
+        "add_stop": {"place": "Goa State Museum"}, "remove_stop": {"place_id": stop.id},
+        "move_stop": {"place_id": stop.id, "day": it.days[2].date}, "change_stay": {"stay_pick": "cheaper"},
+        "budget_style": {"style": "luxury"}, "rest_of_day": {"now": f"{it.days[1].date}T10:00:00"},
+        "booked": {"booked": {"mode": "rail", "ref": "17309", "from": "Bengaluru", "to": "Goa",
+                              "depart": f"{it.days[0].date}T06:00:00", "arrive": f"{it.days[0].date}T09:00:00"}},
+    }
+    for intent in [i for i in revise_mod.ReviseIntent if i.value not in ("rain", "move_day")]:
+        try:
+            revise(it, ReviseRequest(intent=intent, **bodies[intent.value]))
+        except ReviseError as e:
+            assert "not available yet" not in str(e), intent
 
 
 MYSURU_REAL = {"origin": "Bengaluru", "destinations": ["Mysuru"], "start_date": "2026-10-31", "end_date": "2026-11-01",
