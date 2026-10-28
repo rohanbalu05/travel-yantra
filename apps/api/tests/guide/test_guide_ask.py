@@ -553,3 +553,34 @@ def test_nearby_endpoint_lists_clean_places_with_map_links() -> None:
     assert data[0]["kind"] == "veg" and data[0]["distance_m"] == 200 and "query_place_id=" in data[0]["maps_url"]
     assert t.bodies[0]["includedTypes"] == ["vegetarian_restaurant"]
     assert TestClient(app).get("/guide/nearby", params={"lat": 9.96, "lng": 76.24, "kind": "bar"}).status_code == 422
+
+
+# --- HQ P9: hours from Google Maps or none at all; never guessed ---
+
+
+def test_hours_are_grouped_and_closed_days_named() -> None:
+    from datetime import time as t
+
+    from ty_contracts.models import OpeningHours
+
+    week = [OpeningHours(day=d, opens=t(6), closes=t(18, 30)) for d in ("sat", "sun", "mon", "tue", "wed", "thu")]
+    assert ask_mod.format_hours(week) == "Mon-Thu 06:00-18:30; Sat-Sun 06:00-18:30; closed Fri"
+
+
+@pytest.mark.parametrize(("question", "name"), [
+    ("When does the Taj Mahal open?", "Taj Mahal"), ("ताजमहल कितने बजे खुलता है?", "Taj Mahal"),
+    ("Is Hawa Mahal open on Monday?", "Hawa Mahal"), ("Who built the Taj Mahal?", None),
+    ("मुगल समय में ताजमहल कैसा था?", None),
+])  # fmt: skip
+def test_hours_questions_name_their_place(question, name) -> None:
+    poi = ask_mod.asked_place(question, None) if ask_mod.HOURS_Q.search(question) else None
+    assert (poi["name"] if poi else None) == name
+
+
+def test_a_place_without_hours_is_told_to_check_never_guessed(monkeypatch) -> None:
+    import guide.hours
+
+    monkeypatch.setattr(guide.hours, "live_hours", lambda places, *a, **k: places)  # Places has none
+    poi = ask_mod.asked_place("is Anamudi open today?", None)
+    answer = asyncio.run(ask(GuideQuestion(question="is Anamudi open today?"), NoRows(), Spy()))
+    assert poi and answer.text == f"I don't have reliable opening hours for {poi['name']}. Check hours before you go."

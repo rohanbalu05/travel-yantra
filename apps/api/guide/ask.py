@@ -341,6 +341,69 @@ def nearby_list(places: PlacesClient, lat: float, lng: float, kind: str, limit: 
     } for p in found[:limit]]  # fmt: skip
 
 
+#: "When does the Taj Mahal open?": hours come from Google Maps or are not given (HQ P9).
+HOURS_Q = re.compile(r"\b(open(?:ing|s)?|clos(?:e|es|ed|ing)|timings?|hours|what time)\b"
+                     r"|खुल(?:ता|ती|ने|ेगा)|बंद (?:होता|होती|रहता|रहती)|कितने बजे", re.I)  # fmt: skip
+CHECK_HOURS = "Check hours before you go."
+_DAY_NAMES = {"mon": "Mon", "tue": "Tue", "wed": "Wed", "thu": "Thu", "fri": "Fri", "sat": "Sat", "sun": "Sun"}
+
+
+def asked_place(question: str, place_name: str | None) -> dict | None:
+    """The corpus place an hours question is about: the stop it was asked at, else the
+    longest corpus name the question contains ("Taj Mahal", not "Taj")."""
+    from . import names
+    from .planner import _pois
+
+    q = f" {names.normalize(question)} "
+    pois = _pois()
+    if place_name and (hit := next((p for p in pois if p["name"].lower() == place_name.lower()), None)):
+        return hit
+    hindi = {v: k for k, v in names.NATIVE.items()}  # the demo subjects' Hindi names
+
+    def forms(p: dict) -> list[str]:
+        return [p["name"], p.get("name_kn") or "", *(p.get("names") or {}).values(), hindi.get(p["name"], "")]
+
+    raw = f" {names._fold(question)} "  # Hindi as written: normalize() turns ताजमहल into "taj mahal"
+    found = [(len(n), p) for p in pois for f in forms(p)
+             for n, text in ((names.normalize(f), q), (names._fold(f), raw)) if n and f" {n} " in text]
+    return max(found, key=lambda x: x[0], default=(0, None))[1]
+
+
+def format_hours(hours: list) -> str:
+    """"Mon-Thu, Sat-Sun 06:00-18:30; closed Fri", days with the same times grouped."""
+    order = list(_DAY_NAMES)
+    by_day: dict[str, list[str]] = {}
+    for h in hours:
+        by_day.setdefault(h.day, []).append(f"{h.opens:%H:%M}-{h.closes:%H:%M}")
+    groups: list[tuple[list[str], str]] = []
+    for d in order:
+        if d not in by_day:
+            continue
+        times = ", ".join(by_day[d])
+        if groups and groups[-1][1] == times and order.index(groups[-1][0][-1]) == order.index(d) - 1:
+            groups[-1][0].append(d)
+        else:
+            groups.append(([d], times))
+    parts = [(f"{_DAY_NAMES[g[0]]}-{_DAY_NAMES[g[-1]]}" if len(g) > 1 else _DAY_NAMES[g[0]]) + f" {t}"
+             for g, t in groups]
+    closed = [_DAY_NAMES[d] for d in order if d not in by_day]
+    return "; ".join(parts) + (f"; closed {', '.join(closed)}" if closed else "")
+
+
+def answer_hours(poi: dict) -> GuideAnswer:
+    """Google Maps' regular hours for a corpus place with a place_id, or none at all: a
+    place without them is never given guessed hours."""
+    from .hours import live_hours
+    from .planner import place_ids, to_place
+
+    place = live_hours([to_place(poi)])[0]
+    if not place.opening_hours:
+        return GuideAnswer(text=f"I don't have reliable opening hours for {place.name}. {CHECK_HOURS}")
+    source = "Google Maps" if place.id in place_ids() else "Travel Yantra field notes"
+    return GuideAnswer(text=f"{place.name}: {format_hours(place.opening_hours)} ({source}, regular hours). "
+                            f"Holidays and events can change them; {CHECK_HOURS[0].lower()}{CHECK_HOURS[1:]}")
+
+
 SYSTEM = """You are Travel Yantra's guide for travellers in India.
 Answer the question using only the numbered sources below. Rules:
 - Two to four plain sentences. No lists, no headings.
@@ -437,6 +500,10 @@ async def ask(
     if need:  # everyday help on the trip: a pharmacy, a meal, cash; no 112 header for these
         where, near = locate(db, req, places)
         return answer_nearby(need, where, places, near=near)
+    if not kinds and HOURS_Q.search(req.question) and (poi := asked_place(req.question, req.place_name)):
+        import asyncio
+
+        return await asyncio.to_thread(answer_hours, poi)  # Places Details, cached a week
     if kinds:
         urgent = bool(URGENT.search(req.question))
         where, near = locate(db, req, places)

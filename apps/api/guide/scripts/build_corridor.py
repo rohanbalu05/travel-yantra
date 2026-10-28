@@ -16,6 +16,7 @@ loader and the planner pick up. Wikimedia is free; the call count is printed.
 from __future__ import annotations
 
 import json
+import re
 import sys
 import time
 from datetime import date
@@ -76,7 +77,8 @@ REGIONS = {
     },
     "kochi": {
         "city": "Kochi",
-        "city_pages": ["Kochi", "Mattancherry"],
+        "city_pages": ["Kochi", "Mattancherry", "Chinese fishing nets", "Kerala cuisine"],
+        "voyage": ["Kochi", "Fort Kochi"],
         "places": [
             ("Fort Kochi", None, "experience", 180, "Ernakulam", 5),
             ("Chinese fishing nets", "Chinese Fishing Nets, Fort Kochi", "experience", 30, "Ernakulam", 5),
@@ -103,7 +105,8 @@ REGIONS = {
     },
     "munnar": {
         "city": "Munnar",
-        "city_pages": ["Munnar"],
+        "city_pages": ["Munnar", "Kerala cuisine"],
+        "voyage": ["Munnar"],
         "places": [
             ("Eravikulam National Park", None, "nature", 180, "Idukki", 5),
             ("Anamudi", None, "viewpoint", 120, "Idukki", 4),
@@ -132,7 +135,8 @@ REGIONS = {
     },
     "alleppey": {
         "city": "Alleppey",
-        "city_pages": ["Alappuzha", "Nehru Trophy Boat Race"],
+        "city_pages": ["Alappuzha", "Nehru Trophy Boat Race", "Kerala cuisine", "Kettuvallam"],
+        "voyage": ["Alappuzha"],
         "places": [
             ("Kerala backwaters", "Alleppey backwaters", "experience", 240, "Alappuzha", 5),
             ("Vembanad", "Vembanad Lake", "nature", 180, "Alappuzha", 5),
@@ -156,7 +160,8 @@ REGIONS = {
     },
     "delhi": {
         "city": "Delhi",
-        "city_pages": ["Delhi", "Old Delhi", "New Delhi"],
+        "city_pages": ["Delhi", "Old Delhi", "New Delhi", "Delhi cuisine", "Paranthe Wali Gali"],
+        "voyage": ["Delhi", "Old Delhi"],
         "places": [
             ("Red Fort", None, "monument", 120, "Central Delhi", 5),
             ("Qutb Minar", "Qutub Minar", "monument", 90, "South Delhi", 5),
@@ -184,7 +189,8 @@ REGIONS = {
     },
     "agra": {
         "city": "Agra",
-        "city_pages": ["Agra"],
+        "city_pages": ["Agra", "Petha", "Mughlai cuisine"],
+        "voyage": ["Agra"],
         "places": [
             ("Taj Mahal", None, "monument", 150, "Agra", 5),
             ("Agra Fort", None, "monument", 120, "Agra", 5),
@@ -214,7 +220,8 @@ REGIONS = {
     },
     "jaipur": {
         "city": "Jaipur",
-        "city_pages": ["Jaipur"],
+        "city_pages": ["Jaipur", "Rajasthani cuisine"],
+        "voyage": ["Jaipur"],
         "places": [
             ("Amer Fort", "Amber Fort", "monument", 150, "Jaipur", 5),
             ("Hawa Mahal", None, "monument", 45, "Jaipur", 5),
@@ -266,6 +273,14 @@ TICKETS = {
 }  # fmt: skip
 
 
+#: Wikivoyage sections a guide answer can stand on: what the place is, its people, food,
+#: festivals and things to do. Never Get in, Sleep or the price bands.
+VOYAGE_SECTIONS = re.compile(r"^(introduction|understand|name|culture|people|talk|festivals|events|cuisine|eat|"
+                             r"sweet|savoury|drink|do|respect|houseboat touring|stay healthy|when to visit)$", re.I)  # fmt: skip
+RESPECT = re.compile(r"^(respect|dress|religious etiquette|etiquette|eating|greetings?)$", re.I)
+LISTING = re.compile(r"₹|\bRs\.?\s?\d|\bINR\b|\+91|\bphone\b|\btel\b|☏|\bopen \d|\d{1,2}(:\d\d)?\s?(am|pm)\b", re.I)
+
+
 def pick_coords(wikidata: tuple, wikipedia: tuple) -> tuple:
     """Wikidata's coordinates, unless Wikipedia's are far from them (or Wikidata has none)."""
     if wikidata[0] is None:
@@ -306,6 +321,30 @@ def build(region: str, wiki: WikiClient) -> tuple[list[dict], list[dict], list[s
                     "source_name": "Wikipedia (CC BY-SA)", "source_url": url, "last_verified": today,
                 })  # fmt: skip
         return n
+
+    def add_voyage(page: str, wanted: re.Pattern = VOYAGE_SECTIONS, kind: str = "fact") -> None:
+        """Wikivoyage's traveller sections (HQ P9: food and etiquette questions were refused in
+        the new cities). A listing with a price or a phone number is a shop's ad, not a fact."""
+        url, sections = wiki.sections(page, site="wikivoyage")
+        time.sleep(PAUSE_S)
+        for heading, body in sections:
+            if not wanted.match(heading):
+                continue
+            for i, para in enumerate(p for p in paragraphs(body) if not LISTING.search(p)):
+                title = f"{page} (Wikivoyage): {heading}" + (f" ({i + 1})" if i else "")
+                while title in titles:
+                    title += "'"
+                titles.add(title)
+                chunks.append({
+                    "poi": None, "city": city, "lang": "en", "title": title, "body": para,
+                    "chunk_type": kind, "is_legend": False, "source_name": "Wikivoyage (CC BY-SA)",
+                    "source_url": url, "last_verified": today,
+                })  # fmt: skip
+
+    for page in spec.get("voyage", []):
+        add_voyage(page)
+    if spec.get("voyage"):  # etiquette: India's Respect section, for every Wikivoyage city
+        add_voyage("India", RESPECT, kind="practical")
 
     for title, display, category, minutes, district, popularity in spec["places"]:
         data = wiki.labels(title)

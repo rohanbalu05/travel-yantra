@@ -1,0 +1,94 @@
+{
+ "outline": {
+  "theme": "The palace is a living anchor that holds the city together through fire, gold, and memory.",
+  "hook": "You are standing on ground that has been scorched three times, yet here you are, looking at a structure that refuses to vanish.",
+  "gap": "Why does this specific patch of earth demand such persistence from those who build upon it?",
+  "people": [
+   "Alamelamma",
+   "Kakasura Madappa"
+  ],
+  "bridge": "Think of the last time you rebuilt something you lost, whether it was a home or a habit, and how the new version carried the weight of the old.",
+  "peak": "Imagine the weight of eighty kilos of gold pressing down on an elephant's back as the city holds its breath during the Dasara procession.",
+  "ending": "The bulbs dim, the crowds disperse, and the stone remains, waiting for the next century to pass over its skin.",
+  "chapters": [
+   {
+    "title": "The Fire and the Foundation",
+    "hook": "A wedding celebration turned to ash in 1897, leaving the royal family with nothing but smoke and a need to start over.",
+    "gap": "How do you build a home that survives the flames?",
+    "beats": [
+     {
+      "text": "Three palaces burned on this exact spot before the current one was finished in 1912, using a deliberate mix of styles like Mughal domes to ensure it would endure.",
+      "facts": [
+       1,
+       9,
+       12
+      ],
+      "label": "history"
+     },
+     {
+      "text": "People here say that in 1610, a queen named Alamelamma fled to the Kaveri river to protect temple jewels, casting a shadow over the land that some still feel today.",
+      "facts": [
+       3
+      ],
+      "label": "legend"
+     }
+    ]
+   },
+   {
+    "title": "The Weight of the Gold",
+    "hook": "Most visitors rush through the halls, but if you stop and look up at the peacocks in the Kalyana Mantapa, you see what they miss.",
+    "gap": "The palace is not just a building; it is the center of a city that revolves around the golden howdah.",
+    "beats": [
+     {
+      "text": "While you stand in the Durbar Hall, move away from the center to see the details, then look at the wall paintings of the 1930s Dasara procession to understand the scale of the event.",
+      "facts": [
+       4,
+       7
+      ],
+      "label": "history"
+     },
+     {
+      "text": "The procession centers on a wooden howdah covered in eighty kilos of gold, a tradition that draws more visitors here than to the Taj Mahal.",
+      "facts": [
+       2,
+       10
+      ],
+      "label": "history"
+     },
+     {
+      "text": "Before you leave, remember that the palace kitchen is where Kakasura Madappa first improvised Mysore pak, a sweet that now defines the city's taste.",
+      "facts": [
+       13
+      ],
+      "label": "history"
+     }
+    ]
+   }
+  ]
+ },
+ "critiques": {
+  "en": [
+   "Scores:\n- Hook: 3/5 (The first sentence is decent, but the third sentence is a long, abstract bridge that slows down a tired traveler.)\n- Theme: 4/5 (The theme of surviving fire and memory is present, but the connection between the paragraphs could be tighter.)\n- Specifics: 4/5 (Good use of facts, but some sensory details like the smell of Talakad feel forced since the traveler is at the palace, not Talakad.)\n- Peak: 3/5 (The peak is flat; the transition into the legend lacks dramatic tension.)\n- Ending: 4/5 (Ends on an image of honoring the statue, but could be more evocative of the theme.)\n- Honesty: 5/5 (Properly labels history and legend, and cites the facts correctly.)\n\nThree biggest problems:\n1. The bridge to the reader's life in the first paragraph is too wordy and abstract, which would make a tired traveler lose interest.\n2. The sensory detail in the second paragraph (\"smell the dry dust of Talakad\") points the reader's eyes and nose to a town miles away, rather than anchoring them to what is physically in front of them at the palace.\n3. The transition between the fire of 1897 and the 1610 curse is abrupt; it needs to tie back to the central theme of the palace acting as a living anchor against both physical and spiritual ruin.",
+   "### Scores and Problems\n\n**Scores:**\n- **Hook:** 2/5 (The draft opens with a general observation about visitors and a question, but lacks a specific person at a moment or a strong contradiction to pull a tired traveler in.)\n- **Theme:** 4/5 (The theme of the palace as a living anchor holding the city together is present, but gets diluted by the abrupt transition to the sweet in the final paragraph.)\n- **Specifics:** 4/5 (Good use of checkable facts, but sensory details like the smell of \"cool stone\" are generic rather than evocative of the specific palace environment.)\n- **Peak:** 3/5 (The peak about the golden howdah and rebuilding is placed roughly in the middle, but lacks the dramatic tension needed to make it a true climax.)\n- **Ending:** 3/5 (The ending fades out with a generic description of dimming bulbs rather than landing on a sharp, resonant image.)\n- **Honesty:** 4/5 (The facts are cited, but the transition between historical facts and legends/anecdotes is slightly blurred.)\n\n**Three Biggest Problems:**\n1. **Weak Hook and Lack of a Curiosity Gap:** The opening does not establish a specific person at a moment or a compelling contradiction. It fails to open a clear curiosity gap early on that is closed near the end.\n2. **Weak Peak Placement and Tension:** The emotional peak—the metaphor of rebuilding and the weight of the golden howdah—is rushed and lacks the sensory build-up needed to anchor the theme of survival through fire and memory.\n3. **Disjointed Ending:** The transition to the Mysore pak sweet feels like an afterthought rather than a continuation of the theme. The story ends on a generic description of dispersing crowds rather than a sharp, thematic image."
+  ],
+  "kn": [
+   "ಅಂಕಗಳು:\n- ಕೊಂಡಿ (Hook): 4/5 (ಮದುವೆಯ ಬೆಂಕಿಯ ಕಥೆ ಕುತೂಹಲ ಮೂಡಿಸುತ್ತದೆ, ಆದರೆ ಮೂರನೇ ವಾಕ್ಯ ಇನ್ನೂ ಸ್ವಲ್ಪ ಆಕರ್ಷಕವಾಗಿರಬಹುದು)\n- ವಿಷಯ (Theme): 4/5 (ಬೆಂಕಿ ಮತ್ತು ನೆನಪಿನ ವಿಷಯವಿದೆ, ಆದರೆ ನಗರವನ್ನು ಹಿಡಿದಿಡುವ ಆಧಾರ ಎಂಬ ಕಲ್ಪನೆ ಕೊನೆಯಲ್ಲಿ ಸ್ಪಷ್ಟವಾಗಿಲ್ಲ)\n- ನಿಖರತೆ (Specifics): 5/5 (ಹೆಸರುಗಳು, ವರ್ಷಗಳು ಮತ್ತು ಸ್ಪರ್ಶದ ಅನುಭವ ಸರಿಯಾಗಿದೆ)\n- ಶಿಖರ (Peak): 3/5 (ಶಿಖರ ಭಾಗವು ಎರಡನೇ ಪ್ಯಾರಾಗ್ರಾಫ್‌ನಲ್ಲಿದೆ, ಆದರೆ ಅದು ಕಥೆಯ ಕೊನೆಯಲ್ಲಿದೆ)\n- ಮುಕ್ತಾಯ (Ending): 3/5 (ವಿವರಣಾತ್ಮಕವಾಗಿದೆ, ಆದರೆ ನಗರದೊಂದಿಗೆ ಅರಮನೆಯ ಸಂಬಂಧವನ್ನು ಜೋಡಿಸುವ ದೃಶ್ಯದ ಕೊರತೆಯಿದೆ)\n- ಪ್ರಾಮಾಣಿಕತೆ (Honesty): 5/5 (ಇತಿಹಾಸ ಮತ್ತು ದಂತಕಥೆಯನ್ನು ಸರಿಯಾಗಿ ಪ್ರತ್ಯೇಕಿಸಲಾಗಿದೆ)\n\nಮೂರು ದೊಡ್ಡ ತೊಂದರೆಗಳು:\n1. **ವಿಷಯದ ಕೊರತೆ (Theme connection):** ಅರಮನೆಯು ಇಡೀ ಮೈಸೂರು ನಗರವನ್ನು ಹೇಗೆ ಒಂದುಗೂಡಿಸಿ ಹಿಡಿದಿಟ್ಟಿದೆ ಎಂಬ ವಿಷಯವು ಕರಡು ಬರಹದಲ್ಲಿ ಸರಿಯಾಗಿ ಮೂಡಿಬಂದಿಲ್ಲ.\n2. **ರಚನೆ ಮತ್ತು ಶಿಖರ (Structure and Peak):** ಕಥೆಯ ಶಿಖರ ಭಾಗವು (ಅರಮನೆ ಸುಟ್ಟು ಹೊಸದಾಗಿ ಎದ್ದು ನಿಂತದ್ದು) ತೀರಾ ಬೇಗ ಬರುತ್ತದೆ. ದಂತಕಥೆ ಮತ್ತು ಇತಿಹಾಸದ ನಡುವಿನ ಕೊಂಡಿ ಸರಿಯಾಗಿ ಬೆಸೆದಿಲ್ಲ.\n3. **ಭಾಷಾ ಶೈಲಿ (Language style):** ಕೆಲವು ವಾಕ್ಯಗಳು ಇಂಗ್ಲಿಷ್‌ನಿಂದ ನೇರವಾಗಿ ಅನುವಾದ ಮಾಡಿದಂತೆ ಇವೆ (ಉದಾಹರಣೆಗೆ: \"ನಿಮ್ಮ ಸ್ವಂತ ಜೀವನದಲ್ಲಿ ಕಳೆದುಕೊಂಡದ್ದನ್ನು...\"). ಮೈಸೂರಿನ ಆಡುಭಾಷೆಯ ಸಹಜ ಹರಿವು ಕಡಿಮೆಯಿದೆ.",
+   "ಇಲ್ಲಿ ನೀಡಲಾದ ಕರಡು ಪ್ರತಿಯ ವಿಶ್ಲೇಷಣೆ, ಅಂಕಗಳು ಮತ್ತು ತಿದ್ದಿದ ಬರಹ ಇಲ್ಲಿದೆ.\n\n**ಅಂಕಗಳು (1-5):**\n*   **Hook (ಪೀಠಿಕೆ):** 2/5. ಮೊದಲ ವಾಕ್ಯವು ಪ್ರವಾಸಿಗರ ಬಗ್ಗೆ ಸಾಮಾನ್ಯ ಹೇಳಿಕೆಯಾಗಿದೆ. ದಣಿದ ಪ್ರವಾಸಿಗನನ್ನು ಹಿಡಿದಿಡುವಂತಹ ಯಾವುದೇ ವ್ಯಕ್ತಿ, ಸಂದಿಗ್ಧತೆ ಅಥವಾ ಪ್ರಶ್ನೆ ಇಲ್ಲಿಲ್ಲ.\n*   **Theme (ವಸ್ತು ವಿಷಯ):** 3/5. ಕರಡಿನಲ್ಲಿ 'ಬೆಂಕಿ, ಚಿನ್ನ ಮತ್ತು ನೆನಪು' ಎಂಬ ವಿಷಯದ ಪೈಕಿ ಬೆಂಕಿಯ ಉಲ್ಲೇಖವೇ ಇಲ್ಲ. ಅರಮನೆ ನಗರವನ್ನು ಹೇಗೆ ಹಿಡಿದಿಟ್ಟಿದೆ ಎಂಬ ಕಲ್ಪನೆ ಕೊನೆಯಲ್ಲಿ ಮರೆಯಾಗಿದೆ.\n*   **Specifics (ನಿಖರತೆ):** 4/5. ಕಲ್ಯಾಣ ಮಂಟಪದ ಗಾಜು (ಸತ್ಯಾಂಶಗಳಲ್ಲಿ ಇಲ್ಲದ್ದು) ಮತ್ತು ಮೈಸೂರು ಪಾಕ್‌ನ ವಿವರಗಳಿವೆ. ಆದರೆ ದೃಶ್ಯ ಮತ್ತು ಧ್ವನಿಯ ಅನುಭವಗಳು ಇನ್ನೂ ತೀಕ್ಷ್ಣವಾಗಬೇಕಿದೆ.\n*   **Peak (ಶಿಖರಾವಸ್ಥೆ):** 2/5. ಕಥೆಯು ಎರಡನೇ ಪ್ಯಾರಾಗ್ರಾಫ್‌ನಲ್ಲಿ ತೇಲಿಹೋಗುತ್ತದೆ. ಶಿಖರಾವಸ್ಥೆಯು ಮೂರನೇ ಎರಡರಷ್ಟು ಭಾಗದಲ್ಲಿ ಬಲವಾಗಿ ಮೂಡಿಬಂದಿಲ್ಲ.\n*   **Ending (ಮುಕ್ತಾಯ):** 3/5. \"ಮುಂದಿನ ಶತಮಾನದ ಕಥೆಗಳನ್ನು ಕೇಳಲು...\" ಎಂಬುದು ಕೊಂಚ ಸಾಧಾರಣ ಮುಕ್ತಾಯವಾಗಿದೆ. ಮನೆಗೆ ಮರಳುವ ದೀಪಗಳ ಚಿತ್ರಣ ಚೆನ್ನಾಗಿದೆ ಆದರೆ ವಿಷಯಕ್ಕೆ ಪೂರಕವಾಗಿಲ್ಲ.\n*   **Honesty (ಪ್ರಾಮಾಣಿಕತೆ):** 2/5. ಕಲ್ಯಾಣ ಮಂಟಪದ ಬಣ್ಣದ ಗಾಜಿನ ವಿವರವನ್ನು ಸತ್ಯಾಂಶ [7] ಕ್ಕೆ ಜೋಡಿಸಲಾಗಿದೆ, ಆದರೆ ಸತ್ಯಾಂಶ [7] ರಲ್ಲಿ ದರ್ಬಾರ್ ಹಾಲ್ ಬಗ್ಗೆ ಮಾತ್ರ ಇದೆ. ಇತಿಹಾಸ ಮತ್ತು ದಂತಕಥೆಗಳ ನಡುವಿನ ವ್ಯತ್ಯಾಸವನ್ನು ಸ್ಪಷ್ಟವಾಗಿ ಗುರುತಿಸಿಲ್ಲ.\n\n**ಮೂರು ಮುಖ್ಯ ತೊಂದರೆಗಳು:**\n1.  **ಹೌಸ್ ಸ್ಟೈಲ್ ನಿಯಮಗಳ ಉಲ್ಲಂಘನೆ ಮತ್ತು ತಪ್ಪು ಉಲ್ಲೇಖ:** ಕಲ್ಯಾಣ ಮಂಟಪದ ಗಾಜಿನ ವಿವರವು ನೀಡಲಾದ ಸತ್ಯಾಂಶಗಳಲ್ಲಿ ಇಲ್ಲ. ಸತ್ಯಾಂಶ [7] ದರ್ಬಾರ್ ಹಾಲ್‌ನ ಕಂಬಗಳ ಸಾಲನ್ನು ಮಾತ್ರ ವಿವರಿಸುತ್ತದೆ. ಅಲ್ಲದೆ, ಮೈಸೂರು ಪಾಕ್ ಕಥೆಯನ್ನು ಇತಿಹಾಸದ ಲೇಬಲ್ ಅಡಿಯಲ್ಲಿ ನೀಡಲಾಗಿದೆ, ಆದರೆ ಅದು ಜನಜನಿತ ಕಥೆಯಾಗಿದೆ.\n2.  **ದುರ್ಬಲ ಪೀಠಿಕೆ ಮತ್ತು ಕುತೂಹಲದ ಕೊರತೆ:** ಮೊದಲ ವಾಕ್ಯವು ಯಾವುದೇ ವ್ಯಕ್ತಿ ಅಥವಾ ಸಂದಿಗ್ಧತೆಯೊಂದಿಗೆ ಆರಂಭವಾಗುವುದಿಲ್ಲ. ಆರಂಭದಲ್ಲಿ ತೆರೆದ ಕುತೂಹಲದ ಕಣ್ಣಿ ಕೊನೆಯಲ್ಲಿ ಮುಚ್ಚುವುದಿಲ್ಲ.\n3.  **ಬರಹದ ಶೈಲಿ ಮತ್ತು ನಿಷೇಧಿತ ಪದಗಳು:** ಕರಡಿನಲ್ಲಿ \"ಅದ್ಭುತವನ್ನು\", \"ನೆನಪಿಸುತ್ತವೆ\" ನಂತಹ ಪದಗಳಿವೆ. ಮೈಸೂರಿನ ಆಡುಭಾಷೆಯ ಸೊಗಡು ಮತ್ತು ಕಿವಿಗೆ ಇಂಪಾಗುವ ಸಣ್ಣ ವಾಕ್ಯಗಳ ಕೊರತೆಯಿದೆ."
+  ]
+ },
+ "trim": {
+  "en": null,
+  "kn": null
+ },
+ "calls": [
+  "katha model call: outline Mysore Palace 5min 8.2s",
+  "katha model call: draft Mysore Palace ch1/2 en 3.5s",
+  "katha model call: critique Mysore Palace ch1/2 en 6.5s",
+  "katha model call: draft Mysore Palace ch2/2 en 2.8s",
+  "katha model call: critique Mysore Palace ch2/2 en 7.1s",
+  "katha model call: draft Mysore Palace ch1/2 kn 3.7s",
+  "katha model call: critique Mysore Palace ch1/2 kn 7.6s",
+  "katha model call: draft Mysore Palace ch2/2 kn 3.9s",
+  "katha model call: critique Mysore Palace ch2/2 kn 10.0s"
+ ]
+}
