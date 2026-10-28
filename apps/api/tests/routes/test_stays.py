@@ -135,3 +135,10 @@ def test_ratings_with_few_reviews_count_less():
 
     assert score({"rating": 5.0, "reviews": 3}) < score({"rating": 4.6, "reviews": 2000})
     assert score({"rating": None, "reviews": None}) == 0
+
+
+def test_no_style_ranks_as_comfort_not_the_top_rated_palace(serp):
+    """Seniors with no style said got Taj Palace at Rs 38,000 a night: no style is mid (3-4 star)."""
+    plain = rank_stays("Goa", IN, OUT, party=2, hotels=_live(serp))
+    mid = rank_stays("Goa", IN, OUT, party=2, hotels=_live(serp), budget_style="comfort")
+    assert [s.name for s in plain] == [s.name for s in mid] and plain[0].stars in (3, 4, None)

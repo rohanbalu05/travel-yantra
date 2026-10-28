@@ -19,7 +19,7 @@ from pathlib import Path
 from ty_contracts import Stay
 
 from .compare import UnknownPlace, resolve_city
-from .fares import style_key
+from .fares import DEFAULT_STYLE, style_key
 from .graph import DATA_DIR
 from .hotels import Property, SerpApiHotels, default_hotel_provider
 from .sellers import ROOM_SLEEPS, Found, StayQuery, stay_offers
@@ -96,7 +96,7 @@ def rank_stays(city: str, check_in: dt.date, check_out: dt.date, party: int = 1,
                data_dir: Path = DATA_DIR, hotels: SerpApiHotels | None = None,
                live: bool = True, budget_style: str | None = None) -> list[Stay]:
     """Up to `limit` stays suited to the party, those within budget_per_night_inr first,
-    ordered by budget_style ("budget" | "mid" | "luxury"; None: best score, then price).
+    ordered by budget_style ("budget" | "mid" | "luxury", or shoestring | comfort; None is mid).
     Stays with no rating or few reviews come last. [] when the live search has no answer.
     Raises UnknownPlace for an unknown city, ValueError for bad dates or party."""
     if check_out <= check_in:
@@ -115,7 +115,7 @@ def rank_stays(city: str, check_in: dt.date, check_out: dt.date, party: int = 1,
         if not rows:
             raise UnknownPlace(f"no sample stays in {node.name}")
     rows = [r for r in rows if suits(r, party)]
-    by_style = _style_key(budget_style)
+    by_style = _style_key(budget_style or DEFAULT_STYLE)  # no style said: comfort, as rail (fares.DEFAULT_STYLE)
 
     def order(r: dict):
         price = party_price(r, party)
