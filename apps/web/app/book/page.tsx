@@ -13,7 +13,7 @@ import { useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { usePlanResult } from "@/lib/plan";
 import { againstBudget, pickIndex, planTotal, railOptionLeg, stayGroups, trainDiffers, trainLeg } from "@/lib/planView";
-import { SAMPLE_PNRS, cardCopyText, cardRows, irctcCard, isDemoPlan, partyFor, pnrStatus, type IrctcCard, type PnrStatus } from "@/lib/routes";
+import { SAMPLE_PNRS, cardCopyText, cardParty, cardRows, irctcCard, isDemoPlan, pnrStatus, type IrctcCard, type PnrStatus } from "@/lib/routes";
 import { useRevise } from "@/lib/useRevise";
 import "./book.css";
 
@@ -165,11 +165,11 @@ function TrainCard({ it, planId }: { it: Itinerary; planId: string | null }) {
     // TY3 picks the train by number when the leg has one (Leg.ref); else the first leaving at or after `after`.
     // No class unless the traveller picks one: TY3 uses the train's own default. Passenger rows follow the party size.
     const train = rail.ref && /^\d{5}$/.test(rail.ref) ? rail.ref : null;
-    irctcCard({ from: rail.from, to: rail.to, date: rail.depart.slice(0, 10), party: partyFor(it), train, after: clock(rail.depart), travel_class: cls, travellers: it.request.constraints?.travellers?.length || 1 }, ctl.signal)
+    irctcCard({ from: rail.from, to: rail.to, date: rail.depart.slice(0, 10), ...cardParty(it, isDemoPlan(planId)), train, after: clock(rail.depart), travel_class: cls }, ctl.signal)
       .then((data) => setCard({ data }))
       .catch((e) => !ctl.signal.aborted && setCard({ problem: problemOf(e) }));
     return () => ctl.abort();
-  }, [rail, it, run, cls]);
+  }, [rail, it, run, cls, planId]);
 
   if (!rail) return null;
   const c = card?.data;

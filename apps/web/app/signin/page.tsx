@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Brand } from "@/components/Brand";
 import { AuthProblem, finishRedirectSignIn, firebaseEnabled, resetPassword, signIn, signInWithEmail } from "@/lib/account";
 import type { Lang } from "@/lib/contracts";
+import { saveLang, useI18n } from "@/lib/i18n";
 import "./signin.css";
 
 // Google, or email and password (both Firebase). No phone number or SMS code (SMS costs money).
@@ -83,7 +84,9 @@ const points: [string, string][] = [
 ];
 
 export default function SignInPage() {
-  const [lang, setLang] = useState<Lang>("en");
+  // The app's language; picking one here changes it for the whole app.
+  const { lang } = useI18n();
+  const setLang = saveLang;
   const [agree, setAgree] = useState(false);
   const [wa, setWa] = useState(false);
   const [tried, setTried] = useState(false);

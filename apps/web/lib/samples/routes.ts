@@ -3,7 +3,7 @@ import type { IrctcCard, Party, PnrStatus } from "@/lib/routes";
 
 // Mock-mode stand-ins for TY3's routes endpoints. Sample persona and sample trains only.
 
-const PEOPLE: Record<Party, [string, number, string, string][]> = {
+const PEOPLE: Record<Exclude<Party, "none">, [string, number, string, string][]> = {
   goa_family: [["Arjun Rao", 34, "Male", "Side lower"], ["Venkatesh", 64, "Male", "Lower"], ["Shobha", 58, "Female", "Lower"], ["Meera", 22, "Female", "Middle"]],
   mysuru_weekend: [["Arjun Rao", 34, "Male", "Window"], ["Meera", 22, "Female", "Aisle"]],
 };
@@ -25,7 +25,7 @@ export function sampleCompare(req: CompareRequest, it: Itinerary): CompareRespon
 export function sampleIrctcCard(p: { from: string; to: string; date: string; party: Party; travel_class?: string }): IrctcCard {
   const [y, m, d] = p.date.split("-");
   const cls = p.travel_class ?? "3A";
-  const people = PEOPLE[p.party];
+  const people = p.party === "none" ? PEOPLE.goa_family : PEOPLE[p.party];
   const passengers = people.map(([name, age, gender, berth]) => ({ name, age, gender, berth }));
   return {
     train: { number: "90001", name: "Sample Goa Express" },

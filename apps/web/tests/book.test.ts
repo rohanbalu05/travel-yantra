@@ -140,3 +140,12 @@ async function loadCardHelpers() {
   const { sampleIrctcCard } = await import("@/lib/samples/routes");
   return { ...r, sampleCard: sampleIrctcCard({ from: "A", to: "B", date: "2026-12-11", party: "goa_family" }) };
 }
+
+describe("IRCTC card party", () => {
+  it("asks TY3 for nameless rows with the plan's ages for a real plan, the sample family only in the demo", async () => {
+    const { cardParty } = await import("@/lib/routes");
+    const it2 = { ...GOA_ITINERARY, request: { ...GOA_ITINERARY.request, constraints: { travellers: [{ name: "a", age: 34 }, { name: "b", age: 64 }] } } };
+    expect(cardParty(it2, false)).toEqual({ party: "none", ages: "34,64", travellers: 2 });
+    expect(cardParty(GOA_ITINERARY, true).party).toBe("goa_family");
+  });
+});

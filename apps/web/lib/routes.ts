@@ -40,7 +40,7 @@ export type PnrStatus = {
   sample: boolean;
 };
 
-export type Party = "goa_family" | "mysuru_weekend";
+export type Party = "goa_family" | "mysuru_weekend" | "none";
 export const SAMPLE_PNRS = ["4521683907", "4521690144", "1234567890"];
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -58,7 +58,7 @@ export async function compareRoutes(req: CompareRequest, it: Itinerary, signal?:
  * GET /routes/irctc-card (TY3). `train` and `after` (HH:MM) name the plan's train; with no class,
  * TY3 uses the train's own default and lists the others in `classes`.
  */
-export async function irctcCard(p: { from: string; to: string; date: string; party: Party; travel_class?: string | null; train?: string | null; after?: string | null; travellers?: number }, signal?: AbortSignal, base = API_BASE_URL): Promise<IrctcCard> {
+export async function irctcCard(p: { from: string; to: string; date: string; party: Party; travel_class?: string | null; train?: string | null; after?: string | null; travellers?: number; ages?: string | null }, signal?: AbortSignal, base = API_BASE_URL): Promise<IrctcCard> {
   if (!base) {
     await wait(200);
     return sampleIrctcCard({ ...p, travel_class: p.travel_class ?? undefined });
@@ -85,7 +85,8 @@ export type CardRow = { name: string; age: number | null; gender: string; berth:
  * traveller types names into IRCTC; we never invent them).
  */
 export function cardRows(card: IrctcCard, it: Itinerary, demo: boolean): CardRow[] {
-  if (demo) return card.passengers.map((p) => ({ ...p }));
+  // TY3 already made "Passenger 1..N" rows from the party's ages (party=none): use them as they are.
+  if (demo || !card.sample) return card.passengers.map((p) => ({ ...p }));
   const people = it.request.constraints?.travellers ?? [];
   const n = Math.max(1, people.length);
   return Array.from({ length: n }, (_, i) => ({ name: "", age: people[i]?.age ?? null, gender: "", berth: people[i] && people[i].age >= 60 ? "Lower" : "No preference" }));
@@ -93,7 +94,7 @@ export function cardRows(card: IrctcCard, it: Itinerary, demo: boolean): CardRow
 
 /** The text "Copy all details" puts on the clipboard: TY3's own for the demo, else built from real rows only. */
 export function cardCopyText(card: IrctcCard, rows: CardRow[], demo: boolean): string {
-  if (demo) return card.copy_text;
+  if (demo || !card.sample) return card.copy_text;
   return [
     `From: ${card.from.code} (${card.from.name})`,
     `To: ${card.to.code} (${card.to.name})`,
@@ -103,6 +104,13 @@ export function cardCopyText(card: IrctcCard, rows: CardRow[], demo: boolean): s
     `Train: ${card.train.number} ${card.train.name}, departs ${card.departs}`,
     ...rows.map((r, i) => `Passenger ${i + 1}: age ${r.age ?? "?"}, berth ${r.berth}`),
   ].join("\n");
+}
+
+/** The card's party: the sample family for the demo, else the plan's ages (TY3 makes nameless rows, up to six). */
+export function cardParty(it: Itinerary, demo: boolean): { party: Party; ages: string | null; travellers: number } {
+  const people = it.request.constraints?.travellers ?? [];
+  if (demo) return { party: partyFor(it), ages: null, travellers: people.length || 1 };
+  return { party: "none", ages: people.length ? people.slice(0, 6).map((p) => p.age).join(",") : null, travellers: people.length || 1 };
 }
 
 /** The anonymous demo: no plan id, or the mock's sample plan. */
