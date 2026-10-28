@@ -129,13 +129,21 @@ async def test_booked_journey_from_the_model(planned, api, lite):
     assert booked["ref"] == "17309" and booked["from"] == "Bengaluru"
 
 
-async def test_intents_not_live_yet_are_not_sent(planned, api, lite):
-    from ty_chat.engine import LIVE_INTENTS, NOT_YET
+async def test_intent_without_a_handler_shows_the_api_words(planned, api, lite):
+    import httpx
 
-    planned.live_intents = set(LIVE_INTENTS)
     lite.next_edit = Edit(intent="add_stop", place="Fort Aguada", day=2)
+    orig = api.handler
+
+    def refuse(req):
+        if req.url.path.endswith("/revise"):
+            api.requests.append(req)
+            return httpx.Response(422, json={"detail": "add_stop: this change is not available yet"})
+        return orig(req)
+
+    planned.api.transport = httpx.MockTransport(refuse)
     events = await send(planned, "we would love to squeeze in Fort Aguada on the second day")
-    assert texts(events) == [NOT_YET] and not api.bodies("/plan/p1/revise")
+    assert texts(events) == ["add_stop: this change is not available yet"]
     assert of(events, "done")[0].plan_changed is False
 
 

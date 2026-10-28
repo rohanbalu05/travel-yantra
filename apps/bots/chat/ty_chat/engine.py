@@ -95,9 +95,12 @@ FORGOTTEN = "Done. I have forgotten our chat, your language and your location, a
 FORGOTTEN_NONE = "Done. I have forgotten our chat, your language and your location; I hold no plans."
 FORGOTTEN_KEPT = f"If a plan link of yours still opens, email {CONTACT} with it and we will delete it."
 NEXT = "Reply share for a link, or: lighter day 2 · rain day 3 · swap <place> · by train"
-# Revise intents TY1's API carries out today; the others get NOT_YET until their handlers land
-# (on ty-api 7b9eaab an unhandled intent was re-planned as rain).
-LIVE_INTENTS = {"lighter_day", "swap_stop", "rain", "move_day", "transport"}
+# Every revise intent goes to TY1; one without a handler yet comes back as a 422 with TY1's own
+# words ("this change is not available yet"), which the user sees.
+LIVE_INTENTS = {
+    "lighter_day", "swap_stop", "rain", "move_day", "transport", "add_stop", "remove_stop",
+    "move_stop", "change_stay", "budget_style", "booked", "rest_of_day",
+}  # fmt: skip
 NOT_YET = (
     "I can't make that change from chat yet. For now I can: lighter day 2, rain day 3, "
     "swap <place>, extra day in <city>, or by train / by road / fly."
