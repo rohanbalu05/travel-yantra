@@ -147,6 +147,17 @@ async def test_intent_without_a_handler_shows_the_api_words(planned, api, lite):
     assert of(events, "done")[0].plan_changed is False
 
 
+async def test_a_booking_with_a_route_is_an_edit_not_a_new_trip(planned, api, lite):
+    lite.next_edit = Edit(
+        intent="booked", mode="rail", ref="17309", from_city="Bengaluru", to_city="Madgaon",
+        depart="2026-12-11T15:15:00", arrive="2026-12-12T05:47:00",
+    )  # fmt: skip
+    api.revisions = [revised("Planned around your train 17309")]
+    await send(planned, "we booked train 17309 from Bengaluru to Madgaon leaving 11 Dec 15:15")
+    assert len(api.bodies("/plan")) == 1  # only the first plan
+    assert api.bodies("/plan/p1/revise")[0]["booked"]["ref"] == "17309"
+
+
 async def test_day_out_of_range(planned, api):
     events = await send(planned, "lighter day 9")
     assert "days 1 to" in texts(events)[0] and WHICH_DAY in texts(events)[0]

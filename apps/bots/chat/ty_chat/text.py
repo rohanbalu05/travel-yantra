@@ -101,6 +101,13 @@ NOT_PLACES = {
     "family trip", "road trip", "weekend trip", "honeymoon", "pilgrimage", "solo", "group",
     "summer", "winter", "monsoon", "diwali", "christmas", "new", "year", "holidays",
 }  # fmt: skip
+# A message about a ticket already bought: with a plan, it is the booked edit, never a new trip.
+BOOKING = re.compile(
+    r"\b(?:booked|bought|got\s+(?:the\s+)?tickets?|tickets?\s+(?:for|on)|pnr)\b"
+    r"|\b(?:train|flight)\s+(?:no\.?\s*)?(?:\d{5}|[A-Z0-9]{2}\s?-?\d{2,4})\b"
+    r"|बुक\s*(?:किया|कर\s*लिया)|टिकट",
+    re.IGNORECASE,
+)
 QUESTION_START = re.compile(
     r"^\s*(?:what|where|when|which|who|whom|whose|why|how|is|are|can|could|should|do|does|"
     r"will|would|tell\s+me|any|kya|kaun|kahan|kab|kaise|kitna)\b",

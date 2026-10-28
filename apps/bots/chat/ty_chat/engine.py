@@ -411,6 +411,10 @@ class Engine:
         if story := rules.parse_story(text):
             log.info("route: story (%d min)", story[1])
             return await self.story(t, *story)
+        if c.itinerary is not None and not self.drafting(c) and rules.BOOKING.search(text):
+            # "we booked train 17309 Bengaluru to Madgaon, 11 Dec" reads like a trip; it is an edit.
+            log.info("route: a booking for the plan")
+            return await self.change_or_ask(t, text)
         if self.drafting(c):
             new = [d for d in rules.destinations(text) if not rules.same_place(d, c.draft_names)]
             if rules.is_full_trip(text) and new:
@@ -454,7 +458,8 @@ class Engine:
     async def parse_edit(self, it: Itinerary, text: str) -> Edit:
         lite = self.lite or get_lite()
         plan = "\n".join(
-            [f"Cities: {', '.join(it.request.destinations)}"]
+            [f"Cities: {', '.join(it.request.destinations)}, from {it.request.origin}"]
+            + [f"Dates: {it.request.start_date.isoformat()} to {it.request.end_date.isoformat()}"]
             + [
                 f"Day {i} ({d.date:%a %d %b}): " + (", ".join(p.name for p in d.stops) or "rest")
                 for i, d in enumerate(it.days, 1)
