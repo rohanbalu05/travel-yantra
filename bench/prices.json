@@ -1,0 +1,15 @@
+{
+  "note": "Provisional. Check against the live Vertex AI pricing page before the full run. Thinking tokens bill as output.",
+  "source": "https://cloud.google.com/vertex-ai/generative-ai/pricing, global standard, read 2026-10-28: gemini-3.5-flash input from the main table, output from a secondary table there; gemini-3.1-flash-lite from the main table",
+  "usd_inr": 88.0,
+  "per_million_usd": {
+    "gemini-3.5-flash": {
+      "input": 1.5,
+      "output": 9.0
+    },
+    "gemini-3.1-flash-lite": {
+      "input": 0.25,
+      "output": 1.5
+    }
+  }
+}

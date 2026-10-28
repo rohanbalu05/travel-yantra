@@ -136,6 +136,11 @@ secret and connector, so the DB password never leaves Google Cloud:
 `gcloud run jobs update ty-load-seed --image <new ty-api image>` then
 `gcloud run jobs execute ty-load-seed --wait`.
 
+Guide bench (TY-Bench): Cloud Run job `ty-bench-ask` runs the ty-api image
+with `python -m guide.scripts.bench_ask 3` as ty-api-run, with the Cloud SQL
+connector, `DATABASE_URL` from Secret Manager and the Vertex env. Update its
+image like ty-load-seed's, then `gcloud run jobs execute ty-bench-ask --wait`.
+
 ## Cloud SQL
 
 Approved by Rohan (V3-V).
@@ -178,6 +183,10 @@ Approved by Rohan (V3-V).
   `NEXT_PUBLIC_FIREBASE_PROJECT_ID` and `NEXT_PUBLIC_FIREBASE_APP_ID`. These
   are public client config, but the commit hooks block the key pattern, so
   they aren't in the repo. If any is empty, sign-in is off.
+- Since 28 Oct, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` is ty-web's own host
+  (`ty-web-643396702106.asia-south1.run.app`): ty-web proxies `/__/auth/*` and
+  `/__/firebase/*` to `<project>.firebaseapp.com` (TY4's next.config.mjs), so
+  sign-in by redirect works on phones that block third-party storage.
 
 ## Logging
 
