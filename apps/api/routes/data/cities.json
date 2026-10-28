@@ -63,7 +63,7 @@
   "puducherry": ["Puducherry", 11.9416, 79.8083],
   "kozhikode": ["Kozhikode", 11.2588, 75.7804],
   "thrissur": ["Thrissur", 10.5276, 76.2144],
-  "alappuzha": ["Alappuzha", 9.4981, 76.3388],
+  "alappuzha": ["Alleppey", 9.4981, 76.3388],
   "munnar": ["Munnar", 10.0889, 77.0595],
   "varkala": ["Varkala", 8.7379, 76.7163],
   "hosapete": ["Hosapete", 15.2689, 76.3909],
@@ -80,6 +80,9 @@
   "baroda": "vadodara", "vizag": "visakhapatnam", "trichy": "tiruchirappalli", "pondicherry": "puducherry",
   "pondy": "puducherry", "calicut": "kozhikode", "alleppey": "alappuzha", "udhagamandalam": "ooty",
   "ootacamund": "ooty", "hospet": "hosapete", "belgaum": "belagavi", "trichur": "thrissur",
-  "chhatrapati sambhajinagar": "aurangabad"
+  "chhatrapati sambhajinagar": "aurangabad",
+  "alappuzha": "alappuzha", "kumarakom": "alappuzha", "kuttanad": "alappuzha",
+  "fort kochi": "kochi", "mattancherry": "kochi", "old delhi": "delhi", "srirangapatna": "mysuru",
+  "fatehpur sikri": "agra", "amer": "jaipur", "amber": "jaipur", "pink city": "jaipur"
  }
 }

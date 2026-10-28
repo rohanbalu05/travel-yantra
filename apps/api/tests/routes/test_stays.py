@@ -75,7 +75,7 @@ def test_new_cities_live_and_sample(serp, city):
     assert len(sample) == 3 and all(s.name.startswith("Sample") and s.offers for s in sample)
 
 
-def test_live_failure_gives_no_stays_never_samples():
+def test_live_failure_gives_labelled_estimates_never_invented_hotels():
     from routes.apicache import MemoryStore
     from routes.hotels import SerpApiHotels
     from routes.serpapi import SerpApi
@@ -84,7 +84,11 @@ def test_live_failure_gives_no_stays_never_samples():
         raise TimeoutError
 
     hotels = SerpApiHotels(SerpApi(store=MemoryStore(), transport=down, api_key="k"))
-    assert rank_stays("Goa", IN, OUT, party=4, hotels=hotels) == []
+    stays = rank_stays("Goa", IN, OUT, party=4, hotels=hotels, budget_style="luxury")
+    assert [s.stars for s in stays] == [5, 2, 3] and all(s.sample and s.name.startswith("Estimate: ") for s in stays)
+    assert stays[0].price_per_night_inr == 2 * 16800 and stays[0].id == "panaji:estimate-luxury"
+    assert all(s.rating is None and s.reviews is None and s.offers for s in stays)
+    assert all("Estimate" not in (o.url or "") for s in stays for o in s.offers)  # links search the city
 
 
 def test_sample_stays_link_the_city_not_the_made_up_name():

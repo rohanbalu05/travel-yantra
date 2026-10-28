@@ -102,3 +102,13 @@ def test_no_drive_longer_than_fifteen_hours():
         CompareRequest(origin="Chennai", destination="Delhi", date=dt.date(2026, 12, 11)))
     assert "road" not in {o.option.mode.value for o in r.options}
     assert any(u.mode.value == "road" and "15 hours" in u.reason for u in r.unavailable) and MAX_DRIVE_MIN == 900
+
+
+@pytest.mark.parametrize("name,shown", [
+    ("Alleppey", "Alleppey"), ("Alappuzha", "Alleppey"), ("Kumarakom", "Alleppey"), ("Old Delhi", "Delhi"),
+    ("New Delhi", "Delhi"), ("Fort Kochi", "Kochi"), ("Ernakulam", "Kochi"), ("Amer", "Jaipur"),
+    ("Pink City", "Jaipur"), ("Fatehpur Sikri", "Agra"), ("Srirangapatna", "Mysuru"), ("Munnar", "Munnar"),
+])
+def test_guide_city_names_resolve_to_the_same_city(name, shown):
+    """TY2's guide names (guide.planner.corpus_city) and the name the plan shows."""
+    assert resolve_city(name).name == shown

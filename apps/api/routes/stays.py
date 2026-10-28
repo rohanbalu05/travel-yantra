@@ -1,7 +1,7 @@
 """Ranked stays for a city, dates and party: Google Hotels through SerpApi when
 SERPAPI_API_KEY is set (cached and capped). With the key set and no answer (cap
-reached, error), there are no stays: never fictional ones in place of real
-ones. Without the key (local runs, tests) the fictional sample stays are used,
+reached, error), the stays are labelled estimates (one per tier, `sample=True`,
+"Estimate: 3-star hotel in Mysuru"), never invented hotels. Without the key (local runs, tests) the fictional sample stays are used,
 each marked `sample=True`. Prices are per night for the whole party: hotels
 are rooms needed (two to a room) x the room rate, a rental is the whole place.
 Every stay carries seller offers (SerpApi's prices by source for the top live
@@ -27,6 +27,10 @@ PRIOR_RATING, PRIOR_REVIEWS = 4.0, 50  # a few reviews pull a rating towards 4.0
 MIN_REVIEWS = 10  # fewer than this, or no rating: shown only when too few rated stays remain
 SPARE_BEDROOMS = 1  # a rental may have one bedroom more than the party needs, no more (no 3BHK for two)
 GOOD_SCORE = 3.8  # budget style: cheapest among stays at least this good
+# When Google Hotels has no answer: one estimate per tier, a room rate per night from the recorded
+# Google Hotels searches (Goa, Coorg, Hampi, Chikkamagaluru; 27 Oct 2026): 2-3 star lower quartile,
+# 3-star median (17 hotels), 5-star median (6 hotels). The same rate in every city (reversible).
+ESTIMATES: tuple[tuple[str, int, int], ...] = (("budget", 2, 2500), ("mid", 3, 4100), ("luxury", 5, 16800))
 
 
 @lru_cache(maxsize=4)
@@ -103,7 +107,7 @@ def rank_stays(city: str, check_in: dt.date, check_out: dt.date, party: int = 1,
     if hotels is not None:
         rows = _live_rows(hotels.properties(node.name, check_in, check_out) or [])
         if not rows:
-            return []
+            return estimates(node.name, key, check_in, check_out, party, budget_style)[:limit]
     else:
         rows = _sample_rows(_stays(data_dir).get(key) or [])
         if not rows:
@@ -132,3 +136,17 @@ def rank_stays(city: str, check_in: dt.date, check_out: dt.date, party: int = 1,
                         rating=r.get("rating"), reviews=r.get("reviews"), kind=r.get("kind"),
                         sample=bool(r.get("sample"))))
     return out
+
+
+def estimates(city: str, key: str, check_in: dt.date, check_out: dt.date, party: int,
+              budget_style: str | None = None) -> list[Stay]:
+    """Labelled estimate stays (see ESTIMATES), the budget style's tier first, then the
+    others from the cheapest; links search the city on each seller."""
+    first = budget_style if budget_style in ("budget", "mid", "luxury") else "mid"
+    tiers = sorted(ESTIMATES, key=lambda t: (t[0] != first, t[2]))
+    rooms = math.ceil(party / ROOM_SLEEPS)
+    q = StayQuery(city, check_in, check_out, adults=party, hotel=None)
+    return [Stay(id=f"{key}:estimate-{tier}", name=f"Estimate: {stars}-star hotel in {city}", city=city,
+                 check_in=check_in, check_out=check_out, price_per_night_inr=rooms * rate,
+                 offers=stay_offers(q, []), stars=stars, kind="hotel", sample=True)
+            for tier, stars, rate in tiers]
