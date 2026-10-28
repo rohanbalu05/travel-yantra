@@ -65,13 +65,15 @@ case "${1:-}" in
     # The chat engine (TY5's ty_chat, mounted at /chat) translates replies through
     # ty-translate and writes share links. KATHA_TTS_DAILY_CHARS caps on-demand
     # Katha audio: 30000 a day stays inside TTS's 1M characters a month free.
+    # SerpApi caps (TY3, HQ V3-BA, 28 Oct): 10 under the free plan's real remainder;
+    # the plan month runs to the 26th, so TY3 sends a new monthly cap on the 1st.
     # Gemini models are served at the global location on the trial project.
     # ^@^ makes "@" the list separator so the comma-separated CORS value survives.
     # 2 GiB: the image bakes torch and multilingual-e5-small for /guide/ask (V3-T).
     gcloud run deploy ty-api --image "$R-docker.pkg.dev/$P/ty/ty-api:$SHA" "${common[@]}" \
       --service-account "ty-api-run@$P.iam.gserviceaccount.com" --memory 2Gi \
       --add-cloudsql-instances "$CONN" \
-      --set-env-vars "^@^$VERTEX@TY_MODEL_FLASH=gemini-3.5-flash@TY_MODEL_LITE=gemini-3.1-flash-lite@EMBEDDER=e5@TY_CORS_ORIGINS=$web_url@TY_FIREBASE_PROJECT_ID=$P@KATHA_AUDIO_BUCKET=$AUDIO_BUCKET@KATHA_AUDIO_BASE_URL=https://storage.googleapis.com/$AUDIO_BUCKET@KATHA_TTS_DAILY_CHARS=30000@TRANSLATE_URL=$(url_of ty-translate)@SHARE_BASE_URL=$WEB_URL@GIT_SHA=$SHA" \
+      --set-env-vars "^@^$VERTEX@TY_MODEL_FLASH=gemini-3.5-flash@TY_MODEL_LITE=gemini-3.1-flash-lite@EMBEDDER=e5@TY_CORS_ORIGINS=$web_url@TY_FIREBASE_PROJECT_ID=$P@KATHA_AUDIO_BUCKET=$AUDIO_BUCKET@KATHA_AUDIO_BASE_URL=https://storage.googleapis.com/$AUDIO_BUCKET@KATHA_TTS_DAILY_CHARS=30000@SERPAPI_MONTHLY_CAP=214@SERPAPI_DAILY_CAP=208@TRANSLATE_URL=$(url_of ty-translate)@SHARE_BASE_URL=$WEB_URL@GIT_SHA=$SHA" \
       ${sec:+"$sec"}
     ;;
   ty-web)

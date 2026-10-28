@@ -370,7 +370,9 @@ function TripLive() {
                     <ol className="panel-pad today">
                       {list.map((s, i) => {
                         const isNow = st.current?.place.id === s.place.id;
-                        const past = !isNow && s.leave <= now;
+                        // With a current stop (by place or clock), only the stops before it are done.
+                        const curAt = st.current ? list.findIndex((x) => x.place.id === st.current?.place.id) : -1;
+                        const past = !isNow && (curAt >= 0 ? i < curAt : s.leave <= now);
                         return (
                           <li key={s.place.id} className={past ? "it-row past" : "it-row"}>
                             <time>{(s.planned ? "" : "~") + clockText(s.arrive)}</time>
