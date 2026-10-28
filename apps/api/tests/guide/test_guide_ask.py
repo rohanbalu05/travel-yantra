@@ -141,8 +141,7 @@ def test_an_emergency_never_reaches_the_model() -> None:
     assert spy.calls == 0 and transport.kinds == ["hospital"]
     (place,) = answer.emergency_places
     assert place.name == "Sample Hospital One" and place.source == "google_places"
-    assert "Sample Hospital One, 1.1 km [1]" in answer.text
-    assert "query_place_id=sample-hospital-1" in answer.citations[0].url
+    assert "Sample Hospital One (1.1 km)" in answer.text and not answer.citations
 
 
 def test_no_hits_and_uncited_answers_become_the_refusal() -> None:
@@ -234,7 +233,7 @@ def test_sample_emergency_over_http(api) -> None:
     data = r.json()
     assert transport.kinds == ["hospital"]
     assert [p["name"] for p in data["emergency_places"]] == ["Sample Hospital One"]
-    assert data["citations"][0]["title"] == "Google Maps: Sample Hospital One"
+    assert data["citations"] == []  # the places are listed once, with their map links
 
 
 def test_a_failing_model_is_503_with_a_reason(monkeypatch) -> None:
@@ -353,7 +352,7 @@ def test_chest_pain_ranks_full_hospitals_above_nearer_clinics() -> None:
     names = [p.name for p in answer.emergency_places]
     assert names == ["Sample Medical College and Hospital", "Sample Town Hospital",
                      "Sample Nursing Home Hospital"]  # fmt: skip
-    assert "full hospital" in answer.text and "7.0 km [1]" in answer.text and "112" in answer.text
+    assert "full hospital" in answer.text and "(7.0 km)" in answer.text and "112" in answer.text
     body = t.bodies[0]
     assert body["maxResultCount"] == 20 and body["locationRestriction"]["circle"]["radius"] == 15000
     assert body["rankPreference"] == "POPULARITY"  # big hospitals a few km out, not the nearest 20
@@ -438,7 +437,7 @@ def test_hospital_near_panaji_without_a_location_searches_at_panaji() -> None:
     req = GuideQuestion(question="hospital near Panaji", city="Goa")
     answer = asyncio.run(ask(req, CityOnly(), Spy(), client))
     assert t.searched == ["Panaji, India"] and t.centres == [(15.4909, 73.8278)]
-    assert "Sample Hospital, 0.5 km [1]" in answer.text
+    assert "Hospitals near Panaji, larger ones first: Sample Hospital (0.5 km)." in answer.text
 
 
 def test_a_named_place_google_cannot_find_falls_back_to_the_city() -> None:
@@ -460,3 +459,80 @@ def test_a_places_match_far_from_the_trip_is_ignored() -> None:
     client = PlacesClient(cache=MemoryCache(), transport=t, api_key="test-key")
     asyncio.run(ask(GuideQuestion(question="hospital near Panaji", city="Goa"), CityOnly(), Spy(), client))
     assert t.centres == [(15.35, 74.05)]  # the trip's city, not Delhi
+
+
+# --- HQ P7/P8: clean names, no talk about sources, everyday help nearby ---
+
+
+@pytest.mark.parametrize(("raw", "clean"), [
+    ("Sample Hospital | Multispeciality Hospital in Bengaluru", "Sample Hospital"),
+    ("Sample Dental Clinic - Best Dentist in Panaji", "Sample Dental Clinic"),
+    ("Sample Hospital - Old Airport Road", "Sample Hospital - Old Airport Road"),  # a branch stays
+    ("Sample Cafe – Top Restaurant In Kochi", "Sample Cafe"),
+    ("Sample Pharmacy", "Sample Pharmacy"),
+])  # fmt: skip
+def test_clean_name_drops_listing_ad_copy(raw, clean) -> None:
+    assert ask_mod.clean_name(raw) == clean
+
+
+def test_answers_never_talk_about_their_sources() -> None:
+    sources = [hit(1), hit(2)]
+    answer = ground("Based on the provided sources, the palace burned in 1897 [1]. "
+                    "The sources do not provide the architect's fee. It was rebuilt in stone [2].", sources)  # fmt: skip
+    assert answer.text == "The palace burned in 1897 [1]. It was rebuilt in stone [2]."
+    only_gap = ground("The provided sources don't say who built it [1].", sources)
+    assert only_gap is None  # nothing left but the gap: the plain refusal
+
+
+class Typed:
+    """Places Nearby: two sample places of the requested type, the second one nearer."""
+
+    def __init__(self) -> None:
+        self.bodies: list[dict] = []
+
+    def __call__(self, method, url, headers, body, timeout):
+        self.bodies.append(body)
+        (kind,) = body["includedTypes"]
+        c = body["locationRestriction"]["circle"]["center"]
+        return {"places": [{
+            "id": f"sample-{kind}-{i}", "types": [kind], "primaryType": kind,
+            "location": {"latitude": c["latitude"] + d / 111.2, "longitude": c["longitude"]},
+            "displayName": {"text": name},
+        } for i, (name, d) in enumerate([(f"Sample {kind} Far | Best {kind} in Kochi", 0.9),
+                                          (f"Sample {kind} Near", 0.2)])]}  # fmt: skip
+
+
+@pytest.mark.parametrize(("question", "kind"), [
+    ("any veg restaurants near here?", "vegetarian_restaurant"),
+    ("pure vegetarian food nearby", "vegetarian_restaurant"),
+    ("where can we eat dinner nearby", "restaurant"),
+    ("non-veg restaurants around", "restaurant"),
+    ("nearest ATM", "atm"), ("I need cash", "atm"),
+    ("pharmacy near me", "pharmacy"), ("where can I buy medicine", "pharmacy"),
+])  # fmt: skip
+def test_everyday_help_lists_nearby_places_without_the_emergency_header(question, kind) -> None:
+    t = Typed()
+    client = PlacesClient(cache=MemoryCache(), transport=t, api_key="test-key")
+    answer = asyncio.run(ask(GuideQuestion(question=question, lat=9.96, lng=76.24), NoRows(), Spy(), client))
+    assert [b["includedTypes"] for b in t.bodies] == [[kind]]
+    assert [p.name for p in answer.emergency_places] == [f"Sample {kind} Near", f"Sample {kind} Far"]
+    assert "112" not in answer.text and not answer.citations
+    assert f"Sample {kind} Near (0.2 km); Sample {kind} Far (0.9 km)" in answer.text
+
+
+def test_a_food_question_without_near_or_a_location_goes_to_the_guide() -> None:
+    answer = asyncio.run(ask(GuideQuestion(question="What food is Udupi known for?"), NoRows(),
+                             Spy("Dosa [1]."), retrieve=lambda *a, **k: [hit(1)]))  # fmt: skip
+    assert answer.text == "Dosa [1]." and not answer.emergency_places
+
+
+def test_an_overdose_is_an_emergency_not_an_errand() -> None:
+    client, transport = places()
+    answer = asyncio.run(ask(GuideQuestion(question="my son swallowed tablets", lat=9.96, lng=76.24),
+                             NoRows(), Spy(), client))  # fmt: skip
+    assert "112" in answer.text and transport.kinds == ["pharmacy"]
+
+
+def test_nearby_help_without_a_location_asks_for_one() -> None:
+    answer = asyncio.run(ask(GuideQuestion(question="nearest ATM"), NoRows(), Spy(), places()[0]))
+    assert "Share your location" in answer.text and not answer.emergency_places

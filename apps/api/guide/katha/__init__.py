@@ -56,6 +56,8 @@ async def katha(req: KathaRequest, db: Any, model: Any) -> KathaStory:
     Another language is told from the English story's outline (rule 12): the cached
     one's, or a new English story is written (and cached) first."""
     subject = resolve(db, req.subject_kind, req.subject, req.places)
+    if subject.kind != req.subject_kind:  # a place request that named a city: the city's story
+        req = req.model_copy(update={"subject_kind": subject.kind, "subject": subject.name})
     facts = gather(db, subject, req.length_min)
     chunk_ids = [f.chunk_id for f in facts]
     key = cache_key(req, subject.name, chunk_ids)

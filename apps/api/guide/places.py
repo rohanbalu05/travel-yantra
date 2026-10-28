@@ -190,8 +190,16 @@ class PlacesClient:
         hospitals a few km out that the nearest-N list misses."""
         if kind not in EMERGENCY_TYPES:
             raise ValueError(f"kind must be one of {sorted(EMERGENCY_TYPES)}")
+        return self.nearby(lat, lng, EMERGENCY_TYPES[kind], radius_m=radius_m, limit=limit, rank=rank)
+
+    def nearby(
+        self, lat: float, lng: float, place_type: str, *, radius_m: float = 3000, limit: int = 5,
+        rank: str = "DISTANCE",
+    ) -> list[Place]:
+        """Places of one Places (New) type near a point: restaurant, vegetarian_restaurant,
+        atm, pharmacy, hospital, police. One Nearby Search (Pro), cached a day."""
         body = {
-            "includedTypes": [EMERGENCY_TYPES[kind]],
+            "includedTypes": [place_type],
             "maxResultCount": limit,
             "rankPreference": rank,
             "locationRestriction": {

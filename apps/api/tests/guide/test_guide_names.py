@@ -72,6 +72,25 @@ def test_resolve_place_and_city_use_the_same_matching() -> None:
         resolve(Pois(), "place", "Taj Mahal")
 
 
+@pytest.mark.parametrize("typed", ["Hampi", "hampi", "ಹಂಪಿ", "Mysore"])
+def test_a_place_request_naming_a_city_exactly_tells_the_city(typed) -> None:
+    # HQ P7: "story Hampi" told Hampi Bazaar's story (a prefix match), not the city's.
+    pois = [*POIS, (10, "Hampi Bazaar", "Hampi", None), (11, "Mysore Zoo", "Mysuru", None)]
+
+    class Rows(Pois):
+        def execute(self, sql, params=()):
+            class R:
+                def fetchall(self):
+                    return pois
+
+            return R()
+
+    subject = resolve(Rows(), "place", typed)
+    assert subject.kind == "city" and subject.name == corpus_city(typed)
+    assert resolve(Rows(), "place", "Hampi Bazaar").name == "Hampi Bazaar"  # still the place
+    assert resolve(Rows(), "place", "Hampi Baz").kind == "place"  # a place, not exactly a city
+
+
 def test_normalize_and_best() -> None:
     assert normalize("Tell me the story of the Mysore Palace.") == "mysuru palace"
     assert best("Devaraja Markt", ["Devaraja Market", "Mysore Palace"]) == "Devaraja Market"

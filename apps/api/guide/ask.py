@@ -17,7 +17,6 @@ from __future__ import annotations
 import math
 import re
 from typing import Any, Protocol
-from urllib.parse import quote
 
 from ty_contracts import Citation, GuideAnswer, GuideQuestion, Place
 
@@ -148,23 +147,29 @@ def _city_centre(db: Any, city: str | None) -> tuple[float, float] | None:
 def _locate(
     db: Any, req: GuideQuestion, places: PlacesClient | None = None
 ) -> tuple[float, float] | None:
-    """Where to search for help: the traveller; else the place the question names (a
-    corpus place, or Google's match for the name near the trip); else their stop; else
-    their city."""
-    if req.lat is not None and req.lng is not None:
-        return req.lat, req.lng
-    stop = _poi(db, req.place_name, req.city)
-    known = (stop[1], stop[2]) if stop else _city_centre(db, req.city)
+    return locate(db, req, places)[0]
+
+
+def locate(
+    db: Any, req: GuideQuestion, places: PlacesClient | None = None
+) -> tuple[tuple[float, float] | None, str | None]:
+    """(where to search for help, the place it is near when the question named one).
+    Where: the place the question names (a corpus place, or Google's match for the name
+    near the trip); else the traveller; else their stop; else their city. A named place
+    wins over the traveller's position: "hospitals near Panaji" is asked from elsewhere."""
+    here = (req.lat, req.lng) if req.lat is not None and req.lng is not None else None
+    stop = _poi(db, req.place_name, req.city) if not here else None
+    known = here or ((stop[1], stop[2]) if stop else _city_centre(db, req.city))
     if name := named_place(req.question):
         if poi := _poi(db, name, req.city):
-            return poi[1], poi[2]
+            return (poi[1], poi[2]), name
         try:  # one cached Text Search (Pro): "Panaji" -> Panaji, not the middle of Goa
             found = places.search(f"{name}, India", limit=1) if places else []
         except Exception:  # no key, quota, network: fall back to the stop and city
             found = []
         if found and (known is None or _km(*known, found[0].lat, found[0].lng) <= NAMED_MAX_KM):
-            return found[0].lat, found[0].lng
-    return known
+            return (found[0].lat, found[0].lng), name
+    return known, None
 
 
 def _km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
@@ -172,13 +177,6 @@ def _km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
     a = (math.sin((p2 - p1) / 2) ** 2
          + math.cos(p1) * math.cos(p2) * math.sin(math.radians(lng2 - lng1) / 2) ** 2)  # fmt: skip
     return 6371.0 * 2 * math.asin(math.sqrt(a))
-
-
-def maps_url(place: Place) -> str:
-    return (
-        "https://www.google.com/maps/search/?api=1"
-        f"&query={quote(place.name)}&query_place_id={quote(place.id)}"
-    )
 
 
 def care_tier(place: Place) -> int:
@@ -198,20 +196,44 @@ def care_tier(place: Place) -> int:
     return 1 if place.category == "hospital" or hospital else 3
 
 
+#: Ad copy Google Maps listings carry after the name: "X Hospital | Multispeciality Hospital
+#: in Bengaluru", "Y Clinic - Best Dentist in Panaji". A branch ("Z Hospital - Old Airport
+#: Road") stays.
+AD_TAIL = re.compile(
+    r"\s+[-–—:]\s+(?=.*\b(?:best|top|leading|no\.?\s?1|#1|24\s?[x/]\s?7|multi-?speciality|super-?speciality"
+    r"|hospital in|clinic in|restaurant in|in [A-Z]\w+\s*$))",
+    re.I,
+)
+
+
+def clean_name(name: str) -> str:
+    """A place's name without the ad copy Google Maps listings add after "|" or " - "."""
+    name = re.split(r"\s+[|｜]\s*", name.strip(), maxsplit=1)[0]
+    name = AD_TAIL.split(name, maxsplit=1)[0]
+    return name.strip(" ,-–—|") or name
+
+
+def _clean(place: Place) -> Place:
+    return place.model_copy(update={"name": clean_name(place.name)})
+
+
 def answer_emergency(
     kinds: list[str],
     where: tuple[float, float] | None,
     places: PlacesClient | None,
     *,
     urgent: bool = False,
+    near: str | None = None,
 ) -> GuideAnswer:
+    """The numbers, then the nearest help. The places go in emergency_places only: the
+    clients list each with its map link, so a citation would list it twice (HQ P7)."""
     lines = [f"In an emergency, call {EMERGENCY_NUMBER} (police, fire and ambulance, all India) "
              f"or {AMBULANCE_NUMBER} for an ambulance."]
     if where is None:
         lines.append("Share your location and I can list the nearest help from Google Maps.")
         return GuideAnswer(text=" ".join(lines))
     found: list[Place] = []
-    citations: list[Citation] = []
+    you = f"near {near}" if near else "near you"
     for kind in kinds:
         # Every hospital question ranks hospitals above clinics (WA-19); urgent ones also
         # say to go to a full hospital.
@@ -225,24 +247,76 @@ def answer_emergency(
             continue
         if not nearby:
             km = (URGENT_RADIUS_M if bigger else 10000) // 1000
-            lines.append(f"Google Maps lists no {KIND_LABEL[kind]} within {km} km of you.")
+            lines.append(f"Google Maps lists no {KIND_LABEL[kind]} within {km} km of "
+                         f"{near or 'you'}.")  # fmt: skip
             continue
         if bigger:
             nearby = sorted(nearby, key=lambda p: (care_tier(p), _km(*where, p.lat, p.lng)))
         items = []
-        for place in nearby[:3]:
+        for place in map(_clean, nearby[:3]):
             found.append(place)
-            citations.append(Citation(title=f"Google Maps: {place.name}", url=maps_url(place)))
-            items.append(f"{place.name}, {_km(*where, place.lat, place.lng):.1f} km [{len(citations)}]")
+            items.append(f"{place.name} ({_km(*where, place.lat, place.lng):.1f} km)")
         if bigger and urgent:
-            lines.append("For this, go to a full hospital, not a clinic. Hospitals, larger ones "
-                         "first (likelier to have an emergency department; call ahead): "
-                         + "; ".join(items) + ".")  # fmt: skip
+            lines.append("For this, go to a full hospital, not a clinic. Hospitals "
+                         f"{you}, larger ones first (likelier to have an emergency department; "
+                         "call ahead): " + "; ".join(items) + ".")  # fmt: skip
         elif bigger:
-            lines.append("Hospitals near you, larger ones first: " + "; ".join(items) + ".")
+            lines.append(f"Hospitals {you}, larger ones first: " + "; ".join(items) + ".")
         else:
-            lines.append(f"Nearest {KIND_LABEL[kind]}: " + "; ".join(items) + ".")
-    return GuideAnswer(text=" ".join(lines), citations=citations, emergency_places=found)
+            lines.append(f"{KIND_LABEL[kind].capitalize()} {you}: " + "; ".join(items) + ".")
+    return GuideAnswer(text=" ".join(lines), emergency_places=found)
+
+
+#: Everyday help near the traveller (HQ P8): (label, Places type, radius m, rank).
+Need = tuple[str, str, int, str]
+PHARMACY: Need = ("pharmacies", "pharmacy", 3000, "DISTANCE")
+RESTAURANT: Need = ("restaurants", "restaurant", 2500, "POPULARITY")
+VEG: Need = ("vegetarian restaurants", "vegetarian_restaurant", 3000, "POPULARITY")
+ATM: Need = ("ATMs", "atm", 2000, "DISTANCE")
+ATM_WORDS = re.compile(r"\batms?\b|cash ?machine|cash ?point|withdraw (?:cash|money)|need (?:some )?cash", re.I)
+FOOD_WORDS = re.compile(
+    r"restaurants?|places? to eat|eater(?:y|ies)|where (?:can|to|should|do) (?:i|we) eat|\b(?:lunch|dinner|"
+    r"breakfast)\b|\bfood\b|dhaba|\bthali|\bcaf[eé]s?\b|something to eat|hungry",
+    re.I,
+)
+VEG_WORDS = re.compile(r"(?<!non-)(?<!non )\b(?:pure )?veg(?:etarian|gie)?\b|\bjain\b|no meat", re.I)
+#: A meal question is about the place's food ("what is Udupi food?") unless it asks for
+#: somewhere near, or the traveller shared where they are.
+NEAR_CUE = re.compile(r"\b(?:near|nearby|nearest|closest|around|close to|close by|walking distance|open now)\b", re.I)
+#: A medicine question that is an emergency, not an errand.
+DANGER = re.compile(r"overdose|poison|swallow|allerg|seizure|vomiting blood|not waking|suicid", re.I)
+
+
+def nearby_need(req: GuideQuestion) -> Need | None:
+    q = req.question
+    if ATM_WORDS.search(q):
+        return ATM
+    located = req.lat is not None and req.lng is not None
+    if FOOD_WORDS.search(q) and (NEAR_CUE.search(q) or located):
+        return VEG if VEG_WORDS.search(q) else RESTAURANT
+    return None
+
+
+def answer_nearby(
+    need: Need, where: tuple[float, float] | None, places: PlacesClient | None, *, near: str | None = None
+) -> GuideAnswer:
+    """Up to five places from Google Maps, clean names and distances in the text; the places
+    themselves in emergency_places, which every client lists with a short map link."""
+    label, place_type, radius_m, rank = need
+    if where is None:
+        return GuideAnswer(text=f"Share your location, or name the place you're at, and I'll list "
+                                f"{label} near you from Google Maps.")  # fmt: skip
+    try:
+        found = places.nearby(*where, place_type, radius_m=radius_m, limit=5, rank=rank) if places else []
+    except Exception:  # no key, quota, network: say so, never fill the gap
+        return GuideAnswer(text=f"I couldn't reach Google Maps for {label} just now. Try again in a minute.")
+    you = f"near {near}" if near else "near you"
+    if not found:
+        return GuideAnswer(text=f"Google Maps lists no {label} within {radius_m / 1000:g} km {you}.")
+    found = sorted(map(_clean, found), key=lambda p: _km(*where, p.lat, p.lng))
+    items = "; ".join(f"{p.name} ({_km(*where, p.lat, p.lng):.1f} km)" for p in found)
+    return GuideAnswer(text=f"{label[0].upper()}{label[1:]} {you}, from Google Maps: {items}. "
+                            "Check the hours before you go.", emergency_places=found)  # fmt: skip
 
 
 SYSTEM = """You are Travel Yantra's guide for travellers in India.
@@ -252,7 +326,9 @@ Answer the question using only the numbered sources below. Rules:
 - A source marked (legend) is folklore: say so ("Legend says...", "The story goes..."),
   never state it as fact.
 - If the sources do not answer the question, reply exactly: NO_ANSWER
-- Do not add facts, dates, prices or names that are not in the sources."""
+- Do not add facts, dates, prices or names that are not in the sources.
+- Never mention the sources themselves ("Based on the provided sources", "The sources do
+  not say"): answer as a guide who knows, or reply NO_ANSWER."""
 
 
 def build_prompt(question: str, sources: list[Hit]) -> str:
@@ -264,11 +340,40 @@ def build_prompt(question: str, sources: list[Hit]) -> str:
     return f"{SYSTEM}\n\nSources:\n\n" + "\n\n".join(blocks) + f"\n\nQuestion: {question}"
 
 
+#: The model talking about its sources instead of the place (HQ P7): an opening to cut...
+SOURCE_LEAD = re.compile(
+    r"(?:^|(?<=[.!?]\s))(?:based (?:only )?on|according to|from) (?:the )?(?:provided |given |available )?"
+    r"(?:sources?|information|context|documents?)(?: provided)?,?\s*",
+    re.I,
+)
+#: ...and a sentence to drop: "The sources do not provide...", "The provided sources don't say".
+SOURCE_GAP = re.compile(
+    r"\b(?:the |these |my )?(?:provided |given |available )?(?:sources?|information|context|documents?)"
+    r"(?: provided)? (?:do(?:es)? not|don'?t|doesn'?t|did not|never) (?:provide|say|mention|specify|"
+    r"include|contain|state|cover|give|describe|offer)|\bnot (?:mentioned|specified|stated|provided) in the "
+    r"(?:provided )?(?:sources?|information|context)",
+    re.I,
+)
+
+
+def no_source_talk(text: str) -> str:
+    """The answer without talk about its sources: such sentences are dropped and such
+    openings cut; what is left starts with a capital."""
+    sentences = re.split(r"(?<=[.!?])\s+", text.strip())
+    kept = [s for s in sentences if not SOURCE_GAP.search(s)]
+    out = []
+    for s in kept:
+        s = SOURCE_LEAD.sub("", s)
+        out.append(s[:1].upper() + s[1:] if s else s)
+    return " ".join(s for s in out if s)
+
+
 def ground(text: str, sources: list[Hit]) -> GuideAnswer | None:
     """Keep markers that point at a real source, renumber them in order of first
     use, and build citations to match. None when nothing valid is cited."""
     if "NO_ANSWER" in text:
         return None
+    text = no_source_talk(text)
     order: list[int] = []
 
     def renumber(m: re.Match) -> str:
@@ -304,9 +409,16 @@ async def ask(
     *,
     retrieve=None,
 ) -> GuideAnswer:
-    if kinds := emergency_kinds(req.question):
+    kinds = emergency_kinds(req.question)
+    danger = URGENT.search(req.question) or DANGER.search(req.question)
+    need = PHARMACY if kinds == ["pharmacy"] and not danger else None if kinds else nearby_need(req)
+    if need:  # everyday help on the trip: a pharmacy, a meal, cash; no 112 header for these
+        where, near = locate(db, req, places)
+        return answer_nearby(need, where, places, near=near)
+    if kinds:
         urgent = bool(URGENT.search(req.question))
-        return answer_emergency(kinds, _locate(db, req, places), places, urgent=urgent)
+        where, near = locate(db, req, places)
+        return answer_emergency(kinds, where, places, urgent=urgent, near=near)
     # place_id is accepted but not matched: the corpus does not store itinerary ids yet.
     poi = _poi(db, req.place_name, req.city)
     # city is a soft hint: the plan's destination, not necessarily what the question is

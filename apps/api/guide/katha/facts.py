@@ -11,7 +11,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from .. import names
-from ..planner import _slug, corpus_city
+from ..planner import _slug, corpus_city, exact_city
 
 #: How many facts each length may draw on, and how many it needs.
 CAP = {2: 8, 5: 14, 10: 24}
@@ -90,6 +90,12 @@ def _poi_by_name_or_slug(db: Any, key: str) -> tuple[int, str, str] | None:
 
 def resolve(db: Any, kind: str, subject: str, places: list[str] = ()) -> Subject:
     if kind == "place":
+        # "story Hampi": a corpus city named exactly is the city, not a place that starts
+        # with its name (Hampi Bazaar), unless a place has exactly that name (HQ P7).
+        rows = db.execute("SELECT id, name, city, name_kn FROM poi").fetchall()
+        exact = any(r[1].lower() == subject.strip().lower() for r in rows)
+        if not exact and (city := exact_city(subject)):
+            return Subject(kind="city", name=city, city=city)
         if not (hit := _poi_by_name_or_slug(db, subject)):
             raise UnknownSubject(subject)
         return Subject(kind=kind, name=hit[1], city=hit[2], poi_ids=[hit[0]])

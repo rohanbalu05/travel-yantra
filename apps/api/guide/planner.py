@@ -31,9 +31,9 @@ CITY_ALIASES = {
 ELDERLY_AGE = 65
 
 
-def corpus_city(name: str) -> str | None:
-    """The corpus city a traveller means: an alias as typed; then normalized ("the city of
-    Mysore", "मैसूर", "ಮೈಸೂರು"); then difflib with one clear winner ("Mysuuru")."""
+def exact_city(name: str) -> str | None:
+    """The corpus city a name spells exactly: an alias as typed, or normalized ("the city of
+    Mysore", "मैसूर", "ಮೈಸೂರು"). No fuzzy match: "Hampi" is Hampi, never Hampi Bazaar."""
     if hit := CITY_ALIASES.get(name.strip().lower()):
         return hit
     from . import names
@@ -41,10 +41,18 @@ def corpus_city(name: str) -> str | None:
     norm = " ".join(w for w in names.normalize(name).split() if w not in ("city", "town"))
     if not norm:
         return None
-    by_norm = {names.normalize(alias): city for alias, city in CITY_ALIASES.items()}
-    if norm in by_norm:
-        return by_norm[norm]
-    alias = names.best(norm, CITY_ALIASES)
+    return {names.normalize(alias): city for alias, city in CITY_ALIASES.items()}.get(norm)
+
+
+def corpus_city(name: str) -> str | None:
+    """The corpus city a traveller means: exact_city, then difflib with one clear winner
+    ("Mysuuru")."""
+    if hit := exact_city(name):
+        return hit
+    from . import names
+
+    norm = " ".join(w for w in names.normalize(name).split() if w not in ("city", "town"))
+    alias = names.best(norm, CITY_ALIASES) if norm else None
     return CITY_ALIASES[alias] if alias else None
 
 
