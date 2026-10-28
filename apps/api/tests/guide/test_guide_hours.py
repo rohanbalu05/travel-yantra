@@ -41,7 +41,7 @@ def test_only_places_with_a_place_id_get_hours_and_the_cache_serves_repeats():
     goa = places_for("Goa")
     c, t = client()
     out = h.live_hours(goa, c)
-    ids = place_ids()
+    ids = {k: v for k, v in place_ids().items() if k.startswith("goa-")}
     filled = [p for p in out if p.opening_hours]
     assert {p.id for p in filled} == {p.id for p in goa if p.id in ids} and len(filled) == len(ids) >= 5
     assert filled[0].opening_hours[0].opens == time(10, 0)  # from the fixture, per day

@@ -18,6 +18,7 @@ SPELLINGS = {
     "mysore": "mysuru", "bangalore": "bengaluru", "srirangapatnam": "srirangapatna",
     "chamundi": "chamundeshwari", "vitthala": "vittala", "vittal": "vittala", "vithala": "vittala",
     "coorg": "kodagu", "chikmagalur": "chikkamagaluru", "chikmagaluru": "chikkamagaluru",
+    "qutb": "qutub", "amer": "amber", "alappuzha": "alleppey", "cochin": "kochi",
 }  # fmt: skip
 #: Words that ask for a story or point at it, never part of a name.
 FILLER = [
@@ -26,7 +27,7 @@ FILLER = [
     "की कहानी", "का किस्सा", "की कथा", "कहानी", "कथा", "के बारे में", "सुनाओ", "बताओ",
     "ಕಥೆ", "ಕತೆ", "ಬಗ್ಗೆ", "ಹೇಳಿ",
 ]  # fmt: skip
-#: Hindi and Kannada names of the six demo subjects (katha_pregenerate.DEMO).
+#: Hindi and Kannada names of the demo subjects (katha_pregenerate.DEMO) and the HQ P8 ones.
 NATIVE = {
     "मैसूर": "Mysuru", "मैसूरु": "Mysuru", "ಮೈಸೂರು": "Mysuru",
     "मैसूर पैलेस": "Mysore Palace", "मैसूर महल": "Mysore Palace", "मैसूर का महल": "Mysore Palace",
@@ -37,6 +38,14 @@ NATIVE = {
     "हम्पी": "Hampi", "ಹಂಪಿ": "Hampi",
     "देवराज मार्केट": "Devaraja Market", "देवराज बाज़ार": "Devaraja Market", "देवराज बाजार": "Devaraja Market",
     "ದೇವರಾಜ ಮಾರುಕಟ್ಟೆ": "Devaraja Market",
+    # HQ P8: the Kerala and Golden Triangle Katha subjects and cities.
+    "ताज महल": "Taj Mahal", "ताजमहल": "Taj Mahal", "लाल किला": "Red Fort", "लाल क़िला": "Red Fort",
+    "कुतुब मीनार": "Qutub Minar", "क़ुतुब मीनार": "Qutub Minar", "आमेर किला": "Amber Fort",
+    "आमेर का किला": "Amber Fort", "आमेर क़िला": "Amber Fort", "अंबर किला": "Amber Fort",
+    "हवा महल": "Hawa Mahal", "फोर्ट कोच्चि": "Fort Kochi", "फ़ोर्ट कोच्चि": "Fort Kochi",
+    "अलेप्पी बैकवाटर्स": "Alleppey backwaters", "अलप्पुझा बैकवाटर्स": "Alleppey backwaters",
+    "दिल्ली": "Delhi", "आगरा": "Agra", "जयपुर": "Jaipur", "कोच्चि": "Kochi", "मुन्नार": "Munnar",
+    "अलेप्पी": "Alleppey", "अलप्पुझा": "Alleppey",
 }  # fmt: skip
 CUTOFF = 0.85
 CLEAR_LEAD = 0.05  # the winner must beat the runner-up by this much

@@ -96,3 +96,24 @@ def test_normalize_and_best() -> None:
     assert best("Devaraja Markt", ["Devaraja Market", "Mysore Palace"]) == "Devaraja Market"
     assert best("Lalbagh Gardn", ["Lalbagh Garden", "Lalbagh Gardens"]) is None  # no clear winner
     assert best("zzz", ["Mysore Palace"]) is None
+
+
+@pytest.mark.parametrize(("typed", "name"), [
+    ("ताज महल", "Taj Mahal"), ("लाल किला", "Red Fort"), ("Qutb Minar", "Qutub Minar"),
+    ("Amer Fort", "Amber Fort"), ("हवा महल", "Hawa Mahal"), ("story of fort kochi", "Fort Kochi"),
+])  # fmt: skip
+def test_hq_p8_katha_subjects_resolve(typed, name) -> None:
+    pois = [(20, "Taj Mahal", "Agra", None), (21, "Red Fort", "Delhi", None), (22, "Qutub Minar", "Delhi", None),
+            (23, "Amber Fort", "Jaipur", None), (24, "Hawa Mahal", "Jaipur", None), (25, "Fort Kochi", "Kochi", None),
+            (26, "Alleppey backwaters", "Alleppey", None)]  # fmt: skip
+
+    class Rows:
+        def execute(self, sql, params=()):
+            class R:
+                def fetchall(self):
+                    return pois
+
+            return R()
+
+    subject = resolve(Rows(), "place", typed)
+    assert subject.kind == "place" and subject.name == name

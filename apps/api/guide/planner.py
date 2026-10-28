@@ -27,12 +27,21 @@ CITY_ALIASES = {
     "belur": "Chikmagalur", "halebidu": "Chikmagalur",
     "goa": "Goa", "panaji": "Goa", "panjim": "Goa", "old goa": "Goa", "margao": "Goa",
     "madgaon": "Goa", "north goa": "Goa", "south goa": "Goa", "mapusa": "Goa",
+    "kochi": "Kochi", "cochin": "Kochi", "fort kochi": "Kochi", "ernakulam": "Kochi",
+    "mattancherry": "Kochi",
+    "munnar": "Munnar",
+    "alleppey": "Alleppey", "alappuzha": "Alleppey", "kumarakom": "Alleppey", "kuttanad": "Alleppey",
+    "delhi": "Delhi", "new delhi": "Delhi", "old delhi": "Delhi",
+    "agra": "Agra", "fatehpur sikri": "Agra",
+    "jaipur": "Jaipur", "amer": "Jaipur", "amber": "Jaipur", "pink city": "Jaipur",
 }  # fmt: skip
 ELDERLY_AGE = 65
 #: Corpus city -> the region it belongs to (what the planner can tell travellers it covers).
 REGIONS = {
     "Mysuru": "Karnataka", "Bengaluru": "Karnataka", "Hampi": "Karnataka", "Coorg": "Karnataka",
     "Chikmagalur": "Karnataka", "Goa": "Goa",
+    "Kochi": "Kerala", "Munnar": "Kerala", "Alleppey": "Kerala",
+    "Delhi": "Golden Triangle", "Agra": "Golden Triangle", "Jaipur": "Golden Triangle",
 }  # fmt: skip
 #: Under a roof: museums and temples, palaces (their interiors), churches and tombs, or
 #: the "indoor" tag. Never ruins, hilltops, viewpoints or Hampi's open temple complexes,

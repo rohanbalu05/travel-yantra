@@ -40,6 +40,12 @@ PAGES = {
     "Chikmagalur": [("wikivoyage", "Chikmagalur"), ("wikipedia", "Chikmagalur")],
     "Coorg": [("wikivoyage", "Kodagu"), ("wikipedia", "Kodagu district"), ("wikipedia", "Madikeri")],
     "Goa": [("wikivoyage", "Goa")],
+    "Kochi": [("wikivoyage", "Kochi"), ("wikipedia", "Kochi")],
+    "Munnar": [("wikivoyage", "Munnar"), ("wikipedia", "Munnar")],
+    "Alleppey": [("wikivoyage", "Alappuzha"), ("wikipedia", "Alappuzha")],
+    "Delhi": [("wikivoyage", "Delhi"), ("wikipedia", "Climate of Delhi")],
+    "Agra": [("wikivoyage", "Agra"), ("wikipedia", "Agra")],
+    "Jaipur": [("wikivoyage", "Jaipur"), ("wikipedia", "Jaipur")],
 }
 MAX_PER_MONTH = 4
 
@@ -104,7 +110,8 @@ def _table() -> dict:
 #: A note that names a festival is an event: it holds only on the festival's dates, not
 #: the whole month (WA-02, WEB-09: Dasara lights quoted for a 31 Oct trip, after Dasara).
 EVENT = re.compile(r"\b(dasara|dussehra|navaratri|navratri|festival|utsav|carnival|christmas|diwali|"
-                   r"deepavali|shigmo|feast|jatre|jatra|illuminated)\w*", re.I)  # fmt: skip
+                   r"deepavali|shigmo|feast|jatre|jatra|illuminated|boat race|mahotsav|onam|holi|teej|"
+                   r"gangaur|biennale|vallam kali)\w*", re.I)  # fmt: skip
 #: Festival dates, by the words that name them. A year not listed is unknown, and an event
 #: whose dates are unknown is left out of a dated trip rather than guessed.
 EVENT_DATES: list[tuple[re.Pattern, Callable[[int], tuple[date, date] | None]]] = [
@@ -114,7 +121,15 @@ EVENT_DATES: list[tuple[re.Pattern, Callable[[int], tuple[date, date] | None]]] 
     # Hampi Utsav, as the quoted source says: "the first week of November".
     (re.compile(r"hampi utsav", re.I), lambda y: (date(y, 11, 1), date(y, 11, 7))),
     (re.compile(r"christmas", re.I), lambda y: (date(y, 12, 24), date(y, 12, 25))),
+    # Nehru Trophy Boat Race, Punnamada Lake: the second Saturday of August.
+    (re.compile(r"nehru trophy", re.I), lambda y: (_nth_saturday(y, 8, 2),) * 2),
+    # Taj Mahotsav, Shilpgram, Agra: 18-27 February every year.
+    (re.compile(r"taj mahotsav", re.I), lambda y: (date(y, 2, 18), date(y, 2, 27))),
 ]  # fmt: skip
+
+
+def _nth_saturday(y: int, m: int, n: int) -> date:
+    return date(y, m, 1 + (5 - date(y, m, 1).weekday()) % 7 + 7 * (n - 1))
 
 
 def notes_for(city: str, month: int | date) -> list[dict]:
@@ -145,7 +160,10 @@ ACTIVITY = re.compile(r"\b(div(?:e|ing|ers?)|scuba|snorkel\w*|surf\w*|trek\w*|ra
 #: A season word in a general note, and the months it is true in. "Enjoy Coorg in the
 #: monsoon season" is not a note for November (HQ P7).
 SEASON_MONTHS = {
-    re.compile(r"monsoon|rainy season|the rains\b", re.I): {6, 7, 8, 9},
+    # Kerala's second rains: October to December, so not "the monsoon" of June to September.
+    re.compile(r"north[- ]?east(ern)? monsoon|retreating monsoon", re.I): {10, 11, 12},
+    re.compile(r"(?<!east )(?<!east-)(?<!northeast )(?<!retreating )monsoon|rainy season|the rains\b", re.I):
+        {6, 7, 8, 9},
     re.compile(r"\bwinter", re.I): {11, 12, 1, 2},
     re.compile(r"\bsummer", re.I): {3, 4, 5, 6},
 }
@@ -182,14 +200,15 @@ def fits_trip(note: dict, start: date, end: date) -> bool:
         return False
     if spans := windows(text, start.year) + windows(text, end.year):
         return any(a <= end and b >= start for a, b in spans)
-    if note.get("kind") == "general":
-        months, d = set(), start.replace(day=1)
-        while d <= end:
-            months.add(d.month)
-            d = date(d.year + (d.month == 12), d.month % 12 + 1, 1)
-        for pattern, true_in in SEASON_MONTHS.items():
-            if pattern.search(text) and not months & true_in:
-                return False
+    # No range read: a season word must be true in the trip's months, whatever kind the
+    # note is ("monsoon ... late June ... mid-September" also names November: HQ P7).
+    months, d = set(), start.replace(day=1)
+    while d <= end:
+        months.add(d.month)
+        d = date(d.year + (d.month == 12), d.month % 12 + 1, 1)
+    for pattern, true_in in SEASON_MONTHS.items():
+        if pattern.search(text) and not months & true_in:
+            return False
     return True
 
 

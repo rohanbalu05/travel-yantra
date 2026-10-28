@@ -1,5 +1,7 @@
 from datetime import date, time
 
+import pytest
+
 from guide.planner import (
     SOURCE,
     _pois,
@@ -101,3 +103,27 @@ def test_covered_cities_and_indoor_places_for_rain_plans() -> None:
     for name in ("hampi-vittala-temple-and-stone-chariot", "hampi-lotus-mahal-zenana-enclosure",
                  "goa-fort-aguada", "bengaluru-bangalore-fort", "mysuru-devaraja-market"):  # fmt: skip
         assert name not in indoor, name
+
+
+@pytest.mark.parametrize(("typed", "city"), [
+    ("Cochin", "Kochi"), ("Fort Kochi", "Kochi"), ("Alappuzha", "Alleppey"), ("New Delhi", "Delhi"),
+    ("आगरा", "Agra"), ("जयपुर", "Jaipur"), ("Munnar", "Munnar"),
+])  # fmt: skip
+def test_kerala_and_golden_triangle_cities(typed, city) -> None:
+    from guide.planner import corpus_city, covered_cities
+
+    assert corpus_city(typed) == city
+    assert covered_cities()[city] in {"Kerala", "Golden Triangle"}
+
+
+def test_new_regions_have_places_ticket_links_and_indoor_flags() -> None:
+    from guide.planner import indoor_ids
+
+    taj = next(p for p in places_for("Agra") if p.name == "Taj Mahal")
+    assert taj.ticket_url == "https://www.tajmahal.gov.in/" and taj.native_names["hi"] == "ताजमहल"
+    amber = next(p for p in places_for("Jaipur") if p.name == "Amber Fort")
+    assert amber.ticket_url and amber.ticket_url.startswith("https://obms-tourist.rajasthan.gov.in")
+    assert all(p.ticket_url is None for p in places_for("Munnar"))  # no official ticket site known
+    assert "delhi-national-museum" in indoor_ids() and "delhi-india-gate" not in indoor_ids()
+    for city in ("Kochi", "Munnar", "Alleppey", "Delhi", "Agra", "Jaipur"):
+        assert len(places_for(city)) >= 14, city

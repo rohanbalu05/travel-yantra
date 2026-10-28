@@ -24,7 +24,7 @@ from guide.retrieval.retrieve import Hit
 from ty_contracts import GuideQuestion
 
 ask_mod = importlib.import_module("guide.ask")  # guide.ask the function shadows it
-EVAL_FILE = Path(__file__).parent / "eval_ask.jsonl"
+EVAL_FILE = Path(__file__).resolve().parents[2] / "guide" / "eval" / "eval_ask.jsonl"
 EVAL = [json.loads(line) for line in EVAL_FILE.read_text(encoding="utf-8").splitlines()]
 
 

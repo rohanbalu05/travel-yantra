@@ -1,0 +1,627 @@
+{
+ "_notes": "Built by guide/scripts/build_corridor.py from Wikipedia and Wikidata on 2026-10-28. Text is CC BY-SA; each chunk cites its page.",
+ "pois": [
+  {
+   "name": "Red Fort",
+   "name_kn": "ಕೆಂಪು ಕೋಟೆ",
+   "names": {
+    "ta": "செங்கோட்டை",
+    "bn": "লালকেল্লা",
+    "hi": "लाल क़िला",
+    "te": "ఎఱ్ఱకోట",
+    "kn": "ಕೆಂಪು ಕೋಟೆ"
+   },
+   "city": "Delhi",
+   "district": "Central Delhi",
+   "lat": 28.65583,
+   "lng": 77.24028,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 120,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q45957",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://asi.payumoney.com/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJ74XAbuL8DDkR-wJQ-vQyHkQ",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Qutub Minar",
+   "name_kn": "ಕುತುಬ್ ಮಿನಾರ್",
+   "names": {
+    "ta": "குதுப் நினைவுச்சின்னங்கள்",
+    "bn": "কুতুব মিনার",
+    "te": "ధృవ్ స్తంభ",
+    "kn": "ಕುತುಬ್ ಮಿನಾರ್",
+    "hi": "क़ुतुब मीनार"
+   },
+   "city": "Delhi",
+   "district": "South Delhi",
+   "lat": 28.52435,
+   "lng": 77.18525,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 90,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q187635",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://asi.payumoney.com/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJT5uBZwYeDTkRuJ11YPGVSYM",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Humayun's Tomb",
+   "name_kn": "ಹುಮಾಯೂನನ ಸಮಾಧಿ",
+   "names": {
+    "ta": "உமாயூனின் சமாதி",
+    "bn": "হুমায়ুনের সমাধিসৌধ",
+    "hi": "हुमायूँ का मकबरा",
+    "kn": "ಹುಮಾಯೂನನ ಸಮಾಧಿ",
+    "te": "హుమాయూన్ సమాధి"
+   },
+   "city": "Delhi",
+   "district": "South East Delhi",
+   "lat": 28.59326,
+   "lng": 77.2506,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 75,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q189648",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://asi.payumoney.com/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJpwtG6BzjDDkRDajfOy268bk",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "India Gate",
+   "name_kn": "ಇಂಡಿಯಾ ಗೇಟ್‌",
+   "names": {
+    "ta": "இந்தியா கேட்",
+    "bn": "ইন্ডিয়া গেট",
+    "hi": "इण्डिया गेट",
+    "kn": "ಇಂಡಿಯಾ ಗೇಟ್‌",
+    "te": "ఇండియా గేట్"
+   },
+   "city": "Delhi",
+   "district": "New Delhi",
+   "lat": 28.61286,
+   "lng": 77.22931,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q245347",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJk-MbltviDDkRrhDd5l7vx_Y",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Jama Masjid, Delhi",
+   "name_kn": "ಜಾಮಾ ಮಸೀದಿ",
+   "names": {
+    "ta": "ஜாமா பள்ளி",
+    "hi": "जामा मस्जिद",
+    "kn": "ಜಾಮಾ ಮಸೀದಿ",
+    "te": "జామా మస్జిద్",
+    "bn": "জামে মসজিদ, দিল্লী"
+   },
+   "city": "Delhi",
+   "district": "Central Delhi",
+   "lat": 28.65083,
+   "lng": 77.23306,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q233678",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJFbKJ3xj9DDkRlp2_KZ42V90",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Lotus Temple",
+   "name_kn": "ಕಮಲ ದೇವಾಲಯ",
+   "names": {
+    "hi": "कमल मंदिर",
+    "kn": "ಕಮಲ ದೇವಾಲಯ",
+    "ta": "தாமரைக் கோயில்",
+    "te": "లోటస్ టెంపుల్",
+    "bn": "কমল মন্দির"
+   },
+   "city": "Delhi",
+   "district": "South East Delhi",
+   "lat": 28.55333,
+   "lng": 77.2586,
+   "category": "temple",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q940843",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJ0YwCbsHjDDkResZe6B7rO2U",
+   "places_status": "hours"
+  },
+  {
+   "name": "Swaminarayan Akshardham, Delhi",
+   "name_kn": "ಅಕ್ಷರಧಾಮ, ನವ ದೆಹಲಿ",
+   "names": {
+    "hi": "अक्षरधाम मंदिर, दिल्ली",
+    "ta": "அக்சர்தம்",
+    "te": "అక్షరధామ్",
+    "kn": "ಅಕ್ಷರಧಾಮ, ನವ ದೆಹಲಿ",
+    "bn": "অক্ষরধাম মন্দির"
+   },
+   "city": "Delhi",
+   "district": "East Delhi",
+   "lat": 28.6125,
+   "lng": 77.2773,
+   "category": "temple",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 150,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q1849858",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJ-7F1mVvjDDkRKrLzXiafoGk",
+   "places_status": "hours"
+  },
+  {
+   "name": "Chandni Chowk",
+   "name_kn": null,
+   "names": {
+    "hi": "चाँदनी चौक",
+    "ta": "சாந்தினி சவுக்",
+    "bn": "চাঁদনি চক"
+   },
+   "city": "Delhi",
+   "district": "Central Delhi",
+   "lat": 28.65596,
+   "lng": 77.23392,
+   "category": "market",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 90,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q3236763",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJWcXciBr9DDkRUb4dCDykTwI",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Raj Ghat",
+   "name_kn": null,
+   "names": {
+    "hi": "राजघाट समाधि परिसर",
+    "te": "రాజ్ ఘాట్ మరియు పరిసర స్మారక స్థలాలు",
+    "ta": "ராஜ்காட்",
+    "bn": "রাজঘাট সমাধি পরিসর"
+   },
+   "city": "Delhi",
+   "district": "Central Delhi",
+   "lat": 28.64055,
+   "lng": 77.24943,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q1210083",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJcYywk8L8DDkRABnRCRxatwM",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Purana Qila",
+   "name_kn": null,
+   "names": {
+    "hi": "पुराना किला",
+    "ta": "புராணா கிலா",
+    "te": "పురాణ కిలా"
+   },
+   "city": "Delhi",
+   "district": "New Delhi",
+   "lat": 28.60944,
+   "lng": 77.24417,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 75,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q1151529",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://asi.payumoney.com/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJcWc7SyHjDDkRs8yyCmF5khM",
+   "places_status": "hours"
+  },
+  {
+   "name": "Gurudwara Bangla Sahib",
+   "name_kn": null,
+   "names": {
+    "hi": "गुरुद्वारा बंगला साहिब",
+    "bn": "গুরুদুয়ারা বাংলা সাহিব",
+    "ta": "குருத்துவாரா பங்களா சாகிப்"
+   },
+   "city": "Delhi",
+   "district": "New Delhi",
+   "lat": 28.6267,
+   "lng": 77.2089,
+   "category": "temple",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q2375435",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJLX3AzJ79DDkRO46OG-dEsG0",
+   "places_status": "hours"
+  },
+  {
+   "name": "National Museum",
+   "name_kn": null,
+   "names": {
+    "hi": "राष्ट्रीय पुरातात्विक संग्रहालय, नई दिल्ली",
+    "ta": "தேசிய அருங்காட்சியகம், புது டில்லி",
+    "bn": "জাতীয় সংগ্রহালয়",
+    "te": "నేషనల్ మ్యూజియం ఆఫ్ ఇండియా"
+   },
+   "city": "Delhi",
+   "district": "New Delhi",
+   "lat": 28.61181,
+   "lng": 77.21926,
+   "category": "museum",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 120,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q1356138",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJ6_Afx1L9DDkRz-6lLymfQiA",
+   "places_status": "hours"
+  },
+  {
+   "name": "Hauz Khas Complex",
+   "name_kn": null,
+   "names": {
+    "bn": "হৌজ খাস কমপ্লেক্স",
+    "hi": "हौज़ खास परिसर"
+   },
+   "city": "Delhi",
+   "district": "South Delhi",
+   "lat": 28.555,
+   "lng": 77.19194,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q4496635",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJ8-qOkwgdDTkRhijh6ZZ2uv8",
+   "places_status": "hours"
+  },
+  {
+   "name": "Agrasen ki Baoli",
+   "name_kn": null,
+   "names": {
+    "hi": "अग्रसेन की बावली",
+    "ta": "அக்ரசேன் படிக்கிணறு",
+    "bn": "অগ্রসেনের বাওলি"
+   },
+   "city": "Delhi",
+   "district": "New Delhi",
+   "lat": 28.62608,
+   "lng": 77.22501,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q4693773",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJ2WjYEzP9DDkRG_AKY2WphJA",
+   "places_status": "hours"
+  },
+  {
+   "name": "Tomb of Safdar Jang",
+   "name_kn": null,
+   "names": {
+    "hi": "सफदरजंग का मकबरा",
+    "te": "సఫ్దార్ జంగ్ సమాధి",
+    "ta": "சப்தர்ஜங்கின் கல்லறை",
+    "bn": "সফদরজঙ্গের সমাধি"
+   },
+   "city": "Delhi",
+   "district": "New Delhi",
+   "lat": 28.58929,
+   "lng": 77.21061,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q375624",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJVcXN6ZHiDDkR7DeT_RtRCc0",
+   "places_status": "hours"
+  },
+  {
+   "name": "Hazrat Nizamuddin Dargah",
+   "name_kn": null,
+   "names": {
+    "hi": "दरगाह हज़रत निज़ामुद्दीन",
+    "bn": "নিজামউদ্দিন দরগাহ",
+    "ta": "நிஜாமுதீன் தர்கா"
+   },
+   "city": "Delhi",
+   "district": "South East Delhi",
+   "lat": 28.59131,
+   "lng": 77.24181,
+   "category": "temple",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q2983384",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJo3woVR3jDDkR6O-olj2w4Hk",
+   "places_status": "hours"
+  },
+  {
+   "name": "Tughlaqabad Fort",
+   "name_kn": null,
+   "names": {
+    "hi": "तुग़लक़ाबाद किला",
+    "te": "తుగ్లఖాబాద్ కోట",
+    "ta": "துக்ளகாபாத் கோட்டை"
+   },
+   "city": "Delhi",
+   "district": "South Delhi",
+   "lat": 28.51461,
+   "lng": 77.25997,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q2511605",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://asi.payumoney.com/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJbzh2rGvhDDkREP9duSFqV10",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Jantar Mantar, New Delhi",
+   "name_kn": null,
+   "names": {
+    "hi": "जंतर मंतर",
+    "ta": "சந்தர் மந்தர், புதுதில்லி",
+    "te": "జంతర్ మంతర్",
+    "bn": "যন্তর মন্তর, নতুন দিল্লি"
+   },
+   "city": "Delhi",
+   "district": "New Delhi",
+   "lat": 28.62711,
+   "lng": 77.21648,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q2045115",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://asi.payumoney.com/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJm8RPaUr9DDkRDBt4YsluSqI",
+   "places_status": "hours"
+  },
+  {
+   "name": "Mehrauli Archaeological Park",
+   "name_kn": null,
+   "names": {
+    "hi": "महरौली पुरातत्व पार्क"
+   },
+   "city": "Delhi",
+   "district": "South Delhi",
+   "lat": 28.52083,
+   "lng": 77.18667,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 90,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q6809814",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJI85HXAMeDTkRUnfV6u6dkSw",
+   "places_status": "hours"
+  },
+  {
+   "name": "Dilli Haat",
+   "name_kn": null,
+   "names": {
+    "hi": "दिल्ली हाट",
+    "te": "దిల్లీ హాట్",
+    "bn": "দিল্লি হাট"
+   },
+   "city": "Delhi",
+   "district": "South Delhi",
+   "lat": 28.57316,
+   "lng": 77.20851,
+   "category": "market",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 90,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q3595641",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJnXMWDWPiDDkRBKBkxRbDU_M",
+   "places_status": "hours"
+  }
+ ],
+ "_places": "place_id and places_status come from Google Places API (New) on the hours_checked date. Places terms allow storing the id only, so hours are fetched at runtime (guide.hours) where places_status is 'hours'. Places has no admission fees, so fees stay fee-unverified."
+}

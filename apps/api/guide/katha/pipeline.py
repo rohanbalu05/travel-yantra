@@ -187,6 +187,11 @@ def draft_prompt(
     place = "the whole story" if n == 1 else f"chapter {chapter + 1} of {n}"
     if n > 1 and chapter == n - 1:
         place += " (the last: close the story's gap and land the ending)"
+    elif n > 1:  # chapters are joined into one story: no teaser, no question left hanging
+        place += (" (it runs straight on into the next chapter: do not end on a question to the "
+                  "listener or mention the next chapter)")  # fmt: skip
+    if told := [b.text for ch in outline.chapters[:chapter] for b in ch.beats]:
+        place += ". Earlier chapters already told these; never tell them again: " + " | ".join(told)
     return (
         f"Write {place} of a {length}-minute spoken story about {subject.name}: between "
         f"{lo} and {hi} words (do not count; write fully and stop at the ending).\n\n{RULES}\n\n{FORMAT}{_voice(lang)}\n\nOutline:\n{outline.model_dump_json(indent=1)}\n\n"
@@ -216,10 +221,19 @@ def trim_prompt(subject: Subject, text: str, target: int) -> str:
     )
 
 
+#: A chapter's teaser for the next one (seen live, 5 min Hindi: "आइए, अगले अध्याय में...",
+#: and a closing question with no source): the chapters are joined, so it is not story.
+TEASER = re.compile(r"next (chapter|part)|in the next|अगले (अध्याय|भाग|हिस्से)|ಮುಂದಿನ (ಅಧ್ಯಾಯ|ಭಾಗ)", re.I)
+
+
 def _chat(para: str) -> bool:
-    """Talk to the user, not story: a chat opening and no citation (story paragraphs cite;
-    "If you'd like a quiet corner, stand by the east gate [3]" is story)."""
-    return bool(CHAT.match(para)) and not checks.MARKER.search(para)
+    """Talk to the user, not story: a chat opening, a teaser for the next chapter, or a
+    lone question, with no citation (story paragraphs cite; "If you'd like a quiet corner,
+    stand by the east gate [3]" is story)."""
+    if checks.MARKER.search(para):
+        return False
+    lone_question = para.rstrip().endswith("?") and len(re.findall(r"[.!?।]", para)) <= 2
+    return bool(CHAT.match(para) or TEASER.search(para) or lone_question)
 
 
 def parse(text: str) -> list[tuple[str, str]]:
@@ -268,8 +282,19 @@ async def _timed(step: str, call):
         log.info("katha model call: %s %.1fs", step, time.monotonic() - start)
 
 
+def chapter_facts(outline: Outline, i: int, facts: list[Fact]) -> list[Fact]:
+    """The facts a chapter may tell: its own beats' (numbers kept), so a later chapter
+    cannot retell an earlier one's (HQ P7: "told twice" failed 5- and 10-minute stories).
+    Every fact when the story is one chapter or the outline names none for this one."""
+    if len(outline.chapters) < 2:
+        return facts
+    mine = {n for b in outline.chapters[i].beats for n in b.facts}
+    return [f for f in facts if f.n in mine] or facts
+
+
 async def _chapter(model: Any, subject, length, outline, i, facts, words, lang) -> tuple[str, str]:
     where = f"{subject.name} ch{i + 1}/{len(outline.chapters)} {lang}"
+    facts = chapter_facts(outline, i, facts)
     draft = await _timed(f"draft {where}", model.text(
         draft_prompt(subject, length, outline, i, facts, lang), tier="flash", thinking="minimal",
         max_output_tokens=MAX_TOKENS, temperature=0.7, timeout_s=TIMEOUT_S, label="katha draft"))  # fmt: skip

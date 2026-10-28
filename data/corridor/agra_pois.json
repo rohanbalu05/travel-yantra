@@ -1,0 +1,463 @@
+{
+ "_notes": "Built by guide/scripts/build_corridor.py from Wikipedia and Wikidata on 2026-10-28. Text is CC BY-SA; each chunk cites its page.",
+ "pois": [
+  {
+   "name": "Taj Mahal",
+   "name_kn": "ತಾಜ್ ಮಹಲ್",
+   "names": {
+    "bn": "তাজমহল",
+    "hi": "ताजमहल",
+    "kn": "ತಾಜ್ ಮಹಲ್",
+    "ta": "தாஜ் மகால்",
+    "te": "తాజ్ మహల్"
+   },
+   "city": "Agra",
+   "district": "Agra",
+   "lat": 27.175,
+   "lng": 78.04194,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 150,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q9141",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://www.tajmahal.gov.in/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJbf8C1yFxdDkR3n12P4DkKt0",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Agra Fort",
+   "name_kn": "ಕೆಂಪು ಕೋಟೆ",
+   "names": {
+    "ta": "ஆக்ரா கோட்டை",
+    "hi": "आगरा का किला",
+    "kn": "ಕೆಂಪು ಕೋಟೆ",
+    "te": "ఆగ్రా కోట",
+    "bn": "আগ্রা দুর্গ"
+   },
+   "city": "Agra",
+   "district": "Agra",
+   "lat": 27.17958,
+   "lng": 78.0213,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 120,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q171857",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://asi.payumoney.com/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJvQxcGtRwdDkRnVfuDXs0sbc",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Fatehpur Sikri",
+   "name_kn": "ಫತೇಪುರ್ ಸಿಕ್ರಿ",
+   "names": {
+    "ta": "ஃபத்தேப்பூர் சிக்ரி",
+    "hi": "फ़तेहपुर सीकरी",
+    "kn": "ಫತೇಪುರ್ ಸಿಕ್ರಿ",
+    "te": "ఫతేపూర్ సిక్రీ",
+    "bn": "ফতেপুর সিকরি"
+   },
+   "city": "Agra",
+   "district": "Agra",
+   "lat": 27.09111,
+   "lng": 77.66111,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 180,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q179046",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://asi.payumoney.com/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJjXlTSliRczkRQPvBkGfUkwg",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Itimad-ud-Daulah's Tomb",
+   "name_kn": null,
+   "names": {
+    "hi": "एतमादुद्दौला का मकबरा",
+    "bn": "ইতিমাদ-উদ-দৌলার সমাধি"
+   },
+   "city": "Agra",
+   "district": "Agra",
+   "lat": 27.1925,
+   "lng": 78.03139,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q1318766",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://asi.payumoney.com/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJk6aZ_cVwdDkRWMRKn2s89hM",
+   "places_status": "hours"
+  },
+  {
+   "name": "Mehtab Bagh",
+   "name_kn": null,
+   "names": {
+    "hi": "मेहताब बाग"
+   },
+   "city": "Agra",
+   "district": "Agra",
+   "lat": 27.17972,
+   "lng": 78.04194,
+   "category": "viewpoint",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q12061618",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://asi.payumoney.com/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJLVpWKd5wdDkRfKYlTOV-x5w",
+   "places_status": "hours"
+  },
+  {
+   "name": "Akbar's Tomb, Sikandra",
+   "name_kn": null,
+   "names": {
+    "hi": "अकबर महान का मकबरा",
+    "bn": "আকবরের সমাধিসৌধ",
+    "ta": "அக்பரின் கல்லறை",
+    "te": "అక్బర్ సమాధి"
+   },
+   "city": "Agra",
+   "district": "Agra",
+   "lat": 27.22056,
+   "lng": 77.95056,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q416646",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://asi.payumoney.com/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJJdQjUx94dDkRFTbTtKTpyy4",
+   "places_status": "hours"
+  },
+  {
+   "name": "Jama Masjid",
+   "name_kn": null,
+   "names": {
+    "hi": "जामा मस्जिद",
+    "bn": "জামে মসজিদ, আগ্রা"
+   },
+   "city": "Agra",
+   "district": "Agra",
+   "lat": 27.18194,
+   "lng": 78.01611,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q6127147",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJETNAWix3dDkRJIE9ymj4s30",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Chini Ka Rauza",
+   "name_kn": "ಚೀನ ಕಾ ರೋಜಾ",
+   "names": {
+    "hi": "चीनी का रोजा",
+    "kn": "ಚೀನ ಕಾ ರೋಜಾ",
+    "bn": "চিনি কা রওজা"
+   },
+   "city": "Agra",
+   "district": "Agra",
+   "lat": 27.20083,
+   "lng": 78.03417,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 20,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q5101062",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJIXHB8bhwdDkRObyQD1O2-W8",
+   "places_status": "hours"
+  },
+  {
+   "name": "Buland Darwaza",
+   "name_kn": null,
+   "names": {
+    "hi": "बुलन्द दरवाज़ा",
+    "ta": "புலாண்ட் தர்வாசா",
+    "bn": "বুলন্দ দরওয়াজা",
+    "te": "బులంద్ దర్వాజా"
+   },
+   "city": "Agra",
+   "district": "Agra",
+   "lat": 27.09419,
+   "lng": 77.66285,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q3535264",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJ__8PA_2TczkR-z3yA8UNztQ",
+   "places_status": "hours"
+  },
+  {
+   "name": "Tomb of Salim Chishti",
+   "name_kn": "ಸಲೀಮ್ ಚಿಶ್ತಿಯ ಗೋರಿ",
+   "names": {
+    "hi": "सलीम चिश्ती की दरगाह",
+    "kn": "ಸಲೀಮ್ ಚಿಶ್ತಿಯ ಗೋರಿ",
+    "bn": "সেলিম চিশতীর সমাধি"
+   },
+   "city": "Agra",
+   "district": "Agra",
+   "lat": 27.09515,
+   "lng": 77.66274,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q3180790",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJK8h-FP2TczkRWnPZrrvWm_g",
+   "places_status": "hours"
+  },
+  {
+   "name": "Dayalbagh",
+   "name_kn": null,
+   "names": {
+    "hi": "दयाल बाग"
+   },
+   "city": "Agra",
+   "district": "Agra",
+   "lat": 27.22417,
+   "lng": 78.01333,
+   "category": "temple",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q1190862",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJb6Nfnv15dDkRNswf4VyS6hQ",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Sur Sarovar Bird Sanctuary (Keetham Lake)",
+   "name_kn": null,
+   "names": {
+    "ta": "கீதம் ஏரி",
+    "hi": "किथम झील",
+    "bn": "কিথাম হ্রদ"
+   },
+   "city": "Agra",
+   "district": "Agra",
+   "lat": 27.25329,
+   "lng": 77.84387,
+   "category": "nature",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 90,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q6383337",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJD3QnBnyGczkRhjii2_g2SJg",
+   "places_status": "hours"
+  },
+  {
+   "name": "Jahangiri Mahal",
+   "name_kn": null,
+   "names": {
+    "ta": "யகாங்கிரி மகால்",
+    "hi": "जहाँगीर महल",
+    "bn": "জাহাঙ্গীরী মহল"
+   },
+   "city": "Agra",
+   "district": "Agra",
+   "lat": 27.17789,
+   "lng": 78.023,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q3612475",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJRbhBTdRwdDkRBXuj9MjRvcI",
+   "places_status": "hours"
+  },
+  {
+   "name": "Moti Masjid, Agra Fort",
+   "name_kn": null,
+   "names": {
+    "bn": "মোতি মসজিদ"
+   },
+   "city": "Agra",
+   "district": "Agra",
+   "lat": 27.18034,
+   "lng": 78.02169,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 20,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q4179295",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJ9Rx992dxdDkRRTwBS_EzTQ4",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Sikandra",
+   "name_kn": null,
+   "names": {
+    "hi": "अकबर महान का मकबरा",
+    "bn": "আকবরের সমাধিসৌধ",
+    "ta": "அக்பரின் கல்லறை",
+    "te": "అక్బర్ సమాధి"
+   },
+   "city": "Agra",
+   "district": "Agra",
+   "lat": 27.22056,
+   "lng": 77.95056,
+   "category": "experience",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q416646",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJw1yOQRt4dDkRtk6O0N2Vh6s",
+   "places_status": "no-hours"
+  }
+ ],
+ "_places": "place_id and places_status come from Google Places API (New) on the hours_checked date. Places terms allow storing the id only, so hours are fetched at runtime (guide.hours) where places_status is 'hours'. Places has no admission fees, so fees stay fee-unverified."
+}

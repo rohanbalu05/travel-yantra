@@ -1,0 +1,450 @@
+{
+ "_notes": "Built by guide/scripts/build_corridor.py from Wikipedia and Wikidata on 2026-10-28. Text is CC BY-SA; each chunk cites its page.",
+ "pois": [
+  {
+   "name": "Alleppey backwaters",
+   "name_kn": "ಕೇರಳ ಹಿನ್ನೀರು ಪ್ರದೇಶ",
+   "names": {
+    "hi": "अलप्पुझा के बैकवाटर्स",
+    "ta": "கேரள உப்பங்கழிகள்",
+    "kn": "ಕೇರಳ ಹಿನ್ನೀರು ಪ್ರದೇಶ",
+    "te": "కేరళ ఉప్పుటేరులు"
+   },
+   "city": "Alleppey",
+   "district": "Alappuzha",
+   "lat": 9.86348,
+   "lng": 76.3594,
+   "category": "experience",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 240,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q666519",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "places_status": "no-match"
+  },
+  {
+   "name": "Vembanad Lake",
+   "name_kn": "ವೇಂಬನಾಡ್",
+   "names": {
+    "hi": "वेम्बनाड झील",
+    "ta": "வேம்பநாட்டு ஏரி",
+    "bn": "ভেম্বনাড় হ্রদ",
+    "te": "వెంబనాడ్",
+    "kn": "ವೇಂಬನಾಡ್"
+   },
+   "city": "Alleppey",
+   "district": "Alappuzha",
+   "lat": 9.85,
+   "lng": 76.35,
+   "category": "nature",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 180,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q2641899",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "places_status": "no-match"
+  },
+  {
+   "name": "Kuttanad",
+   "name_kn": "ಕುಟ್ಟನಾಡ್",
+   "names": {
+    "ta": "குட்டநாடு",
+    "te": "కుట్టనాడు",
+    "bn": "কুট্টনাড়",
+    "hi": "कुट्टनाड",
+    "kn": "ಕುಟ್ಟನಾಡ್"
+   },
+   "city": "Alleppey",
+   "district": "Alappuzha",
+   "lat": 9.425,
+   "lng": 76.46389,
+   "category": "nature",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 180,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q1435109",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "places_status": "no-match"
+  },
+  {
+   "name": "Alleppey Beach",
+   "name_kn": "ಆಲಪ್ಪುಝಾ ಸಮುದ್ರತೀರ",
+   "names": {
+    "ta": "ஆலப்புழா கடற்கரை",
+    "hi": "आलप्पुषा सैकत",
+    "kn": "ಆಲಪ್ಪುಝಾ ಸಮುದ್ರತೀರ",
+    "bn": "আলেপ্পি সৈকত"
+   },
+   "city": "Alleppey",
+   "district": "Alappuzha",
+   "lat": 9.49299,
+   "lng": 76.3177,
+   "category": "nature",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q384565",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJLQgzJf6ECDsRFX3PkSG7sWc",
+   "places_status": "hours"
+  },
+  {
+   "name": "Marari Beach",
+   "name_kn": "ಮರಾರಿ ಬೀಚ್",
+   "names": {
+    "ta": "மாராரி கடற்கரை",
+    "kn": "ಮರಾರಿ ಬೀಚ್"
+   },
+   "city": "Alleppey",
+   "district": "Alappuzha",
+   "lat": 9.6008,
+   "lng": 76.2983,
+   "category": "nature",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 120,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q6754857",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJm6FxmL6HCDsRCKDaFpTfVH8",
+   "places_status": "hours"
+  },
+  {
+   "name": "Krishnapuram Palace",
+   "name_kn": null,
+   "names": {
+    "ta": "கிருஷ்ணாபுரம் அரண்மனை",
+    "te": "కృష్ణపురం ప్యాలెస్"
+   },
+   "city": "Alleppey",
+   "district": "Alappuzha",
+   "lat": 9.1503,
+   "lng": 76.5088,
+   "category": "museum",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q6437601",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJq6pq9_scBjsR85Xkj3R5ufQ",
+   "places_status": "hours"
+  },
+  {
+   "name": "Kumarakom Bird Sanctuary",
+   "name_kn": "ಕುಮಾರಕೊಂ ಪಕ್ಷಿಧಾಮ",
+   "names": {
+    "ta": "குமரகம் பறவைகள் சரணாலயம்",
+    "bn": "কুমারকম পাখিরালয়",
+    "hi": "कुमारकोम पक्षी अभयारण्य",
+    "kn": "ಕುಮಾರಕೊಂ ಪಕ್ಷಿಧಾಮ"
+   },
+   "city": "Alleppey",
+   "district": "Kottayam",
+   "lat": 9.5,
+   "lng": 76.52,
+   "category": "nature",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 90,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q6443537",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "places_status": "no-match"
+  },
+  {
+   "name": "Pathiramanal Island",
+   "name_kn": "ಪಾತಿರಮಣಲ್",
+   "names": {
+    "ta": "பதிராமணல்",
+    "bn": "পাতিরামানল",
+    "hi": "पातिरामणल",
+    "kn": "ಪಾತಿರಮಣಲ್"
+   },
+   "city": "Alleppey",
+   "district": "Alappuzha",
+   "lat": 9.61873,
+   "lng": 76.38521,
+   "category": "nature",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 90,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q7144785",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJcY9C3KKACDsRJOkW3c0iFNU",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Revi Karunakaran Memorial Museum",
+   "name_kn": null,
+   "names": {
+    "ta": "ரேவி கருணாகரன் நினைவு அருங்காட்சியகம்"
+   },
+   "city": "Alleppey",
+   "district": "Alappuzha",
+   "lat": 9.49918,
+   "lng": 76.32883,
+   "category": "museum",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q48727500",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJZ4qHfleECDsRzup6OPktk-0",
+   "places_status": "hours"
+  },
+  {
+   "name": "St. Andrew's Basilica, Arthunkal",
+   "name_kn": null,
+   "names": {
+    "ta": "புனித அந்திரேயா பெருங்கோவில்"
+   },
+   "city": "Alleppey",
+   "district": "Alappuzha",
+   "lat": 9.6611,
+   "lng": 76.3004,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q13110190",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJm1Ng0Rt9CDsRj_O9UdkzHCw",
+   "places_status": "hours"
+  },
+  {
+   "name": "Champakulam (St. Mary's Church)",
+   "name_kn": null,
+   "names": {
+    "ta": "சம்பாகுளம்",
+    "hi": "चम्पकुलम"
+   },
+   "city": "Alleppey",
+   "district": "Alappuzha",
+   "lat": 9.41145,
+   "lng": 76.41272,
+   "category": "experience",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q5069924",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJb9qaP6udCDsRkHrzQ9ZEAdI",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Alleppey Lighthouse",
+   "name_kn": "ಆಲಪ್ಪುಝಾ ದೀಪಸ್ತಂಭ",
+   "names": {
+    "ta": "ஆலப்புழா கலங்கரை விளக்கம்",
+    "kn": "ಆಲಪ್ಪುಝಾ ದೀಪಸ್ತಂಭ"
+   },
+   "city": "Alleppey",
+   "district": "Alappuzha",
+   "lat": 9.4939,
+   "lng": 76.321,
+   "category": "viewpoint",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q1426089",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJTaPoCP-ECDsRJKGvKviDeOY",
+   "places_status": "hours"
+  },
+  {
+   "name": "Haripad Subramanya Temple",
+   "name_kn": null,
+   "names": {
+    "ta": "ஹரிப்பாடு சுப்பிரமணிய சுவாமி கோயில்",
+    "te": "హరిపాద శ్రీ సుబ్రహ్మణ్య స్వామి ఆలయం"
+   },
+   "city": "Alleppey",
+   "district": "Alappuzha",
+   "lat": 9.28472,
+   "lng": 76.50139,
+   "category": "temple",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q13115236",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "places_status": "no-match"
+  },
+  {
+   "name": "Chettikulangara Devi Temple",
+   "name_kn": null,
+   "names": {
+    "ta": "செட்டிகுளங்கரா தேவி கோயில்",
+    "te": "చెట్టికులంగర దేవి ఆలయం"
+   },
+   "city": "Alleppey",
+   "district": "Alappuzha",
+   "lat": 9.227,
+   "lng": 76.517,
+   "category": "temple",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q5094200",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJYZGuhu4eBjsRAQ-wu9b1mvQ",
+   "places_status": "hours"
+  },
+  {
+   "name": "Kumarakom",
+   "name_kn": "ಕುಮರಕಂ",
+   "names": {
+    "hi": "कुमारकोम",
+    "ta": "குமரகம்",
+    "te": "కుమరకోమ్",
+    "kn": "ಕುಮರಕಂ"
+   },
+   "city": "Alleppey",
+   "district": "Kottayam",
+   "lat": 9.595,
+   "lng": 76.43028,
+   "category": "nature",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 180,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q3521576",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJ96jwrsqBCDsRIekpNVwHIww",
+   "places_status": "no-hours"
+  }
+ ],
+ "_places": "place_id and places_status come from Google Places API (New) on the hours_checked date. Places terms allow storing the id only, so hours are fetched at runtime (guide.hours) where places_status is 'hours'. Places has no admission fees, so fees stay fee-unverified."
+}

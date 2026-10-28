@@ -20,7 +20,7 @@ import time
 from pathlib import Path
 
 PAUSE_S = 2.0
-EVAL = Path(__file__).resolve().parents[2] / "tests" / "guide" / "eval_ask.jsonl"
+EVAL = Path(__file__).resolve().parents[1] / "eval" / "eval_ask.jsonl"  # shipped in the image
 
 
 def pct(values: list[float], p: float) -> float:

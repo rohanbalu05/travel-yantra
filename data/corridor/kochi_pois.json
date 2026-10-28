@@ -1,0 +1,486 @@
+{
+ "_notes": "Built by guide/scripts/build_corridor.py from Wikipedia and Wikidata on 2026-10-28. Text is CC BY-SA; each chunk cites its page.",
+ "pois": [
+  {
+   "name": "Fort Kochi",
+   "name_kn": "ಕೊಚ್ಚಿ ಕೋಟೆ ಪ್ರದೇಶ",
+   "names": {
+    "kn": "ಕೊಚ್ಚಿ ಕೋಟೆ ಪ್ರದೇಶ",
+    "ta": "கொச்சிக் கோட்டை",
+    "bn": "ফোর্ট কোচি"
+   },
+   "city": "Kochi",
+   "district": "Ernakulam",
+   "lat": 9.9658,
+   "lng": 76.2421,
+   "category": "experience",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 180,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q3595166",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJjRcLTzFtCDsRO7QNOT8jRcU",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "St. Francis Church, Fort Kochi",
+   "name_kn": "ಸೇಂಟ್ ಫ್ರಾನ್ಸಿಸ್ ಚರ್ಚ್",
+   "names": {
+    "hi": "सेंट फ्रांसिस चर्च ,कोचीन",
+    "ta": "புனித பிரான்சிசு தேவாலயம்",
+    "te": "సెయింట్ ఫ్రాన్సిస్ చర్చి, కొచ్చి",
+    "kn": "ಸೇಂಟ್ ಫ್ರಾನ್ಸಿಸ್ ಚರ್ಚ್",
+    "bn": "সেন্ট ফ্রান্সিস চার্চ, কোচি"
+   },
+   "city": "Kochi",
+   "district": "Ernakulam",
+   "lat": 9.96593,
+   "lng": 76.24108,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q3595372",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJhZiQXzFtCDsRoQi4LCZwXIs",
+   "places_status": "hours"
+  },
+  {
+   "name": "Santa Cruz Basilica",
+   "name_kn": "ಸಾಂಟಾ ಕ್ರೂಜ್ ಬೆಸಿಲಿಕಾ",
+   "names": {
+    "ta": "திருச்சிலுவை மறைமாவட்டப் பெருங்கோவில்",
+    "kn": "ಸಾಂಟಾ ಕ್ರೂಜ್ ಬೆಸಿಲಿಕಾ",
+    "bn": "সান্তা ক্রুজ ক্যাথিড্রাল ব্যাসিলিকা, কোচি"
+   },
+   "city": "Kochi",
+   "district": "Ernakulam",
+   "lat": 9.965,
+   "lng": 76.243,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q2942478",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJZwX_tzZtCDsRO5rzBs6Z2E4",
+   "places_status": "hours"
+  },
+  {
+   "name": "Paradesi Synagogue",
+   "name_kn": "ಪರದೇಸಿ ಸಿನಗಾಗ್",
+   "names": {
+    "ta": "பரதேசி யூத தொழுகைக் கூடம்",
+    "hi": "परदेशी आराधनालय",
+    "kn": "ಪರದೇಸಿ ಸಿನಗಾಗ್"
+   },
+   "city": "Kochi",
+   "district": "Ernakulam",
+   "lat": 9.95722,
+   "lng": 76.25944,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q3495970",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJyxJJE8RtCDsRro21KZkb9dE",
+   "places_status": "hours"
+  },
+  {
+   "name": "Mattancherry Palace (Dutch Palace)",
+   "name_kn": "ಮಟ್ಟಂಚೇರಿ ಅರಮನೆ",
+   "names": {
+    "ta": "மட்டஞ்சேரி அரண்மனை அருங்காட்சியகம், கொச்சி",
+    "bn": "মাট্টানচেরি প্রাসাদ",
+    "kn": "ಮಟ್ಟಂಚೇರಿ ಅರಮನೆ",
+    "te": "మట్టంచేరి ప్యాలెస్"
+   },
+   "city": "Kochi",
+   "district": "Ernakulam",
+   "lat": 9.95827,
+   "lng": 76.25936,
+   "category": "museum",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q1267941",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://asi.payumoney.com/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJG3_h00RtCDsRyLV04bOkgGg",
+   "places_status": "hours"
+  },
+  {
+   "name": "Hill Palace Museum, Tripunithura",
+   "name_kn": "ಹಿಲ್ ಪ್ಯಾಲೇಸ್",
+   "names": {
+    "ta": "மலை அரண்மனை",
+    "te": "హిల్ ప్యాలెస్ మ్యూజియం",
+    "kn": "ಹಿಲ್ ಪ್ಯಾಲೇಸ್"
+   },
+   "city": "Kochi",
+   "district": "Ernakulam",
+   "lat": 9.9528,
+   "lng": 76.3639,
+   "category": "museum",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 90,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q5762228",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJW9b3KGBzCDsRoYFdp0utAHU",
+   "places_status": "hours"
+  },
+  {
+   "name": "Marine Drive",
+   "name_kn": "ಮರೀನ್ ಡ್ರೈವ್",
+   "names": {
+    "kn": "ಮರೀನ್ ಡ್ರೈವ್",
+    "bn": "মেরিন ড্রাইভ, কোচি"
+   },
+   "city": "Kochi",
+   "district": "Ernakulam",
+   "lat": 9.98,
+   "lng": 76.275,
+   "category": "experience",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q5122325",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJrYrKf1MNCDsR6gNsW6zTGHc",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Bolgatty Palace",
+   "name_kn": "ಬೋಲ್ಗಾಟ್ಟಿ ಅರಮನೆ",
+   "names": {
+    "ta": "போல்கட்டி மாளிகை",
+    "kn": "ಬೋಲ್ಗಾಟ್ಟಿ ಅರಮನೆ"
+   },
+   "city": "Kochi",
+   "district": "Ernakulam",
+   "lat": 9.9842,
+   "lng": 76.2672,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q12053248",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJ00VkO6YSCDsR8Xofknap5_w",
+   "places_status": "hours"
+  },
+  {
+   "name": "Indo-Portuguese Museum",
+   "name_kn": null,
+   "names": {
+    "ta": "இந்தோ-போர்த்துகீசிய அருங்காட்சியகம்"
+   },
+   "city": "Kochi",
+   "district": "Ernakulam",
+   "lat": 9.9621,
+   "lng": 76.24,
+   "category": "museum",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q6025543",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJg5Xn7DBtCDsR8QHVAvzbveM",
+   "places_status": "hours"
+  },
+  {
+   "name": "Cherai Beach",
+   "name_kn": "ಚೆರಾಯ್ ಬೀಚ್",
+   "names": {
+    "ta": "செறாயி கடற்கரை",
+    "kn": "ಚೆರಾಯ್ ಬೀಚ್",
+    "bn": "চেরাই সৈকত"
+   },
+   "city": "Kochi",
+   "district": "Ernakulam",
+   "lat": 10.14227,
+   "lng": 76.17826,
+   "category": "nature",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 120,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q10957902",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJHTJMK1UXCDsRM93c5M1B578",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Mangalavanam Bird Sanctuary",
+   "name_kn": "ಮಂಗಳವನಂ ಪಕ್ಷಿಧಾಮ",
+   "names": {
+    "hi": "मंगलावनम पक्षी अभयारण्य",
+    "ta": "மங்களவனம் பறவைகள் சரணாலயம்",
+    "kn": "ಮಂಗಳವನಂ ಪಕ್ಷಿಧಾಮ"
+   },
+   "city": "Kochi",
+   "district": "Ernakulam",
+   "lat": 9.98886,
+   "lng": 76.27283,
+   "category": "nature",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q6748692",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJ1dFOKVkNCDsR8HjfsDC7cOI",
+   "places_status": "hours"
+  },
+  {
+   "name": "Pallipuram Fort",
+   "name_kn": "ಪಳ್ಳಿಪ್ಪುರಂ ಕೋಟೆ",
+   "names": {
+    "hi": "पल्लिपुरम् किला",
+    "ta": "பள்ளிப்புறம் கோட்டை",
+    "te": "పల్లిపురం కోట",
+    "kn": "ಪಳ್ಳಿಪ್ಪುರಂ ಕೋಟೆ"
+   },
+   "city": "Kochi",
+   "district": "Ernakulam",
+   "lat": 10.17009,
+   "lng": 76.18098,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q3595357",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJVXya3iAaCDsRPxZGB2ge_aY",
+   "places_status": "hours"
+  },
+  {
+   "name": "Chendamangalam Synagogue",
+   "name_kn": null,
+   "names": {
+    "hi": "चेन्दमंगलम आराधनालय"
+   },
+   "city": "Kochi",
+   "district": "Ernakulam",
+   "lat": 10.1797,
+   "lng": 76.2097,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q25587413",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "places_status": "no-match"
+  },
+  {
+   "name": "Kalady (Adi Shankara's birthplace)",
+   "name_kn": "ಕಾಲಡಿ",
+   "names": {
+    "hi": "कालडी",
+    "ta": "காலடி",
+    "te": "కాలడి",
+    "kn": "ಕಾಲಡಿ"
+   },
+   "city": "Kochi",
+   "district": "Ernakulam",
+   "lat": 10.1661,
+   "lng": 76.4389,
+   "category": "temple",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q3595324",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJcQEPCYYHCDsRanyWzlKnaBo",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Willingdon Island",
+   "name_kn": "ವಿಲ್ಲಿಂಗ್ಡನ್ ದ್ವೀಪ",
+   "names": {
+    "ta": "வில்லிங்க்டன் தீவு",
+    "bn": "উইলিংডন দ্বীপ",
+    "hi": "विलिंगडन द्वीप",
+    "kn": "ವಿಲ್ಲಿಂಗ್ಡನ್ ದ್ವೀಪ",
+    "te": "విల్లింగ్డన్ ద్వీపం"
+   },
+   "city": "Kochi",
+   "district": "Ernakulam",
+   "lat": 9.95,
+   "lng": 76.275,
+   "category": "experience",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q3077892",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJrwSKfnFtCDsRCsnJtO1h2Dg",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Thrikkakara Temple",
+   "name_kn": null,
+   "names": {
+    "ta": "திருக்காட்கரை காட்கரையப்பன் கோயில்",
+    "te": "తిరుక్కాట్కరై"
+   },
+   "city": "Kochi",
+   "district": "Ernakulam",
+   "lat": 10.0356,
+   "lng": 76.33,
+   "category": "temple",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q3525234",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJZx5kB0YMCDsR0-Q9kXwQ6GY",
+   "places_status": "hours"
+  }
+ ],
+ "_places": "place_id and places_status come from Google Places API (New) on the hours_checked date. Places terms allow storing the id only, so hours are fetched at runtime (guide.hours) where places_status is 'hours'. Places has no admission fees, so fees stay fee-unverified."
+}

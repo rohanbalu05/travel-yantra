@@ -1,5 +1,5 @@
 {
- "note": "Built by `python -m guide.season` from Wikivoyage and Wikipedia on 2026-10-27. Sentences are quoted, CC BY-SA; each keeps its page URL.",
+ "note": "Built by `python -m guide.season` from Wikivoyage and Wikipedia on 2026-10-28. Sentences are quoted, CC BY-SA; each keeps its page URL.",
  "notes": {
   "Mysuru": {
    "jan": [
@@ -647,6 +647,812 @@
     {
      "text": "Diving — the season is between mid-October to mid-May.",
      "source_url": "https://en.wikivoyage.org/wiki/Goa",
+     "kind": "month"
+    }
+   ]
+  },
+  "Kochi": {
+   "jan": [
+    {
+     "text": "The Cochin Carnival (Dec 20-Jan 2) is the biggest carnival festival in the city.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kochi",
+     "kind": "month"
+    },
+    {
+     "text": "The carnival ends with the Grand Parade on the afternoon of January 1st.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kochi",
+     "kind": "month"
+    },
+    {
+     "text": "The Shiva Temple Festival (first week of January) takes place at the Shiva Temple and Durbar Hall Ground, famous for its ten elephant parade and host of cultural activities.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kochi",
+     "kind": "month"
+    }
+   ],
+   "feb": [
+    {
+     "text": "Kochi has a typical tropical climate.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kochi",
+     "kind": "general"
+    },
+    {
+     "text": "Daytime temperatures range between 30°C and 35°C and around 24°C at night.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kochi",
+     "kind": "general"
+    }
+   ],
+   "mar": [
+    {
+     "text": "The Maradu Kottaram Devi Temple hosts India's second largest fireworks as part of their temple festival finale (mid March - mid April).",
+     "source_url": "https://en.wikivoyage.org/wiki/Kochi",
+     "kind": "month"
+    }
+   ],
+   "apr": [
+    {
+     "text": "The Maradu Kottaram Devi Temple hosts India's second largest fireworks as part of their temple festival finale (mid March - mid April).",
+     "source_url": "https://en.wikivoyage.org/wiki/Kochi",
+     "kind": "month"
+    }
+   ],
+   "may": [
+    {
+     "text": "Kochi has a typical tropical climate.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kochi",
+     "kind": "general"
+    },
+    {
+     "text": "Daytime temperatures range between 30°C and 35°C and around 24°C at night.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kochi",
+     "kind": "general"
+    }
+   ],
+   "jun": [
+    {
+     "text": "From June to September, the south-west monsoon brings in heavy rains as Kochi lies on the windward side of the Western Ghats.",
+     "source_url": "https://en.wikipedia.org/wiki/Kochi",
+     "kind": "month"
+    }
+   ],
+   "jul": [
+    {
+     "text": "From June to September, the south-west monsoon brings in heavy rains as Kochi lies on the windward side of the Western Ghats.",
+     "source_url": "https://en.wikipedia.org/wiki/Kochi",
+     "kind": "month"
+    }
+   ],
+   "aug": [
+    {
+     "text": "The Onam Festival (ten day festival mid-August to mid-September) is the state festival of Kerala originating in Kochi.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kochi",
+     "kind": "month"
+    },
+    {
+     "text": "From June to September, the south-west monsoon brings in heavy rains as Kochi lies on the windward side of the Western Ghats.",
+     "source_url": "https://en.wikipedia.org/wiki/Kochi",
+     "kind": "month"
+    }
+   ],
+   "sep": [
+    {
+     "text": "It thus experiences heavy rainfall between mid-May and the first week in September.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kochi",
+     "kind": "month"
+    },
+    {
+     "text": "The Onam Festival (ten day festival mid-August to mid-September) is the state festival of Kerala originating in Kochi.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kochi",
+     "kind": "month"
+    },
+    {
+     "text": "From June to September, the south-west monsoon brings in heavy rains as Kochi lies on the windward side of the Western Ghats.",
+     "source_url": "https://en.wikipedia.org/wiki/Kochi",
+     "kind": "month"
+    }
+   ],
+   "oct": [
+    {
+     "text": "From October to December, Kochi receives lighter (yet significant) rain from the northeast monsoon, as it lies on the leeward side.",
+     "source_url": "https://en.wikipedia.org/wiki/Kochi",
+     "kind": "month"
+    }
+   ],
+   "nov": [
+    {
+     "text": "The Thripunithura Vrischikolsavam (mid November - mid December) at Thripunithura Poornathrayeesa Temple is a grand temple festival in Kerala, one of the biggest after Thrissur Pooram.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kochi",
+     "kind": "month"
+    },
+    {
+     "text": "From October to December, Kochi receives lighter (yet significant) rain from the northeast monsoon, as it lies on the leeward side.",
+     "source_url": "https://en.wikipedia.org/wiki/Kochi",
+     "kind": "month"
+    }
+   ],
+   "dec": [
+    {
+     "text": "The Cochin Carnival (Dec 20-Jan 2) is the biggest carnival festival in the city.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kochi",
+     "kind": "month"
+    },
+    {
+     "text": "The Thripunithura Vrischikolsavam (mid November - mid December) at Thripunithura Poornathrayeesa Temple is a grand temple festival in Kerala, one of the biggest after Thrissur Pooram.",
+     "source_url": "https://en.wikivoyage.org/wiki/Kochi",
+     "kind": "month"
+    },
+    {
+     "text": "From October to December, Kochi receives lighter (yet significant) rain from the northeast monsoon, as it lies on the leeward side.",
+     "source_url": "https://en.wikipedia.org/wiki/Kochi",
+     "kind": "month"
+    },
+    {
+     "text": "A merry making fest called the Cochin Carnival is celebrated at Fort Kochi during the last ten days of December.",
+     "source_url": "https://en.wikipedia.org/wiki/Kochi",
+     "kind": "month"
+    }
+   ]
+  },
+  "Munnar": {
+   "jan": [
+    {
+     "text": "This town and the surrounding region usually offer the most pleasant temperatures in Kerala.",
+     "source_url": "https://en.wikivoyage.org/wiki/Munnar",
+     "kind": "general"
+    },
+    {
+     "text": "The temperature in the afternoon reaches about 22 to 26 °C throughout the year.",
+     "source_url": "https://en.wikivoyage.org/wiki/Munnar",
+     "kind": "general"
+    }
+   ],
+   "feb": [
+    {
+     "text": "This town and the surrounding region usually offer the most pleasant temperatures in Kerala.",
+     "source_url": "https://en.wikivoyage.org/wiki/Munnar",
+     "kind": "general"
+    },
+    {
+     "text": "The temperature in the afternoon reaches about 22 to 26 °C throughout the year.",
+     "source_url": "https://en.wikivoyage.org/wiki/Munnar",
+     "kind": "general"
+    }
+   ],
+   "mar": [
+    {
+     "text": "The season between October and March (post-monsoon) is considered the best to visit Munnar.",
+     "source_url": "https://en.wikivoyage.org/wiki/Munnar",
+     "kind": "month"
+    }
+   ],
+   "apr": [
+    {
+     "text": "Take a rain coat with you from April to November.",
+     "source_url": "https://en.wikivoyage.org/wiki/Munnar",
+     "kind": "month"
+    }
+   ],
+   "may": [
+    {
+     "text": "Take a rain coat with you from April to November.",
+     "source_url": "https://en.wikivoyage.org/wiki/Munnar",
+     "kind": "month"
+    }
+   ],
+   "jun": [
+    {
+     "text": "Take a rain coat with you from April to November.",
+     "source_url": "https://en.wikivoyage.org/wiki/Munnar",
+     "kind": "month"
+    }
+   ],
+   "jul": [
+    {
+     "text": "Take a rain coat with you from April to November.",
+     "source_url": "https://en.wikivoyage.org/wiki/Munnar",
+     "kind": "month"
+    }
+   ],
+   "aug": [
+    {
+     "text": "Take a rain coat with you from April to November.",
+     "source_url": "https://en.wikivoyage.org/wiki/Munnar",
+     "kind": "month"
+    }
+   ],
+   "sep": [
+    {
+     "text": "Take a rain coat with you from April to November.",
+     "source_url": "https://en.wikivoyage.org/wiki/Munnar",
+     "kind": "month"
+    }
+   ],
+   "oct": [
+    {
+     "text": "The season between October and March (post-monsoon) is considered the best to visit Munnar.",
+     "source_url": "https://en.wikivoyage.org/wiki/Munnar",
+     "kind": "month"
+    },
+    {
+     "text": "Take a rain coat with you from April to November.",
+     "source_url": "https://en.wikivoyage.org/wiki/Munnar",
+     "kind": "month"
+    }
+   ],
+   "nov": [
+    {
+     "text": "Take a rain coat with you from April to November.",
+     "source_url": "https://en.wikivoyage.org/wiki/Munnar",
+     "kind": "month"
+    }
+   ],
+   "dec": [
+    {
+     "text": "This town and the surrounding region usually offer the most pleasant temperatures in Kerala.",
+     "source_url": "https://en.wikivoyage.org/wiki/Munnar",
+     "kind": "general"
+    },
+    {
+     "text": "The temperature in the afternoon reaches about 22 to 26 °C throughout the year.",
+     "source_url": "https://en.wikivoyage.org/wiki/Munnar",
+     "kind": "general"
+    }
+   ]
+  },
+  "Alleppey": {
+   "jan": [
+    {
+     "text": "The best time to visit is from September to March.",
+     "source_url": "https://en.wikivoyage.org/wiki/Alappuzha",
+     "kind": "month"
+    }
+   ],
+   "feb": [
+    {
+     "text": "The best time to visit is from September to March.",
+     "source_url": "https://en.wikivoyage.org/wiki/Alappuzha",
+     "kind": "month"
+    }
+   ],
+   "mar": [
+    {
+     "text": "The best time to visit is from September to March.",
+     "source_url": "https://en.wikivoyage.org/wiki/Alappuzha",
+     "kind": "month"
+    }
+   ],
+   "apr": [
+    {
+     "text": "The temperature rarely goes above 35 °C and never below 20 °C.",
+     "source_url": "https://en.wikivoyage.org/wiki/Alappuzha",
+     "kind": "general"
+    },
+    {
+     "text": "This is an excellent time to visit if you want to partake in a bit of monsoon tourism.",
+     "source_url": "https://en.wikivoyage.org/wiki/Alappuzha",
+     "kind": "general"
+    }
+   ],
+   "may": [
+    {
+     "text": "The temperature rarely goes above 35 °C and never below 20 °C.",
+     "source_url": "https://en.wikivoyage.org/wiki/Alappuzha",
+     "kind": "general"
+    },
+    {
+     "text": "This is an excellent time to visit if you want to partake in a bit of monsoon tourism.",
+     "source_url": "https://en.wikivoyage.org/wiki/Alappuzha",
+     "kind": "general"
+    }
+   ],
+   "jun": [
+    {
+     "text": "The monsoon, from June to August, always brings heavy wind and rains.",
+     "source_url": "https://en.wikivoyage.org/wiki/Alappuzha",
+     "kind": "month"
+    },
+    {
+     "text": "The South-west monsoon affects the climate in the months from June to September.",
+     "source_url": "https://en.wikipedia.org/wiki/Alappuzha",
+     "kind": "month"
+    }
+   ],
+   "jul": [
+    {
+     "text": "The monsoon, from June to August, always brings heavy wind and rains.",
+     "source_url": "https://en.wikivoyage.org/wiki/Alappuzha",
+     "kind": "month"
+    },
+    {
+     "text": "The South-west monsoon affects the climate in the months from June to September.",
+     "source_url": "https://en.wikipedia.org/wiki/Alappuzha",
+     "kind": "month"
+    }
+   ],
+   "aug": [
+    {
+     "text": "The monsoon, from June to August, always brings heavy wind and rains.",
+     "source_url": "https://en.wikivoyage.org/wiki/Alappuzha",
+     "kind": "month"
+    },
+    {
+     "text": "The South-west monsoon affects the climate in the months from June to September.",
+     "source_url": "https://en.wikipedia.org/wiki/Alappuzha",
+     "kind": "month"
+    }
+   ],
+   "sep": [
+    {
+     "text": "The best time to visit is from September to March.",
+     "source_url": "https://en.wikivoyage.org/wiki/Alappuzha",
+     "kind": "month"
+    },
+    {
+     "text": "The South-west monsoon affects the climate in the months from June to September.",
+     "source_url": "https://en.wikipedia.org/wiki/Alappuzha",
+     "kind": "month"
+    }
+   ],
+   "oct": [
+    {
+     "text": "The best time to visit is from September to March.",
+     "source_url": "https://en.wikivoyage.org/wiki/Alappuzha",
+     "kind": "month"
+    },
+    {
+     "text": "Owing to its proximity to the sea, the climate of Alappuzha is humid and hot during the summer, although it remains fairly cool and pleasant during the months of October and November.",
+     "source_url": "https://en.wikipedia.org/wiki/Alappuzha",
+     "kind": "month"
+    },
+    {
+     "text": "On the other hand, the North-east monsoon brings rain from October to November.",
+     "source_url": "https://en.wikipedia.org/wiki/Alappuzha",
+     "kind": "month"
+    }
+   ],
+   "nov": [
+    {
+     "text": "The best time to visit is from September to March.",
+     "source_url": "https://en.wikivoyage.org/wiki/Alappuzha",
+     "kind": "month"
+    },
+    {
+     "text": "Owing to its proximity to the sea, the climate of Alappuzha is humid and hot during the summer, although it remains fairly cool and pleasant during the months of October and November.",
+     "source_url": "https://en.wikipedia.org/wiki/Alappuzha",
+     "kind": "month"
+    },
+    {
+     "text": "On the other hand, the North-east monsoon brings rain from October to November.",
+     "source_url": "https://en.wikipedia.org/wiki/Alappuzha",
+     "kind": "month"
+    }
+   ],
+   "dec": [
+    {
+     "text": "The best time to visit is from September to March.",
+     "source_url": "https://en.wikivoyage.org/wiki/Alappuzha",
+     "kind": "month"
+    }
+   ]
+  },
+  "Delhi": {
+   "jan": [
+    {
+     "text": "Winter, from December to January, is cold (the temperature drops to near freezing at night though the days are warm) and is notorious for the thick layer of smog that hangs over the city, resulting not only in cancelled flights and delayed trains, but also warnings to stay indoors and wear high-quality masks if you need to venture out.",
+     "source_url": "https://en.wikivoyage.org/wiki/Delhi",
+     "kind": "month"
+    },
+    {
+     "text": "The city's rainfall pattern is heavily influenced by the summer monsoon entering in late June and continuing till mid-September, and western disturbances occurring from November to March.",
+     "source_url": "https://en.wikipedia.org/wiki/Climate_of_Delhi",
+     "kind": "month"
+    },
+    {
+     "text": "Winter starts in November and peaks in January, with average temperatures around 14 °C (57 °F).",
+     "source_url": "https://en.wikipedia.org/wiki/Climate_of_Delhi",
+     "kind": "month"
+    },
+    {
+     "text": "The lowest ever temperature reading during this period is −2.2 °C (28.0 °F), recorded on 11 January 1967 at Met Delhi Palam.",
+     "source_url": "https://en.wikipedia.org/wiki/Climate_of_Delhi",
+     "kind": "month"
+    }
+   ],
+   "feb": [
+    {
+     "text": "The city's rainfall pattern is heavily influenced by the summer monsoon entering in late June and continuing till mid-September, and western disturbances occurring from November to March.",
+     "source_url": "https://en.wikipedia.org/wiki/Climate_of_Delhi",
+     "kind": "month"
+    }
+   ],
+   "mar": [
+    {
+     "text": "The city's rainfall pattern is heavily influenced by the summer monsoon entering in late June and continuing till mid-September, and western disturbances occurring from November to March.",
+     "source_url": "https://en.wikipedia.org/wiki/Climate_of_Delhi",
+     "kind": "month"
+    },
+    {
+     "text": "Winter generally ends by the first week of March.",
+     "source_url": "https://en.wikipedia.org/wiki/Climate_of_Delhi",
+     "kind": "month"
+    }
+   ],
+   "apr": [
+    {
+     "text": "Summer, in April and May, is uncomfortably hot with temperatures soaring as high as 45 °C.",
+     "source_url": "https://en.wikivoyage.org/wiki/Delhi",
+     "kind": "month"
+    },
+    {
+     "text": "Summer begins in early April and continues till the end of June, with the heat peaking in May.",
+     "source_url": "https://en.wikivoyage.org/wiki/Delhi",
+     "kind": "month"
+    },
+    {
+     "text": "Summer starts in early April and peaks in late May or early June, with average temperatures near 38 °C (100 °F) although occasional heat waves can result in highs close to 45 °C (113 °F) on some days and therefore higher apparent temperature.",
+     "source_url": "https://en.wikipedia.org/wiki/Climate_of_Delhi",
+     "kind": "month"
+    }
+   ],
+   "may": [
+    {
+     "text": "Summer begins in early April and continues till the end of June, with the heat peaking in May.",
+     "source_url": "https://en.wikivoyage.org/wiki/Delhi",
+     "kind": "month"
+    }
+   ],
+   "jun": [
+    {
+     "text": "Temperatures moderate during the monsoon season (June to September), but it is humid.",
+     "source_url": "https://en.wikivoyage.org/wiki/Delhi",
+     "kind": "month"
+    },
+    {
+     "text": "Summer begins in early April and continues till the end of June, with the heat peaking in May.",
+     "source_url": "https://en.wikivoyage.org/wiki/Delhi",
+     "kind": "month"
+    },
+    {
+     "text": "The city's rainfall pattern is heavily influenced by the summer monsoon entering in late June and continuing till mid-September, and western disturbances occurring from November to March.",
+     "source_url": "https://en.wikipedia.org/wiki/Climate_of_Delhi",
+     "kind": "month"
+    },
+    {
+     "text": "Summer starts in early April and peaks in late May or early June, with average temperatures near 38 °C (100 °F) although occasional heat waves can result in highs close to 45 °C (113 °F) on some days and therefore higher apparent temperature.",
+     "source_url": "https://en.wikipedia.org/wiki/Climate_of_Delhi",
+     "kind": "month"
+    }
+   ],
+   "jul": [
+    {
+     "text": "Temperatures moderate during the monsoon season (June to September), but it is humid.",
+     "source_url": "https://en.wikivoyage.org/wiki/Delhi",
+     "kind": "month"
+    }
+   ],
+   "aug": [
+    {
+     "text": "Temperatures moderate during the monsoon season (June to September), but it is humid.",
+     "source_url": "https://en.wikivoyage.org/wiki/Delhi",
+     "kind": "month"
+    }
+   ],
+   "sep": [
+    {
+     "text": "Temperatures moderate during the monsoon season (June to September), but it is humid.",
+     "source_url": "https://en.wikivoyage.org/wiki/Delhi",
+     "kind": "month"
+    },
+    {
+     "text": "The city's rainfall pattern is heavily influenced by the summer monsoon entering in late June and continuing till mid-September, and western disturbances occurring from November to March.",
+     "source_url": "https://en.wikipedia.org/wiki/Climate_of_Delhi",
+     "kind": "month"
+    },
+    {
+     "text": "The monsoon starts in late June and lasts until mid-September, with about 797.3 mm (31.39 inches) of rain.",
+     "source_url": "https://en.wikipedia.org/wiki/Climate_of_Delhi",
+     "kind": "month"
+    },
+    {
+     "text": "The monsoons recede in late September, and the post-monsoon season continues till late October, with average temperatures sliding from 29 to 21 °C (84 to 70 °F).",
+     "source_url": "https://en.wikipedia.org/wiki/Climate_of_Delhi",
+     "kind": "month"
+    }
+   ],
+   "oct": [
+    {
+     "text": "The monsoons recede in late September, and the post-monsoon season continues till late October, with average temperatures sliding from 29 to 21 °C (84 to 70 °F).",
+     "source_url": "https://en.wikipedia.org/wiki/Climate_of_Delhi",
+     "kind": "month"
+    }
+   ],
+   "nov": [
+    {
+     "text": "The city's rainfall pattern is heavily influenced by the summer monsoon entering in late June and continuing till mid-September, and western disturbances occurring from November to March.",
+     "source_url": "https://en.wikipedia.org/wiki/Climate_of_Delhi",
+     "kind": "month"
+    },
+    {
+     "text": "Winter starts in November and peaks in January, with average temperatures around 14 °C (57 °F).",
+     "source_url": "https://en.wikipedia.org/wiki/Climate_of_Delhi",
+     "kind": "month"
+    }
+   ],
+   "dec": [
+    {
+     "text": "Winter, from December to January, is cold (the temperature drops to near freezing at night though the days are warm) and is notorious for the thick layer of smog that hangs over the city, resulting not only in cancelled flights and delayed trains, but also warnings to stay indoors and wear high-quality masks if you need to venture out.",
+     "source_url": "https://en.wikivoyage.org/wiki/Delhi",
+     "kind": "month"
+    },
+    {
+     "text": "The city's rainfall pattern is heavily influenced by the summer monsoon entering in late June and continuing till mid-September, and western disturbances occurring from November to March.",
+     "source_url": "https://en.wikipedia.org/wiki/Climate_of_Delhi",
+     "kind": "month"
+    }
+   ]
+  },
+  "Agra": {
+   "jan": [
+    {
+     "text": "The climate is similar to, but not identical, to the one of Delhi.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    },
+    {
+     "text": "Similar to Delhi, Agra is also notorious for their thick winter fog, which reduces visibility to almost zero.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    }
+   ],
+   "feb": [
+    {
+     "text": "The climate is similar to, but not identical, to the one of Delhi.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    },
+    {
+     "text": "Similar to Delhi, Agra is also notorious for their thick winter fog, which reduces visibility to almost zero.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    }
+   ],
+   "mar": [
+    {
+     "text": "The climate is similar to, but not identical, to the one of Delhi.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    },
+    {
+     "text": "Similar to Delhi, Agra is also notorious for their thick winter fog, which reduces visibility to almost zero.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    }
+   ],
+   "apr": [
+    {
+     "text": "The climate is similar to, but not identical, to the one of Delhi.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    },
+    {
+     "text": "Similar to Delhi, Agra is also notorious for their thick winter fog, which reduces visibility to almost zero.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    }
+   ],
+   "may": [
+    {
+     "text": "The climate is similar to, but not identical, to the one of Delhi.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    },
+    {
+     "text": "Similar to Delhi, Agra is also notorious for their thick winter fog, which reduces visibility to almost zero.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    }
+   ],
+   "jun": [
+    {
+     "text": "The climate is similar to, but not identical, to the one of Delhi.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    },
+    {
+     "text": "Similar to Delhi, Agra is also notorious for their thick winter fog, which reduces visibility to almost zero.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    }
+   ],
+   "jul": [
+    {
+     "text": "The monsoon rains usually begin in the first week in July; and generally end in mid-September.",
+     "source_url": "https://en.wikipedia.org/wiki/Agra",
+     "kind": "month"
+    }
+   ],
+   "aug": [
+    {
+     "text": "The climate is similar to, but not identical, to the one of Delhi.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    },
+    {
+     "text": "Similar to Delhi, Agra is also notorious for their thick winter fog, which reduces visibility to almost zero.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    }
+   ],
+   "sep": [
+    {
+     "text": "The monsoon rains usually begin in the first week in July; and generally end in mid-September.",
+     "source_url": "https://en.wikipedia.org/wiki/Agra",
+     "kind": "month"
+    }
+   ],
+   "oct": [
+    {
+     "text": "The climate is similar to, but not identical, to the one of Delhi.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    },
+    {
+     "text": "Similar to Delhi, Agra is also notorious for their thick winter fog, which reduces visibility to almost zero.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    }
+   ],
+   "nov": [
+    {
+     "text": "The climate is similar to, but not identical, to the one of Delhi.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    },
+    {
+     "text": "Similar to Delhi, Agra is also notorious for their thick winter fog, which reduces visibility to almost zero.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    }
+   ],
+   "dec": [
+    {
+     "text": "The climate is similar to, but not identical, to the one of Delhi.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    },
+    {
+     "text": "Similar to Delhi, Agra is also notorious for their thick winter fog, which reduces visibility to almost zero.",
+     "source_url": "https://en.wikivoyage.org/wiki/Agra",
+     "kind": "general"
+    }
+   ]
+  },
+  "Jaipur": {
+   "jan": [
+    {
+     "text": "The lowest temperature ever recorded was −2.2 °C (28.0 °F) on 31 January 1905, 1 February 1905, and 16 January 1964.",
+     "source_url": "https://en.wikipedia.org/wiki/Jaipur",
+     "kind": "month"
+    }
+   ],
+   "feb": [
+    {
+     "text": "The city's average temperature remains below 20 °C or 68 °F between December and February.",
+     "source_url": "https://en.wikipedia.org/wiki/Jaipur",
+     "kind": "month"
+    },
+    {
+     "text": "The lowest temperature ever recorded was −2.2 °C (28.0 °F) on 31 January 1905, 1 February 1905, and 16 January 1964.",
+     "source_url": "https://en.wikipedia.org/wiki/Jaipur",
+     "kind": "month"
+    }
+   ],
+   "mar": [
+    {
+     "text": "Jaipur's climate is characterised as semiarid, with just a few rainy days per month for most of the year.",
+     "source_url": "https://en.wikivoyage.org/wiki/Jaipur",
+     "kind": "general"
+    },
+    {
+     "text": "During the winter temperatures are mild, and while nighttime temperatures seldom drop much below +10°C, Jaipur has experienced temperatures below freezing.",
+     "source_url": "https://en.wikivoyage.org/wiki/Jaipur",
+     "kind": "general"
+    }
+   ],
+   "apr": [
+    {
+     "text": "Jaipur's climate is characterised as semiarid, with just a few rainy days per month for most of the year.",
+     "source_url": "https://en.wikivoyage.org/wiki/Jaipur",
+     "kind": "general"
+    },
+    {
+     "text": "During the winter temperatures are mild, and while nighttime temperatures seldom drop much below +10°C, Jaipur has experienced temperatures below freezing.",
+     "source_url": "https://en.wikivoyage.org/wiki/Jaipur",
+     "kind": "general"
+    }
+   ],
+   "may": [
+    {
+     "text": "Jaipur's climate is characterised as semiarid, with just a few rainy days per month for most of the year.",
+     "source_url": "https://en.wikivoyage.org/wiki/Jaipur",
+     "kind": "general"
+    },
+    {
+     "text": "During the winter temperatures are mild, and while nighttime temperatures seldom drop much below +10°C, Jaipur has experienced temperatures below freezing.",
+     "source_url": "https://en.wikivoyage.org/wiki/Jaipur",
+     "kind": "general"
+    }
+   ],
+   "jun": [
+    {
+     "text": "The exception is the monsoon period from June to September, when heavy rain and thunderstorms are commonplace.",
+     "source_url": "https://en.wikivoyage.org/wiki/Jaipur",
+     "kind": "month"
+    },
+    {
+     "text": "Annual precipitation is over 625 millimetres or 25 inches, falling mostly in July and August due to the southwest monsoon, causing the average temperatures in these two months to be lower compared to drier May and June.",
+     "source_url": "https://en.wikipedia.org/wiki/Jaipur",
+     "kind": "month"
+    }
+   ],
+   "jul": [
+    {
+     "text": "The exception is the monsoon period from June to September, when heavy rain and thunderstorms are commonplace.",
+     "source_url": "https://en.wikivoyage.org/wiki/Jaipur",
+     "kind": "month"
+    },
+    {
+     "text": "Annual precipitation is over 625 millimetres or 25 inches, falling mostly in July and August due to the southwest monsoon, causing the average temperatures in these two months to be lower compared to drier May and June.",
+     "source_url": "https://en.wikipedia.org/wiki/Jaipur",
+     "kind": "month"
+    }
+   ],
+   "aug": [
+    {
+     "text": "The exception is the monsoon period from June to September, when heavy rain and thunderstorms are commonplace.",
+     "source_url": "https://en.wikivoyage.org/wiki/Jaipur",
+     "kind": "month"
+    },
+    {
+     "text": "Annual precipitation is over 625 millimetres or 25 inches, falling mostly in July and August due to the southwest monsoon, causing the average temperatures in these two months to be lower compared to drier May and June.",
+     "source_url": "https://en.wikipedia.org/wiki/Jaipur",
+     "kind": "month"
+    }
+   ],
+   "sep": [
+    {
+     "text": "The exception is the monsoon period from June to September, when heavy rain and thunderstorms are commonplace.",
+     "source_url": "https://en.wikivoyage.org/wiki/Jaipur",
+     "kind": "month"
+    }
+   ],
+   "oct": [
+    {
+     "text": "Jaipur's climate is characterised as semiarid, with just a few rainy days per month for most of the year.",
+     "source_url": "https://en.wikivoyage.org/wiki/Jaipur",
+     "kind": "general"
+    },
+    {
+     "text": "During the winter temperatures are mild, and while nighttime temperatures seldom drop much below +10°C, Jaipur has experienced temperatures below freezing.",
+     "source_url": "https://en.wikivoyage.org/wiki/Jaipur",
+     "kind": "general"
+    }
+   ],
+   "nov": [
+    {
+     "text": "Jaipur's climate is characterised as semiarid, with just a few rainy days per month for most of the year.",
+     "source_url": "https://en.wikivoyage.org/wiki/Jaipur",
+     "kind": "general"
+    },
+    {
+     "text": "During the winter temperatures are mild, and while nighttime temperatures seldom drop much below +10°C, Jaipur has experienced temperatures below freezing.",
+     "source_url": "https://en.wikivoyage.org/wiki/Jaipur",
+     "kind": "general"
+    }
+   ],
+   "dec": [
+    {
+     "text": "The city's average temperature remains below 20 °C or 68 °F between December and February.",
+     "source_url": "https://en.wikipedia.org/wiki/Jaipur",
      "kind": "month"
     }
    ]

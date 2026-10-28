@@ -32,7 +32,11 @@ LOG = OUT / "places_calls.log"
 CACHE = DATA.parent / ".lanes" / "places-cache.json"
 MAX_CALLS = 40  # per run, HQ's cap for P4
 MAX_KM = 3.0  # beaches, falls and islands are big; a fort 3 km off is another place
-REGION_QUERY = {"goa": "Goa, India"}
+REGION_QUERY = {
+    "goa": "Goa, India", "kochi": "Kochi, Kerala, India", "munnar": "Munnar, Kerala, India",
+    "alleppey": "Alappuzha, Kerala, India", "delhi": "Delhi, India", "agra": "Agra, Uttar Pradesh, India",
+    "jaipur": "Jaipur, Rajasthan, India",
+}  # fmt: skip
 
 
 class BudgetSpent(RuntimeError):

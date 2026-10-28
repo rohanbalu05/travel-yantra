@@ -126,7 +126,9 @@ def slop(text: str, lang: str = "en") -> list[str]:
     for m in _TRIPLE.finditer(text):
         if all(_adjective(w) for w in m.group(1, 2, 3)):
             found.append(f"stacked adjectives: {m.group(0)!r}")
-    sentences = re.split(r"(?<=[.!?])\s+", text.strip())
+    # "।" ends a Hindi sentence: without it a Hindi paragraph was one "sentence", and two
+    # paragraphs that each closed on a question read as two questions in a row (HQ P7).
+    sentences = re.split(r"(?<=[.!?।])\s+", MARKER.sub("", text).strip())
     for a, b in zip(sentences, sentences[1:], strict=False):
         if a.endswith("?") and b.endswith("?"):
             found.append(f"rhetorical questions in a row: {a!r} {b!r}")

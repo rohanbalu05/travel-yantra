@@ -1,0 +1,526 @@
+{
+ "_notes": "Built by guide/scripts/build_corridor.py from Wikipedia and Wikidata on 2026-10-28. Text is CC BY-SA; each chunk cites its page.",
+ "pois": [
+  {
+   "name": "Amber Fort",
+   "name_kn": "ಅಂಬರ್ ಕೋಟೆ",
+   "names": {
+    "hi": "आमेर दुर्ग",
+    "te": "ఆమెర్ కోట",
+    "ta": "ஆம்பர் கோட்டை",
+    "kn": "ಅಂಬರ್ ಕೋಟೆ",
+    "bn": "আমের দুর্গ"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.9859,
+   "lng": 75.8507,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 150,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q456817",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://obms-tourist.rajasthan.gov.in/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJ-w3Sy1qwbTkRK34UR2ffIWI",
+   "places_status": "hours"
+  },
+  {
+   "name": "Hawa Mahal",
+   "name_kn": "ಹವಾ ಮಹಲ್",
+   "names": {
+    "hi": "हवामहल",
+    "kn": "ಹವಾ ಮಹಲ್",
+    "ta": "ஹவா மஹால்",
+    "te": "హవా మహల్",
+    "bn": "হাওয়া মহল"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.924,
+   "lng": 75.82672,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q836531",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://obms-tourist.rajasthan.gov.in/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJpQvTG0uxbTkRDLLMHlNdDoY",
+   "places_status": "hours"
+  },
+  {
+   "name": "City Palace",
+   "name_kn": "jaipur palace",
+   "names": {
+    "hi": "सिटी पैलेस",
+    "te": "సిటీ ప్యాలెస్",
+    "kn": "jaipur palace",
+    "ta": "ஜெய்ப்பூர் நகர அரண்மனை"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.9255,
+   "lng": 75.8236,
+   "category": "museum",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 120,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 5,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q2723395",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJwbAghgu0bTkRYHt9ATEVgEQ",
+   "places_status": "hours"
+  },
+  {
+   "name": "Jantar Mantar, Jaipur",
+   "name_kn": null,
+   "names": {
+    "ta": "ஜந்தர் மந்தர்",
+    "te": "జంతర్ మంతర్ వేధశాల (రాజస్థాన్)",
+    "hi": "जन्तर मन्तर",
+    "bn": "যন্তর মন্তর"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.92472,
+   "lng": 75.825,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q508634",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://obms-tourist.rajasthan.gov.in/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJaXD1f0yxbTkRvquNoSkESuk",
+   "places_status": "hours"
+  },
+  {
+   "name": "Nahargarh Fort",
+   "name_kn": "ನಾಹರ್‌ಗಢ್ ಕೋಟೆ",
+   "names": {
+    "hi": "नाहरगढ़ दुर्ग",
+    "ta": "நாகர்கர் கோட்டை",
+    "kn": "ನಾಹರ್‌ಗಢ್ ಕೋಟೆ",
+    "te": "నహర్గఢ్ కోట"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.9375,
+   "lng": 75.81583,
+   "category": "viewpoint",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 90,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q2723401",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://obms-tourist.rajasthan.gov.in/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJ0fNH81yxbTkRi56uF-amqgo",
+   "places_status": "hours"
+  },
+  {
+   "name": "Jaigarh Fort",
+   "name_kn": "ಜೈಗಢ್ ಕೋಟೆ",
+   "names": {
+    "hi": "जयगढ़ दुर्ग",
+    "ta": "ஜெய்கர் கோட்டை",
+    "kn": "ಜೈಗಢ್ ಕೋಟೆ",
+    "bn": "জয়গড় কেল্লা",
+    "te": "జైఘర్ కోట"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.98278,
+   "lng": 75.84472,
+   "category": "monument",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 90,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q2722759",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJx0lfsbGxbTkRgVOhxJ7EGbw",
+   "places_status": "hours"
+  },
+  {
+   "name": "Jal Mahal",
+   "name_kn": null,
+   "names": {
+    "hi": "जल महल",
+    "te": "జల్ మహల్",
+    "ta": "ஜல் மகால்"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.95333,
+   "lng": 75.84611,
+   "category": "viewpoint",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q2757538",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJ62S-iQGxbTkRR6nEIhnuZpM",
+   "places_status": "no-hours"
+  },
+  {
+   "name": "Albert Hall Museum",
+   "name_kn": null,
+   "names": {
+    "hi": "अल्बर्ट हॉल संग्रहालय",
+    "ta": "ஆல்பர்ட் மண்டப அருங்காட்சியகம்",
+    "bn": "আলবার্ট হল জাদুঘর",
+    "te": "ఆల్బర్ట్ హాల్ మ్యూజియం"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.9118,
+   "lng": 75.8195,
+   "category": "museum",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 75,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 4,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q4710411",
+   "last_verified": "2026-10-28",
+   "ticket_url": "https://obms-tourist.rajasthan.gov.in/",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJXyn5OrC2bTkRaGk8EzNDuwU",
+   "places_status": "hours"
+  },
+  {
+   "name": "Birla Mandir",
+   "name_kn": null,
+   "names": {
+    "hi": "बिड़ला मन्दिर, जयपुर",
+    "ta": "பிர்லா மந்திர், ஜெய்ப்பூர்"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.89216,
+   "lng": 75.81553,
+   "category": "temple",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q4916529",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJr6cur5m2bTkRWIDcK9acl30",
+   "places_status": "hours"
+  },
+  {
+   "name": "Galtaji",
+   "name_kn": "ಗಲ್ತಾಜಿ",
+   "names": {
+    "hi": "गलताजी",
+    "kn": "ಗಲ್ತಾಜಿ",
+    "ta": "கல்தாஜி",
+    "te": "గాల్టాజీ"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.8761,
+   "lng": 76.1242,
+   "category": "temple",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q3635211",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "places_status": "no-match"
+  },
+  {
+   "name": "Govind Dev Ji Temple",
+   "name_kn": null,
+   "names": {
+    "hi": "गोविंद देवजी का मंदिर",
+    "bn": "গোবিন্দ দেব জী মন্দির",
+    "te": "గోవింద్ దేవ్ జీ ఆలయం",
+    "ta": "கோவிந்த தேவ் ஜி கோயில்"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.92892,
+   "lng": 75.82397,
+   "category": "temple",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q5589834",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJl6ftTjK0bTkRXGBe1TzRYCI",
+   "places_status": "hours"
+  },
+  {
+   "name": "Jawahar Kala Kendra",
+   "name_kn": null,
+   "names": {
+    "hi": "जवाहर कला केन्द्र",
+    "ta": "ஜவஹர் கலா கேந்திரா, ஜெய்ப்பூர்",
+    "te": "జవహర్ కళా కేంద్రం"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.8763,
+   "lng": 75.80917,
+   "category": "museum",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 60,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q6165903",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJxVyo7oC2bTkRMJbp0SqUAdA",
+   "places_status": "hours"
+  },
+  {
+   "name": "Moti Dungri Ganesh Temple",
+   "name_kn": null,
+   "names": {
+    "hi": "मोतीडूंगरी गणेश मंदिर जयपुर",
+    "te": "మోతీ డుంగ్రీ"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.89462,
+   "lng": 75.81674,
+   "category": "temple",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 30,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q28154167",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJE_whhgu0bTkR-sdGzxFxZBI",
+   "places_status": "hours"
+  },
+  {
+   "name": "Anokhi Museum of Hand Printing",
+   "name_kn": null,
+   "names": {
+    "hi": "अनोखी संग्रहालय"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.99393,
+   "lng": 75.85078,
+   "category": "museum",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q61931254",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJ2fs8d7WxbTkRnv1e7pWoFuI",
+   "places_status": "hours"
+  },
+  {
+   "name": "Sanganer (block printing)",
+   "name_kn": "ಸಂಗನೇರ್",
+   "names": {
+    "bn": "সঙ্গনার",
+    "kn": "ಸಂಗನೇರ್",
+    "ta": "சங்கனேர்",
+    "te": "సంగనేర్",
+    "hi": "सांगानेर"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.82211,
+   "lng": 75.74186,
+   "category": "experience",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 90,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q7417836",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "places_status": "no-match"
+  },
+  {
+   "name": "Raj Mandir Cinema, Jaipur",
+   "name_kn": null,
+   "names": {
+    "ta": "இராஜ் மந்திர் சினிமா"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.9155,
+   "lng": 75.81016,
+   "category": "experience",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 180,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 3,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q7285323",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJeSsYKBqzbTkRkOA72_U4lAw",
+   "places_status": "hours"
+  },
+  {
+   "name": "Ram Niwas Garden",
+   "name_kn": null,
+   "names": {
+    "hi": "राम निवास बाग",
+    "te": "రామ్ నివాస్ గార్డెన్"
+   },
+   "city": "Jaipur",
+   "district": "Jaipur",
+   "lat": 26.9153,
+   "lng": 75.8187,
+   "category": "nature",
+   "tags": [
+    "hours-unverified",
+    "fee-unverified"
+   ],
+   "typical_dwell_min": 45,
+   "opens": null,
+   "closes": null,
+   "closed_on": [],
+   "popularity": 2,
+   "elderly_friendly": true,
+   "trust": "draft",
+   "source_url": "https://www.wikidata.org/wiki/Q2770471",
+   "last_verified": "2026-10-28",
+   "hours_checked": "2026-10-28",
+   "place_id": "ChIJ36_Mt7G2bTkReYx_A304RdI",
+   "places_status": "no-hours"
+  }
+ ],
+ "_places": "place_id and places_status come from Google Places API (New) on the hours_checked date. Places terms allow storing the id only, so hours are fetched at runtime (guide.hours) where places_status is 'hours'. Places has no admission fees, so fees stay fee-unverified."
+}
