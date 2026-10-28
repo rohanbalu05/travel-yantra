@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from routes.fares import cab_fare
 from routes.graph import KIND_PLACE, HaversineRoadProvider, Node
 from routes.roads import (
     FIELD_MASK,
@@ -34,8 +35,8 @@ def test_uses_routes_api_response_and_sends_essentials_request():
     e = p.road_edge(BLR, GOA)
     assert e.ref == REF and e.mode == "road"
     # recorded live: 591.8 km in 11 h 7 min, Bengaluru to Panaji centres
-    assert e.minutes == pytest.approx(40021 / 60)
-    assert e.cost_inr == pytest.approx(591.834 * 6.0)
+    assert e.minutes == pytest.approx(5 + 40021 / 60)  # plus PARK_MIN
+    assert e.km == pytest.approx(591.834) and e.cost_inr == cab_fare(591.834)  # one cab; compare reprices drives
     url, headers, body, _ = t.calls[0]
     assert url == URL and headers["X-Goog-FieldMask"] == FIELD_MASK
     assert body["travelMode"] == "DRIVE" and body["routingPreference"] == "TRAFFIC_UNAWARE"

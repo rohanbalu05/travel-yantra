@@ -22,7 +22,16 @@ from functools import lru_cache
 from typing import Protocol
 
 from . import apicache
-from .graph import COMFORT, ROAD_INR_PER_KM, Edge, HaversineRoadProvider, Node
+from .fares import cab_fare
+from .graph import (
+    COMFORT,
+    PARK_MIN,
+    WALK_KMH,
+    WALK_ROAD_KM,
+    Edge,
+    HaversineRoadProvider,
+    Node,
+)
 
 URL = "https://routes.googleapis.com/directions/v2:computeRoutes"
 FIELD_MASK = "routes.duration,routes.distanceMeters"
@@ -116,7 +125,9 @@ class RoutesApiRoadProvider:
         if routes and "duration" in routes[0] and "distanceMeters" in routes[0]:
             km = routes[0]["distanceMeters"] / 1000
             minutes = float(str(routes[0]["duration"]).rstrip("s")) / 60
-            return Edge(a.id, b.id, "road", minutes, km * ROAD_INR_PER_KM, COMFORT["road"], ref=REF)
+            if km <= WALK_ROAD_KM:
+                return Edge(a.id, b.id, "walk", km / WALK_KMH * 60, 0.0, COMFORT["walk"], km=km)
+            return Edge(a.id, b.id, "road", PARK_MIN + minutes, float(cab_fare(km)), COMFORT["road"], ref=REF, km=km)
         return self.fallback.road_edge(a, b)
 
 

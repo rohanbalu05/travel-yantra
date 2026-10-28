@@ -19,6 +19,7 @@ from .irctc import (
     NotFound,
     Party,
     PnrStatus,
+    Style,
     TravelClass,
     irctc_card,
     pnr_status,
@@ -54,13 +55,16 @@ def get_irctc_card(
     from_: str = Query(alias="from", min_length=1),
     to: str = Query(min_length=1),
     date: dt.date = Query(),
-    travel_class: TravelClass = "3A",
+    travel_class: TravelClass | None = None,
     party: Party = "goa_family",
     train: str | None = Query(default=None, pattern=r"^\d{5}$"),
     travellers: int | None = Query(default=None, ge=1, le=MAX_TRAVELLERS),
+    after: dt.time | None = Query(default=None, description="HH:MM; with no train, the first leaving from then"),
+    style: Style | None = Query(default=None, description="budget style: picks the class when none is given"),
 ) -> IrctcCard:
     try:
-        return irctc_card(from_, to, date, travel_class, party, train, travellers=travellers)
+        return irctc_card(from_, to, date, travel_class, party, train, travellers=travellers, after=after,
+                          style=style)
     except NotFound as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 

@@ -12,7 +12,10 @@ Filter: the demo corridors, every station inside the box lat 11.5-16.0, lon
 73.6-78.0 (Bengaluru, Mysuru and the Coorg side, Hassan, Chikkamagaluru,
 Hosapete for Hampi, Hubballi, Goa), whatever its state field (many datameet
 stations have none, Yesvantpur and Chikkamagaluru among them), and the trains
-with two or more stops there: 427 stations, 513 trains. `rail_meta.json`
+with two or more stops there; plus (`--cities`) every station within 40 km of a
+city in `cities.json`, for long-distance trains (types other than MEMU, DEMU, EMU and
+toy trains, and listed in trains.json): 1,972 stations, 3,590 trains. Each train keeps
+its type and the classes it carries (from datameet's class flags). `rail_meta.json`
 records the source, licence, filter and counts.
 
 Rebuild (the same script `build-rail.yml` runs):
@@ -20,7 +23,7 @@ Rebuild (the same script `build-rail.yml` runs):
 ```
 curl -fsSL -o <dir>/stations.json https://raw.githubusercontent.com/datameet/railways/master/stations.json
 # likewise trains.json and schedules.json
-python apps/api/routes/scripts/build_rail.py --src <dir> --out apps/api/routes/data --bbox demo
+python apps/api/routes/scripts/build_rail.py --src <dir> --out apps/api/routes/data --bbox demo --cities
 ```
 
 Without `--bbox` the script keeps the six-state subset (Karnataka, Goa,

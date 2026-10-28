@@ -4,6 +4,8 @@ Multimodal transport graph, Dijkstra and A*, Routes API, SerpApi flights and hot
 
 ## Files
 
+- `fares.py`: the one fare model. Rail per person by class (a distance-tapering sleeper curve times class multipliers; the class follows the budget style within the classes the train carries), driving per car (fuel Rs 7/km plus tolls on known expressways), cabs per cab (Rs 60 + Rs 18/km, at least Rs 100). Compare, the planner's stop legs (through the road provider) and the IRCTC card all use it.
+- `data/cities.json`: the city points and aliases (about 70 cities across India) for compare, stays and the rail build.
 - `graph.py`: stations, airports and city points joined by rail, road, air and walk edges; offline fakes for road and air.
 - `search.py`: Dijkstra and A* with a time, cost and transfer objective (road and air).
 - `timetable.py`: rail on real timetables (datameet corridor subset, `data/README.md`): earliest arrival by connection scan with changes, then the latest departure that arrives as early.
@@ -16,7 +18,7 @@ Multimodal transport graph, Dijkstra and A*, Routes API, SerpApi flights and hot
 - `compare.py`: `POST /routes/compare`.
 - `irctc.py`: `GET /routes/irctc-card` and `GET /routes/pnr-mock` (sample data only; there is no IRCTC API and we never scrape it).
 - `metrics.py`: `POST /routes/metrics/event`, `GET /routes/metrics/summary` (user-study timing).
-- `stays.py`: `rank_stays(...)` for TY1's planner: Google Hotels when `SERPAPI_API_KEY` is set, else fictional sample stays; every stay has `offers`.
+- `stays.py`: `rank_stays(..., limit=5, budget_style=None)` for TY1's planner: Google Hotels when `SERPAPI_API_KEY` is set (no answer: no stays, never samples), else fictional sample stays marked `sample=True`. Stays carry `id`, `stars`, `rating`, `reviews`, `kind` and `offers`; rentals too big for the party are dropped (one spare bedroom at most); ordered by `budget_style` (budget: cheapest good one; mid: 3-4 star by rating; luxury: most stars), stays with no rating or under 10 reviews last.
 - `scripts/record_live.py`: the live smoke and fixture recorder (never run by tests; `--no-road` makes no Routes API call).
 
 ## POST /routes/compare
@@ -28,9 +30,9 @@ Request:
  "depart_time": "08:00", "rank_by": "balanced", "modes": ["rail", "road", "air"], "travellers": 4}
 ```
 
-Only `origin` and `destination` are required. Cities come from a sample table in
-`compare.py` (`CITIES`, `ALIASES`; includes Coorg/Madikeri, Hampi and
-Chikmagalur); an unknown city or the same city twice gives 422.
+Only `origin` and `destination` are required. Cities come from `data/cities.json`
+(about 70 across India, with aliases such as Bangalore, Cochin, Trivandrum, Alleppey,
+New Delhi); an unknown city or the same city twice gives 422.
 `rank_by` is `balanced` (time and cost relative to the best, plus a quarter per
 change, plus 1.5 for an overnight train when a daytime option exists and the
 trip is short, its daytime option at most 8 h, or one person travels alone),
@@ -43,7 +45,10 @@ Response: `origin`, `destination`, `date`, `rank_by`, `options[]` and
 is `{id, rank, changes, score, sources, option}`, where `option` is the contract
 `TransportOption`. Legs are one per vehicle, with readable names in `from`/`to`.
 Walk legs use mode `road` (the contract has no walk mode). Costs are for the
-whole party: rail and air per person, road per car of four.
+whole party (`fares.py`): rail per person in the class the budget style rides,
+air per person, a drive between cities as fuel and tolls per car of four, and
+rides to and from stations and airports as cab fares per cab of four. In process,
+`compare(req, rail_class="budget" | "mid" | "luxury")` sets the style (default mid).
 
 Air: with `SERPAPI_API_KEY` set, each airport pair within 60 km of the two cities
 gets one live flight: of those you can reach (ground transfer plus 60 min at the
@@ -71,7 +76,10 @@ In process (no HTTP): `routes.compare.get_service().compare(CompareRequest(...))
 
 ## GET /routes/irctc-card
 
-`?from=SBC&to=MAO&date=2026-12-11&travel_class=3A&party=goa_family[&train=90001]`.
+`?from=SBC&to=MAO&date=2026-12-11&party=goa_family[&train=17309][&after=07:00][&travel_class=3A][&style=mid]`.
+With no `train`, the first train leaving at or after `after` (default 06:00). `classes` lists the
+classes the train carries (Shatabdis: CC, EC); with no `travel_class`, or one the train lacks (a note
+says so), the card uses the class compare prices the train in for `style`, so its fare is the plan's.
 `from`/`to` take a station code or the station name from a compare rail leg. `party`
 is a sample persona (`goa_family`, `mysuru_weekend`); no names go in the URL.
 Returns the train, stations, departure and arrival, passengers with berth
@@ -100,9 +108,9 @@ per task and arm, sessions and the median seconds from a session's first
 
 ## Known limits
 
-- Rail is datameet's timetable from about 2016, every train treated as daily; fares are per-km estimates. `ROUTES_RAIL=sample` switches to the fictional sample network.
+- Rail is datameet's timetable from about 2016, every train treated as daily, for the stations in the Karnataka-Goa box and within 40 km of each city (long-distance trains only outside the box); fares are fitted estimates (`fares.py`), not IRCTC's fare table. `ROUTES_RAIL=sample` switches to the fictional sample network.
 - Air is the fake network unless `SERPAPI_API_KEY` is set. Live flight booking links need a POST, so seller offers for flights link to each seller's search, not the exact fare.
 - Hotel rates assume two adults a room; the party price is rooms x the room rate. Only the top stay gets per-source prices (one details call); the others show registry links.
 - Road uses the haversine fake unless `GOOGLE_MAPS_API_KEY` is set. Cache and monthly cap are shared through the store; the 100-call cap is per process.
 - The metrics rate limit is per instance, in memory.
-- IRCTC fares are an estimate (class multipliers on a per-km rate), not IRCTC's fare table.
+- Tolls are known only for a few expressways (`fares.TOLLS_INR`); other drives show fuel only.

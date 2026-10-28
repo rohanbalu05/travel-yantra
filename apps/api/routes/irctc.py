@@ -5,17 +5,16 @@ from __future__ import annotations
 
 import datetime as dt
 import json
-import math
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from .fares import rail_class, rail_fare
 from .graph import (
     DATA_DIR,
     RAIL_DETOUR,
-    RAIL_INR_PER_KM,
     ROAD_DETOUR,
     ROAD_KMH,
     SAMPLE_RAIL_DIR,
@@ -26,10 +25,10 @@ from .graph import (
 
 IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
 BOOKING_URL = "https://www.irctc.co.in/nget/train-search"
-TravelClass = Literal["SL", "3E", "3A", "2A", "1A", "CC", "2S"]
-# Fare multiplier on the sleeper estimate (reversible assumption, not IRCTC's fare table).
-CLASS_FARE = {"2S": 0.6, "SL": 1.0, "CC": 2.1, "3E": 2.4, "3A": 2.6, "2A": 3.7, "1A": 6.2}
-SEAT_CLASSES = {"CC", "2S"}
+TravelClass = Literal["SL", "3E", "3A", "2A", "1A", "CC", "EC", "2S"]
+Style = Literal["budget", "mid", "luxury"]
+SEAT_CLASSES = {"CC", "EC", "2S"}
+DEFAULT_AFTER = dt.time(6, 0)  # with no train named, the first that leaves at or after this
 LOWER_BERTH_AGE = 45
 
 # Sample personas only (packages/contracts/samples); never real travellers.
@@ -85,6 +84,7 @@ class IrctcCard(BaseModel):
     arrives: str
     arrives_day_offset: int
     travel_class: TravelClass
+    classes: list[TravelClass] = Field(default_factory=list)  # every class this train carries
     quota: str = "General"
     passengers: list[Passenger]
     fare_estimate_inr: int  # whole party
@@ -183,16 +183,35 @@ def _hhmm(minutes: int) -> str:
     return f"{minutes // 60:02d}:{minutes % 60:02d}"
 
 
-def _find_run(src: str, dst: str, train: str | None, data_dir: Path | None) -> tuple[dict, dict, dict]:
+def _dep(stop: dict) -> int:
+    return stop["dep"] if stop["dep"] is not None else stop["arr"]
+
+
+def _find_run(src: str, dst: str, train: str | None, data_dir: Path | None,
+              after: dt.time | None = None) -> tuple[dict, dict, dict]:
+    """The named train; else, of the trains running src to dst, the first leaving at or after
+    `after` (DEFAULT_AFTER), or the day's first when none leaves that late."""
     _, trains = _rail(data_dir)
+    runs = []
     for t in trains:
         if train and t["number"] != train:
             continue
         codes = [s["code"] for s in t["stops"]]
         if src in codes and dst in codes and codes.index(src) < codes.index(dst):
-            return t, t["stops"][codes.index(src)], t["stops"][codes.index(dst)]
-    which = f"train {train}" if train else "no sample train"
-    raise NotFound(f"{which} does not run from {src} to {dst}")
+            runs.append((t, t["stops"][codes.index(src)], t["stops"][codes.index(dst)]))
+    if not runs:
+        which = f"train {train}" if train else "no train"
+        raise NotFound(f"{which} does not run from {src} to {dst}")
+    at = (after or DEFAULT_AFTER).hour * 60 + (after or DEFAULT_AFTER).minute
+    runs.sort(key=lambda r: (_dep(r[1]) % 1440, r[0]["number"]))
+    return next((r for r in runs if _dep(r[1]) % 1440 >= at), runs[0])
+
+
+def train_classes(train: dict) -> list[str]:
+    """The classes a train carries (build_rail.classes); the sample trains list none."""
+    from .timetable import SAMPLE_CLASSES
+
+    return train.get("classes") or list(SAMPLE_CLASSES)
 
 
 def _berths(party: list[tuple[str, int, str]], cls: str) -> list[str]:
@@ -202,19 +221,30 @@ def _berths(party: list[tuple[str, int, str]], cls: str) -> list[str]:
     return ["Lower" if age >= LOWER_BERTH_AGE else next(rest) for _, age, _ in party]
 
 
-def irctc_card(src: str, dst: str, date: dt.date, travel_class: TravelClass = "3A",
+def irctc_card(src: str, dst: str, date: dt.date, travel_class: TravelClass | None = None,
                party: Party = "goa_family", train: str | None = None,
-               data_dir: Path | None = None, travellers: int | None = None) -> IrctcCard:
-    """travellers: the trip's party size (the sample party is made up or cut to it)."""
+               data_dir: Path | None = None, travellers: int | None = None,
+               after: dt.time | None = None, style: Style | None = None) -> IrctcCard:
+    """travellers: the trip's party size (the sample party is made up or cut to it).
+    travel_class: when it is omitted or the train does not carry it, the class compare prices
+    this train in for the budget style (fares.rail_class; style None is "mid"), so the card's
+    fare is the plan's fare. after: with no train named, the first train leaving from then."""
     a, b = _station_for(src, train, data_dir, board=True), _station_for(dst, train, data_dir, board=False)
-    t, dep, arr = _find_run(a["code"], b["code"], train, data_dir)
-    dep_min = dep["dep"] if dep["dep"] is not None else dep["arr"]
+    t, dep, arr = _find_run(a["code"], b["code"], train, data_dir, after)
+    classes = train_classes(t)
+    notes = []
+    if travel_class not in classes:
+        chosen = rail_class(classes, style)
+        if travel_class is not None:
+            notes.append(f"{t['number']} has no {travel_class}; showing {chosen} (it carries {', '.join(classes)}).")
+        travel_class = chosen
+    dep_min = _dep(dep)
     arr_min = arr["arr"] if arr["arr"] is not None else arr["dep"]
     people = _people(party, travellers)
     passengers = [Passenger(name=n, age=age, gender=g, berth=berth)
                   for (n, age, g), berth in zip(people, _berths(people, travel_class), strict=True)]
-    km = haversine_km(a["lat"], a["lon"], b["lat"], b["lon"]) * RAIL_DETOUR
-    fare = math.ceil(km * RAIL_INR_PER_KM * CLASS_FARE[travel_class]) * len(people)
+    km = haversine_km(a["lat"], a["lon"], b["lat"], b["lon"]) * RAIL_DETOUR  # as timetable.Ride.km
+    fare = rail_fare(km, travel_class) * len(people)
     date_irctc = date.strftime("%d-%m-%Y")
     lines = [f"From: {a['code']} ({a['name']})", f"To: {b['code']} ({b['name']})", f"Date: {date_irctc}",
              f"Class: {travel_class}", "Quota: General",
@@ -224,9 +254,10 @@ def irctc_card(src: str, dst: str, date: dt.date, travel_class: TravelClass = "3
         train=TrainRef(number=t["number"], name=t["name"]),
         from_=StationRef(code=a["code"], name=a["name"]), to=StationRef(code=b["code"], name=b["name"]),
         date=date, date_irctc=date_irctc, departs=_hhmm(dep_min), arrives=_hhmm(arr_min),
-        arrives_day_offset=arr["day"] - dep["day"], travel_class=travel_class, passengers=passengers,
+        arrives_day_offset=arr["day"] - dep["day"], travel_class=travel_class,
+        classes=classes, passengers=passengers,
         fare_estimate_inr=fare, copy_text="\n".join(lines),
-        notes=[("Sample timetable" if (data_dir or rail_dir()) == SAMPLE_RAIL_DIR
+        notes=notes + [("Sample timetable" if (data_dir or rail_dir()) == SAMPLE_RAIL_DIR
                 else "Timetable from datameet (about 2016): check the train runs that day on IRCTC")
                + "; sample travellers.",
                "Fare is an estimate; IRCTC shows the real fare when you book."],

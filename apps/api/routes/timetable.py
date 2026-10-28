@@ -18,7 +18,8 @@ from .graph import RAIL_DETOUR, RAIL_INR_PER_KM, _read_json, haversine_km, rail_
 
 CHANGE_MIN = 15  # between two trains at the same station
 BOARD_MIN = 15  # at the station before the first train
-HORIZON_MIN = 30 * 60  # search window from the start time
+HORIZON_MIN = 48 * 60  # search window from the start time (Chennai-Delhi runs about 33 h)
+SAMPLE_CLASSES = ("SL", "3A", "2A", "CC", "2S")  # the fictional sample trains carry every common class
 EARLIER_RUNS = 3  # runs that left their origin up to this many days before the travel day
 
 
@@ -73,24 +74,35 @@ class Timetable:
                 if r > d and a["code"] in self.stations and b["code"] in self.stations:
                     conns.append(Conn(d, r, a["code"], b["code"], t["number"]))
         self.conns = sorted(conns, key=lambda c: c.dep)
-        self._deps = [c.dep for c in self.conns]
         served: dict[str, int] = {}
         for t in self.trains.values():
             for s in {s["code"] for s in t["stops"]}:
                 served[s] = served.get(s, 0) + 1
         self.served = served  # trains stopping at each station
+        self._expand()
 
-    def _window(self, t0: int, horizon: int) -> list[tuple[int, int, Conn, int]]:
-        """(dep, arr, conn, run) for every daily run, as minutes from the travel day's
-        midnight, departing in [t0, t0 + horizon], sorted by departure."""
-        out = []
-        for run in range(-EARLIER_RUNS, 2):  # run = days between the run's day 0 and the travel day
-            shift = run * 1440
-            i = bisect.bisect_left(self._deps, t0 - shift)
-            j = bisect.bisect_right(self._deps, t0 + horizon - shift)
-            out += [(c.dep + shift, c.arr + shift, c, run) for c in self.conns[i:j]]
-        out.sort(key=lambda x: (x[0], x[1]))
-        return out
+    def classes(self, train: str) -> list[str]:
+        """The classes a train carries (build_rail.classes); the fictional sample trains list
+        none and count as ordinary expresses."""
+        t = self.trains.get(train) or {}
+        return t.get("classes") or list(SAMPLE_CLASSES)
+
+    def _expand(self) -> None:
+        """Every connection once per daily run, as minutes from the travel day's midnight,
+        sorted by departure: built once, so a scan only bisects into it."""
+        ext = [(c.dep + run * 1440, c.arr + run * 1440, c, run)
+               for run in range(-EARLIER_RUNS, 3)  # run = days between the run's day 0 and the travel day
+               for c in self.conns]
+        ext.sort(key=lambda x: (x[0], x[1]))
+        self._ext = ext
+        self._ext_deps = [x[0] for x in ext]
+        # the scan's hot loop reads flat tuples: (dep, arr, from, to, one int per train run)
+        ids = {n: i for i, n in enumerate(self.trains)}
+        self._flat = [(d, r, c.a, c.b, ids[c.train] * 8 + run + EARLIER_RUNS) for d, r, c, run in ext]
+
+    def _window(self, t0: int, horizon: int) -> range:
+        """Indices into the expanded connections departing in [t0, t0 + horizon]."""
+        return range(bisect.bisect_left(self._ext_deps, t0), bisect.bisect_right(self._ext_deps, t0 + horizon))
 
     def earliest(self, access: dict[str, int], egress: dict[str, int], t0: int,
                  horizon: int = HORIZON_MIN, night_end: int | None = None) -> tuple[list[tuple[int, int, Conn]], int] | None:
@@ -102,27 +114,29 @@ class Timetable:
         journeys unless nothing else exists.
         Returns the rides as (board index, alight index, ...) resolved to
         [(dep, arr, conn) per ride], and the arrival at the destination."""
-        night = (lambda m: m % 1440 < night_end) if night_end else (lambda m: False)
-        conns = self._window(t0, horizon)
+        night = night_end or 0  # minutes after midnight in which no change of trains happens
+        flat, conns, never = self._flat, self._ext, 1 << 30
         reach = dict(access)  # station -> earliest time you can board a train there
-        boarded: dict[tuple[str, int], int] = {}  # (train, run) -> index of the boarding connection
+        boarded: dict[int, int] = {}  # train run -> index of the boarding connection
         came: dict[str, tuple[int, int]] = {}  # station -> (board index, alight index)
-        best, best_at = None, None
-        for i, (dep, arr, c, run) in enumerate(conns):
-            if best is not None and dep >= best:
+        best, best_at = never, None
+        for i in self._window(t0, horizon):
+            dep, arr, a, b, trip = flat[i]
+            if dep >= best:
                 break
-            trip = (c.train, run)
-            if trip not in boarded:
-                if reach.get(c.a, 1 << 30) > dep:
+            on = boarded.get(trip)
+            if on is None:
+                if reach.get(a, never) > dep:
                     continue
-                if night(dep) and not access.get(c.a, 1 << 30) <= dep:
+                if dep % 1440 < night and access.get(a, never) > dep:
                     continue  # a change onto this train in the night
-                boarded[trip] = i
-            if not night(arr) and arr + CHANGE_MIN < reach.get(c.b, 1 << 30):
-                reach[c.b] = arr + CHANGE_MIN
-                came[c.b] = (boarded[trip], i)
-            if c.b in egress and (best is None or arr + egress[c.b] < best):
-                best, best_at = arr + egress[c.b], (c.b, boarded[trip], i)
+                boarded[trip] = on = i
+            if arr + CHANGE_MIN < reach.get(b, never) and not arr % 1440 < night:
+                reach[b] = arr + CHANGE_MIN
+                came[b] = (on, i)
+            e = egress.get(b)
+            if e is not None and arr + e < best:
+                best, best_at = arr + e, (b, on, i)
         if best_at is None:
             return None
         # Walk back from the best arrival. came[s] only ever improves to an earlier arrival, and a

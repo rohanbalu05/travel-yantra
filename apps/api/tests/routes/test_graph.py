@@ -63,7 +63,20 @@ def test_road_fake_formula():
     a, b = CITIES[0], CITIES[1]
     e = HaversineRoadProvider().road_edge(a, b)
     km = haversine_km(a.lat, a.lon, b.lat, b.lon) * 1.3
-    assert abs(e.minutes - km / 45 * 60) < 1e-6 and e.mode == "road"
+    assert abs(e.minutes - (5 + km / 45 * 60)) < 1e-6 and e.mode == "road" and e.km == pytest.approx(km)
+
+
+def test_road_fake_is_city_realistic_for_short_hops():
+    """Stop to stop in a city: city speed plus 5 min and a cab fare, never "Rs 1, under a minute";
+    a few hundred metres is a free walk. Mysore Palace to Chamundeshwari is about 4 km as the crow flies."""
+    road = HaversineRoadProvider()
+    palace = Node("PL:p", KIND_PLACE, "Mysore Palace", 12.3051, 76.6551)
+    hill = Node("PL:h", KIND_PLACE, "Chamundeshwari", 12.2724, 76.6702)
+    e = road.road_edge(palace, hill)
+    assert e.mode == "road" and 15 <= e.minutes <= 30 and e.cost_inr >= 100
+    gate = Node("PL:g", KIND_PLACE, "Palace gate", 12.3070, 76.6551)
+    w = road.road_edge(palace, gate)
+    assert w.mode == "walk" and w.cost_inr == 0 and w.minutes >= 1
 
 
 def test_air_fake_skips_short_hops():

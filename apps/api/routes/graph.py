@@ -27,11 +27,15 @@ def rail_dir() -> Path:
     return SAMPLE_RAIL_DIR
 
 # Reversible assumptions (offline fakes, replaced by live providers later).
-RAIL_INR_PER_KM = 0.6
+RAIL_INR_PER_KM = 0.6  # graph edges only (search tests); options are priced by fares.py
 ROAD_KMH = 45.0
 ROAD_DETOUR = 1.3
+CITY_KM = 30.0  # shorter road trips run at city speed
+CITY_KMH = 22.0  # city traffic, door to door
+CITY_DETOUR = 1.4  # city streets wind more than highways
+PARK_MIN = 5  # finding the cab, parking, walking to the door
+WALK_ROAD_KM = 0.8  # shorter than this, walk
 RAIL_DETOUR = 1.15
-ROAD_INR_PER_KM = 6.0
 WALK_KMH = 4.5
 AIR_CRUISE_KMH = 750.0
 AIR_OVERHEAD_MIN = 45
@@ -60,6 +64,7 @@ class Edge:
     cost_inr: float
     comfort: float
     ref: str = ""  # train number, flight hint, etc.
+    km: float = 0.0  # road and walk: distance on the ground
 
 
 def haversine_km(a_lat: float, a_lon: float, b_lat: float, b_lon: float) -> float:
@@ -78,17 +83,33 @@ class AirEdgeProvider(Protocol):
     def air_edge(self, a: Node, b: Node) -> Edge | None: ...
 
 
+def city_or_road(km_line: float) -> tuple[str, float, float]:
+    """(mode, km, minutes) on the ground for a straight-line distance: a walk when short,
+    city streets at city speed (plus PARK_MIN) under CITY_KM, else the highway."""
+    city = km_line * CITY_DETOUR
+    if city <= WALK_ROAD_KM:
+        return "walk", city, city / WALK_KMH * 60
+    if city < CITY_KM:
+        return "road", city, PARK_MIN + city / CITY_KMH * 60
+    km = km_line * ROAD_DETOUR
+    return "road", km, PARK_MIN + km / ROAD_KMH * 60
+
+
 class HaversineRoadProvider:
-    """Offline fake: great-circle x 1.3 at 45 km/h."""
+    """Offline fake: a walk under WALK_ROAD_KM, city streets (x 1.4 at 22 km/h plus 5 min)
+    under CITY_KM, else the highway (great-circle x 1.3 at 45 km/h). Cost: one cab's fare."""
 
     def __init__(self, max_km: float = 800.0) -> None:
         self.max_km = max_km
 
     def road_edge(self, a: Node, b: Node) -> Edge | None:
-        km = haversine_km(a.lat, a.lon, b.lat, b.lon) * ROAD_DETOUR
+        from .fares import cab_fare
+
+        mode, km, minutes = city_or_road(haversine_km(a.lat, a.lon, b.lat, b.lon))
         if km > self.max_km:
             return None
-        return Edge(a.id, b.id, "road", km / ROAD_KMH * 60, km * ROAD_INR_PER_KM, COMFORT["road"])
+        cost = 0.0 if mode == "walk" else float(cab_fare(km))
+        return Edge(a.id, b.id, mode, minutes, cost, COMFORT[mode], km=km)
 
 
 AIRPORTS = [
@@ -105,6 +126,38 @@ AIRPORTS = [
     ("GOX", "Goa (Mopa)", 15.7444, 73.8606),
     ("VDY", "Vidyanagar (Ballari)", 15.1750, 76.6349),
     ("MYQ", "Mysuru (Mandakalli)", 12.2300, 76.6558),
+    ("DEL", "Delhi", 28.5562, 77.1000),
+    ("JAI", "Jaipur", 26.8242, 75.8122),
+    ("AGR", "Agra", 27.1558, 77.9609),
+    ("CCU", "Kolkata", 22.6547, 88.4467),
+    ("AMD", "Ahmedabad", 23.0772, 72.6347),
+    ("LKO", "Lucknow", 26.7606, 80.8893),
+    ("VNS", "Varanasi", 25.4524, 82.8593),
+    ("ATQ", "Amritsar", 31.7096, 74.7973),
+    ("UDR", "Udaipur", 24.6177, 73.8961),
+    ("JDH", "Jodhpur", 26.2511, 73.0489),
+    ("BHO", "Bhopal", 23.2875, 77.3374),
+    ("IDR", "Indore", 22.7218, 75.8011),
+    ("NAG", "Nagpur", 21.0922, 79.0472),
+    ("RPR", "Raipur", 21.1804, 81.7388),
+    ("PAT", "Patna", 25.5913, 85.0880),
+    ("IXR", "Ranchi", 23.3143, 85.3217),
+    ("BBI", "Bhubaneswar", 20.2444, 85.8178),
+    ("GAU", "Guwahati", 26.1061, 91.5859),
+    ("IXC", "Chandigarh", 30.6735, 76.7885),
+    ("DED", "Dehradun", 30.1897, 78.1803),
+    ("SXR", "Srinagar", 33.9871, 74.7742),
+    ("STV", "Surat", 21.1141, 72.7418),
+    ("BDQ", "Vadodara", 22.3362, 73.2263),
+    ("IXU", "Aurangabad", 19.8627, 75.3981),
+    ("VTZ", "Visakhapatnam", 17.7212, 83.2245),
+    ("TIR", "Tirupati", 13.6325, 79.5433),
+    ("CJB", "Coimbatore", 11.0300, 77.0434),
+    ("IXM", "Madurai", 9.8345, 78.0934),
+    ("TRZ", "Tiruchirappalli", 10.7654, 78.7097),
+    ("CCJ", "Kozhikode", 11.1368, 75.9553),
+    ("HBX", "Hubballi", 15.3617, 75.0849),
+    ("IXG", "Belagavi", 15.8593, 74.6183),
 ]
 
 

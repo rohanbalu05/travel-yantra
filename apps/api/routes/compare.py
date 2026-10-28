@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import datetime as dt
 import hashlib
-import math
+import json
 from dataclasses import dataclass, replace
 from datetime import timedelta
 from functools import lru_cache
@@ -30,12 +30,16 @@ from ty_contracts import (
 )
 from ty_contracts.models import RankBy
 
+from .fares import FUEL_INR_PER_KM, cab_fare, drive_cost, rail_fare, toll
+from .fares import rail_class as pick_class
 from .flights import Flight, FlightProvider, default_flight_provider
 from .graph import (
     COMFORT,
+    DATA_DIR,
     KIND_AIRPORT,
     KIND_PLACE,
     KIND_STATION,
+    RAIL_DETOUR,
     SAMPLE_RAIL_DIR,
     WALK_KMH,
     AirEdgeProvider,
@@ -56,7 +60,7 @@ from .roads import default_road_provider
 from .search import Weights, _result, astar
 from .sellers import FlightQuery, flight_offers
 from .sellers import Found as Quote
-from .timetable import BOARD_MIN, Journey, get_timetable
+from .timetable import BOARD_MIN, Journey, Ride, get_timetable
 
 WEIGHTS = Weights(alpha=1.0, beta=0.0, gamma=30.0)  # minutes, plus 30 min per change
 CHANGE_WEIGHT = 0.25  # balanced score: one change counts as a quarter of the best time or cost
@@ -67,7 +71,6 @@ EGRESS_WEIGHT = 4  # choosing where to get off: a minute in a cab counts as four
 RAIL_CHANGE_MIN = 60  # picking one rail journey: each change between trains counts as an hour later
 RAIL_CANDIDATES = 6  # journeys compared when picking one
 MODE_ORDER = {Mode.rail: 0, Mode.road: 1, Mode.air: 2}
-SEATS_PER_CAR = 4  # road fares are per vehicle; rail and air fares are per person
 AIRPORT_KM = 60  # airports considered for a city
 AIRPORT_MIN = 60  # at the airport before a live flight departs; part of the flight leg
 MIN_FLIGHT_KM = 200  # airports closer than this: no flight looked up (Bengaluru-Mysuru is 140 km, -Ballari 247)
@@ -76,31 +79,10 @@ STATION_K = 3  # nearest served stations per city (each one a road edge, so a Ro
 WALK_KM = 1.0  # closer than this, walk to the station
 INR_PER_MIN = 10.0  # picking a flight: arriving a minute earlier is worth this much fare (reversible guess)
 
-# Sample city points (centre coordinates, approximate). Aliases map to one key.
-CITIES: dict[str, tuple[str, float, float]] = {
-    "bengaluru": ("Bengaluru", 12.9716, 77.5946),
-    "mysuru": ("Mysuru", 12.2958, 76.6394),
-    "panaji": ("Panaji", 15.4909, 73.8278),
-    "madgaon": ("Madgaon", 15.2832, 73.9862),
-    "mumbai": ("Mumbai", 18.9398, 72.8355),
-    "pune": ("Pune", 18.5204, 73.8567),
-    "kochi": ("Kochi", 9.9312, 76.2673),
-    "chennai": ("Chennai", 13.0827, 80.2707),
-    "hyderabad": ("Hyderabad", 17.3850, 78.4867),
-    "mangaluru": ("Mangaluru", 12.9141, 74.8560),
-    "hubballi": ("Hubballi", 15.3647, 75.1240),
-    "thiruvananthapuram": ("Thiruvananthapuram", 8.5241, 76.9366),
-    "vijayawada": ("Vijayawada", 16.5062, 80.6480),
-    "coorg": ("Coorg", 12.4244, 75.7382),  # Madikeri, the district town
-    "hampi": ("Hampi", 15.3350, 76.4600),
-    "chikkamagaluru": ("Chikkamagaluru", 13.3161, 75.7720),
-}
-ALIASES = {
-    "bangalore": "bengaluru", "mysore": "mysuru", "goa": "panaji", "panjim": "panaji",
-    "margao": "madgaon", "bombay": "mumbai", "cochin": "kochi", "madras": "chennai",
-    "mangalore": "mangaluru", "hubli": "hubballi", "trivandrum": "thiruvananthapuram",
-    "madikeri": "coorg", "kodagu": "coorg", "chikmagalur": "chikkamagaluru",
-}
+# City centre points (approximate) and aliases, shared with stays and the rail build: data/cities.json.
+_CITY_DATA = json.loads((DATA_DIR / "cities.json").read_text(encoding="utf-8"))
+CITIES: dict[str, tuple[str, float, float]] = {k: tuple(v) for k, v in _CITY_DATA["cities"].items()}
+ALIASES: dict[str, str] = _CITY_DATA["aliases"]
 
 
 class UnknownPlace(ValueError):
@@ -136,7 +118,7 @@ def _merge(edges: tuple[Edge, ...]) -> tuple[Edge, ...]:
             p = out[-1]
             mins = p.minutes + e.minutes
             comfort = (p.comfort * p.minutes + e.comfort * e.minutes) / mins if mins else p.comfort
-            out[-1] = Edge(p.src, e.dst, p.mode, mins, p.cost_inr + e.cost_inr, comfort, p.ref)
+            out[-1] = Edge(p.src, e.dst, p.mode, mins, p.cost_inr + e.cost_inr, comfort, p.ref, p.km + e.km)
         else:
             out.append(e)
     return tuple(out)
@@ -157,10 +139,15 @@ def _source(e: Edge, live: dict[str, Flight]) -> str:
 
 
 def _party_cost(e: Edge, travellers: int) -> Edge:
+    """The whole party's cost (fares.py): rail and air per person; a drive between two cities
+    is fuel and tolls per car; any other road leg (to and from stations and airports) is a
+    cab fare per cab; walks are free."""
     if e.mode in ("rail", "air"):
         return replace(e, cost_inr=e.cost_inr * travellers)
     if e.mode == "road":
-        return replace(e, cost_inr=e.cost_inr * math.ceil(travellers / SEATS_PER_CAR))
+        if e.src.startswith("PL:") and e.dst.startswith("PL:"):
+            return replace(e, cost_inr=drive_cost(e.km, toll(e.src[3:], e.dst[3:]), travellers))
+        return replace(e, cost_inr=cab_fare(e.km, travellers))
     return e
 
 
@@ -225,10 +212,32 @@ class CompareService:
         if j is None:
             return None
         # a first hop to a station you could reach by road anyway is just an early start
-        rides = j.rides
-        while len(rides) > 1 and rides[1].board in access:
-            rides = rides[1:]
+        rides = self._fewer_trains(j.rides, start, access)
         return Journey(rides[0].board, j.egress, rides)
+
+    def _fewer_trains(self, rides: tuple[Ride, ...], start: dt.datetime, access: dict[str, Edge]) -> tuple[Ride, ...]:
+        """Equal arrivals keep the first trains the scan found, often a hop to where the express
+        also stops: board the latest ride's train at one of the city's own stations instead,
+        when the road there still leaves after start (the latest such leave wins)."""
+        for k in range(len(rides) - 1, 0, -1):
+            r = rides[k]
+            stops = self.timetable.trains[r.train]["stops"]
+            at = {st["code"]: n for n, st in enumerate(stops)}
+            board = at.get(r.board)
+            best: tuple[dt.datetime, Ride] | None = None
+            for code, e in access.items():
+                n = at.get(code)
+                if n is None or board is None or n >= board:
+                    continue
+                dep = r.depart - timedelta(minutes=_run_min(stops[board]) - _run_min(stops[n]))
+                leave = dep - timedelta(minutes=BOARD_MIN + round(e.minutes))
+                if leave >= start and (best is None or leave > best[0]):
+                    a, b = self.timetable.stations[code], self.timetable.stations[r.alight]
+                    km = haversine_km(a["lat"], a["lon"], b["lat"], b["lon"]) * RAIL_DETOUR
+                    best = (leave, replace(r, board=code, depart=dep, km=km))
+            if best is not None:
+                return (best[1], *rides[k + 1:])
+        return rides
 
     def _leave(self, j: Journey, access: dict[str, Edge]) -> dt.datetime:
         return j.rides[0].depart - timedelta(minutes=BOARD_MIN + round(access[j.access].minutes))
@@ -250,8 +259,12 @@ class CompareService:
             j = later
         return j
 
+    def train_class(self, train: str, style: str | None = None) -> str:
+        """The class a party of this budget style rides on the train (fares.rail_class)."""
+        return pick_class(self.timetable.classes(train), style)
+
     def _rail_option(self, j: Journey, src: Node, dst: Node, travellers: int,
-                     access: dict[str, Edge], egress: dict[str, Edge]) -> Found:
+                     access: dict[str, Edge], egress: dict[str, Edge], style: str | None = None) -> Found:
         """Legs with real train times: leave in time for the first train (BOARD_MIN at the
         station), wait between trains, then the transfer on from the last station."""
         first, last = access[j.access], egress[j.egress]
@@ -261,7 +274,8 @@ class CompareService:
                     arrive=leave + timedelta(minutes=a_min), minutes=a_min,
                     cost_inr=round(_party_cost(first, travellers).cost_inr))]
         legs += [Leg(**{"from": self._station(r.board).name}, to=self._station(r.alight).name, mode=Mode.rail,
-                     depart=r.depart, arrive=r.arrive, minutes=r.minutes, cost_inr=round(r.fare_inr * travellers),
+                     depart=r.depart, arrive=r.arrive, minutes=r.minutes,
+                     cost_inr=rail_fare(r.km, self.train_class(r.train, style)) * travellers,
                      ref=r.train)
                  for r in j.rides]
         end = j.rides[-1].arrive
@@ -276,12 +290,13 @@ class CompareService:
         sources = sorted({self.rail_source} | {_source(e, {}) for e in (first, last)})
         return Found(Mode.rail, opt, max(0, vehicles - 1), sources)
 
-    def _rail(self, src: Node, dst: Node, start: dt.datetime, travellers: int) -> Found | None:
+    def _rail(self, src: Node, dst: Node, start: dt.datetime, travellers: int,
+              style: str | None = None) -> Found | None:
         """Of the day's sensible journeys from start, the one arriving first once each change
         between trains counts as RAIL_CHANGE_MIN later and the cab on from the last station
         counts EGRESS_WEIGHT times."""
         stop = dt.datetime.combine(start.date(), dt.time(23, 59))
-        found = sensible(self._rail_found(src, dst, start, stop, travellers, RAIL_CANDIDATES))
+        found = sensible(self._rail_found(src, dst, start, stop, travellers, RAIL_CANDIDATES, style))
 
         def late(f: Found) -> dt.datetime:
             legs = f.option.legs
@@ -291,31 +306,33 @@ class CompareService:
         return min(found, key=late, default=None)
 
     def _rail_found(self, src: Node, dst: Node, start: dt.datetime, stop: dt.datetime,
-                    travellers: int, limit: int) -> list[Found]:
+                    travellers: int, limit: int, style: str | None = None) -> list[Found]:
         access, egress = self._ends(src, True), self._ends(dst, False)
         out: list[Found] = []
         while len(out) < limit and start <= stop:
             j = self._rail_journey(src, dst, start, access, egress)
             if j is None:
                 break
-            f = self._rail_option(j, src, dst, travellers, access, egress)
+            f = self._rail_option(j, src, dst, travellers, access, egress, style)
             opt = f.option
             if opt.legs[0].depart > stop:
                 break
             last = out[-1].option if out else None
             if last is None or opt.legs[-1].arrive < last.legs[-1].arrive or opt.legs[0].depart > last.legs[0].depart:
                 out.append(f)
-            start = opt.legs[0].depart + timedelta(minutes=1)
+            start = max(start, opt.legs[0].depart) + timedelta(minutes=1)  # always move on
         return out
 
     def rail_departures(self, origin: str, destination: str, day: dt.date, earliest: dt.time = dt.time(5, 0),
-                        latest: dt.time = dt.time(23, 59), travellers: int = 1, limit: int = 6) -> list[TransportOption]:
+                        latest: dt.time = dt.time(23, 59), travellers: int = 1, limit: int = 6,
+                        rail_class: str | None = None) -> list[TransportOption]:
         """Sensible rail journeys (see `sensible`) leaving origin between earliest and latest
-        on day, from the real timetable, in order of departure. legs[0].depart is when to leave
+        on day, from the real timetable, in order of departure, priced for the whole party
+        in the class rail_class ("budget" | "mid" | "luxury", fares.STYLE_CLASSES) rides. legs[0].depart is when to leave
         the city centre (in time for the first train); legs[-1].arrive is arrival in the destination."""
         src, dst = resolve_city(origin), resolve_city(destination)
         start, stop = dt.datetime.combine(day, earliest), dt.datetime.combine(day, latest)
-        return [f.option for f in sensible(self._rail_found(src, dst, start, stop, travellers, limit))]
+        return [f.option for f in sensible(self._rail_found(src, dst, start, stop, travellers, limit, rail_class))]
 
     def _near_airports(self, g: Graph, p: Node) -> list[Node]:
         return [a for a in g.nodes_of(KIND_AIRPORT) if haversine_km(p.lat, p.lon, a.lat, a.lon) <= AIRPORT_KM]
@@ -397,10 +414,11 @@ class CompareService:
             if not self._ends(src, True) or not self._ends(dst, False):
                 p = src if not self._ends(src, True) else dst
                 return f"no railway station within {STATION_KM} km of {p.name}"
-            return f"no train in the timetable links {src.name} and {dst.name} within 30 hours"
+            return f"no train in the timetable links {src.name} and {dst.name} within 48 hours"
         return f"no road route found between {src.name} and {dst.name}"
 
-    def compare(self, req: CompareRequest) -> CompareResponse:
+    def compare(self, req: CompareRequest, rail_class: str | None = None) -> CompareResponse:
+        """rail_class: the budget style rail is priced for ("budget" | "mid" | "luxury"; None is mid)."""
         src, dst = resolve_city(req.origin), resolve_city(req.destination)
         if src.id == dst.id:
             raise UnknownPlace("origin and destination are the same place")
@@ -411,7 +429,7 @@ class CompareService:
         found, unavailable = [], []
         for mode in sorted(set(req.modes), key=MODE_ORDER.get):
             if mode is Mode.rail:
-                f = self._rail(src, dst, start, req.travellers)
+                f = self._rail(src, dst, start, req.travellers, rail_class)
             else:
                 f = self._find(g, src, dst, mode, start, req.travellers, live)
             if f:
@@ -422,15 +440,25 @@ class CompareService:
             origin=CityRef(name=src.name, lat=src.lat, lng=src.lon),
             destination=CityRef(name=dst.name, lat=dst.lat, lng=dst.lon),
             date=day, rank_by=req.rank_by, options=rank(found, req.rank_by, req.travellers), unavailable=unavailable,
-            notes=[_rail_note(self.rail_source), _air_note(found)],
+            notes=[_rail_note(self.rail_source), _road_note(), _air_note(found)],
         )
+
+
+def _run_min(stop: dict) -> int:
+    """A stop's departure in minutes from midnight of the train's first day."""
+    return (stop["day"] - 1) * 1440 + (stop["dep"] if stop["dep"] is not None else stop["arr"])
 
 
 def _rail_note(source: str) -> str:
     if source == "sample_rail":
         return "Rail uses the fictional sample timetable (fallback)."
     return ("Rail uses real timetables from datameet (about 2016; every train treated as daily): check the "
-            "train on IRCTC before booking. Fares are estimates.")
+            "train on IRCTC before booking. Fares are estimates for the class shown on the IRCTC card.")
+
+
+def _road_note() -> str:
+    return (f"By car: fuel (about Rs {FUEL_INR_PER_KM:g} a km) and tolls on known expressways, per car of four. "
+            "Rides to and from stations and airports are cab fares, per cab of four.")
 
 
 def _air_note(found: list[Found]) -> str:

@@ -5,7 +5,9 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from routes import router
-from routes.irctc import NotFound, irctc_card, pnr_status
+from routes.fares import rail_fare
+from routes.graph import DATA_DIR, RAIL_DETOUR, haversine_km
+from routes.irctc import NotFound, irctc_card, pnr_status, resolve_station
 
 
 @pytest.fixture(autouse=True)
@@ -25,7 +27,7 @@ def client():
 
 
 def test_goa_card_has_irctc_form_fields_in_order():
-    card = irctc_card("SBC", "MAO", dt.date(2026, 12, 11))
+    card = irctc_card("SBC", "MAO", dt.date(2026, 12, 11), after=dt.time(23, 0))
     assert card.train.number == "90001" and card.travel_class == "3A" and card.quota == "General"
     assert (card.departs, card.arrives, card.arrives_day_offset) == ("23:30", "10:40", 1)
     assert card.date_irctc == "11-12-2026" and card.sample
@@ -41,6 +43,31 @@ def test_card_accepts_compare_leg_station_names_and_party():
     card = irctc_card("KSR Bengaluru City Jn", "mysuru jn", dt.date(2026, 10, 31), "CC", "mysuru_weekend")
     assert card.train.number == "90008" and len(card.passengers) == 2
     assert {p.berth for p in card.passengers} == {"No preference"}
+
+
+def test_without_a_train_the_card_takes_the_first_leaving_after():
+    d = dt.date(2026, 12, 11)
+    default, late = irctc_card("SBC", "MAO", d), irctc_card("SBC", "MAO", d, after=dt.time(23, 0))
+    assert default.departs >= "06:00" and late.departs == "23:30" and default.train.number != late.train.number
+
+
+def test_class_must_be_one_the_train_carries():
+    """Real datameet trains: the Mysuru Shatabdi has CC and EC only, so 3A becomes CC (QA: the card
+    offered 3A on 12007); with no class the mid style's class; the fare is compare's rail fare."""
+    d = dt.date(2026, 12, 11)
+    card = irctc_card("SBC", "MYS", d, "3A", "mysuru_weekend", train="12007", data_dir=DATA_DIR)
+    assert card.train.number == "12007" and card.classes == ["CC", "EC"] and card.travel_class == "CC"
+    assert any("no 3A" in n for n in card.notes)
+    assert irctc_card("SBC", "MYS", d, None, "mysuru_weekend", "12007", DATA_DIR, style="luxury").travel_class == "EC"
+    express = irctc_card("SBC", "MYS", d, None, "mysuru_weekend", "16731", DATA_DIR)
+    assert express.travel_class == "3A" and "3A" in express.classes and not any("no " in n for n in express.notes)
+    assert card.fare_estimate_inr == 2 * rail_fare(
+        haversine_km(*_ll("SBC"), *_ll("MYS")) * RAIL_DETOUR, "CC")
+
+
+def _ll(code: str) -> tuple[float, float]:
+    s = resolve_station(code, DATA_DIR)
+    return s["lat"], s["lon"]
 
 
 def test_fare_scales_with_class_and_party():

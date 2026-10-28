@@ -103,12 +103,11 @@ def _result(edges: tuple[Edge, ...], objective: float, expansions: int,
             {"from": e.src}, to=e.dst, mode=mode, depart=t,
             arrive=t + timedelta(minutes=mins), minutes=mins, cost_inr=round(e.cost_inr))))
         t += timedelta(minutes=mins)
-    by_mode: dict[Mode, int] = {}
-    for leg in legs:
-        by_mode[leg.mode] = by_mode.get(leg.mode, 0) + leg.minutes
+    # the main vehicle names the option: a flight, else a train, else the road
+    main = next((m for m in (Mode.air, Mode.rail) if any(leg.mode is m for leg in legs)), Mode.road)
     weight = sum(e.minutes for e in edges) or 1e-9
     comfort = sum(e.comfort * e.minutes for e in edges) / weight
-    opt = TransportOption(mode=max(by_mode, key=by_mode.get), legs=legs,
+    opt = TransportOption(mode=main, legs=legs,
                           total_minutes=sum(leg.minutes for leg in legs),
                           total_cost_inr=sum(leg.cost_inr for leg in legs),
                           comfort=min(5, max(1, round(comfort * 5))))

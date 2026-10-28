@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import datetime as dt
 import os
+import re
 from dataclasses import dataclass, field
 from functools import lru_cache
 
@@ -20,10 +21,34 @@ TTL_S = 12 * 3600
 @dataclass(frozen=True)
 class Property:
     name: str
-    room_inr: int  # lowest rate per room per night
-    rating: float
+    room_inr: int  # lowest rate per room per night (a rental: the whole place)
+    rating: float  # guest rating out of 5; 0 when none
     token: str | None = None
     prices: tuple[Found, ...] = field(default=())  # per room per night, by source
+    stars: int | None = None  # hotel class
+    reviews: int | None = None
+    kind: str = "hotel"  # hotel | rental
+    bedrooms: int | None = None  # a rental's, from its name ("2BHK", "Two-Bedroom Villa")
+
+
+_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6}
+_BEDROOMS = re.compile(r"\b(\d|one|two|three|four|five|six)\s*-?\s*(?:bhk|bed\s*room)s?\b", re.I)
+
+
+def bedrooms(name: str) -> int | None:
+    m = _BEDROOMS.search(name)
+    if not m:
+        return None
+    w = m.group(1).lower()
+    return int(w) if w.isdigit() else _WORDS[w]
+
+
+def _stars(p: dict) -> int | None:
+    v = p.get("extracted_hotel_class")
+    if isinstance(v, int | float) and 1 <= v <= 5:
+        return int(v)
+    m = re.match(r"\s*(\d)", str(p.get("hotel_class") or ""))
+    return int(m.group(1)) if m and 1 <= int(m.group(1)) <= 5 else None
 
 
 def _rate(d: dict) -> int | None:
@@ -45,8 +70,12 @@ def parse_properties(payload: dict) -> list[Property]:
         rate = _rate(p)
         if not p.get("name") or rate is None:
             continue
+        rental = p.get("type") == "vacation rental"
+        reviews = p.get("reviews")
         out.append(Property(p["name"], rate, float(p.get("overall_rating") or 0.0),
-                            p.get("property_token"), _prices(p.get("prices"))))
+                            p.get("property_token"), _prices(p.get("prices")), _stars(p),
+                            int(reviews) if isinstance(reviews, int | float) else None,
+                            "rental" if rental else "hotel", bedrooms(p["name"]) if rental else None))
     return out
 
 
