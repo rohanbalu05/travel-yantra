@@ -92,8 +92,7 @@ CONTACT = "rohan@aizyantra.com"
 FORGOTTEN = "Done. I have forgotten our chat, your language and your location, and deleted {n}."
 FORGOTTEN_NONE = "Done. I have forgotten our chat, your language and your location; I hold no plans."
 FORGOTTEN_KEPT = f"If a plan link of yours still opens, email {CONTACT} with it and we will delete it."
-NEXT = "Reply share for a link, or: lighter day 2 · rain day 3 · swap <place> · add <place>"
-NEXT_CHIPS = ["share", "lighter day 2", "rain day 3", "cheaper hotel", "running late 30 min"]
+NEXT = "Reply share for a link, or: lighter day 2 · rain day 3 · swap <place> · by train"
 # Revise intents TY1's API carries out today; the others get NOT_YET until their handlers land
 # (on ty-api 7b9eaab an unhandled intent was re-planned as rain).
 LIVE_INTENTS = {"lighter_day", "swap_stop", "rain", "move_day", "transport"}
@@ -221,11 +220,16 @@ def names(it: Itinerary) -> list[str]:
 
 
 def next_hint(it: Itinerary) -> tuple[str, list[str]]:
-    """The follow-up keywords, with "extra day in <city>" when the trip has several cities."""
+    """The follow-up keywords, with day numbers the trip has, and "extra day in <city>" when the
+    trip has several cities."""
+    n = len(it.days)
+    light, wet = min(2, n), min(3, n)
+    hint = NEXT.replace("lighter day 2", f"lighter day {light}").replace("rain day 3", f"rain day {wet}")
+    chips = ["share", f"lighter day {light}", f"rain day {wet}", "by train"]
     if len(it.request.destinations) < 2:
-        return NEXT, NEXT_CHIPS
+        return hint, chips
     extra = f"extra day in {it.request.destinations[-1]}"
-    return f"{NEXT} · {extra}", [*NEXT_CHIPS, extra]
+    return f"{hint} · {extra}", [*chips, extra]
 
 
 def sources(answer: GuideAnswer) -> str:
