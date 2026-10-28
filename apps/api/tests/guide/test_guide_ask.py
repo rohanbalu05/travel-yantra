@@ -571,6 +571,11 @@ def test_hours_are_grouped_and_closed_days_named() -> None:
     ("When does the Taj Mahal open?", "Taj Mahal"), ("ताजमहल कितने बजे खुलता है?", "Taj Mahal"),
     ("Is Hawa Mahal open on Monday?", "Hawa Mahal"), ("Who built the Taj Mahal?", None),
     ("मुगल समय में ताजमहल कैसा था?", None),
+    # review P1: guide questions, not opening hours
+    ("What time is best to visit the Taj Mahal?", None), ("How many hours do I need at Amber Fort?", None),
+    ("Is the Taj Mahal open to non-Hindus?", None), ("What time is sunrise at the Taj Mahal?", None),
+    ("What time does the Red Fort close?", "Red Fort"), ("Is the Taj Mahal closed on Friday?", "Taj Mahal"),
+    ("Taj Mahal timings", "Taj Mahal"),
 ])  # fmt: skip
 def test_hours_questions_name_their_place(question, name) -> None:
     poi = ask_mod.asked_place(question, None) if ask_mod.HOURS_Q.search(question) else None
@@ -584,3 +589,8 @@ def test_a_place_without_hours_is_told_to_check_never_guessed(monkeypatch) -> No
     poi = ask_mod.asked_place("is Anamudi open today?", None)
     answer = asyncio.run(ask(GuideQuestion(question="is Anamudi open today?"), NoRows(), Spy()))
     assert poi and answer.text == f"I don't have reliable opening hours for {poi['name']}. Check hours before you go."
+
+
+def test_a_place_named_in_the_question_wins_over_the_stop() -> None:
+    assert ask_mod.asked_place("when does the Red Fort open?", "Taj Mahal")["name"] == "Red Fort"
+    assert ask_mod.asked_place("when does it open?", "Taj Mahal")["name"] == "Taj Mahal"

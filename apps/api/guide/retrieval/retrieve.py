@@ -226,7 +226,7 @@ def search(
     # A loose lexical match is one common word in common, not evidence the corpus
     # can answer. Only a strict match counts as a second opinion.
     best = max((r["similarity"] or 0.0) for r in found["dense"]) if found["dense"] else 0.0
-    if best < (min_similarity or min_similarity_for(query)) and not any(r["strict"] for r in found["lexical"]):
+    if best < (min_similarity_for(query) if min_similarity is None else min_similarity) and not any(r["strict"] for r in found["lexical"]):
         return []
 
     scores, ranks = rank(found)

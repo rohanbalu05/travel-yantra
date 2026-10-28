@@ -342,22 +342,27 @@ def nearby_list(places: PlacesClient, lat: float, lng: float, kind: str, limit: 
 
 
 #: "When does the Taj Mahal open?": hours come from Google Maps or are not given (HQ P9).
-HOURS_Q = re.compile(r"\b(open(?:ing|s)?|clos(?:e|es|ed|ing)|timings?|hours|what time)\b"
-                     r"|खुल(?:ता|ती|ने|ेगा)|बंद (?:होता|होती|रहता|रहती)|कितने बजे", re.I)  # fmt: skip
+#: Opening-time phrasing only: "what time is best to visit", "how many hours do I need" and
+#: "is it open to non-Hindus" are guide questions (review P1).
+HOURS_Q = re.compile(
+    r"\b(?:what|which) time\b.*\b(?:open|close|shut)|\b(?:opening|closing|visiting) (?:time|hour)s?\b|\btimings?\b"
+    r"|\bopen (?:on|at|today|now|till|until|tomorrow|tonight|late|daily|every)\b|\bis\b.*\bopen\s*\??\s*$"
+    r"|\bwhen (?:does|do|is|will)\b.*\b(?:open|close|shut)|\bclosed? (?:on|at|today|tomorrow)\b|\bcloses (?:at|on)\b"
+    r"|खुल(?:ता|ती|ने|ेगा)|बंद (?:होता|होती|रहता|रहती)|कितने बजे",
+    re.I,
+)
 CHECK_HOURS = "Check hours before you go."
 _DAY_NAMES = {"mon": "Mon", "tue": "Tue", "wed": "Wed", "thu": "Thu", "fri": "Fri", "sat": "Sat", "sun": "Sun"}
 
 
 def asked_place(question: str, place_name: str | None) -> dict | None:
-    """The corpus place an hours question is about: the stop it was asked at, else the
-    longest corpus name the question contains ("Taj Mahal", not "Taj")."""
+    """The corpus place an hours question is about: the longest corpus name the question
+    contains ("Taj Mahal", not "Taj"), else the stop it was asked at ("when does it open?")."""
     from . import names
     from .planner import _pois
 
     q = f" {names.normalize(question)} "
     pois = _pois()
-    if place_name and (hit := next((p for p in pois if p["name"].lower() == place_name.lower()), None)):
-        return hit
     hindi = {v: k for k, v in names.NATIVE.items()}  # the demo subjects' Hindi names
 
     def forms(p: dict) -> list[str]:
@@ -366,7 +371,9 @@ def asked_place(question: str, place_name: str | None) -> dict | None:
     raw = f" {names._fold(question)} "  # Hindi as written: normalize() turns ताजमहल into "taj mahal"
     found = [(len(n), p) for p in pois for f in forms(p)
              for n, text in ((names.normalize(f), q), (names._fold(f), raw)) if n and f" {n} " in text]
-    return max(found, key=lambda x: x[0], default=(0, None))[1]
+    if found:
+        return max(found, key=lambda x: x[0])[1]
+    return next((p for p in pois if p["name"].lower() == place_name.lower()), None) if place_name else None
 
 
 def format_hours(hours: list) -> str:
