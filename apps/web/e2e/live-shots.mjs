@@ -12,6 +12,12 @@ const browser = await chromium.launch();
 const sizes = { phone: { ...devices["Pixel 7"], viewport: { width: 390, height: 844 } }, laptop: { viewport: { width: 1366, height: 860 } } };
 const notes = [];
 
+/** Waits until a revise outcome line is shown (any text that is not the in-progress one). */
+async function outcome(page) {
+  await page.waitForFunction(() => [...document.querySelectorAll("p.rev-msg")].some((p) => !p.hidden && p.textContent && !/…$/.test(p.textContent.trim())), null, { timeout: 150_000 });
+  return [...(await page.locator("p.rev-msg:not([hidden])").allTextContents())].map((x) => x.trim()).filter(Boolean).join(" | ");
+}
+
 async function shot(page, name) {
   const wide = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
   if (wide) notes.push(`${name}: sideways scroll`);
@@ -71,9 +77,8 @@ for (const [size, opts] of Object.entries(sizes)) {
   const comfort = page.getByRole("group", { name: "Budget style" }).getByRole("button", { name: "Comfort" });
   if ((await comfort.count()) && (await comfort.isEnabled())) {
     await comfort.click();
-    await page.getByText(/^Done:|could not|took too long|not available/i).first().waitFor({ timeout: 120_000 });
+    notes.push(`budget_style: ${await outcome(page)}`);
     await shot(page, "phone-en-itinerary-style");
-    notes.push(`budget_style: ${(await page.locator(".rev-msg").first().textContent())?.trim()}`);
   }
 
   // change_stay: pick another stay on Book, then booked: the rail option's train with its times.
@@ -82,9 +87,8 @@ for (const [size, opts] of Object.entries(sizes)) {
   if (await others.count()) {
     await others.locator("summary").click();
     await others.getByRole("button", { name: "Choose this stay" }).first().click();
-    await page.getByText(/^Done:|could not|took too long|refused/i).first().waitFor({ timeout: 120_000 });
+    notes.push(`change_stay: ${await outcome(page)}`);
     await shot(page, "phone-en-book-stay-changed");
-    notes.push(`change_stay: ${(await page.locator(".rev-msg").last().textContent())?.trim()}`);
   } else notes.push("change_stay: no other stays offered");
   const booked = page.getByRole("button", { name: "I've booked this" }).first();
   if (await booked.count()) {
@@ -92,9 +96,8 @@ for (const [size, opts] of Object.entries(sizes)) {
     const ref = page.locator("form.booked input").first();
     if (!(await ref.inputValue())) await ref.fill("17309");
     await page.getByRole("button", { name: "Update my plan" }).click();
-    await page.getByText(/^Done:|could not|took too long|refused|must|Enter/i).first().waitFor({ timeout: 120_000 });
+    notes.push(`booked: ${await outcome(page)}`);
     await shot(page, "phone-en-book-booked");
-    notes.push(`booked: ${(await page.locator(".rev-msg").first().textContent())?.trim()}`);
   }
 
   // My trips → View details opens the editable Itinerary, not the share page.

@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useSyncExte
 import type { Lang } from "@/lib/contracts";
 import phrasebook from "@/lib/i18n/phrasebook.json";
 import screensGuide from "@/lib/i18n/screens-guide.json";
+import screensLive from "@/lib/i18n/screens-live.json";
 import screensP8 from "@/lib/i18n/screens-p8.json";
 import screensPlan from "@/lib/i18n/screens-plan.json";
 
@@ -41,6 +42,8 @@ const DICT: Record<string, Entry> = {
   ...(screensPlan as Record<string, Entry>),
   ...(screensGuide as Record<string, Entry>),
   ...(screensP8 as Record<string, Entry>),
+  // Trip mode (app/trip/live, TY6's page): drafted in TY4 at TY6's request.
+  ...(screensLive as Record<string, Entry>),
   ...(phrasebook as Record<string, Entry>),
   ...EXTRA,
 };
