@@ -43,6 +43,36 @@ async def test_story_text_sources_then_audio_in_order(engine, api):
     assert of(events, "done")[0].lang == "hi"
 
 
+async def test_story_audio_that_is_recorded_on_demand(engine, api):
+    pending = {**STORY, "audio": [], "audio_status": "pending"}
+    answers = [pending, pending, {**STORY, "audio_status": "ready"}]
+
+    def handler(req):
+        api.requests.append(req)
+        return httpx.Response(200, json=answers.pop(0))
+
+    engine.api.transport = httpx.MockTransport(handler)
+    engine.audio_wait = 0
+    events = await send(engine, "story Mysore Palace in Hindi")
+    kinds = [e.type for e in events]
+    assert len(api.requests) == 3 and len(of(events, "audio")) == 2
+    assert kinds.index("text") < kinds.index("audio")
+
+
+async def test_story_audio_still_pending_says_later(engine, api):
+    pending = {**STORY, "audio": [], "audio_status": "pending"}
+
+    def handler(req):
+        api.requests.append(req)
+        return httpx.Response(200, json=pending)
+
+    engine.api.transport = httpx.MockTransport(handler)
+    engine.audio_wait = 0
+    events = await send(engine, "story Mysore Palace in Hindi")
+    assert len(api.requests) == 4 and not of(events, "audio")
+    assert "not ready yet" in texts(events)[-1]
+
+
 async def test_unknown_story_and_busy_storyteller(engine, api):
     engine.api.transport = httpx.MockTransport(katha_api(api, 404))
     assert texts(await send(engine, "story Atlantis")) == [NO_STORY.format(what="Atlantis")]

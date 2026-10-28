@@ -85,6 +85,9 @@ NOT_FOUND = "I could not find {what} in your plan. Stops: {stops}"
 NOT_A_CITY = "{what} is not a city of this trip. Cities: {cities}"
 NO_STORY = "I have no story for {what} yet. Try another place, for example: story Mysore Palace"
 STORY_BUSY = "The storyteller is busy just now. Please try again in a minute."
+RECORDING = "Recording the narration; it follows in a moment."
+AUDIO_LATER = "The narration is not ready yet. Send story {what} again in a few minutes to hear it."
+AUDIO_POLLS = 3  # TY2's POST /guide/katha advances the narration a chapter per request
 CONTACT = "rohan@aizyantra.com"
 FORGOTTEN = "Done. I have forgotten our chat, your language and your location, and deleted {n}."
 FORGOTTEN_NONE = "Done. I have forgotten our chat, your language and your location; I hold no plans."
@@ -264,6 +267,7 @@ class Engine:
         self.tr = translator or Translator()
         self.lite = lite
         self.clock = clock
+        self.audio_wait = 8.0  # seconds between asks for a story's narration
 
     # --- the stream ---------------------------------------------------------------------
 
@@ -621,13 +625,26 @@ class Engine:
                 return await self.say(t, NO_STORY.format(what=what), keep=[what])
             return await self.say(t, STORY_BUSY)
         tail = "\n".join(f"[{i}] {src}" for i, src in enumerate(told.sources, 1))
-        if told.lang == c.lang:
-            body = _cap(told.text, MAX_TOTAL - len(tail) - 2) + "\n\n" + tail if tail else told.text
-            await t.emit(ChatEvent(type="text", text=_cap(body)))
-            for a in sorted(told.audio, key=lambda a: a.chapter):
-                await t.emit(ChatEvent(type="audio", url=a.url, text=told.subject))
-        else:
-            await self.say(t, told.text, keep=[told.subject], tail=tail)
+        if told.lang != c.lang:
+            return await self.say(t, told.text, keep=[told.subject], tail=tail)
+        body = _cap(told.text, MAX_TOTAL - len(tail) - 2) + "\n\n" + tail if tail else told.text
+        await t.emit(ChatEvent(type="text", text=_cap(body)))
+        if told.audio_status == "pending":
+            # TY2 narrates on demand, a chapter a request: ask again a few times, then give up.
+            await self.note(t, RECORDING)
+            for _ in range(AUDIO_POLLS):
+                await asyncio.sleep(self.audio_wait)
+                try:
+                    again = await self.api.katha(req)
+                except ApiError:
+                    break
+                if again.audio_status != "pending":
+                    told = again
+                    break
+            if told.audio_status == "pending" or not told.audio:
+                return await self.say(t, AUDIO_LATER.format(what=what), keep=[what])
+        for a in sorted(told.audio, key=lambda a: a.chapter):
+            await t.emit(ChatEvent(type="audio", url=a.url, text=told.subject))
 
     # --- delete my data -----------------------------------------------------------------
 
