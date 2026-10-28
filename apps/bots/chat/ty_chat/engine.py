@@ -188,7 +188,10 @@ def _leg_line(leg: Leg, people: int) -> str:
     arrive = f"{leg.arrive:%H:%M}" if leg.arrive.date() == leg.depart.date() else (
         f"{leg.arrive:%a %d %b %H:%M}"
     )
-    return f"- {leg.from_} → {leg.to}: {mode}{ref}, {when} to {arrive}, {price(leg, people)}"
+    booked = " (booked)" if getattr(leg, "booked", False) else ""
+    return (
+        f"- {leg.from_} → {leg.to}: {mode}{ref}{booked}, {when} to {arrive}, {price(leg, people)}"
+    )
 
 
 def chosen_mode(it: Itinerary) -> str:

@@ -168,6 +168,16 @@ def test_a_day_without_stops_says_what_it_is():
     assert "Note: Lunch 12:30–13:15" in body and "): free time" in body
 
 
+def test_booked_journeys_are_marked():
+    from ty_contracts import Leg
+
+    from ty_chat.engine import _leg_line
+
+    leg = Leg.model_validate({**ITINERARY["transport"][0]["legs"][0], "ref": "17309"})
+    assert "train 17309 (booked)," in _leg_line(leg.model_copy(update={"booked": True}), 4)
+    assert "(booked)" not in _leg_line(leg, 4)
+
+
 def test_prices_are_for_the_party():
     from ty_contracts import Leg, Mode
 
