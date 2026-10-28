@@ -31,7 +31,7 @@
       {
         "xPos": 0, "yPos": 4, "width": 6, "height": 4,
         "widget": {
-          "title": "Uptime check latency (api /health, web /)",
+          "title": "Uptime check latency (api /health and /guide/nearby, web / and /trip/live/)",
           "xyChart": {
             "dataSets": [{
               "plotType": "LINE",

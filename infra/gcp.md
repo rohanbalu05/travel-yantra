@@ -200,6 +200,10 @@ Approved by Rohan (V3-V).
 `infra/monitoring/setup.sh`:
 - Uptime checks `ty-api-health` (`/health`) and `ty-web-home` (`/`), every
   minute from asia-pacific, europe and usa-oregon, 10 s timeout.
+- Since 28 Oct (P6): `ty-web-trip-live` (`/trip/live/`, every minute) and
+  `ty-api-nearby` (`/guide/nearby` for a hospital near Old Goa, every 5
+  minutes, because each run can reach Places; TY2 caches 24 h). The four checks
+  are about 300k runs a month, inside the 1M free.
 - Dashboard "Travel Yantra latency (O3)" (`latency-dashboard.json`): p95
   per service against 3 s, uptime latency and pass rate, requests by class,
   instances.
