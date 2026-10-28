@@ -15,10 +15,9 @@ from .fares import rail_class, rail_fare
 from .graph import (
     DATA_DIR,
     RAIL_DETOUR,
-    ROAD_DETOUR,
-    ROAD_KMH,
     SAMPLE_RAIL_DIR,
     _read_json,
+    city_or_road,
     haversine_km,
     rail_dir,
 )
@@ -174,7 +173,7 @@ def _station_for(value: str, train: str | None, data_dir: Path | None, board: bo
     def leave(n: tuple[dict, float]) -> float:  # minutes from the run's day 1 midnight
         s, km = n
         dep = s["dep"] if s["dep"] is not None else s["arr"]
-        return (s["day"] - 1) * 1440 + (dep or 0) - km * ROAD_DETOUR / ROAD_KMH * 60
+        return (s["day"] - 1) * 1440 + (dep or 0) - city_or_road(km)[2]  # compare's road time to the station
 
     return stations[max(near, key=leave)[0]["code"]]
 
