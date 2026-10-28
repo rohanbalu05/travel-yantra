@@ -88,7 +88,7 @@ DATE = re.compile(rf"\d|\b(?:{_MONTH})|\b(?:today|tomorrow|weekend|next\s+week)\
 # A place a message names as where it goes: "to Goa", "visit Hampi", "Goa trip", "Coorg ki trip".
 _PLACE = r"[A-Za-z][A-Za-z.'-]+(?:\s+[A-Z][A-Za-z.'-]+)?"
 DEST = re.compile(
-    rf"\b(?:to|se|visit|visiting|explore|for|in)\s+(?P<a>{_PLACE})"
+    rf"\b(?P<prep>to|se|visit|visiting|explore|for|in)\s+(?P<a>{_PLACE})"
     rf"|(?P<b>{_PLACE})\s+(?:ki\s+|ka\s+)?(?:trip|holiday|tour|vacation|yatra)\b",
 )
 NOT_PLACES = {
@@ -138,10 +138,14 @@ def is_question(text: str) -> bool:
     return text.rstrip().endswith(("?", "？")) or bool(QUESTION_START.match(text))
 
 
-def destinations(text: str) -> list[str]:
-    """Places the message names as where to go, in order ("Plan Bengaluru to Goa" -> ["Goa"])."""
+def destinations(text: str, strict: bool = False) -> list[str]:
+    """Places the message names as where to go, in order ("Plan Bengaluru to Goa" -> ["Goa"]).
+    strict: only "to X", "visit X", "X trip" (not "for X" or "in X", which may name a person or
+    a part of the trip)."""
     out = []
     for m in DEST.finditer(text):
+        if strict and (m["prep"] or "").lower() in ("for", "in"):
+            continue
         name = (m["a"] or m["b"]).strip(" .'-")
         words = name.split()
         # "to Goa in" -> keep "Goa"; a second word only when capitalised ("Mysore Palace").
@@ -297,3 +301,38 @@ def keyword_edit(text: str) -> tuple[str, dict] | None:
     if LIGHTER.search(text) and words <= 6:
         return "lighter_day", {"day": day_number(text)}
     return None
+
+
+# The regions Travel Yantra plans (HQ): their cities and common spellings. Origins can be anywhere.
+REGIONS = {
+    "Karnataka": [
+        "Karnataka", "Bengaluru", "Bangalore", "Mysuru", "Mysore", "Hampi", "Coorg", "Kodagu",
+        "Madikeri", "Chikmagalur", "Chikkamagaluru", "Gokarna", "Udupi", "Mangaluru", "Mangalore",
+        "Badami", "Aihole", "Pattadakal", "Belur", "Halebidu", "Hassan", "Shivamogga", "Jog Falls",
+        "Kabini", "Bandipur", "Dandeli", "Murudeshwar", "Sakleshpur", "Srirangapatna", "Bijapur",
+        "Vijayapura", "Hubli", "Dharwad", "Karwar", "Nandi Hills", "Kudremukh", "Shravanabelagola",
+    ],
+    "Goa": [
+        "Goa", "Panaji", "Panjim", "Madgaon", "Margao", "Vasco", "Calangute", "Baga", "Anjuna",
+        "Palolem", "Candolim", "Mapusa", "Old Goa", "Colva", "Agonda", "Arambol",
+    ],
+    "Kerala": [
+        "Kerala", "Kochi", "Cochin", "Munnar", "Alleppey", "Alappuzha", "Thiruvananthapuram",
+        "Trivandrum", "Kovalam", "Varkala", "Wayanad", "Thekkady", "Kumarakom", "Kozhikode",
+        "Calicut", "Thrissur", "Kollam", "Kannur", "Vagamon", "Athirappilly", "Fort Kochi",
+    ],
+    "Golden Triangle": [
+        "Golden Triangle", "Delhi", "New Delhi", "Agra", "Jaipur", "Fatehpur Sikri", "Mathura",
+        "Vrindavan", "Amber",
+    ],
+}  # fmt: skip
+COVERED = [c for cities in REGIONS.values() for c in cities]
+
+
+def covered(place: str) -> bool:
+    return same_place(place, COVERED)
+
+
+def outside_regions(names: list[str]) -> list[str]:
+    """The named places, if every one of them is outside the regions we plan; else []."""
+    return names if names and not any(covered(n) for n in names) else []

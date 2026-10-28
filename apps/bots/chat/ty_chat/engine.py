@@ -45,14 +45,24 @@ DRAFT_SECONDS = 30 * 60  # how long a trip being put together stays open
 LOCATION_SECONDS = 60 * 60  # how long a shared location is used for guide questions
 IST = timezone(timedelta(hours=5, minutes=30))
 
+REGIONS_LINE = "Karnataka, Goa, Kerala and the Golden Triangle (Delhi, Agra, Jaipur)"
 HELP = (
-    "Namaste! Tell me about your trip, for example:\n"
+    f"Namaste! I plan trips in {REGIONS_LINE}. Tell me about your trip, for example:\n"
     "Plan Bengaluru to Goa, 11-14 Dec, 4 of us\n"
     "or ask me anything about a place, its food or its history. "
+    "Type, or send a voice note in any of our six languages. "
     "For a place's story, send: story Mysore Palace. "
     "Share your location for help nearby. "
     "Send delete my data to make me forget you."
 )
+OUTSIDE = (
+    "Sorry, {places} is outside the regions I plan for now: " + REGIONS_LINE + ". "
+    "I would be glad to plan a trip there, for example: Plan Bengaluru to Mysuru, 21-22 Nov, 2 of us"
+)
+
+
+def outside(places: list[str]) -> str:
+    return OUTSIDE.format(places=" and ".join(places[:3]))
 HELP_CHIPS = ["Plan Bengaluru to Goa, 11-14 Dec, 4 of us", "story Mysore Palace", "nearest hospital"]
 LOCATION_OK = "Got your location. Ask me, for example: nearest hospital or pharmacy."
 ASKING = "To plan this I need a little more:"
@@ -485,6 +495,9 @@ class Engine:
 
     async def trip(self, t: Turn, texts: list[str]) -> None:
         c = t.conv
+        if far := rules.outside_regions(rules.destinations(texts[-1], strict=True)):
+            log.info("route: trip outside our regions")
+            return await self.say(t, outside(far), keep=far, chips=HELP_CHIPS[:1])
         noted = False
 
         async def progress(event: PlanEvent) -> None:
@@ -502,6 +515,9 @@ class Engine:
             msg = PLAN_FAILED.format(why=e.detail) if 400 <= e.status < 500 else BUSY
             return await self.say(t, msg)
         if isinstance(result, Ask):
+            if result.draft and (far := rules.outside_regions(result.draft.destinations)):
+                c.draft, c.draft_names = [], []
+                return await self.say(t, outside(far), keep=far, chips=HELP_CHIPS[:1])
             c.draft, c.draft_at = texts[-8:], self.clock()
             known, keep = so_far(result.draft)
             named = [n for x in texts for n in rules.destinations(x)]
