@@ -188,8 +188,8 @@ SPELLINGS = {
 
 
 def _norm(name: str) -> str:
-    low = name.casefold().strip()
-    return SPELLINGS.get(low, low)
+    """Lower case, each old spelling replaced word by word ("Mysore Palace" -> "mysuru palace")."""
+    return " ".join(SPELLINGS.get(w, w) for w in re.findall(r"[^\W\d_]+", name.casefold()))
 
 
 # Keyword edits once a plan exists. Keywords stay English in the hints so users can copy them.
@@ -311,6 +311,9 @@ REGIONS = {
         "Badami", "Aihole", "Pattadakal", "Belur", "Halebidu", "Hassan", "Shivamogga", "Jog Falls",
         "Kabini", "Bandipur", "Dandeli", "Murudeshwar", "Sakleshpur", "Srirangapatna", "Bijapur",
         "Vijayapura", "Hubli", "Dharwad", "Karwar", "Nandi Hills", "Kudremukh", "Shravanabelagola",
+        "Nagarhole", "Chitradurga", "Sringeri", "Bidar", "Kalaburagi", "Gulbarga", "Tumakuru",
+        "Tumkur", "Ramanagara", "Belagavi", "Belgaum", "Ballari", "Bellary", "Kolar", "Mandya",
+        "Bhatkal", "Agumbe", "Talakaveri", "Bylakuppe", "Kemmangundi", "Kodachadri",
     ],
     "Goa": [
         "Goa", "Panaji", "Panjim", "Madgaon", "Margao", "Vasco", "Calangute", "Baga", "Anjuna",
@@ -320,7 +323,8 @@ REGIONS = {
         "Kerala", "Kochi", "Cochin", "Munnar", "Alleppey", "Alappuzha", "Thiruvananthapuram",
         "Trivandrum", "Kovalam", "Varkala", "Wayanad", "Thekkady", "Kumarakom", "Kozhikode",
         "Calicut", "Thrissur", "Kollam", "Kannur", "Vagamon", "Athirappilly", "Fort Kochi",
-        "Ernakulam",
+        "Ernakulam", "Idukki", "Palakkad", "Kottayam", "Pathanamthitta", "Sabarimala",
+        "Guruvayur", "Bekal", "Kasaragod", "Poovar", "Marari", "Thenmala", "Malappuram",
     ],
     "Golden Triangle": [
         "Golden Triangle", "Delhi", "New Delhi", "Agra", "Jaipur", "Fatehpur Sikri", "Mathura",
@@ -330,10 +334,22 @@ REGIONS = {
 COVERED = [c for cities in REGIONS.values() for c in cities]
 
 
-def covered(place: str) -> bool:
-    return same_place(place, COVERED)
+_COVERED_NORM = [_norm(c) for c in COVERED]
 
 
-def outside_regions(names: list[str]) -> list[str]:
-    """The named places, if every one of them is outside the regions we plan; else []."""
-    return names if names and not any(covered(n) for n in names) else []
+def covered(text: str) -> bool:
+    """Whether the text names a place in our regions, as whole words ("Mysore Palace", "visit
+    Kerala backwaters"; never "Cameroon" for Amer)."""
+    words = f" {_norm(text)} "
+    return any(f" {c} " in words for c in _COVERED_NORM)
+
+
+def outside_regions(names: list[str], text: str = "") -> list[str]:
+    """The named places, if every one is outside the regions we plan and the message names no
+    covered place anywhere ("Ooty and Goa" is a Goa trip); else []."""
+    # Only after the first "to" / "visit": the origin ("Bengaluru to Manali") can be anywhere.
+    where = re.search(r"\b(?:to|se|visit|visiting|explore)\b", text, re.IGNORECASE)
+    rest = text[where.start() :] if where else text
+    if not names or any(covered(n) for n in names) or covered(rest):
+        return []
+    return names

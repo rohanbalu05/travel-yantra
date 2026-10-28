@@ -25,10 +25,15 @@ def test_help_names_the_regions_and_voice_notes():
         ("Bangalore to Mysore trip", []),
         ("Mumbai to Ernakulam trip, 2-4 Mar", []),
         ("visit Pink City and Amer", []),
+        ("Plan Bengaluru to Mysore Palace", []),
+        ("plan trip to Ooty and Goa", []),
+        ("visit Kerala Backwaters", []),
+        ("Bengaluru to Nagarhole trip", []),
+        ("Plan a trip to Cameroon", ["Cameroon"]),
     ],
 )
 def test_outside_regions(said, far):
-    assert rules.outside_regions(rules.destinations(said, strict=True)) == far
+    assert rules.outside_regions(rules.destinations(said, strict=True), said) == far
 
 
 async def test_trip_outside_the_regions_is_not_planned(engine, api):

@@ -497,7 +497,8 @@ class Engine:
 
     async def trip(self, t: Turn, texts: list[str]) -> None:
         c = t.conv
-        if far := rules.outside_regions(rules.destinations(texts[-1], strict=True)):
+        named = rules.destinations(texts[-1], strict=True)
+        if far := rules.outside_regions(named, texts[-1]):
             log.info("route: trip outside our regions")
             return await self.say(t, outside(far), keep=far, chips=HELP_CHIPS[:1])
         noted = False
