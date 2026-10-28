@@ -75,8 +75,9 @@ def test_refusals_are_not_adds(said):
 @pytest.mark.parametrize(
     "detail, shown",
     [
-        ("List should have at least 1 item after validation", False),
+        ("validation: List should have at least 1 item after validation", False),
         ("Assertion failed, bad", False),
+        ("Please check count: input should be less than or equal to 3.", True),
         ("Not Found", False),
         ("Day 2 needs days off to rest", True),
         ("Sat 12 Dec is full with Dudhsagar Falls; it fits on Fri 11 Dec", True),
@@ -88,7 +89,8 @@ def test_which_api_words_travellers_see(detail, shown):
     assert ApiError(422, detail).readable is shown
 
 
-async def test_more_places_asks_which_until_ty1_ships_it(planned, api):
+async def test_more_places_asks_which_when_not_live(planned, api, monkeypatch):
+    monkeypatch.setattr(engine_mod, "ADD_ANY_LIVE", False)
     events = await send(planned, "more places on day 2")
     assert texts(events) == [WHICH_PLACE] and not api.bodies("/plan/p1/revise")
 

@@ -83,8 +83,8 @@ PLAN_UNCLEAR = (
     "and how many of you are travelling."
 )
 WHICH_PLACE = "Which place would you like to add? For example: add Fort Aguada on day 2"
-# TY1 (V3-AZ): add_stop with only a day adds the best places near it. On once TY1 ships it.
-ADD_ANY_LIVE = False
+# TY1 (V3-AZ): add_stop with only a day adds the best places near it. Live on main since 0920d57.
+ADD_ANY_LIVE = True
 CANT_CHANGE = (
     "I could not make that change. Please say it another way, for example: "
     "add Fort Aguada on day 2, remove a place, or lighter day 2."

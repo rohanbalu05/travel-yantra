@@ -288,6 +288,15 @@ async def test_revise_422_messages_are_joined(monkeypatch):
     assert res.isError and "lighter_day needs day; day not in plan" in res.content[0].text
 
 
+async def test_revise_422_plain_sentence_is_shown(monkeypatch):
+    # TY1 (0920d57): every /plan* 422 is one plain sentence, a string, never a list.
+    body = {"detail": "Say which day to make lighter."}
+    _fake_api(monkeypatch, lambda req: httpx.Response(422, json=body))
+    async with connect(server.mcp._mcp_server) as client:
+        res = await client.call_tool("revise_trip", CALLS["revise_trip"])
+    assert res.isError and "Say which day to make lighter." in res.content[0].text
+
+
 def _sse_shared(itinerary):
     done = {
         "stage": "done",

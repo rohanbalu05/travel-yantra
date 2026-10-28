@@ -35,9 +35,10 @@ Progress = Callable[[PlanEvent], Awaitable[None]]
 
 # Pydantic and FastAPI wording: for the logs, never for the traveller (D-54).
 NOT_FOR_USERS = re.compile(
-    r"^(?:validation:|HTTP \d|not found$|method not allowed$)|value error|field required|"
-    r"(?:input|string|list|tuple|set|dict) should|assertion failed|extra inputs|"
-    r"\bneeds (?:place|place_id|day|city|mode|style|stay_id|stay_pick|booked|now)\b",
+    # TY1's 422s are plain sentences since 0920d57 ("Please check count: input should be ...")
+    # and are shown; only FastAPI's list shape and Pydantic's own prefixes are held back.
+    r"^(?:validation:|HTTP \d|not found$|method not allowed$|value error|field required|"
+    r"assertion failed|extra inputs)",
     re.IGNORECASE,
 )
 
