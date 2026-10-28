@@ -8,11 +8,13 @@ from __future__ import annotations
 import difflib
 import math
 import re
-from datetime import date
+from datetime import date, timedelta
 
 from ty_contracts import (
+    BookedJourney,
     BudgetStyle,
     Itinerary,
+    Leg,
     Mode,
     Place,
     ReviseIntent,
@@ -354,8 +356,80 @@ def _rejourney(it: Itinerary, journeys: dict, back, travel: Travel, lim: Limits)
     for day in list(it.days):
         new_hop = journeys.get(starts[day.date]) if day.date in starts else _KEEP
         new_out = back if day.date == last else _KEEP
+        # A journey the traveller booked stays.
+        if (h := hop_of(day)) is not None and h.booked:
+            new_hop = _KEEP
+        if (o := out_of(day)) is not None and o.booked:
+            new_out = _KEEP
         if new_hop is not _KEEP or new_out is not _KEEP:
             rebuild_day(it, day.date, list(day.stops), travel, lim, hop=new_hop, out=new_out)
+
+
+def fill_day(it: Itinerary, d: date, travel: Travel, lim: Limits) -> list[str]:
+    """An empty day that now has time gets the city's best places this plan does not use, in one area."""
+    day = _day(it, d)
+    city = city_of(it.request, d) or it.request.destinations[0]
+    rank = ranks(it, city)
+    pool = sorted(candidates(it, city), key=lambda p: (rank.get(p.id, LOW), p.id))
+    chosen: list[Place] = []
+    for p in pool:
+        if len(chosen) >= lim.max_stops:
+            break
+        if in_area(chosen, p, travel) and fits(d, [*chosen, p], travel, lim, hop_of(day), out_of(day)):
+            chosen.append(p)
+    if chosen:
+        rebuild_day(it, d, chosen, travel, lim)
+    return [p.name for p in chosen]
+
+
+def _key(name: str) -> str:
+    from guide.planner import corpus_city
+
+    return (corpus_city(name) or name).strip().lower()
+
+
+def booked(it: Itinerary, b: BookedJourney, travel: Travel, lim: Limits) -> str:
+    """The traveller's own train or flight replaces that journey (out, between two cities, or home); the
+    days are re-timed around it (a late arrival moves or drops that day's visits; the last day ends in time
+    for it). It is never swapped for another train afterwards."""
+    req = it.request
+    split = [(c, d) for c, d in split_days(req) if d]
+    cities = [_key(c) for c, _ in split]
+    a, z, origin = _key(b.from_), _key(b.to), _key(req.origin)
+    if a == origin and z == cities[0]:
+        role, day, names = "outbound", split[0][1][0], (req.origin, split[0][0])
+    elif a == cities[-1] and z == origin:
+        role, day, names = "home", split[-1][1][-1], (split[-1][0], req.origin)
+    elif a in cities and z in cities and cities.index(z) == cities.index(a) + 1:
+        i = cities.index(z)
+        role, day, names = "between", split[i][1][0], (split[i - 1][0], split[i][0])
+    else:
+        route = " → ".join([req.origin, *(c for c, _ in split), req.origin])
+        raise ReviseError(f"{b.from_} → {b.to} is not a journey of this trip ({route})")
+    # A night journey out may leave the day before; otherwise the journey is on its day of the trip.
+    ok = {day - timedelta(days=1), day} if role != "home" else {day}
+    if b.depart.date() not in ok:
+        raise ReviseError(f"that {b.mode.value} leaves {b.depart:%a %d %b}, but this trip's {role} journey is on "
+                          f"{day:%a %d %b}")
+    d = _day(it, day)
+    old = hop_of(d) if role != "home" else out_of(d)
+    same = [o for o in it.transport if o.mode is b.mode]
+    cost = old.cost_inr if old and old.mode is b.mode else (same[0].total_cost_inr if same else 0)
+    if not old or old.mode is not b.mode and not same:
+        it.warnings.append(f"The fare of your {b.mode.value} {b.ref} is not known; the budget leaves it out")
+    minutes = int((b.arrive - b.depart).total_seconds() // 60)
+    leg = Leg(**{"from": names[0]}, to=names[1], mode=b.mode, depart=b.depart, arrive=b.arrive, minutes=minutes,
+              cost_inr=cost, role=role, ref=b.ref, booked=True)
+    if role == "home":
+        rebuild_day(it, day, list(d.stops), travel, lim, out=leg)
+    else:
+        rebuild_day(it, day, list(d.stops), travel, lim, hop=leg)
+    word = {"rail": "train", "air": "flight", "road": "drive"}[b.mode.value]
+    plus = " (+1 day)" if b.arrive.date() > b.depart.date() else ""
+    what = f"Planned around your {word} {b.ref}: {b.depart:%a %d %b %H:%M} → {b.arrive:%H:%M}{plus}"
+    if not d.stops and (added := fill_day(it, day, travel, lim)):
+        what += f"; added {', '.join(added)} to {day:%a %d %b}"
+    return what
 
 
 STYLE_WORDS = {BudgetStyle.shoestring: "a shoestring", BudgetStyle.comfort: "a comfortable", BudgetStyle.luxury: "a luxury"}
@@ -411,6 +485,8 @@ def revise(it: Itinerary, req: ReviseRequest, travel: Travel | None = None,
         what = change_stay(it, req)
     elif req.intent is ReviseIntent.budget_style:
         what = budget_style(it, req.style, travel)
+    elif req.intent is ReviseIntent.booked:
+        what = booked(it, req.booked, travel, lim)
     else:
         raise ReviseError(f"{req.intent.value}: this change is not available yet")
     from .repair import finish

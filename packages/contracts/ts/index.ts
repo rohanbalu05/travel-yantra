@@ -153,6 +153,7 @@ export interface Leg {
   cost_inr: number;
   role?: "outbound" | "between" | "home" | "transfer" | null;
   ref?: string | null;
+  booked?: boolean;
 }
 
 export interface Me {

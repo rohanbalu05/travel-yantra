@@ -380,14 +380,15 @@ def retime_home(it: Itinerary) -> None:
     if not it.days or (out := out_of(it.days[-1])) is None:
         return
     last, lim, travel = it.days[-1], limits(it.request), Travel()
-    opened = after_hop(lim, hop_of(last))
+    opened = after_hop(lim, hop_of(last), last.date)
     mins = [travel.minutes(x, y) for x, y in zip(last.stops, last.stops[1:])]
     visits, _ = schedule(last.date, last.stops, mins, opened)
     ends = visits[-1].leave if visits else datetime.combine(last.date, opened.start)
     leave = (ends + timedelta(minutes=RETURN_BUFFER_MIN)).time()
     same_mode = it.request.model_copy(update={"transport_mode": out.mode})
-    new = hop(same_mode, out.from_, out.to, last.date, leave, role="home")
-    if new is None or (new.depart, new.mode) == (out.depart, out.mode):
+    # A booked journey home is kept as it is; only the visits fit around it.
+    new = out if out.booked else hop(same_mode, out.from_, out.to, last.date, leave, role="home")
+    if new is None or (not out.booked and (new.depart, new.mode) == (out.depart, out.mode)):
         return
     if new.mode is not out.mode:
         it.warnings.append(f"No {out.mode.value} home from {out.from_} that day; the journey home is by {new.mode.value}")
@@ -396,6 +397,8 @@ def retime_home(it: Itinerary) -> None:
     while stops and new.depart < _visits_end(last.date, stops, travel, opened) + timedelta(minutes=RETURN_BUFFER_MIN):
         dropped = stops.pop()
         it.warnings.append(f"Dropped {dropped.name} to catch the {new.depart:%H:%M} {new.mode.value} home")
+    if out.booked and stops == last.stops:
+        return
     rebuild_day(it, last.date, stops, travel, lim, out=new)
 
 

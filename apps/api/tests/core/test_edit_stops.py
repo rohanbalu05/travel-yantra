@@ -132,3 +132,50 @@ def test_budget_style_replans_food_travel_and_stays_but_keeps_the_stops(monkeypa
     assert what.startswith("Planned for a shoestring budget")
     kept = {p.id for d in out.days for p in d.stops}
     assert kept and kept <= {p.id for d in it.days for p in d.stops} | kept
+
+
+MYSURU = {"origin": "Bengaluru", "destinations": ["Mysuru"], "start_date": "2026-10-31", "end_date": "2026-11-01",
+          "constraints": {"travellers": [{"name": "Arjun", "age": 40}, {"name": "Meera", "age": 38}]},
+          "transport_mode": "rail"}
+
+
+def booking(frm, to, depart, arrive, ref="16231", mode="rail"):
+    return ReviseRequest(intent="booked", booked={"mode": mode, "ref": ref, "from": frm, "to": to,
+                                                  "depart": depart, "arrive": arrive})
+
+
+def test_a_booked_train_out_re_times_day_one_and_is_kept():
+    from core.solver import hop_of, out_of
+
+    it = steps.replan(steps.TripRequest.model_validate(MYSURU))
+    out, what, _ = revise(it, booking("Bangalore", "Mysore", "2026-10-31T12:00", "2026-10-31T14:30"))
+    hop = hop_of(out.days[0])
+    assert (hop.ref, hop.booked, hop.depart.hour, hop.from_, hop.to) == ("16231", True, 12, "Bengaluru", "Mysuru")
+    assert what == "Planned around your train 16231: Sat 31 Oct 12:00 → 14:30"
+    assert all(s.start.hour >= 14 for s in out.days[0].schedule)
+    # A later change of transport keeps the booked train.
+    road, _, _ = revise(out, ReviseRequest(intent="transport", mode="road"))
+    assert hop_of(road.days[0]).ref == "16231" and out_of(road.days[-1]).mode.value == "road"
+
+
+def test_a_booked_train_home_is_never_swapped_and_the_last_day_fits_before_it():
+    from core.solver import out_of
+
+    it = steps.replan(steps.TripRequest.model_validate(MYSURU))
+    out, what, _ = revise(it, booking("Mysuru", "Bengaluru", "2026-11-01T11:30", "2026-11-01T14:10", ref="12610"))
+    home = out_of(out.days[-1])
+    assert (home.ref, home.booked, home.depart.hour, home.depart.minute) == ("12610", True, 11, 30)
+    assert all(s.leave.hour * 60 + s.leave.minute <= 11 * 60 + 30 - 45 for s in out.days[-1].schedule)
+
+
+def test_a_night_train_the_day_before_and_bad_bookings():
+    from core.solver import hop_of
+
+    it = steps.replan(GOA.model_copy(update={"transport_mode": Mode.rail}))
+    out, what, _ = revise(it, booking("Bengaluru", "Goa", "2026-12-10T15:15", "2026-12-11T05:47", ref="17309"))
+    assert hop_of(out.days[0]).arrive.hour == 5 and out.days[0].stops
+    assert "05:47 (+1 day)" in what and (not it.days[0].stops) <= ("; added " in what)
+    with pytest.raises(ReviseError, match="not a journey of this trip"):
+        revise(it, booking("Delhi", "Goa", "2026-12-11T06:00", "2026-12-11T09:00"))
+    with pytest.raises(ReviseError, match="leaves Sun 20 Dec"):
+        revise(it, booking("Bengaluru", "Goa", "2026-12-20T06:00", "2026-12-20T20:00"))

@@ -119,6 +119,8 @@ class Leg(_Model):
     role: Literal["outbound", "between", "home", "transfer"] | None = None
     # Train number (5 digits) for rail, flight number for air, when known.
     ref: str | None = None
+    # A journey the traveller has booked (ReviseIntent.booked): kept as given; the days are planned around it.
+    booked: bool = False
 
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 

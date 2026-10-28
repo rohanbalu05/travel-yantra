@@ -911,6 +911,11 @@
           ],
           "default": null,
           "title": "Ref"
+        },
+        "booked": {
+          "default": false,
+          "title": "Booked",
+          "type": "boolean"
         }
       },
       "required": [

@@ -269,7 +269,7 @@ def home_note(out: Leg) -> str:
 
 def no_time(day: date, lim: Limits, hop: Leg | None, out: Leg | None) -> bool:
     """The journeys leave less than two hours for visits that day (or none at all)."""
-    f = frame(lim, hop, out)
+    f = frame(lim, hop, out, day)
     return datetime.combine(day, f.end) - datetime.combine(day, f.start) < timedelta(hours=2)
 
 
@@ -311,13 +311,14 @@ def local_legs(day: DayPlan) -> list[Leg]:
     return [leg for leg in day.legs if leg is not hop and leg is not out]
 
 
-def after_hop(lim: Limits, hop: Leg | None) -> Limits:
+def after_hop(lim: Limits, hop: Leg | None, day: date | None = None) -> Limits:
     """A travel day starts once the journey has arrived, plus time to settle."""
     if hop is None:
         return lim
     ready = hop.arrive + timedelta(minutes=HOP_SETTLE_MIN)
-    # An arrival after the day's end (or after midnight) leaves no time for visits that day.
-    late = ready.date() != hop.depart.date() or ready.time() >= lim.end
+    # An arrival after the day's end (or the next day) leaves no time for visits that day. The day is the
+    # trip day the journey opens: a night train booked the evening before arrives on it, in time.
+    late = ready.date() > (day or hop.depart.date()) or ready.time() >= lim.end
     return replace(lim, start=lim.end if late else max(lim.start, ready.time()))
 
 
@@ -329,15 +330,15 @@ def before_out(lim: Limits, out: Leg | None) -> Limits:
     return replace(lim, end=max(min(lim.end, leave_by), lim.start))
 
 
-def frame(lim: Limits, hop: Leg | None, out: Leg | None) -> Limits:
-    return before_out(after_hop(lim, hop), out)
+def frame(lim: Limits, hop: Leg | None, out: Leg | None, day: date | None = None) -> Limits:
+    return before_out(after_hop(lim, hop, day), out)
 
 
 def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorder: bool = True,
               hop: Leg | None = None, out: Leg | None = None) -> tuple[DayPlan, str | None]:
     """Order (optionally), schedule and attach road legs, between the journey that opens the day (hop)
     and the one that closes it (out), if any. Returns the plan and the first problem."""
-    lim = frame(lim, hop, out)
+    lim = frame(lim, hop, out, day)
     stops = order(stops, travel) if reorder else list(stops)
     transfer = _transfer(hop, stops[0], travel) if hop and stops and lim.start < lim.end else None
     if transfer and transfer.arrive.date() == day:

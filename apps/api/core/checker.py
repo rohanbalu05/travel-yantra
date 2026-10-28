@@ -104,7 +104,7 @@ def _check_day(day, lim: Limits, elderly: bool, travel: Travel) -> list[Violatio
     # A journey may open the day (visits start after it) or close it (visits end before it). Only local
     # road time counts against the daily cap.
     hop, home = hop_of(day), out_of(day)
-    if hop and after_hop(lim, hop).start >= lim.end:
+    if hop and after_hop(lim, hop, day.date).start >= lim.end:
         # The journey arrives after the day ends (an overnight train): no stop can be visited that day.
         return [Violation(code=ViolationCode.long_day, day=day.date, place_id=p.id,
                           message=f"the {hop.mode.value} arrives {hop.arrive:%a %H:%M}, too late for visits that day")
@@ -118,7 +118,7 @@ def _check_day(day, lim: Limits, elderly: bool, travel: Travel) -> list[Violatio
         leg_min = [travel.minutes(a, b) for a, b in zip(day.stops, day.stops[1:])]
 
     # Replay the day from its start with no end-of-day cut-off, so lateness is reported once, as long_day.
-    t = datetime.combine(day.date, after_hop(lim, hop).start)
+    t = datetime.combine(day.date, after_hop(lim, hop, day.date).start)
     if transfer and transfer.arrive > t:  # visits start once the ride from the station arrives
         t = transfer.arrive
     first_start = last_leave = None

@@ -177,7 +177,8 @@
             "minutes": 25,
             "cost_inr": 200,
             "role": null,
-            "ref": null
+            "ref": null,
+            "booked": false
           }
         ],
         "notes": [
@@ -259,7 +260,8 @@
             "minutes": 190,
             "cost_inr": 1800,
             "role": null,
-            "ref": null
+            "ref": null,
+            "booked": false
           }
         ],
         "total_minutes": 190,
