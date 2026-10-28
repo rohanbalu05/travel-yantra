@@ -93,6 +93,9 @@ export function planRailLeg(it: Itinerary): Leg | undefined {
   return opts[pickIndex(it)]?.legs.find((l) => l.mode === "rail") ?? opts.flatMap((o) => o.legs).find((l) => l.mode === "rail");
 }
 
+/** Every train in the plan's rail option, in order: each is its own IRCTC ticket. */
+export const railOptionLegs = (it: Itinerary): Leg[] => (it.transport ?? []).find((o) => o.mode === "rail")?.legs.filter((l) => l.mode === "rail") ?? [];
+
 /** The train of the plan's rail option (TY3's card follows it even when the plan goes by road or air). */
 export const railOptionLeg = (it: Itinerary): Leg | undefined =>
   (it.transport ?? []).find((o) => o.mode === "rail")?.legs.find((l) => l.mode === "rail");

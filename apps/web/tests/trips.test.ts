@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { SavedTrip } from "@/lib/account";
 import type { Itinerary, TransportOption } from "@/lib/contracts";
 import { GOA_ITINERARY } from "@/lib/mockPlan";
-import { chosenStays, legModeName, railOptionLeg, stayGroups, tripCost } from "@/lib/planView";
+import { chosenStays, legModeName, railOptionLeg, railOptionLegs, stayGroups, tripCost } from "@/lib/planView";
 import { latestTrips, tripFacts } from "@/lib/trips";
 
 const trip = (over: Partial<SavedTrip>): SavedTrip => ({
@@ -73,5 +73,13 @@ describe("cab legs inside an option", () => {
     const leg = { from: "Dabolim", to: "Panaji", mode: "road" as const, depart: "", arrive: "", minutes: 38, cost_inr: 168 };
     expect(legModeName(leg, "rail")).toBe("Cab");
     expect(legModeName(leg, "road")).toBe("Road");
+  });
+});
+
+describe("IRCTC cards", () => {
+  it("lists every train of the rail option, in order", () => {
+    const leg = (from: string, to: string, ref: string, mode: "rail" | "road") => ({ from, to, ref, mode, depart: "2026-12-11T06:00:00", arrive: "2026-12-11T07:00:00", minutes: 60, cost_inr: 100 });
+    const rail: TransportOption = { mode: "rail", total_minutes: 800, total_cost_inr: 900, comfort: 3, legs: [leg("Home", "Bangalore Cant", "", "road"), leg("Bangalore Cant", "Malur", "12578", "rail"), leg("Malur", "Tirunettur", "16331", "rail")] };
+    expect(railOptionLegs({ ...GOA_ITINERARY, transport: [rail] }).map((l) => l.ref)).toEqual(["12578", "16331"]);
   });
 });

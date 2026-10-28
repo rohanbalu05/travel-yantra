@@ -7,12 +7,12 @@ import { NoPlan } from "@/components/NoPlan";
 import { Problem, problemOf } from "@/components/Problem";
 import { Trail } from "@/components/Trail";
 import { StayFacts, StayPick } from "@/components/StayFacts";
-import type { BookedJourney, Itinerary, Mode, SellerOffer, TransportOption } from "@/lib/contracts";
+import type { BookedJourney, Itinerary, Leg, Mode, SellerOffer, TransportOption } from "@/lib/contracts";
 import { MODE_ICON, MODE_NAME, clock, dayLabel, duration, inr } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { usePlanResult } from "@/lib/plan";
-import { againstBudget, pickIndex, planTotal, railOptionLeg, stayGroups, trainDiffers, trainLeg } from "@/lib/planView";
+import { againstBudget, pickIndex, planTotal, railOptionLegs, stayGroups } from "@/lib/planView";
 import { SAMPLE_PNRS, cardCopyText, cardParty, cardRows, irctcCard, isDemoPlan, pnrStatus, type IrctcCard, type PnrStatus } from "@/lib/routes";
 import { useRevise } from "@/lib/useRevise";
 import "./book.css";
@@ -151,11 +151,29 @@ function Travel({ it, planId }: { it: Itinerary; planId: string | null }) {
   );
 }
 
-function TrainCard({ it, planId }: { it: Itinerary; planId: string | null }) {
-  // The plan's own train, so the card names the same one as Options and the Itinerary (QA #101).
-  // TY3: the rail option's own train leg (stations, number and time from that one leg), even when the
-  // plan goes by road or air. No rail option: no card.
-  const rail = useMemo(() => railOptionLeg(it), [it]);
+/**
+ * One IRCTC card per train in the rail option, in order: each train is its own ticket (TY3).
+ * The rail option's own legs (stations, number, time), even when the plan goes by road or air.
+ * No rail option: no cards.
+ */
+function TrainCards({ it, planId }: { it: Itinerary; planId: string | null }) {
+  const { t } = useI18n();
+  const legs = useMemo(() => railOptionLegs(it), [it]);
+  if (!legs.length) return null;
+  return (
+    <section className="bk-sec" aria-labelledby="train-h">
+      <div className="bk-sec-head">
+        <h2 className="h2" id="train-h">{legs.length > 1 ? t("{n} trains on IRCTC", { n: legs.length }) : t("Train on IRCTC")}</h2>
+        <span className="hint">{legs.length > 1 ? t("Each train is its own ticket. IRCTC has no booking link we can fill; copy these and paste them into its form.") : t("IRCTC has no booking link we can fill; copy these and paste them into its form.")}</span>
+      </div>
+      {legs.map((rail, i) => (
+        <TrainCard key={`${rail.ref ?? ""}-${rail.depart}`} it={it} planId={planId} rail={rail} n={legs.length > 1 ? i + 1 : 0} of={legs.length} />
+      ))}
+    </section>
+  );
+}
+
+function TrainCard({ it, planId, rail, n, of }: { it: Itinerary; planId: string | null; rail: Leg; n: number; of: number }) {
   const [card, setCard] = useState<Load<IrctcCard>>(null);
   const [cls, setCls] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -175,7 +193,6 @@ function TrainCard({ it, planId }: { it: Itinerary; planId: string | null }) {
     return () => ctl.abort();
   }, [rail, it, run, cls, planId]);
 
-  if (!rail) return null;
   const c = card?.data;
   // Real plans: the party's ages, names left for the traveller (never the sample family's).
   const demo = isDemoPlan(planId);
@@ -191,11 +208,8 @@ function TrainCard({ it, planId }: { it: Itinerary; planId: string | null }) {
   };
 
   return (
-    <section className="bk-sec" aria-labelledby="train-h">
-      <div className="bk-sec-head">
-        <h2 className="h2" id="train-h">{t("Train on IRCTC")}</h2>
-        <span className="hint">{t("IRCTC has no booking link we can fill; copy these and paste them into its form.")}</span>
-      </div>
+    <div className="train-card">
+      {n > 0 && <h3 className="h3">{t("Train {n} of {m}: {from} to {to}", { n, m: of, from: rail.from, to: rail.to })}</h3>}
       {!card ? (
         <p className="hint" role="status">{t("Getting the train details…")}</p>
       ) : card.problem ? (
@@ -228,8 +242,8 @@ function TrainCard({ it, planId }: { it: Itinerary; planId: string | null }) {
                 <tbody>{rows.map((p, i) => <tr key={i}><td>{p.name || <span className="hint">{t("Passenger {n}: name as on ID", { n: i + 1 })}</span>}</td><td>{p.age ?? "—"}</td><td>{p.gender || "—"}</td><td>{t(p.berth)}</td></tr>)}</tbody>
               </table>
             </div>
-            {trainDiffers(rail, c, it) && (
-              <p className="badge badge-warn">{t("Your plan's train leaves at {time}; this one leaves at {other}. Pick the plan's train on IRCTC.", { time: clock(trainLeg(it)?.depart ?? rail.depart), other: c.departs })}</p>
+            {(rail.ref ? c.train.number !== rail.ref : c.departs !== clock(rail.depart)) && (
+              <p className="badge badge-warn">{t("Your plan's train leaves at {time}; this one leaves at {other}. Pick the plan's train on IRCTC.", { time: clock(rail.depart), other: c.departs })}</p>
             )}
             <p>{t("About {fare} for everyone.", { fare: inr(c.fare_estimate_inr) })} {c.notes.join(" ")}</p>
             <div className="row-wrap">
@@ -239,7 +253,7 @@ function TrainCard({ it, planId }: { it: Itinerary; planId: string | null }) {
           </div>
         )
       )}
-    </section>
+    </div>
   );
 }
 
@@ -309,7 +323,7 @@ function Book({ it, planId }: { it: Itinerary; planId: string | null }) {
         <div><small>{vs && !vs.ok ? t("Over budget by") : t("Left over")}</small><b>{vs ? inr(vs.diff) : "—"}</b></div>
       </div>
       <Travel it={it} planId={planId} />
-      <TrainCard it={it} planId={planId} />
+      <TrainCards it={it} planId={planId} />
       <section className="bk-sec" aria-labelledby="stay-h">
         <div className="bk-sec-head"><h2 className="h2" id="stay-h">{t("Where you stay")}</h2></div>
         {stayGroups(it).map(({ chosen: s, others }) => (
