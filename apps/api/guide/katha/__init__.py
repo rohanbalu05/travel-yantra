@@ -8,13 +8,16 @@ from typing import Any
 
 from ty_contracts import KathaRequest, KathaStory, Lang
 
-from .facts import UnknownSubject, gather, resolve
+from .facts import FIELD_NOTES, OUR_NOTES, UnknownSubject, gather, resolve
 from .pipeline import LANGS, KathaFailed, Outline, write
 
-__all__ = ["KathaFailed", "KathaRequest", "UnknownSubject", "katha", "katha_model"]
+__all__ = ["LENGTHS_SERVED", "KathaFailed", "KathaRequest", "UnknownSubject", "katha", "katha_model"]
 
 #: Bump when prompts or checks change, so cached stories are rewritten.
 PIPELINE_VERSION = "8"
+#: 10-minute stories are off until they pass (HQ P7): chapter-by-chapter retelling still
+#: fails its checks too often to ship. TY4 hides the option; the pipeline keeps them.
+LENGTHS_SERVED = {2, 5}
 
 
 def katha_model() -> Any:
@@ -45,6 +48,13 @@ def cache_key(req: KathaRequest, subject_name: str, chunk_ids: list[int]) -> str
     return hashlib.sha256(raw.encode()).hexdigest()
 
 
+def labelled(story: KathaStory) -> KathaStory:
+    """Our own notes named one way, "Travel Yantra field notes", in stories cached before
+    the label was settled (HQ P7)."""
+    sources = [FIELD_NOTES if not s.strip() or s.strip().lower() in OUR_NOTES else s for s in story.sources]
+    return story if sources == story.sources else story.model_copy(update={"sources": sources})
+
+
 def _cached(db: Any, key: str) -> tuple[dict, dict] | None:
     row = db.execute("SELECT story, notes FROM katha_cache WHERE key = %s", (key,)).fetchone()
     return (row[0], row[1] or {}) if row else None
@@ -62,7 +72,7 @@ async def katha(req: KathaRequest, db: Any, model: Any) -> KathaStory:
     chunk_ids = [f.chunk_id for f in facts]
     key = cache_key(req, subject.name, chunk_ids)
     if hit := _cached(db, key):
-        return KathaStory.model_validate(hit[0])
+        return labelled(KathaStory.model_validate(hit[0]))
     lang = story_lang(req)
     outline = None
     if lang != Lang.en:

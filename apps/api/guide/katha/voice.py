@@ -253,18 +253,25 @@ def read_aloud(
     storage: Storage,
     budget: Budget,
     starts: list[int] | None = None,
+    max_new: int | None = None,
 ) -> tuple[list[KathaAudio], int]:
     """(the chapters' audio, characters sent now). Audio already stored costs nothing, and
     a run that died part-way resumes: a chapter whose MP3 is already there is not read
-    again (its characters are recomputed from the same inputs, not billed)."""
+    again (its characters are recomputed from the same inputs, not billed).
+
+    max_new: read at most this many chapters now; if more are left, the audio is [] and
+    the next call goes on (the API reads one chapter per request: HQ P7)."""
     where = prefix(story)
     if (manifest := storage.get(f"{where}/audio.json")) is not None:
         return [KathaAudio(**a) for a in json.loads(manifest)], 0
-    chirp, groups, out, sent = "-Chirp3-HD-" in voice, chapters(story, starts), [], 0
+    chirp, groups, out, sent, new = "-Chirp3-HD-" in voice, chapters(story, starts), [], 0, 0
     for n, paras in enumerate(groups, start=1):
         inputs = requests_for(paras, chirp, last=n == len(groups))
         chars, name = characters(inputs), f"{where}/ch{n}.mp3"
         if not (url := storage.exists(name)):
+            if max_new is not None and new >= max_new:
+                return [], sent
+            new += 1
             mp3 = synthesize(http, inputs, voice, story.lang, budget)
             url = storage.put(name, mp3, "audio/mpeg")
             sent += chars
@@ -298,6 +305,12 @@ def attach(story: KathaStory, fetch: Callable[[str], Any] | None = None) -> list
 #: the story's text), and a story not yet read aloud is asked about again after a while.
 SEEN_TTL_S, MISS_TTL_S = 3600, 120
 _seen: dict[str, tuple[float, list[KathaAudio]]] = {}
+
+
+def forget(story: KathaStory) -> None:
+    """Drop the remembered manifest lookup for a story (its audio was just written)."""
+    base = os.environ.get("KATHA_AUDIO_BASE_URL", "")
+    _seen.pop(f"{base.rstrip('/')}/{prefix(story)}/audio.json", None)
 
 
 def _fetch(url: str) -> bytes | None:

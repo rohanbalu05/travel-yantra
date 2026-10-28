@@ -23,7 +23,7 @@ from ty_contracts import KathaRequest
 
 DEMO = ["city:Mysuru", "place:Mysore Palace", "place:Chamundeshwari Temple",
         "place:Vittala Temple", "city:Hampi", "place:Devaraja Market"]  # fmt: skip
-LENGTHS = (2, 5, 10)
+LENGTHS = (2, 5)  # 10 minutes is not served yet (guide.katha.LENGTHS_SERVED)
 
 
 async def main(subjects: list[str]) -> int:

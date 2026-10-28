@@ -87,3 +87,17 @@ def test_goa_corridor_has_at_least_ten_places_with_native_names() -> None:
     # unknown, never invented. guide.hours fills them at runtime.
     assert basilica.opening_hours == []
     assert "goa-basilica-of-bom-jesus" in place_ids() and "goa-divar-island" not in place_ids()
+
+
+def test_covered_cities_and_indoor_places_for_rain_plans() -> None:
+    from guide.planner import covered_cities, indoor_ids
+
+    cities = covered_cities()
+    assert cities["Mysuru"] == "Karnataka" and cities["Goa"] == "Goa"
+    indoor = indoor_ids()
+    for name in ("mysuru-mysore-palace", "goa-basilica-of-bom-jesus", "bengaluru-hal-aerospace-museum",
+                 "goa-mangueshi-temple"):  # fmt: skip
+        assert name in indoor, name
+    for name in ("hampi-vittala-temple-and-stone-chariot", "hampi-lotus-mahal-zenana-enclosure",
+                 "goa-fort-aguada", "bengaluru-bangalore-fort", "mysuru-devaraja-market"):  # fmt: skip
+        assert name not in indoor, name

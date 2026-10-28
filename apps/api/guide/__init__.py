@@ -9,7 +9,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from ty_contracts import GuideAnswer, GuideQuestion, KathaStory
 
 from .ask import Answerer, answerer, ask
-from .katha import KathaFailed, KathaRequest, UnknownSubject, katha, katha_model
+from .katha import (
+    LENGTHS_SERVED,
+    KathaFailed,
+    KathaRequest,
+    UnknownSubject,
+    katha,
+    katha_model,
+)
 from .places import PgCache, PlacesClient
 
 router = APIRouter(prefix="/guide")
@@ -63,6 +70,21 @@ async def post_ask(
 
 
 NO_STORY = "No story for that place yet."
+NO_LONG_STORY = "10-minute stories aren't ready yet. Try the 5-minute story."
+
+
+@router.get("/katha/library")
+async def get_katha_library(lang: str | None = None, db: Any = Depends(get_db)) -> list[dict]:
+    """Every place and city with a ready story (HQ P7): [{subject_kind, subject, city,
+    lengths, langs, has_audio}], best-known first. `subject` is posted back as is."""
+    from .katha.library import library
+
+    try:
+        items = await asyncio.to_thread(library, db)
+    except Exception as e:  # katha_cache missing, a dropped connection
+        log.exception("katha library failed")
+        raise HTTPException(503, BUSY) from e
+    return [i for i in items if not lang or lang in i["langs"]]
 
 
 @router.post("/katha", response_model=KathaStory)
@@ -71,6 +93,8 @@ async def post_katha(
     db: Any = Depends(get_db),
     model: Any = Depends(katha_model),
 ) -> KathaStory:
+    if req.length_min not in LENGTHS_SERVED:
+        raise HTTPException(404, NO_LONG_STORY)
     try:
         story = await katha(req, db, model)
     except UnknownSubject as e:
@@ -82,7 +106,11 @@ async def post_katha(
         log.exception("guide katha failed")
         raise HTTPException(503, BUSY) from e
     # Read aloud, if it has been (V3-AF): one small public GET; no audio is never an error.
+    # Not yet: read on demand, a chapter a request, within the daily TTS cap (HQ P7).
+    from .katha.ondemand import advance
     from .katha.voice import attach
 
-    audio = await asyncio.to_thread(attach, story)
-    return story.model_copy(update={"audio": audio}) if audio else story
+    if audio := await asyncio.to_thread(attach, story):
+        return story.model_copy(update={"audio": audio, "audio_status": "ready"})
+    audio, status = await asyncio.to_thread(advance, story, db)
+    return story.model_copy(update={"audio": audio, "audio_status": status})

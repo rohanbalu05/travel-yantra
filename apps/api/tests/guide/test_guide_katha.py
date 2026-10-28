@@ -222,7 +222,7 @@ def test_katha_over_http(api) -> None:
     r = api.post("/guide/katha", json={"subject_kind": "place", "subject": "Mysore Palace",
                                        "length_min": 2, "lang": "ta"})  # fmt: skip
     assert r.status_code == 200 and r.json()["lang"] == "en"  # no Tamil voice: English for translate
-    r = api.post("/guide/katha", json={"subject_kind": "place", "subject": "Taj Mahal", "length_min": 2})
+    r = api.post("/guide/katha", json={"subject_kind": "place", "subject": "Sample Unknown Fort", "length_min": 2})
     assert r.status_code == 404 and r.json() == {"detail": "No story for that place yet."}
     assert api.post("/guide/katha", json={"subject_kind": "place", "subject": "x",
                                           "length_min": 3}).status_code == 422  # fmt: skip

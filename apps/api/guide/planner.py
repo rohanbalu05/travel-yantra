@@ -29,6 +29,45 @@ CITY_ALIASES = {
     "madgaon": "Goa", "north goa": "Goa", "south goa": "Goa", "mapusa": "Goa",
 }  # fmt: skip
 ELDERLY_AGE = 65
+#: Corpus city -> the region it belongs to (what the planner can tell travellers it covers).
+REGIONS = {
+    "Mysuru": "Karnataka", "Bengaluru": "Karnataka", "Hampi": "Karnataka", "Coorg": "Karnataka",
+    "Chikmagalur": "Karnataka", "Goa": "Goa",
+}  # fmt: skip
+#: Under a roof: museums and temples, palaces (their interiors), churches and tombs, or
+#: the "indoor" tag. Never ruins, hilltops, viewpoints or Hampi's open temple complexes,
+#: or the "outdoor" tag. Forts, gardens, markets and food stops are not.
+INDOOR_CATEGORIES = {"museum", "temple"}
+INDOOR_NAME = re.compile(r"church|cathedral|basilica|mausoleum|gumbaz|tomb|mahal|palace|haveli", re.I)
+OUTDOOR_TAGS = {"outdoor", "ruins", "hilltop", "viewpoint", "stepwell"}
+OPEN_AIR_CITIES = {"Hampi"}  # a ruined city: its temples have no roof worth the name in rain
+
+
+def covered_cities() -> dict[str, str]:
+    """{corpus city: region} for every city the corpus holds places for."""
+    have = {p["city"] for p in _pois()}
+    return {city: region for city, region in REGIONS.items() if city in have}
+
+
+@lru_cache(maxsize=1)
+def indoor_ids() -> frozenset[str]:
+    """Planner ids of places a rain plan can use: an indoor category or the "indoor" tag,
+    never one tagged "outdoor" (an open-air temple complex), never food."""
+    out = set()
+    for p in _pois():
+        tags = set(p.get("tags") or [])
+        if p["category"] == "museum" or "indoor" in tags:
+            out.add(_slug(f"{p['city']} {p['name']}"))
+        elif tags & OUTDOOR_TAGS or p["city"] in OPEN_AIR_CITIES or p["category"] not in (
+                *INDOOR_CATEGORIES, "monument"):  # fmt: skip
+            continue
+        elif p["category"] in INDOOR_CATEGORIES or "palace" in tags or INDOOR_NAME.search(p["name"]):
+            out.add(_slug(f"{p['city']} {p['name']}"))
+    return frozenset(out)
+
+
+def is_indoor(place: Place) -> bool:
+    return place.id in indoor_ids()
 
 
 def exact_city(name: str) -> str | None:
@@ -83,6 +122,7 @@ def to_place(p: dict) -> Place:
         opening_hours=_hours(p),
         typical_visit_minutes=p["typical_dwell_min"],
         source=SOURCE,
+        ticket_url=p.get("ticket_url"),  # the official site only; None where there is none
     )
 
 

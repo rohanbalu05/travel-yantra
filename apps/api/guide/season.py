@@ -138,15 +138,71 @@ def event_window(text: str, year: int) -> tuple[date, date] | None:
     return None
 
 
+#: Notes about an activity, not the season a traveller lands in (HQ P7: Goa showed two
+#: diving notes). The planner's season notes are about weather and festivals.
+ACTIVITY = re.compile(r"\b(div(?:e|ing|ers?)|scuba|snorkel\w*|surf\w*|trek\w*|raft\w*|parasail\w*|kayak\w*|"
+                      r"paraglid\w*|fishing|angling|safari\w*|bird ?watch\w*|camping)\b", re.I)  # fmt: skip
+#: A season word in a general note, and the months it is true in. "Enjoy Coorg in the
+#: monsoon season" is not a note for November (HQ P7).
+SEASON_MONTHS = {
+    re.compile(r"monsoon|rainy season|the rains\b", re.I): {6, 7, 8, 9},
+    re.compile(r"\bwinter", re.I): {11, 12, 1, 2},
+    re.compile(r"\bsummer", re.I): {3, 4, 5, 6},
+}
+_Q = r"(mid-|mid |early |late |the end of |end of )?"
+WINDOW = re.compile(rf"\b{_Q}{_MONTH}\b\.?\s*(?:to|till|until|through|-|–)\s*{_Q}{_MONTH}\b", re.I)
+
+
+def _last_day(y: int, m: int) -> int:
+    return ((date(y + (m == 12), m % 12 + 1, 1)) - date(y, m, 1)).days
+
+
+def windows(text: str, year: int) -> list[tuple[date, date]]:
+    """The date ranges a sentence names, to the half month ("mid-November to mid-February"
+    is 15 Nov to 15 Feb), each in the year given and the one before, so a range across
+    New Year still meets a January trip."""
+    out = []
+    for m in WINDOW.finditer(text):
+        q1, q2 = ((m.group(i) or "").strip().lower() for i in (1, 3))
+        a, b = _index(m.group(2)) + 1, _index(m.group(4)) + 1
+        for y in (year - 1, year):
+            yb = y + (b < a)
+            d1 = {"mid-": 15, "mid": 15, "late": 21, "the end of": 21, "end of": 21}.get(q1, 1)
+            d2 = {"early": 10, "mid-": 15, "mid": 15}.get(q2, _last_day(yb, b))
+            out.append((date(y, a, d1), date(yb, b, d2)))
+    return out
+
+
+def fits_trip(note: dict, start: date, end: date) -> bool:
+    """A note the trip's actual dates make true: no activity notes; a named range must meet
+    the trip's days, not just its month; a general monsoon/winter/summer note only in those
+    months."""
+    text = note["text"]
+    if ACTIVITY.search(text):
+        return False
+    if spans := windows(text, start.year) + windows(text, end.year):
+        return any(a <= end and b >= start for a, b in spans)
+    if note.get("kind") == "general":
+        months, d = set(), start.replace(day=1)
+        while d <= end:
+            months.add(d.month)
+            d = date(d.year + (d.month == 12), d.month % 12 + 1, 1)
+        for pattern, true_in in SEASON_MONTHS.items():
+            if pattern.search(text) and not months & true_in:
+                return False
+    return True
+
+
 def notes_for_trip(city: str, start: date, end: date) -> list[dict]:
     """Notes for every month of a trip, once each, with each event kept only when its
-    dates fall inside the trip (an event with unknown dates is left out)."""
+    dates fall inside the trip (an event with unknown dates is left out), and every note
+    checked against the trip's dates (fits_trip)."""
     out: list[dict] = []
     seen: set[str] = set()
     y, m = start.year, start.month
     while (y, m) <= (end.year, end.month):
         for note in notes_for(city, m):
-            if note["text"] in seen:
+            if note["text"] in seen or not fits_trip(note, start, end):
                 continue
             if is_event(note):
                 window = event_window(note["text"], y)

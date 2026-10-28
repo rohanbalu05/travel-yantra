@@ -85,3 +85,35 @@ def test_a_trip_across_new_year_reads_both_years() -> None:
 
     notes = notes_for_trip("Goa", date(2026, 12, 30), date(2027, 1, 2))
     assert notes and len({n["text"] for n in notes}) == len(notes)
+
+
+# --- HQ P7: notes about the trip's actual weeks, no activity notes, no wrong season ---
+
+
+def test_season_notes_fit_the_trips_dates() -> None:
+    from guide.season import fits_trip
+
+    best = {"text": "The best time of the year to visit Goa is mid-November to mid-February when "
+                    "the weather is comfortable, dry and pleasant.", "kind": "month"}  # fmt: skip
+    assert not fits_trip(best, date(2026, 11, 1), date(2026, 11, 5))  # before mid-November
+    assert fits_trip(best, date(2026, 11, 14), date(2026, 11, 18))
+    assert fits_trip(best, date(2027, 1, 10), date(2027, 1, 12))  # the range across New Year
+    assert not fits_trip(best, date(2027, 2, 20), date(2027, 2, 24))
+    diving = {"text": "Diving: the season is between mid-October to mid-May.", "kind": "month"}
+    assert not fits_trip(diving, date(2026, 11, 14), date(2026, 11, 18))  # an activity, not the season
+    monsoon = {"text": "Tourists can travel around the Coorg, enjoying the amazing natural beauty in the "
+                       "monsoon season.", "kind": "general"}  # fmt: skip
+    assert not fits_trip(monsoon, date(2026, 11, 1), date(2026, 11, 4))
+    assert fits_trip(monsoon, date(2026, 7, 1), date(2026, 7, 4))
+    climate = {"text": "Madikeri features a tropical highland climate as it has an elevation of 1,170 m.",
+               "kind": "general"}  # fmt: skip
+    assert fits_trip(climate, date(2026, 11, 1), date(2026, 11, 4))
+
+
+def test_goa_early_november_has_no_diving_and_no_mid_november_notes() -> None:
+    from guide.season import notes_for_trip
+
+    texts = [n["text"] for n in notes_for_trip("Goa", date(2026, 11, 1), date(2026, 11, 4))]
+    assert not any("Diving" in t or "mid-November" in t for t in texts), texts
+    coorg = [n["text"] for n in notes_for_trip("Coorg", date(2026, 11, 1), date(2026, 11, 4))]
+    assert not any("monsoon" in t for t in coorg), coorg

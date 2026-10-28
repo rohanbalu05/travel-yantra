@@ -267,3 +267,156 @@ def test_a_story_the_api_cannot_give_is_skipped_and_the_run_goes_on(tmp_path, mo
     skipped = script.run(["city:Mysuru:5:hi", "city:Mysuru:2:en"], fetch, report, FakeHttp(), store,
                          v.Budget(100_000))  # fmt: skip
     assert skipped == 1 and any(k.endswith("/en/ch1.mp3") for k in store.objects)
+
+
+# --- HQ P7: audio on demand, a chapter a request, under a daily cap ---
+
+
+class JobDB:
+    """katha_audio_job and katha_tts_usage in memory, for the statements ondemand runs."""
+
+    def __init__(self, used: int = 0):
+        self.jobs: dict[str, bool] = {}  # key -> claimed
+        self.used = used
+
+    def execute(self, sql, params=()):
+        row = None
+        if sql.startswith("INSERT INTO katha_audio_job"):
+            if params[0] not in self.jobs:
+                self.jobs[params[0]], row = False, (1,)
+        elif sql.startswith("UPDATE katha_audio_job SET claimed_until = now()"):
+            if self.jobs.get(params[1]) is False:
+                self.jobs[params[1]], row = True, (1,)
+        elif sql.startswith("UPDATE katha_audio_job SET claimed_until = NULL"):
+            self.jobs[params[0]] = False
+        elif sql.startswith("INSERT INTO katha_tts_usage"):
+            n, cap = params
+            if self.used + n <= cap:
+                self.used += n
+                row = (self.used,)
+
+        class R:
+            def fetchone(self):
+                return row
+
+        return R()
+
+
+@pytest.fixture
+def on_demand(monkeypatch):
+    from guide.katha import ondemand
+
+    monkeypatch.setenv("KATHA_AUDIO_BUCKET", "sample-bucket")
+    monkeypatch.setenv("KATHA_AUDIO_BASE_URL", "https://example.org/bucket")
+    monkeypatch.setenv("KATHA_TTS_DAILY_CHARS", "30000")
+    monkeypatch.setattr(ondemand, "chosen_voices", lambda: {"en": "en-IN-Chirp3-HD-Charon"})
+    return ondemand
+
+
+def test_audio_on_demand_reads_a_chapter_a_request_then_is_ready(on_demand):
+    db, http, store = JobDB(), FakeHttp(), MemoryStorage()
+    s = story(length=5, paras=4, words=30)  # two chapters
+    steps = [on_demand.advance(s, db, http=http, storage=store) for _ in range(3)]
+    assert [st for _, st in steps] == ["pending", "pending", "ready"]  # filed, chapter 1, chapter 2
+    assert [a.chapter for a in steps[2][0]] == [1, 2] and db.used == sum(a.characters for a in steps[2][0])
+    assert f"{v.prefix(s)}/audio.json" in store.objects
+
+
+def test_audio_on_demand_holds_the_daily_cap_and_fails_soft(on_demand, monkeypatch):
+    db = JobDB(used=29_990)  # today nearly spent
+    s = story(length=2)
+    assert on_demand.advance(s, db, http=FakeHttp(), storage=MemoryStorage())[1] == "pending"
+    assert on_demand.advance(s, db, http=FakeHttp(), storage=MemoryStorage()) == ([], "none")
+    assert db.used == 29_990  # nothing sent past the cap
+    monkeypatch.setenv("KATHA_TTS_DAILY_CHARS", "0")
+    assert on_demand.advance(story(length=2, paras=1), JobDB(), http=FakeHttp(), storage=MemoryStorage())[1] == "none"
+
+
+def test_a_claimed_story_is_not_read_twice(on_demand):
+    db, s = JobDB(), story(length=2)
+    on_demand.advance(s, db, http=FakeHttp(), storage=MemoryStorage())
+    db.jobs[v.audio_key(s)] = True  # another instance is reading it now
+    http = FakeHttp()
+    assert on_demand.advance(s, db, http=http, storage=MemoryStorage()) == ([], "pending") and not http.synth()
+
+
+def test_the_endpoint_says_pending_then_ready(monkeypatch, on_demand):
+    import asyncio
+    import sys
+
+    import guide
+    from ty_contracts import KathaRequest
+
+    s = story(length=2)
+    pkg = sys.modules["guide"]
+
+    async def cached(req, db, model):
+        return s
+
+    monkeypatch.setattr(pkg, "katha", cached)
+    monkeypatch.setattr(v, "_fetch", lambda url: None)
+    db, store, http = JobDB(), MemoryStorage(), FakeHttp()
+    monkeypatch.setattr(v, "adc_http", lambda: http)
+    monkeypatch.setattr(on_demand, "_storage", lambda h: store)
+    v._seen.clear()
+    req = KathaRequest(subject_kind="place", subject="Mysore Palace", length_min=2)
+    first = asyncio.run(guide.post_katha(req, db=db, model=None))
+    assert first.audio_status == "pending" and first.audio == [] and first.text == s.text
+    second = asyncio.run(guide.post_katha(req, db=db, model=None))
+    assert second.audio_status == "ready" and [a.chapter for a in second.audio] == [1]
+    v._seen.clear()
+
+
+def test_ten_minute_stories_are_404_until_they_pass():
+    import asyncio
+
+    from fastapi import HTTPException
+
+    import guide
+    from ty_contracts import KathaRequest
+
+    with pytest.raises(HTTPException) as e:
+        asyncio.run(guide.post_katha(KathaRequest(subject_kind="place", subject="Mysore Palace", length_min=10),
+                                     db=None, model=None))  # fmt: skip
+    assert e.value.status_code == 404 and "5-minute" in e.value.detail
+
+
+def test_cached_stories_name_our_notes_as_field_notes():
+    from guide.katha import labelled
+
+    s = story().model_copy(update={"sources": ["https://example.org/a", "travel-yantra field notes", ""]})
+    assert labelled(s).sources == ["https://example.org/a", "Travel Yantra field notes", "Travel Yantra field notes"]
+
+
+def test_the_library_lists_ready_subjects_with_lengths_langs_and_audio():
+    from guide.katha import library as lib
+
+    def row(kind, subject, length, lang, city=None, pop=None):
+        st = story(lang=lang, length=length).model_copy(update={"subject_kind": kind, "subject": subject})
+        return (st.model_dump(mode="json"), city, pop)
+
+    rows = [row("place", "Mysore Palace", 2, "en", "Mysuru", 5), row("place", "Mysore Palace", 5, "hi", "Mysuru", 5),
+            row("city", "Mysuru", 2, "en"), row("place", "Devaraja Market", 2, "en", "Mysuru", 3),
+            row("place", "Mysore Palace", 10, "en", "Mysuru", 5)]  # fmt: skip
+
+    class DB:
+        def execute(self, sql, params):
+            assert params == ("8",) or params[0].isdigit()
+
+            class R:
+                def fetchall(self):
+                    return rows
+
+            return R()
+
+    lib._memo.clear()
+    out = lib.library(DB(), attach=lambda s: [1] if s.lang == "hi" else [])
+    assert out == [
+        {"subject_kind": "city", "subject": "Mysuru", "city": "Mysuru", "lengths": [2], "langs": ["en"],
+         "has_audio": False},
+        {"subject_kind": "place", "subject": "Mysore Palace", "city": "Mysuru", "lengths": [2, 5],
+         "langs": ["en", "hi"], "has_audio": True},
+        {"subject_kind": "place", "subject": "Devaraja Market", "city": "Mysuru", "lengths": [2], "langs": ["en"],
+         "has_audio": False},
+    ]  # fmt: skip
+    lib._memo.clear()
