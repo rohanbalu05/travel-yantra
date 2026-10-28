@@ -131,3 +131,16 @@ def test_concurrent_first_calls_load_the_embedder_once(monkeypatch):
     for t in threads:
         t.join()
     assert len(loads) == 1 and len({id(m) for m in got}) == 1 and len(got) == 4
+
+
+def test_hindi_and_kannada_questions_get_their_own_similarity_bar() -> None:
+    from guide.retrieval.retrieve import (
+        MIN_SIMILARITY,
+        MIN_SIMILARITY_INDIC,
+        min_similarity_for,
+    )
+
+    assert min_similarity_for("What should I know before a houseboat trip?") == MIN_SIMILARITY
+    assert min_similarity_for("हाउसबोट यात्रा से पहले क्या जानना चाहिए?") == MIN_SIMILARITY_INDIC
+    assert min_similarity_for("ಮೈಸೂರು ಅರಮನೆ ಯಾರು ಕಟ್ಟಿಸಿದರು?") == MIN_SIMILARITY_INDIC
+    assert min_similarity_for("Taj Mahal का इतिहास") == MIN_SIMILARITY  # mostly Latin letters

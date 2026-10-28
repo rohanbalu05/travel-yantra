@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import time
 from typing import Any
 from urllib.error import HTTPError
 from urllib.parse import quote, urlencode
@@ -20,6 +21,7 @@ from .places import Cache, MemoryCache, Transport, urllib_transport
 USER_AGENT = "TravelYantra/0.1 (https://github.com/rohanbalu05/travel-yantra; guide lane)"
 TIMEOUT_S = 10.0
 TTL_S = 30 * 24 * 3600
+RETRY_WAITS_S = (2, 5, 15)  # then one last try
 LANGS = ("en", "hi", "kn", "ta", "te", "bn")
 #: Sections that are lists of links or references, not prose about the place.
 SKIP_SECTIONS = re.compile(r"^(see also|references|notes|external links|further reading|gallery|"
@@ -37,8 +39,17 @@ class WikiClient:
         if (hit := self.cache.get(key)) is not None:
             return hit
         self.calls += 1
-        payload = self._transport("GET", url, {"User-Agent": USER_AGENT, "Accept": "application/json"},
-                                  None, TIMEOUT_S)  # fmt: skip
+        headers = {"User-Agent": USER_AGENT, "Accept": "application/json"}
+        for wait in RETRY_WAITS_S:  # Wikimedia sheds load with 429 and 503 (seen building Jaipur)
+            try:
+                payload = self._transport("GET", url, headers, None, TIMEOUT_S)
+                break
+            except HTTPError as e:
+                if e.code not in (429, 503):
+                    raise
+                time.sleep(wait)
+        else:
+            payload = self._transport("GET", url, headers, None, TIMEOUT_S)
         self.cache.set(key, payload, TTL_S)
         return payload
 

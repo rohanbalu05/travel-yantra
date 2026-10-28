@@ -27,6 +27,16 @@ DEFAULT_K = 8
 #: against the e5 model on the seeded corpus: real questions land at 0.82 and
 #: above, nonsense at 0.80 and below.
 MIN_SIMILARITY = 0.81
+#: A Hindi or Kannada question against English chunks scores lower for the same match
+#: (HQ P9, measured: "हाउसबोट यात्रा से पहले..." 0.800 to the houseboat chunk, its English
+#: twin 0.874; an unrelated Hindi question 0.784). The model still cites or says NO_ANSWER.
+MIN_SIMILARITY_INDIC = 0.795
+
+
+def min_similarity_for(query: str) -> float:
+    letters = [c for c in query if c.isalpha()]
+    indic = sum(1 for c in letters if ord(c) > 0x0900)
+    return MIN_SIMILARITY_INDIC if letters and indic / len(letters) > 0.5 else MIN_SIMILARITY
 
 POI_BOOST = 0.15  # a chunk about the stop you are standing at
 ACCESS_BOOST = 0.05  # a chunk that warns about steps, when the party needs it
@@ -192,7 +202,7 @@ def search(
     filters: Filters | None = None,
     k: int = DEFAULT_K,
     trip_context: TripContext | None = None,
-    min_similarity: float = MIN_SIMILARITY,
+    min_similarity: float | None = None,
 ) -> list[Hit]:
     """Top k chunks for a query, or an empty list when the corpus has no answer.
 
@@ -216,7 +226,7 @@ def search(
     # A loose lexical match is one common word in common, not evidence the corpus
     # can answer. Only a strict match counts as a second opinion.
     best = max((r["similarity"] or 0.0) for r in found["dense"]) if found["dense"] else 0.0
-    if best < min_similarity and not any(r["strict"] for r in found["lexical"]):
+    if best < (min_similarity or min_similarity_for(query)) and not any(r["strict"] for r in found["lexical"]):
         return []
 
     scores, ranks = rank(found)

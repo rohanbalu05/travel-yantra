@@ -330,7 +330,8 @@ def build(region: str, wiki: WikiClient) -> tuple[list[dict], list[dict], list[s
         for heading, body in sections:
             if not wanted.match(heading):
                 continue
-            for i, para in enumerate(p for p in paragraphs(body) if not LISTING.search(p)):
+            # Wikivoyage writes rules as short bullets ("Remove your shoes before...").
+            for i, para in enumerate(p for p in paragraphs(body, min_words=8) if not LISTING.search(p)):
                 title = f"{page} (Wikivoyage): {heading}" + (f" ({i + 1})" if i else "")
                 while title in titles:
                     title += "'"
