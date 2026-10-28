@@ -96,6 +96,11 @@ describe("ChatPanel", () => {
     expect(screen.getByRole("status").textContent).toBe(CHAT_STRINGS.noVoice.ta);
   });
 
+  it("hides the mic when voice is off", () => {
+    render(<ChatPanel planId={null} lang="en" voice={false} />);
+    expect(screen.queryByRole("button", { name: CHAT_STRINGS.speak.en })).toBeNull();
+  });
+
   it("listens in the page's language and sends what it heard", async () => {
     const started: string[] = [];
     class FakeRecognition {

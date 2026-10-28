@@ -18,10 +18,12 @@ export type ChatPanelProps = {
   lang: Lang;
   /** A chat edit or a new plan finished: replace the plan on the page with this one. */
   onPlanChanged?: (e: PlanChanged) => void;
+  /** The mic button (browser speech recognition, HQ P9 item 6). False hides it. */
+  voice?: boolean;
 };
 
 /** The chat assistant: plan a trip, change the plan in plain words, ask the guide. Streams replies from POST /chat. */
-export function ChatPanel({ planId, shareToken = null, lang, onPlanChanged }: ChatPanelProps) {
+export function ChatPanel({ planId, shareToken = null, lang, onPlanChanged, voice = true }: ChatPanelProps) {
   const [state, dispatch] = useReducer(reduce, EMPTY);
   const [draft, setDraft] = useState("");
   const [listening, setListening] = useState(false);
@@ -146,6 +148,7 @@ export function ChatPanel({ planId, shareToken = null, lang, onPlanChanged }: Ch
             }
           }}
         />
+        {voice && (
         <button
           type="button"
           className={`${styles.mic} ${listening ? styles.on : ""}`}
@@ -157,6 +160,7 @@ export function ChatPanel({ planId, shareToken = null, lang, onPlanChanged }: Ch
         >
           <MicIcon />
         </button>
+        )}
         <button type="submit" className={styles.send} disabled={!live || state.busy || !draft.trim()}>
           {say("send", lang)}
         </button>

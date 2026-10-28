@@ -285,6 +285,7 @@ class Engine:
             except Exception:
                 log.exception("chat reply failed (%s)", body.channel)
                 await emit(ChatEvent(type="error", text=await self._tr(SORRY, conv.lang)))
+            conv = turn.conv  # delete my data starts a fresh one
             if turn.forgotten:
                 await self.store.delete(cid)
             else:
