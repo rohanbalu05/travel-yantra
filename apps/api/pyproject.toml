@@ -9,6 +9,7 @@ dependencies = [
     "numpy>=1.26",
     "psycopg[binary]>=3.2",
     "pydantic>=2.7",
+    "ty-chat",
     "ty-contracts",
     "uvicorn>=0.30",
 ]
@@ -30,6 +31,8 @@ package = false
 
 [tool.uv.sources]
 ty-contracts = { path = "../../packages/contracts", editable = true }
+# TY5's chat engine (POST /chat), mounted in main.py.
+ty-chat = { path = "../bots/chat", editable = true }
 # CPU-only torch on Linux (the API image and CI): no CUDA wheels. Other platforms keep PyPI's build.
 torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
 

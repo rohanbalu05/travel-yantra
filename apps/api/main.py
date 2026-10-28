@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 logging.basicConfig(level=os.getenv("TY_LOG_LEVEL", "WARNING"), format="%(levelname)s %(name)s %(message)s")
 logging.getLogger("core.llm").setLevel(os.getenv("TY_LOG_LEVEL", "INFO"))
 
-LANES = ("guide", "routes")
+LANES = ("guide", "routes", "ty_chat")
 MOUNTED: list[ModuleType] = []
 
 

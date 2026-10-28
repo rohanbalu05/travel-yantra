@@ -6,6 +6,7 @@ COPY --from=ghcr.io/astral-sh/uv:0.9 /uv /usr/local/bin/uv
 WORKDIR /app/apps/api
 # Same layout as the repo, so the path dependency ../../packages/contracts and the samples resolve.
 COPY packages/contracts /app/packages/contracts
+COPY apps/bots/chat /app/apps/bots/chat
 COPY apps/api/pyproject.toml apps/api/uv.lock ./
 # Locked deps plus the embeddings extra (sentence-transformers on CPU-only torch); no dev group.
 RUN uv sync --frozen --no-dev --extra embeddings --no-install-project
