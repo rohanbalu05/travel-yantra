@@ -66,6 +66,16 @@ for (const [size, opts] of Object.entries(sizes)) {
     await page.waitForTimeout(1500);
     await shot(page, `phone-en-${name}`);
   }
+  // budget_style: switch the plan to Comfort on the Itinerary.
+  await page.goto(`${base}/plan/itinerary/`, { waitUntil: "networkidle" });
+  const comfort = page.getByRole("group", { name: "Budget style" }).getByRole("button", { name: "Comfort" });
+  if ((await comfort.count()) && (await comfort.isEnabled())) {
+    await comfort.click();
+    await page.getByText(/^Done:|could not|took too long|not available/i).first().waitFor({ timeout: 120_000 });
+    await shot(page, "phone-en-itinerary-style");
+    notes.push(`budget_style: ${(await page.locator(".rev-msg").first().textContent())?.trim()}`);
+  }
+
   // change_stay: pick another stay on Book, then booked: the rail option's train with its times.
   await page.goto(`${base}/book/`, { waitUntil: "networkidle" });
   const others = page.locator("details.stay-others").first();
