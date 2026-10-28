@@ -267,6 +267,12 @@ def home_note(out: Leg) -> str:
     return f"{MODE_WORD[out.mode]} home {out.from_} → {out.to}, {_times(out)}"
 
 
+def no_time(day: date, lim: Limits, hop: Leg | None, out: Leg | None) -> bool:
+    """The journeys leave less than two hours for visits that day (or none at all)."""
+    f = frame(lim, hop, out)
+    return datetime.combine(day, f.end) - datetime.combine(day, f.start) < timedelta(hours=2)
+
+
 def travel_day(legs: list[Leg]) -> str:
     """"Travel day: train 17309, 15:15 → 05:47" for the journeys of a day with no visits."""
     parts = []
@@ -283,7 +289,7 @@ def day_titles(days: list[DayPlan], request: TripRequest) -> list[DayPlan]:
     for n, d in enumerate(days, 1):
         city = city_of(request, d.date) or request.destinations[0]
         hop, home = hop_of(d), out_of(d)
-        if not d.stops and (hop or home):
+        if not d.stops and (hop or home) and no_time(d.date, limits(request), hop, home):
             what = travel_day([leg for leg in (hop, home) if leg])
         elif hop and home:
             what = f"{city} day trip"
@@ -360,7 +366,7 @@ def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorde
     if out:
         legs.append(out)
         notes.append(home_note(out))
-    if not stops and (hop or out):
+    if not stops and (hop or out) and no_time(day, lim, hop, out):
         notes.insert(0, travel_day([leg for leg in (hop, out) if leg]))
     times = [StopTime(place_id=v.place.id, arrive=v.arrive, start=v.start, leave=v.leave) for v in visits]
     return DayPlan(date=day, stops=stops, legs=legs, notes=notes, schedule=times), problem

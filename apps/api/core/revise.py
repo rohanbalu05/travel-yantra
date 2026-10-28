@@ -5,6 +5,7 @@ Deterministic edits, then the same check-and-repair loop as /plan. No model call
 
 from __future__ import annotations
 
+import difflib
 import math
 import re
 from datetime import date
@@ -173,6 +174,122 @@ def rain(it: Itinerary, d: date | None, travel: Travel, lim: Limits) -> str:
     return "Rain plan: " + ("; ".join(changes) if changes else "every stop is already indoors")
 
 
+def find_place(it: Itinerary, text: str | None, place_id: str | None) -> tuple[Place, str]:
+    """A place the traveller names ("Fort Aguada") or a planner id, among the trip's cities: the place and
+    its city. ReviseError when none matches."""
+    from guide.hours import live_hours
+    from guide.planner import places_for
+
+    from .steps import samples_allowed
+
+    pool: list[tuple[Place, str]] = []
+    for c in it.request.destinations:
+        found = places_for(c)
+        if samples_allowed():
+            one = it.request.model_copy(update={"destinations": [c]})
+            found += [*fakes.places(one), *fakes.alternatives(one)]
+        pool += [(p, c) for p in found]
+    wanted = (place_id or text or "").strip()
+    hit = next(((p, c) for p, c in pool if p.id == wanted), None)
+    if hit is None and text:
+        key = re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
+        names = {_name(p): (p, c) for p, c in reversed(pool)}
+        hit = names.get(key) or next((names[n] for n in names if key and (n.startswith(key) or key in n)), None)
+        if hit is None and (close := difflib.get_close_matches(key, list(names), n=1, cutoff=0.75)):
+            hit = names[close[0]]
+    if hit is None:
+        raise ReviseError(f"I could not find {wanted} in {', '.join(it.request.destinations)}")
+    place, city = hit
+    return live_hours([place])[0], city
+
+
+def _where(it: Itinerary, place_id: str):
+    return next((d for d in it.days if any(p.id == place_id for p in d.stops)), None)
+
+
+def _relocate(it: Itinerary, p: Place, away_from: date, travel: Travel, lim: Limits, why: str) -> str:
+    """Put a stop that had to leave a day on another day of its city in the same area, else drop it."""
+    for other in sorted(it.days, key=lambda x: (len(x.stops), x.date)):
+        if other.date != away_from and city_of(it.request, other.date) == city_of(it.request, away_from) \
+                and in_area(other.stops, p, travel) \
+                and fits(other.date, [*other.stops, p], travel, lim, hop_of(other), out_of(other)):
+            rebuild_day(it, other.date, [*other.stops, p], travel, lim)
+            return f"moved {p.name} to {other.date:%a %d %b}"
+    it.warnings.append(f"Dropped {p.name} {why}")
+    return f"dropped {p.name}"
+
+
+def place_on(it: Itinerary, place: Place, city: str, day: date | None, travel: Travel, lim: Limits,
+             verb: str = "Added") -> str:
+    """Put a place on the given day (or the best day of its city: one in its area with room, the emptiest
+    first). When the day is full, its lowest-priority stops make room and go to another day or are dropped."""
+    days = [d for d in it.days if city_of(it.request, d.date) == city]
+    if day is not None:
+        target = _day(it, day)
+        if city_of(it.request, day) != city:
+            raise ReviseError(f"{place.name} is in {city}; {day:%a %d %b} is a "
+                              f"{city_of(it.request, day)} day")
+        days = [target]
+    if not days:
+        raise ReviseError(f"this trip has no day in {city}")
+    days.sort(key=lambda d: (not in_area(d.stops, place, travel), len(d.stops), d.date))
+    for d in days:
+        if fits(d.date, [*d.stops, place], travel, lim, hop_of(d), out_of(d)):
+            rebuild_day(it, d.date, [*d.stops, place], travel, lim)
+            return f"{verb} {place.name} to {d.date:%a %d %b}"
+    target = days[0]
+    if not fits(target.date, [place], travel, lim, hop_of(target), out_of(target)):
+        raise ReviseError(f"{place.name} does not fit {target.date:%a %d %b} (opening hours or the journey that day)")
+    rank = ranks(it, city)
+    stops, out = list(target.stops), []
+    top = min(stops, key=lambda p: (rank.get(p.id, LOW), p.id), default=None)
+    while stops and not fits(target.date, [*stops, place], travel, lim, hop_of(target), out_of(target)):
+        lowest = max(stops, key=lambda p: (rank.get(p.id, LOW), p.typical_visit_minutes, p.id))
+        if lowest is top and rank.get(top.id, LOW) < rank.get(place.id, LOW):
+            # Making room would take out the day's top sight: say where it fits instead.
+            free = next((d for d in it.days if city_of(it.request, d.date) == city and d.date != target.date
+                         and fits(d.date, [*d.stops, place], travel, lim, hop_of(d), out_of(d))), None)
+            hint = f"; it fits on {free.date:%a %d %b}" if free else ""
+            raise ReviseError(f"{target.date:%a %d %b} is full with {top.name}{hint}")
+        stops.remove(lowest)
+        out.append(lowest)
+    rebuild_day(it, target.date, [*stops, place], travel, lim)
+    moved = [_relocate(it, p, target.date, travel, lim, f"to make room for {place.name}") for p in out]
+    return f"{verb} {place.name} to {target.date:%a %d %b}" + (f" ({'; '.join(moved)})" if moved else "")
+
+
+def add_stop(it: Itinerary, req: ReviseRequest, travel: Travel, lim: Limits) -> str:
+    place, city = find_place(it, req.place, req.place_id)
+    if (day := _where(it, place.id)) is not None or any(_name(p) == _name(place) for d in it.days for p in d.stops):
+        on = day or next(d for d in it.days if any(_name(p) == _name(place) for p in d.stops))
+        raise ReviseError(f"{place.name} is already on {on.date:%a %d %b}")
+    return place_on(it, place, city, req.day, travel, lim)
+
+
+def remove_stop(it: Itinerary, place_id: str, travel: Travel, lim: Limits) -> str:
+    day = _where(it, place_id)
+    if day is None:
+        raise ReviseError(f"{place_id} is not in this plan")
+    gone = next(p for p in day.stops if p.id == place_id)
+    rebuild_day(it, day.date, [p for p in day.stops if p.id != place_id], travel, lim)
+    return f"Removed {gone.name} from {day.date:%a %d %b}"
+
+
+def move_stop(it: Itinerary, place_id: str, to: date, travel: Travel, lim: Limits) -> str:
+    day = _where(it, place_id)
+    if day is None:
+        raise ReviseError(f"{place_id} is not in this plan")
+    target = _day(it, to)
+    place = next(p for p in day.stops if p.id == place_id)
+    if target.date == day.date:
+        return f"{place.name} is already on {to:%a %d %b}"
+    city = city_of(it.request, day.date)
+    if city_of(it.request, to) != city:
+        raise ReviseError(f"{place.name} is in {city}; {to:%a %d %b} is a {city_of(it.request, to)} day")
+    rebuild_day(it, day.date, [p for p in day.stops if p.id != place_id], travel, lim)
+    return place_on(it, place, city, to, travel, lim, verb="Moved")
+
+
 def revise(it: Itinerary, req: ReviseRequest, travel: Travel | None = None,
            priced: bool = True) -> tuple[Itinerary, str, int]:
     """Apply one intent, then check and repair. Returns the plan, what changed, and the repair rounds.
@@ -192,6 +309,12 @@ def revise(it: Itinerary, req: ReviseRequest, travel: Travel | None = None,
         what = change_transport(it, req.mode, travel)
     elif req.intent is ReviseIntent.rain:
         what = rain(it, req.day, travel, lim)
+    elif req.intent is ReviseIntent.add_stop:
+        what = add_stop(it, req, travel, lim)
+    elif req.intent is ReviseIntent.remove_stop:
+        what = remove_stop(it, req.place_id, travel, lim)
+    elif req.intent is ReviseIntent.move_stop:
+        what = move_stop(it, req.place_id, req.day, travel, lim)
     else:
         raise ReviseError(f"{req.intent.value}: this change is not available yet")
     from .repair import finish

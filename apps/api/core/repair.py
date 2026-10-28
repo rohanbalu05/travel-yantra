@@ -98,13 +98,9 @@ def _cheaper(it: Itinerary, travel: Travel, lim: Limits) -> list[str]:
             it.stays.remove(cheaper)
             it.stays.insert(it.stays.index(chosen), cheaper)
             return [f"Switched to {cheaper.name} to save money"]
-    fullest = max(it.days, key=lambda d: len(d.stops))
-    if not fullest.stops:
-        return []
-    drop = max(fullest.stops, key=lambda p: p.typical_visit_minutes)
-    rebuild_day(it, fullest.date, [p for p in fullest.stops if p.id != drop.id], travel, lim)
-    it.warnings.append(f"Dropped {drop.name} to stay within budget")
-    return [f"Dropped {drop.name} to save money"]
+    # Sights cost little (tickets); dropping them to save money empties the trip. What is left over stays a
+    # warning with the total, for the traveller to decide.
+    return []
 
 
 def _move_or_drop(it: Itinerary, d: date | None, place_id: str, travel: Travel, lim: Limits, why: str) -> list[str]:
