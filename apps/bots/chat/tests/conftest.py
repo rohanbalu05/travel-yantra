@@ -117,7 +117,10 @@ def store():
 @pytest.fixture
 def engine(api, store, clock, lite):
     transport = httpx.MockTransport(api.handler)
-    return Engine(Api("http://api", transport, {"X-Client-Id": CID}), store, lite=lite, clock=clock)
+    e = Engine(Api("http://api", transport, {"X-Client-Id": CID}), store, lite=lite, clock=clock)
+    e.live_intents |= {"add_stop", "remove_stop", "move_stop", "change_stay", "budget_style",
+                       "booked", "rest_of_day"}  # fmt: skip
+    return e
 
 
 async def send(engine: Engine, text: str = "", cid: str = CID, **kw) -> list:

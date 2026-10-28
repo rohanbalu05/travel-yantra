@@ -94,6 +94,13 @@ FORGOTTEN_NONE = "Done. I have forgotten our chat, your language and your locati
 FORGOTTEN_KEPT = f"If a plan link of yours still opens, email {CONTACT} with it and we will delete it."
 NEXT = "Reply share for a link, or: lighter day 2 · rain day 3 · swap <place> · add <place>"
 NEXT_CHIPS = ["share", "lighter day 2", "rain day 3", "cheaper hotel", "running late 30 min"]
+# Revise intents TY1's API carries out today; the others get NOT_YET until their handlers land
+# (on ty-api 7b9eaab an unhandled intent was re-planned as rain).
+LIVE_INTENTS = {"lighter_day", "swap_stop", "rain", "move_day", "transport"}
+NOT_YET = (
+    "I can't make that change from chat yet. For now I can: lighter day 2, rain day 3, "
+    "swap <place>, extra day in <city>, or by train / by road / fly."
+)
 CHANGED = {
     "lighter_day": "Made day {day} lighter.",
     "swap_stop": "Swapped {place}.",
@@ -129,8 +136,8 @@ def so_far(d: TripDraft | None) -> tuple[str, list[str]]:
         parts.append(f"{d.start_date:%d %b} to {d.end_date:%d %b}")
     elif d.start_date:
         parts.append(f"from {d.start_date:%d %b}")
-    if d.travellers:
-        parts.append(f"{len(d.travellers)} travellers")
+    if n := len(d.travellers):
+        parts.append(f"{n} traveller{'s' * (n > 1)}")
     if d.budget_inr:
         parts.append(f"budget ₹{d.budget_inr:,}")
     return ("So far: " + ", ".join(parts) if parts else ""), keep
@@ -268,6 +275,7 @@ class Engine:
         self.lite = lite
         self.clock = clock
         self.audio_wait = 8.0  # seconds between asks for a story's narration
+        self.live_intents = set(LIVE_INTENTS)
 
     # --- the stream ---------------------------------------------------------------------
 
@@ -515,6 +523,9 @@ class Engine:
             # The web's read-only page (TY4); without it, the API's JSON for the same plan.
             link = f"{web}/t/{c.share_token}/" if web else f"{self.api.base}/trips/{c.share_token}"
             return await self.say(t, "Your plan:", tail=link)
+        if intent not in self.live_intents:
+            log.info("route: edit %s is not live yet", intent)
+            return await self.say(t, NOT_YET)
         days = it.days
         body: dict = {"intent": intent, "lang": c.lang.value}
         said = {"day": f.get("day"), "place": f.get("place"), "city": f.get("city")}
