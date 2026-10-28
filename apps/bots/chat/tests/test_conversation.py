@@ -148,5 +148,17 @@ async def test_plan_summary_and_ids(engine, api):
     assert plan.itinerary.request.destinations == ITINERARY["request"]["destinations"]
     body = texts(events)[0]
     assert "Travel: by train" in body and "Journeys:" in body
-    assert "per person" in body and "Day 1" in body
+    assert "per person" not in body and " of you" in body and "Day 1" in body
     assert of(events, "chips")[0].chips[0] == "share"
+
+
+def test_prices_are_for_the_party():
+    from ty_contracts import Leg, Mode
+
+    from ty_chat.engine import price
+
+    rail = Leg.model_validate(ITINERARY["transport"][0]["legs"][0])  # ₹4,800
+    assert price(rail, 4) == "₹4,800 for all 4 of you (₹1,200 each)"
+    assert price(rail, 1) == "₹4,800 for 1 person"
+    road = rail.model_copy(update={"mode": Mode.road})
+    assert price(road, 4) == "₹4,800 for 1 car" and price(road, 5) == "₹4,800 for 2 cars"

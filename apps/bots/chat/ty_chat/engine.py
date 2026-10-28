@@ -154,17 +154,28 @@ def journeys(it: Itinerary) -> list[Leg]:
     return list(it.transport[0].legs) if it.transport else []
 
 
-def _leg_line(leg: Leg) -> str:
+SEATS_PER_CAR = 4  # as TY3 prices road journeys
+
+
+def price(leg: Leg, people: int) -> str:
+    """A journey's cost_inr is the whole party's (TY1): rail and air are N fares, road is cars."""
+    n = max(people, 1)
+    if leg.mode.value == "road":
+        cars = -(-n // SEATS_PER_CAR)
+        return f"₹{leg.cost_inr:,} for {cars} car{'s' * (cars > 1)}"
+    if n == 1:
+        return f"₹{leg.cost_inr:,} for 1 person"
+    return f"₹{leg.cost_inr:,} for all {n} of you (₹{round(leg.cost_inr / n):,} each)"
+
+
+def _leg_line(leg: Leg, people: int) -> str:
     mode = MODE_WORDS.get(leg.mode.value, leg.mode.value)
     ref = f" {leg.ref}" if leg.ref else ""
     when = f"{leg.depart:%a %d %b %H:%M}"
     arrive = f"{leg.arrive:%H:%M}" if leg.arrive.date() == leg.depart.date() else (
         f"{leg.arrive:%a %d %b %H:%M}"
     )
-    return (
-        f"- {leg.from_} → {leg.to}: {mode}{ref}, {when} to {arrive}, "
-        f"₹{leg.cost_inr:,} per person"
-    )
+    return f"- {leg.from_} → {leg.to}: {mode}{ref}, {when} to {arrive}, {price(leg, people)}"
 
 
 def chosen_mode(it: Itinerary) -> str:
@@ -190,7 +201,7 @@ def summarise(it: Itinerary) -> str:
         lines.append(mode)
     if legs := journeys(it):
         lines.append("Journeys:")
-        lines.extend(_leg_line(leg) for leg in legs)
+        lines.extend(_leg_line(leg, people) for leg in legs)
     for i, day in enumerate(it.days, start=1):
         stops = ", ".join(p.name for p in day.stops) or "rest day"
         lines.append(f"Day {i} ({day.date:%a %d %b}): {stops}")
