@@ -119,6 +119,8 @@ export function formFromDraft(d: TripDraft): TripForm {
     food: "Anything",
     budget: d.budget_inr ? String(d.budget_inr) : "",
     people: people.length ? people : undefined,
+    transport: d.transport_mode ?? null,
+    budgetStyle: d.budget_style ?? null,
   };
 }
 

@@ -305,3 +305,11 @@ describe("the IRCTC card's train against the plan (TY3, live)", () => {
     expect(trainDiffers(noRef, { departs: "04:00", train: { number: "06202" } }, GOA_ITINERARY)).toBe(true);
   });
 });
+
+describe("form from intake's draft", () => {
+  it("keeps the mode and budget style intake understood", () => {
+    const f = formFromDraft({ origin: "Bengaluru", destinations: ["Goa"], transport_mode: "rail", budget_style: "luxury" });
+    expect(f.transport).toBe("rail");
+    expect(toTripRequest(f).constraints?.budget_style).toBe("luxury");
+  });
+});
