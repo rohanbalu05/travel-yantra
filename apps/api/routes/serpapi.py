@@ -114,13 +114,16 @@ class SerpApi:
         None when unknown. Only the number is kept: the account answer also holds the key and email."""
         hit = self.store.get("serpapi:account")
         if hit is None:
+            if self.store.get("serpapi:account:unknown") is not None:
+                return None  # asked a minute ago and got no number: the caps apply meanwhile
             try:
                 d = self._transport(f"{ACCOUNT_URL}?{urllib.parse.urlencode({'api_key': key})}", TIMEOUT_S)
                 left = d.get("total_searches_left") if isinstance(d, dict) else None
             except Exception as exc:  # unknown: the caps still apply
                 log.warning("serpapi account check failed (%s)", type(exc).__name__)
-                return None
+                left = None
             if not isinstance(left, int):
+                self.store.set("serpapi:account:unknown", {"unknown": True}, 60)
                 return None
             hit = {"left": left, "calls": self.store.count(PROVIDER, apicache.month_period())}
             self.store.set("serpapi:account", hit, ACCOUNT_TTL_S)

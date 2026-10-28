@@ -148,5 +148,13 @@ def test_unknown_remainder_falls_back_to_the_caps():
             raise TimeoutError
         return {"ok": True}
 
-    api = SerpApi(store=MemoryStore(), transport=transport, api_key="k", daily_cap=1, monthly_cap=5, account=True)
+    tried = []
+    real = transport
+
+    def counting(url, timeout):
+        tried.append("account" in url)
+        return real(url, timeout)
+
+    api = SerpApi(store=MemoryStore(), transport=counting, api_key="k", daily_cap=1, monthly_cap=5, account=True)
     assert api.get({"q": "a"}, 60) is not None and api.get({"q": "b"}, 60) is None  # the daily cap
+    assert tried.count(True) == 1  # an unknown remainder is not asked again for a minute
