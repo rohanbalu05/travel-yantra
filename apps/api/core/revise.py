@@ -10,7 +10,15 @@ import math
 import re
 from datetime import date
 
-from ty_contracts import Itinerary, Mode, Place, ReviseIntent, ReviseRequest
+from ty_contracts import (
+    BudgetStyle,
+    Itinerary,
+    Mode,
+    Place,
+    ReviseIntent,
+    ReviseRequest,
+    Stay,
+)
 
 from . import fakes
 from .repair import check_and_repair
@@ -290,6 +298,90 @@ def move_stop(it: Itinerary, place_id: str, to: date, travel: Travel, lim: Limit
     return place_on(it, place, city, to, travel, lim, verb="Moved")
 
 
+def _stay_city(it: Itinerary, s: Stay) -> str:
+    return city_of(it.request, s.check_in) or s.city
+
+
+def _use_stay(it: Itinerary, pick: Stay, current: Stay) -> str:
+    """Make `pick` the chosen stay for its check-in (first of its group), in place of `current`."""
+    it.stays.remove(pick)
+    it.stays.insert(it.stays.index(current), pick)
+    rated = f", rated {pick.rating:.1f}" if pick.rating is not None else ""
+    return f"Your stay in {_stay_city(it, pick)} is now {pick.name} (₹{pick.price_per_night_inr:,} a night{rated})"
+
+
+def change_stay(it: Itinerary, req: ReviseRequest) -> str:
+    """A listed stay by id, or the next cheaper or a better-rated one, per city (all cities without `city`)."""
+    from .checker import chosen_stays
+
+    chosen = {s.check_in: s for s in chosen_stays(it)}
+    if req.stay_id:
+        pick = next((s for s in it.stays if s.id == req.stay_id), None)
+        if pick is None:
+            raise ReviseError("that stay is not one of this trip's options")
+        current = chosen[pick.check_in]
+        if pick is current:
+            return f"{pick.name} is already your stay in {_stay_city(it, pick)}"
+        return _use_stay(it, pick, current)
+    wanted = (req.city or "").strip().lower()
+    changes = []
+    for current in list(chosen.values()):
+        city = _stay_city(it, current)
+        if wanted and wanted not in (city.lower(), current.city.lower()):
+            continue
+        same = [s for s in it.stays if s.check_in == current.check_in and s is not current]
+        if req.stay_pick == "cheaper":
+            # One step down: the dearest stay that still costs less.
+            options = [s for s in same if s.price_per_night_inr < current.price_per_night_inr]
+            pick = max(options, key=lambda s: (s.price_per_night_inr, s.rating or 0), default=None)
+        else:
+            options = [s for s in same if (s.rating or 0) > (current.rating or 0)]
+            pick = max(options, key=lambda s: (s.rating or 0, s.reviews or 0, -s.price_per_night_inr), default=None)
+        if pick:
+            changes.append(_use_stay(it, pick, current))
+    if not changes:
+        where = req.city or ", ".join(it.request.destinations)
+        word = "cheaper" if req.stay_pick == "cheaper" else "better-rated"
+        raise ReviseError(f"no {word} stay is listed for {where}")
+    return "; ".join(changes)
+
+
+def _rejourney(it: Itinerary, journeys: dict, back, travel: Travel, lim: Limits) -> None:
+    """Each day keeps its stops and is re-timed around its new journeys (the first day in each city opens
+    with its journey in; the last day closes with the journey home)."""
+    starts = {dates[0]: city for city, dates in split_days(it.request) if dates}
+    last = it.days[-1].date if it.days else None
+    for day in list(it.days):
+        new_hop = journeys.get(starts[day.date]) if day.date in starts else _KEEP
+        new_out = back if day.date == last else _KEEP
+        if new_hop is not _KEEP or new_out is not _KEEP:
+            rebuild_day(it, day.date, list(day.stops), travel, lim, hop=new_hop, out=new_out)
+
+
+STYLE_WORDS = {BudgetStyle.shoestring: "a shoestring", BudgetStyle.comfort: "a comfortable", BudgetStyle.luxury: "a luxury"}
+
+
+def budget_style(it: Itinerary, style: BudgetStyle, travel: Travel) -> str:
+    """Re-plan stays, travel (rail class; air or rail when the traveller did not choose) and food for the
+    style; the stops stay."""
+    from .checker import FOOD_BY_STYLE
+    from .steps import plan_transport, stay_options
+
+    style = BudgetStyle(style)
+    c = it.request.constraints.model_copy(update={"budget_style": style})
+    req = it.request.model_copy(update={"constraints": c})
+    options, journeys, back, reason = plan_transport(req)
+    stays = stay_options(req)
+    it.request, it.transport, it.transport_reason = req, options, reason
+    if stays:
+        it.stays = stays
+    else:
+        it.warnings.append("No stays found for this budget style yet; the earlier stays are kept")
+    _rejourney(it, journeys, back, travel, limits(req))
+    return (f"Planned for {STYLE_WORDS[style]} budget: stays, travel and food "
+            f"(₹{FOOD_BY_STYLE[style]:,} a person a day) updated")
+
+
 def revise(it: Itinerary, req: ReviseRequest, travel: Travel | None = None,
            priced: bool = True) -> tuple[Itinerary, str, int]:
     """Apply one intent, then check and repair. Returns the plan, what changed, and the repair rounds.
@@ -315,13 +407,17 @@ def revise(it: Itinerary, req: ReviseRequest, travel: Travel | None = None,
         what = remove_stop(it, req.place_id, travel, lim)
     elif req.intent is ReviseIntent.move_stop:
         what = move_stop(it, req.place_id, req.day, travel, lim)
+    elif req.intent is ReviseIntent.change_stay:
+        what = change_stay(it, req)
+    elif req.intent is ReviseIntent.budget_style:
+        what = budget_style(it, req.style, travel)
     else:
         raise ReviseError(f"{req.intent.value}: this change is not available yet")
     from .repair import finish
     from .steps import retime_home
 
     retime_home(it)  # new journeys or stops on the last day: the real train home before checking
-    it, rounds = check_and_repair(it, travel)
+    it, rounds = check_and_repair(it, travel, fix_budget=False)
     retime_home(it)  # repairs may have shortened the last day
     it = finish(it, travel)  # anything the re-timing broke (the budget) becomes a warning
     it.days = day_titles(it.days, it.request)
@@ -394,15 +490,8 @@ def change_transport(it: Itinerary, mode: Mode, travel: Travel) -> str:
         raise ReviseError(f"there is no {mode.value} option for this trip")
     it.request, it.transport = req, options
     it.transport_reason = None  # the traveller chose
-    lim = limits(req)
-    starts = {dates[0]: city for city, dates in split_days(req) if dates}
     journeys, back = hops(req, options), home(req)
-    last = it.days[-1].date if it.days else None
-    for day in list(it.days):
-        new_hop = journeys.get(starts[day.date]) if day.date in starts else _KEEP
-        new_out = back if day.date == last else _KEEP
-        if new_hop is not _KEEP or new_out is not _KEEP:
-            rebuild_day(it, day.date, list(day.stops), travel, lim, hop=new_hop, out=new_out)
+    _rejourney(it, journeys, back, travel, limits(req))
     word = {"rail": "train", "road": "road", "air": "air"}[mode.value]
     # Between some cities the chosen mode may not exist; say so rather than claim every journey switched.
     kept = [leg for leg in [*journeys.values(), back] if leg and leg.mode is not mode]

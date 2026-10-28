@@ -136,7 +136,7 @@ def test_an_intent_without_a_handler_is_a_422_never_a_silent_rain_plan():
     r = client.post(f"/plan/{done['plan_id']}/revise", json={"intent": "rest_of_day", "now": "2026-12-12T10:00:00"})
     assert r.status_code == 422 and "not available yet" in r.json()["detail"]
     with pytest.raises(ReviseError):
-        revise(goa_plan(), ReviseRequest(intent="budget_style", style="luxury"))
+        revise(goa_plan(), ReviseRequest(intent="rest_of_day", now="2026-12-12T10:00:00"))
 
 
 MYSURU_REAL = {"origin": "Bengaluru", "destinations": ["Mysuru"], "start_date": "2026-10-31", "end_date": "2026-11-01",

@@ -86,3 +86,49 @@ def test_edits_through_the_endpoint_keep_one_trip_and_say_what_changed():
     assert events[1]["stage"] == "solving" and events[1]["message"].startswith(("Added Chapora Fort", "Chapora Fort"))
     assert events[-1]["plan_id"] == done["plan_id"]
     assert client.post(f"/plan/{done['plan_id']}/revise", json={"intent": "add_stop", "place": "Nowhere Palace"}).status_code == 422
+
+
+def chosen(it):
+    from core.checker import chosen_stays
+
+    return chosen_stays(it)[0]
+
+
+def test_change_stay_by_id_cheaper_and_better_rated(goa):
+    now = chosen(goa)
+    other = next(s for s in goa.stays if s is not now and s.id)
+    out, what, _ = revise(goa, ReviseRequest(intent="change_stay", stay_id=other.id))
+    assert chosen(out).id == other.id and what.startswith(f"Your stay in Goa is now {other.name}")
+    assert out.budget.stay_inr != goa.budget.stay_inr or other.price_per_night_inr == now.price_per_night_inr
+    cheaper, what, _ = revise(goa, ReviseRequest(intent="change_stay", stay_pick="cheaper", city="Goa"))
+    assert chosen(cheaper).price_per_night_inr < now.price_per_night_inr
+    # One step down: no listed stay sits between the old price and the new one.
+    assert not [s for s in goa.stays if chosen(cheaper).price_per_night_inr < s.price_per_night_inr < now.price_per_night_inr]
+    best = max(goa.stays, key=lambda s: s.rating or 0)
+    if (now.rating or 0) < (best.rating or 0):
+        rated, _, _ = revise(goa, ReviseRequest(intent="change_stay", stay_pick="better_rated"))
+        assert (chosen(rated).rating or 0) > (now.rating or 0)
+    lowest = min(goa.stays, key=lambda s: s.price_per_night_inr)
+    cheapest = revise(goa, ReviseRequest(intent="change_stay", stay_id=lowest.id))[0]
+    with pytest.raises(ReviseError, match="no cheaper stay is listed for Goa"):
+        revise(cheapest, ReviseRequest(intent="change_stay", stay_pick="cheaper", city="Goa"))
+    with pytest.raises(ReviseError):
+        revise(goa, ReviseRequest(intent="change_stay", stay_id="not-a-stay"))
+
+
+def test_budget_style_replans_food_travel_and_stays_but_keeps_the_stops(monkeypatch):
+    seen = []
+    real = steps.city_stays
+
+    def stays(request, *a, **k):
+        seen.append(request.constraints.budget_style)
+        return real(request, *a, **k)
+
+    monkeypatch.setattr(steps, "city_stays", stays)
+    it = steps.replan(GOA.model_copy(update={"transport_mode": None}))
+    out, what, _ = revise(it, ReviseRequest(intent="budget_style", style="shoestring"))
+    assert out.request.constraints.budget_style == "shoestring" and seen[-1] == "shoestring"
+    assert out.budget.food_per_person_day_inr == 400 and "₹400 a person a day" in what
+    assert what.startswith("Planned for a shoestring budget")
+    kept = {p.id for d in out.days for p in d.stops}
+    assert kept and kept <= {p.id for d in it.days for p in d.stops} | kept

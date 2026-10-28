@@ -22,15 +22,18 @@ from .solver import (
 DAY_CODES = (ViolationCode.long_day, ViolationCode.too_much_travel, ViolationCode.no_rest)
 
 
-def repair(itinerary: Itinerary, violations: list[Violation], travel: Travel | None = None) -> tuple[Itinerary, list[str]]:
-    """Fix what it can. Returns the new itinerary and one line per action taken."""
+def repair(itinerary: Itinerary, violations: list[Violation], travel: Travel | None = None,
+           fix_budget: bool = True) -> tuple[Itinerary, list[str]]:
+    """Fix what it can. Returns the new itinerary and one line per action taken. Without fix_budget (a
+    revise: the traveller already has the plan and chose its stay and way to travel), over budget is left
+    as a warning instead of switching their stay or mode."""
     travel = travel or Travel()
     it = itinerary.model_copy(deep=True)
     lim = limits(it.request)
     actions: list[str] = []
     for v in violations:
         if v.code is ViolationCode.over_budget:
-            actions += _cheaper(it, travel, lim)
+            actions += _cheaper(it, travel, lim) if fix_budget else []
         elif v.code is ViolationCode.closed and v.place_id:
             actions += _move_or_drop(it, v.day, v.place_id, travel, lim, v.message)
         elif v.code in DAY_CODES and v.day and v.place_id:
@@ -134,16 +137,19 @@ def _lighten(it: Itinerary, v: Violation, travel: Travel, lim: Limits) -> list[s
 MAX_ROUNDS = 3
 
 
-def check_and_repair(itinerary: Itinerary, travel: Travel | None = None, rounds: int = MAX_ROUNDS) -> tuple[Itinerary, int]:
+def check_and_repair(itinerary: Itinerary, travel: Travel | None = None, rounds: int = MAX_ROUNDS,
+                     fix_budget: bool = True) -> tuple[Itinerary, int]:
     """Plain-Python twin of the ADK loop: check, repair, up to `rounds` times. Leftovers become warnings.
     Returns the itinerary and how many repair rounds ran."""
     travel = travel or Travel()
     it = itinerary
     for n in range(rounds):
         found = check(it, travel)
+        if not fix_budget:
+            found = [v for v in found if v.code is not ViolationCode.over_budget]
         if not found:
             return it, n
-        it, _ = repair(it, found, travel)
+        it, _ = repair(it, found, travel, fix_budget)
     return finish(it, travel), rounds
 
 
