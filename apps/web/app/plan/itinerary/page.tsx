@@ -15,6 +15,7 @@ import { LANGS, useI18n, type Vars } from "@/lib/i18n";
 import { savePlanInput, usePlanInput, usePlanResult } from "@/lib/plan";
 import { StayFacts } from "@/components/StayFacts";
 import { againstBudget, chosenStays, dayRows, legModeName, pickIndex, planTotal, travellerCount } from "@/lib/planView";
+import { BUDGET_STYLES } from "@/lib/tripForm";
 import { useRevise } from "@/lib/useRevise";
 import "../plan.css";
 
@@ -230,6 +231,25 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
               {!!it.budget.activities_inr && <><dt>{t("Tickets and activities")}</dt><dd>{inr(it.budget.activities_inr)}</dd></>}
               <dt className="tot">{t("Whole trip, estimated")}</dt><dd className="tot">{inr(cost)}</dd>
             </dl>
+            {planId && (
+              <div className="field" style={{ marginTop: 16 }}>
+                <span className="label">{t("Budget style")}</span>
+                {/* TY1's budget_style revise: the rail class, the stay band and food per day follow it. */}
+                <div className="toggle wrap-toggle" role="group" aria-label={t("Budget style")}>
+                  {BUDGET_STYLES.map(([v, label]) => {
+                    const on = (it.request.constraints?.budget_style ?? "comfort") === v;
+                    return (
+                      <button key={v} type="button" className={on ? "on" : undefined} aria-pressed={on} disabled={!!busy || on}
+                        onClick={() => revise({ intent: "budget_style", style: v }, t("Done: the plan is now {style}.", { style: t(label).toLowerCase() }))}>
+                        {t(label)}
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* The same outcome as the day panel's status line, shown here too (not announced twice). */}
+                {(busy || said) && <p className={said?.bad ? "rev-msg bad" : "rev-msg"} aria-hidden="true">{busy ?? said?.text}</p>}
+              </div>
+            )}
           </section>
           {stay && (
             <section className="panel panel-pad" aria-labelledby="s-h">
