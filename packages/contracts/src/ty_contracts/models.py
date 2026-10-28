@@ -396,6 +396,9 @@ class TripDraft(_Model):
     budget_inr: int | None = Field(default=None, ge=0)
     pace: Pace | None = None
     travellers: list[Traveller] = Field(default_factory=list)
+    # A stated way to travel ("by train"); None when not said or "not sure" (compare all).
+    transport_mode: Mode | None = None
+    budget_style: BudgetStyle | None = None
 
 
 class PlanText(_Model):

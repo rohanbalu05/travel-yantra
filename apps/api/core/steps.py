@@ -101,7 +101,42 @@ def _draft(d) -> dict:
     travellers = [{"name": t.name, "age": t.age} for t in d.travellers if 0 <= t.age <= 120]
     return TripDraft(origin=d.origin, destinations=d.destinations, start_date=d.start_date, end_date=d.end_date,
                      budget_inr=d.budget_inr if d.budget_inr is None or d.budget_inr >= 0 else None,
-                     pace=d.pace, travellers=travellers).model_dump(mode="json")
+                     pace=d.pace, travellers=travellers, transport_mode=d.transport_mode,
+                     budget_style=d.budget_style).model_dump(mode="json")
+
+
+def _request_draft(r: TripRequest) -> dict:
+    c = r.constraints
+    return TripDraft(origin=r.origin, destinations=r.destinations, start_date=r.start_date, end_date=r.end_date,
+                     budget_inr=c.budget_inr, pace=c.pace, travellers=c.travellers, transport_mode=r.transport_mode,
+                     budget_style=c.budget_style).model_dump(mode="json")
+
+
+def covers(city: str) -> bool:
+    """A destination we can plan: TY2's corpus has places for it (samples too, in tests)."""
+    from guide.planner import corpus_city, covered_cities
+
+    return corpus_city(city) in covered_cities() or (samples_allowed() and city.strip().lower() in fakes.BY_CITY)
+
+
+def regions_text() -> str:
+    """"Karnataka (Bengaluru, Mysuru, …), Goa, Kerala (Kochi, …) and the Golden Triangle (Delhi, …)"."""
+    from guide.planner import covered_cities
+
+    by_region: dict[str, list[str]] = {}
+    for city, region in covered_cities().items():
+        by_region.setdefault(region, []).append(city)
+    parts = [("the " if region == "Golden Triangle" else "") + region
+             + ("" if cities == [region] else f" ({', '.join(cities)})") for region, cities in by_region.items()]
+    return parts[0] if len(parts) == 1 else f"{', '.join(parts[:-1])} and {parts[-1]}"
+
+
+def coverage_question(missing: list[str], lang: Lang) -> str:
+    places = " and ".join(missing)
+    if lang is Lang.hi:
+        return f"अभी हम इन जगहों की यात्राएँ बनाते हैं: {regions_text()}। {places} अभी इनमें नहीं है। इनमें से आप कहाँ जाना चाहेंगे?"
+    return (f"For now we plan trips in {regions_text()}; {places} is not covered yet. "
+            "Where in these would you like to go?")
 
 
 async def intake(state: dict, model: Model):
@@ -112,6 +147,10 @@ async def intake(state: dict, model: Model):
         draft = _draft(result.draft) if result.draft else None
         return {"questions": result.questions, "draft": draft}, "I need a little more to plan this"
     r = result.request
+    # Outside the regions we cover, say so instead of filling days with places we do not know.
+    if missing := [c for c in r.destinations if not await asyncio.to_thread(covers, c)]:
+        return ({"questions": [coverage_question(missing, r.lang)], "draft": _request_draft(r)},
+                "We do not cover that place yet")
     return {"request": r.model_dump(mode="json")}, f"Planning {r.origin} to {', '.join(r.destinations)}"
 
 

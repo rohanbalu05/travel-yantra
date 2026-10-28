@@ -11,17 +11,41 @@ from datetime import date, datetime, timedelta, timezone
 
 from pydantic import BaseModel, Field, ValidationError
 
-from ty_contracts import Constraints, Lang, Pace, PlanText, Traveller, TripRequest
+from ty_contracts import (
+    BudgetStyle,
+    Constraints,
+    Lang,
+    Mode,
+    Pace,
+    PlanText,
+    Traveller,
+    TripRequest,
+)
 
 from .llm import Model
 
 MAX_QUESTIONS = 3
 IST = timezone(timedelta(hours=5, minutes=30))
+# One question per missing detail, asked once, in this order. Hindi has its own wording; other languages
+# get English until their translations are reviewed.
 ASK = {
     "origin": "Where will you start from?",
     "destinations": "Where would you like to go?",
     "dates": "Which dates are you travelling (first and last day)?",
+    "length": "How many days is the trip?",
+    "travellers": "How many of you are travelling, and is anyone a child or over 60?",
 }
+ASK_HI = {
+    "origin": "आप कहाँ से यात्रा शुरू करेंगे?",
+    "destinations": "आप कहाँ जाना चाहेंगे?",
+    "dates": "आप किन तारीखों में यात्रा कर रहे हैं (पहला और आखिरी दिन)?",
+    "length": "यात्रा कितने दिनों की है?",
+    "travellers": "आप कितने लोग जा रहे हैं, और क्या कोई बच्चा या 60 साल से ऊपर का है?",
+}
+
+
+def ask(field: str, lang: Lang) -> str:
+    return (ASK_HI if lang is Lang.hi else ASK)[field]
 
 
 class DraftTraveller(BaseModel):
@@ -42,6 +66,11 @@ class IntakeDraft(BaseModel):
     travellers: list[DraftTraveller] = Field(default_factory=list)
     mobility_needs: list[str] = Field(default_factory=list)
     dietary: list[str] = Field(default_factory=list)
+    # "a 3-day trip" (days) or "4 nights" (nights + 1): the end date from the start date.
+    days: int | None = None
+    transport_mode: Mode | None = None
+    budget_style: BudgetStyle | None = None
+    # Kept for older cached drafts; never shown (our own wording asks for each missing field once).
     questions: list[str] = Field(default_factory=list)
 
 
@@ -57,20 +86,26 @@ def prompt(text: str, today: date) -> str:
         "You turn an Indian traveller's message into trip fields. The message may be English, Hinglish "
         "(Hindi in Latin script) or another Indian language.\n"
         f"Today is {today.isoformat()}. Resolve dates to YYYY-MM-DD; a date without a year is the next one "
-        "after today. A single date with N nights ends N days later.\n"
+        "after today. Days: the trip's length in days when they say it ('a 3-day trip' is 3; '4 nights' is 5); "
+        "leave end_date empty unless they give the last day.\n"
         "Use English place names (Bengaluru, Mysuru, Goa). Leave a field empty when the message does not say it; "
         "never guess origin or dates. Budget is the total in rupees (1 lakh = 100000). Pace: relaxed when they "
         "mention elders, kids or taking it easy; packed when they want to see a lot; else leave it empty. "
-        "Travellers: list every person going, including the writer (name 'You') unless they say they are not "
-        "going; 'with my parents and sister' is 4 people. Use a role as the name when no name is given. When an "
-        "age is not stated, estimate it from the role: parents of an adult 60, grandparents 75, a child 8, "
-        "a spouse, sibling or friend 30.\n"
-        "In questions, list at most 3 short follow-up questions for missing origin, destination or dates only.\n\n"
+        "Travellers: only when the message says who is going. Then list every person going, including the "
+        "writer (name 'You') unless they say they are not going; 'with my parents and sister' is 4 people, "
+        "'me and my wife' is 2, 'solo' is 1. Use a role as the name when no name is given. When an age is not "
+        "stated, estimate it from the role: parents of an adult 60, grandparents 75, a child 8, a spouse, "
+        "sibling or friend 30. A message that does not say who is going has no travellers.\n"
+        "transport_mode: rail, road or air only when they state a preference (train; car, bus or drive; "
+        "flight); empty when they do not say or are not sure. budget_style: shoestring (cheap, backpacking, "
+        "low budget), comfort, or luxury, only when they say so.\n\n"
         f"Message:\n{text}"
     )
 
 
 def to_request(draft: IntakeDraft, lang: Lang, notes: str | None = None) -> IntakeResult:
+    if draft.start_date and not draft.end_date and draft.days and 0 < draft.days <= 60:
+        draft = draft.model_copy(update={"end_date": draft.start_date + timedelta(days=draft.days - 1)})
     missing = []
     if not draft.origin:
         missing.append("origin")
@@ -78,26 +113,30 @@ def to_request(draft: IntakeDraft, lang: Lang, notes: str | None = None) -> Inta
         missing.append("destinations")
     if not draft.start_date:
         missing.append("dates")
+    elif not draft.end_date:
+        missing.append("length")
+    if not draft.travellers:
+        missing.append("travellers")  # never assume one traveller
     if missing:
-        # Our wording for each missing field; the model's own questions only fill spare slots.
-        asks = [ASK[m] for m in missing]
-        extra = [q for q in draft.questions if q not in asks]
-        return IntakeResult(questions=(asks + extra)[:MAX_QUESTIONS])
+        # One question per missing field, in our own wording (the model's would repeat them in other words).
+        return IntakeResult(questions=[ask(m, lang) for m in missing][:MAX_QUESTIONS], draft=draft)
     c = Constraints(
         budget_inr=draft.budget_inr,
         pace=draft.pace or Pace.balanced,
         mobility_needs=draft.mobility_needs,
         dietary=draft.dietary,
         travellers=[Traveller(name=t.name, age=t.age) for t in draft.travellers if 0 <= t.age <= 120],
+        budget_style=draft.budget_style,
         **({"max_travel_hours_per_day": draft.max_travel_hours_per_day}
            if draft.max_travel_hours_per_day and 0 < draft.max_travel_hours_per_day <= 24 else {}),
     )
     try:
         request = TripRequest(origin=draft.origin, destinations=draft.destinations, start_date=draft.start_date,
-                              end_date=draft.end_date or draft.start_date, constraints=c, lang=lang, notes=notes)
+                              end_date=draft.end_date, constraints=c, lang=lang, notes=notes,
+                              transport_mode=draft.transport_mode)
     except ValidationError:
-        return IntakeResult(questions=[ASK["dates"]])
-    return IntakeResult(request=request)
+        return IntakeResult(questions=[ask("dates", lang)], draft=draft)
+    return IntakeResult(request=request, draft=draft)
 
 
 def normalise(text: str) -> str:
@@ -118,6 +157,9 @@ _DATES = re.compile(rf"(\d{{1,2}})(?:\s+{_MON})?\s*(?:-|–|to|se|till|until)\s*
 _ROUTE = re.compile(r"(?:from\s+)?([a-z][a-z]*(?: [a-z]+)?)\s+(?:to|se|->|→)\s+([a-z][a-z]*(?: [a-z]+)?)")
 # Words that may stay unparsed in a quick-path message ("Bengaluru to Goa, 11-14 Dec trip").
 _FILLER = {"trip", "plan", "a", "for", "on", "jaana", "hai", "please", "travel", "going", "from", "and", "-"}
+# "for 2", "4 people", "2 adults", "solo": how many go (all adults; ages unknown, so 30).
+_PARTY = re.compile(r"\b(?:for\s+(\d{1,2})(?:\s+(?:people|persons|adults|of us|pax))?|(\d{1,2})\s+(?:people|persons|adults|pax)"
+                    r"|(solo|alone|just me))\b")
 
 
 def _city(name: str) -> str | None:
@@ -142,6 +184,12 @@ def quick_parse(text: str, lang: Lang, today: date) -> IntakeResult | None:
     """A form-like message ("Bengaluru to Goa, 11-14 Dec", or Hinglish "se") needs no model. Anything more
     (travellers, budget, pace, unknown cities, extra words) returns None and goes to the model."""
     t = normalise(text)
+    party = _PARTY.search(t)
+    count = (1 if party.group(3) else int(party.group(1) or party.group(2))) if party else 0
+    if party:
+        t = (t[:party.start()] + " " + t[party.end():]).strip()
+    if party and not 1 <= count <= 20:
+        return None
     dates = _DATES.search(t)
     route = _ROUTE.search(t[:dates.start()] if dates else t)
     if not route or not dates:
@@ -155,8 +203,9 @@ def quick_parse(text: str, lang: Lang, today: date) -> IntakeResult | None:
     rest = (t[:route.start()] + " " + t[route.end():dates.start()] + " " + t[dates.end():]).replace(",", " ")
     if not (origin and dest and start and end) or set(rest.split()) - _FILLER:
         return None
-    return IntakeResult(request=TripRequest(origin=origin, destinations=[dest], start_date=start, end_date=end,
-                                            lang=lang, notes=text[:500]))
+    travellers = [DraftTraveller(name="You" if i == 0 else f"Traveller {i + 1}", age=30) for i in range(count)]
+    draft = IntakeDraft(origin=origin, destinations=[dest], start_date=start, end_date=end, travellers=travellers)
+    return to_request(draft, lang, notes=text[:500])
 
 
 async def intake(body: TripRequest | PlanText, model: Model, today: date | None = None) -> IntakeResult:
@@ -173,9 +222,7 @@ async def intake(body: TripRequest | PlanText, model: Model, today: date | None 
         _cache.move_to_end(key)
         return _cache[key].model_copy(deep=True)
     draft = await model.json(prompt(body.text, today), IntakeDraft, tier="lite", thinking="minimal", label="intake")
-    # Model questions are dropped here unless something is missing; they never reach a complete request.
     result = to_request(draft, body.lang, notes=body.text[:500])
-    result.draft = draft
     _cache[key] = result
     while len(_cache) > CACHE_SIZE:
         _cache.popitem(last=False)

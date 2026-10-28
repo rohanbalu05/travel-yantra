@@ -318,6 +318,8 @@ export interface TripDraft {
   budget_inr?: number | null;
   pace?: Pace | null;
   travellers?: Traveller[];
+  transport_mode?: Mode | null;
+  budget_style?: BudgetStyle | null;
 }
 
 export interface TripRequest {

@@ -2019,6 +2019,28 @@
           },
           "title": "Travellers",
           "type": "array"
+        },
+        "transport_mode": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Mode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "budget_style": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BudgetStyle"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "title": "TripDraft",
