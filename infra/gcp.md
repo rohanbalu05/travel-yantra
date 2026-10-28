@@ -102,7 +102,7 @@ More services (P2):
 
 | Service | Runtime SA | Memory | Public |
 | --- | --- | --- | --- |
-| ty-translate | ty-translate-run (aiplatform.user) | 512 MiB | no; run.invoker for ty-bots-run and ty-mcp-run (ty-api-run for chat: pending Rohan's grant) |
+| ty-translate | ty-translate-run (aiplatform.user) | 512 MiB | no; run.invoker for ty-bots-run and ty-mcp-run and ty-api-run (chat, Rohan's grant 28 Oct) |
 | ty-bots | ty-bots-run (reads the WHATSAPP_* secrets) | 512 MiB | yes (allUsers, for Meta's `/webhook`; the bot checks Meta's signature) |
 | ty-mcp | ty-mcp-run (no roles) | 512 MiB | no (HQ decision) |
 

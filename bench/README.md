@@ -56,9 +56,13 @@ applied to both arms the same way.
 `guide.scripts.bench_ask` times `/guide/ask` (retrieval and model, p50 and
 p95). It needs Cloud SQL, so it runs as the Cloud Run job `ty-bench-ask` (the
 ty-api image, as ty-api-run, with `DATABASE_URL` from Secret Manager):
-`gcloud run jobs execute ty-bench-ask --region asia-south1 --wait`. The first
-run (28 Oct) failed because the image has no `tests/` folder for the eval set;
-TY2 is moving it.
+`gcloud run jobs execute ty-bench-ask --region asia-south1 --wait`. Update its
+image to ty-api's live one first (`gcloud run jobs update ty-bench-ask --image …`).
+
+Dry run, 28 Oct, image 5bfee23, `bench_ask 3` (the eval set is now
+`guide/eval/eval_ask.jsonl`, shipped in the image): p50 2.03 s, p95 2.43 s,
+retrieval p95 0.12 s, 3 of 3 cited. The questions were the battle of
+Talikota, when Mysore Palace burned, and Tipu Sultan's summer palace.
 
 ## Dry run, 28 Oct 2026 (3 requests: Mysuru with a family, seniors, shoestring)
 
