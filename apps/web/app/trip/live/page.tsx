@@ -131,13 +131,12 @@ function TripLive() {
     const s = trips.find((x) => x.plan_id === pick);
     if (!s) return;
     loadedFor.current = pick; // once per pick, so a re-planned day isn't replaced by the saved copy
-    let live = true;
+    // Not cancelled when the trip list changes: the answer is kept while this is still the pick.
+    const g = gen.current;
+    const current = () => g === gen.current && loadedFor.current === pick;
     (s.itinerary ? Promise.resolve(s.itinerary) : apiJSON<Itinerary>(`/trips/${encodeURIComponent(s.share_token)}`))
-      .then((itinerary) => live && setTrip({ itinerary, plan_id: s.plan_id, title: s.title, sample: s === SAMPLE }))
-      .catch((e) => live && setLoadProblem(problemOf(e)));
-    return () => {
-      live = false;
-    };
+      .then((itinerary) => current() && setTrip({ itinerary, plan_id: s.plan_id, title: s.title, sample: s === SAMPLE }))
+      .catch((e) => current() && setLoadProblem(problemOf(e)));
   }, [pick, trips]);
 
   useEffect(() => () => {
