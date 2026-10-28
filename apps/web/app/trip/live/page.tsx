@@ -99,6 +99,7 @@ function TripLive() {
   const [where, setWhere] = useState<Where | null>(null);
   const [geoNote, setGeoNote] = useState<string | null>(null);
   const watch = useRef<number | null>(null);
+  const gen = useRef(0);
   const [replan, setReplan] = useState<{ busy: boolean; note?: string; bad?: boolean }>({ busy: false });
   const [near, setNear] = useState<Near | null>(null);
   const [nearBusy, setNearBusy] = useState<Kind | null>(null);
@@ -133,6 +134,7 @@ function TripLive() {
   }, []);
 
   const share = useCallback(() => {
+    if (watch.current !== null) return; // already watching
     if (!("geolocation" in navigator)) {
       setGeoNote("This browser can't share its location.");
       return;
@@ -149,6 +151,7 @@ function TripLive() {
   }, []);
 
   const choose = (planId: string | null) => {
+    gen.current += 1; // answers for the trip being left are dropped
     setPick(planId);
     setTrip(null);
     setLoadProblem(null);
@@ -175,6 +178,7 @@ function TripLive() {
 
   async function runLate(minutes: number) {
     if (!trip?.plan_id) return;
+    const g = gen.current;
     setReplan({ busy: true, note: "Re-planning the rest of today…" });
     const body = { intent: "rest_of_day" as const, now: `${addMinutes(now, minutes)}:00`, lat: where?.lat ?? null, lng: where?.lng ?? null, lang };
     try {
@@ -193,6 +197,7 @@ function TripLive() {
           last = ev;
         }
       }
+      if (g !== gen.current) return;
       if (last?.stage === "done" && last.partial) {
         setTrip({ ...trip, itinerary: last.partial, plan_id: last.plan_id ?? trip.plan_id });
         setReplan({ busy: false, note: changed || "The rest of today is re-planned." });
@@ -200,19 +205,21 @@ function TripLive() {
         setReplan({ busy: false, bad: true, note: last?.message || "The planner couldn't re-plan today." });
       }
     } catch (e) {
-      setReplan({ busy: false, bad: true, note: problemOf(e).message });
+      if (g === gen.current) setReplan({ busy: false, bad: true, note: problemOf(e).message });
     }
   }
 
   async function findNear(kind: Kind) {
     if (!where || !it) return;
+    const g = gen.current;
     setNearBusy(kind);
     setNear(null);
     const veg = it.request.constraints?.dietary?.some((d) => /veg/i.test(d));
     try {
-      setNear({ kind, places: await nearby(kind === "food" && veg ? "veg" : kind, where, it.request.destinations[0], lang) });
+      const places = await nearby(kind === "food" && veg ? "veg" : kind, where, it.request.destinations[0], lang);
+      if (g === gen.current) setNear({ kind, places });
     } catch (e) {
-      setNear({ kind, problem: problemOf(e).message });
+      if (g === gen.current) setNear({ kind, problem: problemOf(e).message });
     } finally {
       setNearBusy(null);
     }
@@ -324,7 +331,7 @@ function TripLive() {
                       <p className="hint">{t("Trip mode needs your location.")} <Link href="/settings/">{t("Turn on location in Settings")}</Link></p>
                     )}
                     {geoNote && <p className="hint" role="status">{t(geoNote)}</p>}
-                    <p className="hint">{t("Your location stays on this phone. It is sent only when you ask for what's near you or re-plan the day, and is not stored.")}</p>
+                    <p className="hint">{t("Your location stays on this phone. It is sent only when you ask for what's near you or re-plan the day, and is not saved to your trips or account.")}</p>
                   </section>
 
                   <section className="panel panel-pad" aria-labelledby="late-h">
