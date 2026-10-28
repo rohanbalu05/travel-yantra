@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { PlayIcon, Wave } from "@/components/Wave";
+import { PlayIcon } from "@/components/Wave";
 import { listTrips, useAccount, type SavedTrip } from "@/lib/account";
 import { dayLabel } from "@/lib/format";
+import { LIBRARY_FALLBACK, kathaLibrary, type LibraryItem } from "@/lib/guide";
 import { useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
-import { savePlanInput, savePlanResult } from "@/lib/plan";
+import { savePlanInput, savePlanResult, usePlanResult } from "@/lib/plan";
 import { latestTrips, loadTrip } from "@/lib/trips";
 import { TripMeta } from "@/components/TripMeta";
 import "./home.css";
@@ -29,6 +30,40 @@ const needs = [
 
 const ideas = ["Goa with family", "A weekend in Mysuru", "Temple trail: Udupi, Kollur, Sringeri", "Hampi in 3 days"];
 
+/** Illustrations for story cards (decorative), used in turn. */
+const ART = [
+  <svg key="art0" viewBox="0 0 320 180" aria-hidden="true">
+    <rect width="320" height="180" fill="#E3A33B" />
+    <circle cx="250" cy="52" r="22" fill="#F3CB7A" />
+    <g fill="#7A3A1E">
+    <rect x="36" y="112" width="248" height="68" />
+    <rect x="132" y="76" width="56" height="36" />
+    <path d="M128 78 Q160 22 192 78Z" />
+    <rect x="157" y="20" width="6" height="18" />
+    <rect x="58" y="92" width="36" height="20" /><path d="M56 94 Q76 62 96 94Z" />
+    <rect x="226" y="92" width="36" height="20" /><path d="M224 94 Q244 62 264 94Z" />
+    </g>
+    </svg>,
+  <svg key="art1" viewBox="0 0 320 180" aria-hidden="true">
+    <rect width="320" height="180" fill="#245A4B" />
+    <path d="M0 180 L0 120 C60 96 110 70 170 64 C230 58 280 88 320 110 L320 180 Z" fill="#1A4337" />
+    <g fill="#E7B25C"><rect x="150" y="40" width="22" height="26" /><path d="M146 42 L161 14 L176 42Z" /><rect x="159" y="6" width="4" height="10" /></g>
+    <text x="24" y="160" className="kn" fontSize="46" fontWeight="700" fill="#F4EFE6">ಮೈಸೂರು</text>
+    </svg>,
+  <svg key="art2" viewBox="0 0 320 180" aria-hidden="true">
+    <rect width="320" height="180" fill="#DE9A58" />
+    <rect y="140" width="320" height="40" fill="#3B7A91" />
+    <g fill="#9E4529"><rect x="96" y="96" width="128" height="58" /><rect x="108" y="66" width="104" height="32" /><rect x="124" y="42" width="72" height="26" /><path d="M134 44 L134 30 Q160 10 186 30 L186 44Z" /></g>
+    <g fill="#6D2E1B"><path d="M150 154 V130 A10 10 0 0 1 170 130 V154Z" /><circle cx="160" cy="80" r="7" /></g>
+    </svg>,
+  <svg key="art3" viewBox="0 0 320 180" aria-hidden="true">
+    <rect width="320" height="180" fill="#C9B48A" />
+    <path d="M0 180 L0 128 C40 110 70 132 100 118 C130 104 150 120 180 112 L320 120 L320 180Z" fill="#A88A62" />
+    <g fill="#5E4630"><rect x="118" y="96" width="84" height="40" /><path d="M126 96 L160 50 L194 96Z" /><rect x="134" y="80" width="52" height="16" /><circle cx="132" cy="140" r="14" /><circle cx="188" cy="140" r="14" /></g>
+    <g fill="#C9B48A"><circle cx="132" cy="140" r="5" /><circle cx="188" cy="140" r="5" /></g>
+    </svg>,
+];
+
 const pin = <path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21Z" />;
 const book = <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5V5.5ZM4 20.5A2.5 2.5 0 0 1 6.5 18H20v3H6.5" />;
 
@@ -39,7 +74,16 @@ export default function HomePage() {
   // Signed in: their own first name. Never the sample persona's name for a real visitor.
   const firstName = user?.name ? user.name.split(" ")[0] : null;
   const greeting = useGreeting(firstName);
-  const [playing, setPlaying] = useState(false);
+  const plan = usePlanResult();
+  const [library, setLibrary] = useState<LibraryItem[]>(LIBRARY_FALLBACK);
+  useEffect(() => {
+    const ctl = new AbortController();
+    kathaLibrary(lang, ctl.signal).then((r) => setLibrary(r.items), () => {});
+    return () => ctl.abort();
+  }, [lang]);
+  // Stories with audio first, four of them; the featured city is the trip's own when there is a plan.
+  const stories = [...library].sort((a, b) => Number(b.has_audio) - Number(a.has_audio)).slice(0, 4);
+  const featured = plan?.itinerary.request.destinations[0] ?? library.find((x) => x.subject_kind === "city")?.subject ?? "Mysuru";
   // Saved trips from the API (signed in) or this browser; null until known.
   const [mine, setMine] = useState<SavedTrip[] | null>(null);
   useEffect(() => {
@@ -122,20 +166,18 @@ export default function HomePage() {
             <h2 id="katha-h">{t("Hear the story")}</h2>
             <p>{t("The history and the legends of a city, a place or your planned day, told in your language, with each legend labelled as one.")}</p>
             <div className="door-box">
-              <div className="mini">
+              {/* A real story to open: the trip's first city, else one from TY2's library. No fake player here. */}
+              <Link className="mini mini-link" href={`/katha/city/?subject=${encodeURIComponent(featured)}`}>
                 <div className="mini-top">
-                  <button type="button" className="kp-play" onClick={() => setPlaying(!playing)} aria-label={playing ? t("Pause the Katha") : t("Play the Katha")}>
-                    <PlayIcon playing={playing} />
-                  </button>
+                  <span className="kp-play" aria-hidden="true"><PlayIcon playing={false} /></span>
                   <div>
-                    <b>{t("Mysuru in 5 minutes")}</b>
-                    <span>{t("City Katha for your trip this weekend")}</span>
+                    <b>{featured}</b>
+                    <span>{t("City Katha · 2 or 5 min")}</span>
                   </div>
                 </div>
-                <Wave play={playing} count={40} step={0.11} />
-              </div>
+              </Link>
               <div className="mini-links">
-                <Link className="btn btn-cream" href="/katha/city/">{t("Open the City Katha")}</Link>
+                <Link className="btn btn-cream" href={`/katha/city/?subject=${encodeURIComponent(featured)}`}>{t("Open the City Katha")}</Link>
                 <Link className="btn btn-on-dark" href="/katha/">{t("Browse the library")}</Link>
                 <Link className="btn btn-on-dark" href="/ask/">{t("Ask the guide")}</Link>
               </div>
@@ -209,49 +251,20 @@ export default function HomePage() {
           <h2 className="h2" id="stories-h">{t("Stories to start with")}</h2>
           <Link href="/katha/" style={{ fontWeight: 700 }}>{t("Open the Katha library")}</Link>
         </div>
+        {/* TY2's library: real subjects, real lengths (10 minutes hidden), an Audio tag where it is recorded. */}
         <div className="stories">
-          <Link className="story" href="/katha/place/">
-            <svg viewBox="0 0 320 180" aria-hidden="true">
-              <rect width="320" height="180" fill="#E3A33B" />
-              <circle cx="250" cy="52" r="22" fill="#F3CB7A" />
-              <g fill="#7A3A1E">
-                <rect x="36" y="112" width="248" height="68" />
-                <rect x="132" y="76" width="56" height="36" />
-                <path d="M128 78 Q160 22 192 78Z" />
-                <rect x="157" y="20" width="6" height="18" />
-                <rect x="58" y="92" width="36" height="20" /><path d="M56 94 Q76 62 96 94Z" />
-                <rect x="226" y="92" width="36" height="20" /><path d="M224 94 Q244 62 264 94Z" />
-              </g>
-            </svg>
-            <div className="story-body"><b>Mysore Palace</b><div className="story-meta"><span className="tag tag-history">{t("History")}</span><span className="tag tag-legend">{t("Legend")}</span><span>{t("Place Katha · {min} min", { min: 8 })}</span></div></div>
-          </Link>
-          <Link className="story" href="/katha/city/">
-            <svg viewBox="0 0 320 180" aria-hidden="true">
-              <rect width="320" height="180" fill="#245A4B" />
-              <path d="M0 180 L0 120 C60 96 110 70 170 64 C230 58 280 88 320 110 L320 180 Z" fill="#1A4337" />
-              <g fill="#E7B25C"><rect x="150" y="40" width="22" height="26" /><path d="M146 42 L161 14 L176 42Z" /><rect x="159" y="6" width="4" height="10" /></g>
-              <text x="24" y="160" className="kn" fontSize="46" fontWeight="700" fill="#F4EFE6">ಮೈಸೂರು</text>
-            </svg>
-            <div className="story-body"><b>Mysuru in 5 minutes</b><div className="story-meta"><span className="tag tag-legend">{t("Legend")}</span><span>{t("City Katha · 2 or 5 min")}</span></div></div>
-          </Link>
-          <Link className="story" href="/trip/live/">
-            <svg viewBox="0 0 320 180" aria-hidden="true">
-              <rect width="320" height="180" fill="#DE9A58" />
-              <rect y="140" width="320" height="40" fill="#3B7A91" />
-              <g fill="#9E4529"><rect x="96" y="96" width="128" height="58" /><rect x="108" y="66" width="104" height="32" /><rect x="124" y="42" width="72" height="26" /><path d="M134 44 L134 30 Q160 10 186 30 L186 44Z" /></g>
-              <g fill="#6D2E1B"><path d="M150 154 V130 A10 10 0 0 1 170 130 V154Z" /><circle cx="160" cy="80" r="7" /></g>
-            </svg>
-            <div className="story-body"><b>Saturday in Old Goa</b><div className="story-meta"><span className="tag tag-history">{t("History")}</span><span>{t("Day Katha · {stops} stops · {min} min", { stops: 5, min: 12 })}</span></div></div>
-          </Link>
-          <Link className="story" href="/katha/">
-            <svg viewBox="0 0 320 180" aria-hidden="true">
-              <rect width="320" height="180" fill="#C9B48A" />
-              <path d="M0 180 L0 128 C40 110 70 132 100 118 C130 104 150 120 180 112 L320 120 L320 180Z" fill="#A88A62" />
-              <g fill="#5E4630"><rect x="118" y="96" width="84" height="40" /><path d="M126 96 L160 50 L194 96Z" /><rect x="134" y="80" width="52" height="16" /><circle cx="132" cy="140" r="14" /><circle cx="188" cy="140" r="14" /></g>
-              <g fill="#C9B48A"><circle cx="132" cy="140" r="5" /><circle cx="188" cy="140" r="5" /></g>
-            </svg>
-            <div className="story-body"><b>Hampi&apos;s stone chariot</b><div className="story-meta"><span className="tag tag-history">{t("History")}</span><span>{t("Place Katha · {min} min", { min: 6 })}</span></div></div>
-          </Link>
+          {stories.map((x, i) => (
+            <Link key={x.subject_kind + x.subject} className="story" href={`/katha/${x.subject_kind}/?subject=${encodeURIComponent(x.subject)}`}>
+              {ART[i % ART.length]}
+              <div className="story-body">
+                <b>{x.subject}</b>
+                <div className="story-meta">
+                  {x.has_audio && <span className="tag tag-history">{t("Audio")}</span>}
+                  <span>{t(x.subject_kind === "city" ? "City Katha" : "Place Katha")}{x.lengths.some((n) => n === 2 || n === 5) ? ` · ${t("{list} min", { list: x.lengths.filter((n) => n === 2 || n === 5).join(", ") })}` : ""}</span>
+                </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
     </AppShell>

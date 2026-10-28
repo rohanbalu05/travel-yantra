@@ -54,3 +54,5 @@ button.trip{width:100%;font:inherit;text-align:left;cursor:pointer}
 .story-body b{font-family:var(--f-display);font-size:19px;letter-spacing:-0.01em}
 .story-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13.5px;color:var(--muted)}
 .sec-title{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px;margin:0 0 16px}
+.mini-link{color:inherit;text-decoration:none}
+.mini-link:hover b{text-decoration:underline}
