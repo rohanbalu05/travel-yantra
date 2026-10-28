@@ -166,3 +166,4 @@
   .bar i.run{animation:none;transform:scaleX(.5)}
 }
 .lang-note{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:0 0 16px}
+.it-tickets{align-self:flex-start;font-size:14px;font-weight:700;color:var(--ghat)}

@@ -264,3 +264,11 @@ textarea.input{min-height:132px;padding:14px;line-height:1.55;resize:vertical}
 
 /* A failed call: the reason, and Try again when it may help (components/Problem.tsx). */
 .problem{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:4px;background:#F6EAD2;color:#5F3D0B;font-size:15px;line-height:1.5}
+.stay-facts{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:14px;color:var(--ink-2)}
+.stay-facts .stars{color:#B4452A;letter-spacing:1px}
+.stay-pick{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.stay-others{margin-top:10px}
+.stay-others summary{cursor:pointer;font-weight:700;color:var(--ghat);min-height:44px;display:flex;align-items:center}
+.stay-others ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:10px}
+.stay-others li{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.stay-others li>div{display:flex;flex-direction:column;gap:4px;min-width:0}

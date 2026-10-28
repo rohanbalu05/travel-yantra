@@ -8,7 +8,7 @@ import type { Lang, TripDraft } from "@/lib/contracts";
 import { LANGS, useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { savePlanInput } from "@/lib/plan";
-import { FOODS, INTERESTS, PACES, TRANSPORTS, destinationsOf, formFromDraft, formProblems, goaForm, leaveSample, splitOf, toTripRequest, tripDays, type TripForm } from "@/lib/tripForm";
+import { FOODS, INTERESTS, PACES, TRANSPORTS, destinationsOf, formFromDraft, formProblems, blankForm, BUDGET_STYLES, leaveSample, splitOf, toTripRequest, tripDays, type TripForm } from "@/lib/tripForm";
 import "../plan.css";
 
 const PLAN_LANGS: [Lang, string][] = LANGS.map((l) => [l.code, l.native]);
@@ -25,17 +25,19 @@ function PlanStart() {
   const router = useRouter();
   const params = useSearchParams();
   const [mode, setMode] = useState<"words" | "form">(params.get("mode") === "form" ? "form" : "words");
-  const [text, setText] = useState(params.get("text") ?? SAMPLE_TEXT);
+  // The example is a placeholder in the app's language, never prefilled text sent as the traveller's.
+  const [text, setText] = useState(params.get("text") ?? "");
   const { lang: uiLang, t } = useI18n();
-  // The plan's language starts as the app's and can differ (plan in Hindi, read the app in English).
-  const [lang, setLang] = useState<Lang>(uiLang);
-  // From needs_input, the form starts from what intake understood; otherwise from the Goa sample.
+  // The plan's language follows the app's until the traveller picks another (plan in Hindi, read the app in English).
+  const [picked, setLang] = useState<Lang | null>(null);
+  const lang = picked ?? uiLang;
+  // From needs_input, the form starts from what intake understood; otherwise empty.
   const [form, setForm] = useState<TripForm>(() => {
     try {
       const d = params.get("draft");
-      return d ? formFromDraft(JSON.parse(d) as TripDraft) : goaForm();
+      return d ? formFromDraft(JSON.parse(d) as TripDraft) : blankForm();
     } catch {
-      return goaForm();
+      return blankForm();
     }
   });
   const [tried, setTried] = useState(false);
@@ -99,7 +101,7 @@ function PlanStart() {
               <h2 className="h3" id="w-h">{t("Where, when and who")}</h2>
               <div className="field">
                 <label htmlFor="trip-text">{t("Your trip, in your words")}</label>
-                <textarea id="trip-text" className="input ps-text" value={text} maxLength={4000} onChange={(e) => setText(e.target.value)} />
+                <textarea id="trip-text" className="input ps-text" value={text} maxLength={4000} placeholder={t(SAMPLE_TEXT)} onChange={(e) => setText(e.target.value)} />
                 <span className="hint">{t("Say where from and to, the dates, who is going, and anything that matters: food, walking, budget.")}</span>
               </div>
             </section>
@@ -121,8 +123,8 @@ function PlanStart() {
             <section className="panel panel-pad fsec" aria-labelledby="f1">
               <h2 className="h3" id="f1">{t("Where and when")}</h2>
               <div className="two">
-                <div className="field"><label htmlFor="from">{t("From")}</label><input className="input" id="from" value={form.from} onChange={(e) => setPlace("from", e.target.value)} /></div>
-                <div className="field"><label htmlFor="to">{t("To")}</label><input className="input" id="to" value={form.to} onChange={(e) => setPlace("to", e.target.value)} /></div>
+                <div className="field"><label htmlFor="from">{t("From")}</label><input className="input" id="from" placeholder={t("For example, Bengaluru")} autoComplete="off" value={form.from} onChange={(e) => setPlace("from", e.target.value)} /></div>
+                <div className="field"><label htmlFor="to">{t("To")}</label><input className="input" id="to" placeholder={t("For example, Goa or Mysuru, Coorg")} autoComplete="off" value={form.to} onChange={(e) => setPlace("to", e.target.value)} /></div>
               </div>
               <div className="two">
                 <div className="field"><label htmlFor="start">{t("First day")}</label><input className="input" id="start" type="date" value={form.start} onChange={(e) => set("start", e.target.value)} /></div>
@@ -205,6 +207,12 @@ function PlanStart() {
                 <label htmlFor="budget">{t("Budget for everyone")}</label>
                 <div className="money"><span>₹</span><input className="input" id="budget" inputMode="numeric" value={form.budget} onChange={(e) => choose("budget", e.target.value)} /></div>
                 <span className="hint">{t("For everything, including getting there. We show the split before you book.")}</span>
+              </div>
+              <div className="field"><span className="label">{t("Budget style")}</span>
+                <div className="toggle wrap-toggle" role="group" aria-label={t("Budget style")}>
+                  {BUDGET_STYLES.map(([v, label]) => <button key={v} type="button" className={(form.budgetStyle ?? "comfort") === v ? "on" : undefined} aria-pressed={(form.budgetStyle ?? "comfort") === v} onClick={() => choose("budgetStyle", v)}>{t(label)}</button>)}
+                </div>
+                <span className="hint">{t(BUDGET_STYLES.find(([v]) => v === (form.budgetStyle ?? "comfort"))![2])}</span>
               </div>
               {langPicker}
               {errors}

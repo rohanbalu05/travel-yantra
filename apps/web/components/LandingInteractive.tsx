@@ -138,7 +138,7 @@ export function LanguageDemo() {
         <p className={`lang-say ${x.cls}`}>{x.say}</p>
         <span className="lang-who">Travel Yantra replies</span>
         <p className={`lang-reply ${x.cls}`}>{x.reply}</p>
-        <p className="lang-foot">Replies in all six languages, on the web, on WhatsApp and on Telegram.</p>
+        <p className="lang-foot">Replies in all six languages, on the web, on WhatsApp and through the MCP server.</p>
       </div>
     </div>
   );

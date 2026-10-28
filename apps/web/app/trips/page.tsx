@@ -9,6 +9,8 @@ import { listTrips, useAccount, type SavedTrip } from "@/lib/account";
 import { dayLabel } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { savePlanResult } from "@/lib/plan";
+import { latestTrips, loadTrip } from "@/lib/trips";
+import { TripMeta } from "@/components/TripMeta";
 import "../settings/settings.css";
 
 export default function MyTrips() {
@@ -17,26 +19,31 @@ export default function MyTrips() {
   const { lang, t } = useI18n();
   const [res, setRes] = useState<{ trips?: SavedTrip[]; from?: "api" | "browser"; problem?: { message: string; retryable: boolean } } | null>(null);
   const [run, setRun] = useState(0);
+  const [opening, setOpening] = useState<string | null>(null);
+  const [openProblem, setOpenProblem] = useState<{ message: string; retryable: boolean } | null>(null);
   const keep = !!account?.consents.plan_history;
   const count = account?.trips.length ?? 0;
 
   useEffect(() => {
     let live = true;
     listTrips()
-      .then((r) => live && setRes(r))
+      .then((r) => live && setRes({ ...r, trips: latestTrips(r.trips) }))
       .catch((e) => live && setRes({ problem: problemOf(e) }));
     return () => {
       live = false;
     };
   }, [run, count]);
 
-  // A plan kept in this browser reopens in full; one from the server opens as its share page.
-  const open = (trip: SavedTrip) => {
-    if (trip.itinerary) {
-      savePlanResult({ itinerary: trip.itinerary, plan_id: trip.plan_id, share_token: trip.share_token || null });
+  // The owner reopens the editable Itinerary (never the read-only share page).
+  const open = async (trip: SavedTrip) => {
+    setOpening(trip.plan_id);
+    setOpenProblem(null);
+    try {
+      savePlanResult(await loadTrip(trip));
       router.push("/plan/itinerary/");
-    } else if (trip.share_token) {
-      router.push(`/t/${encodeURIComponent(trip.share_token)}/`);
+    } catch (e) {
+      setOpenProblem(problemOf(e));
+      setOpening(null);
     }
   };
 
@@ -64,12 +71,15 @@ export default function MyTrips() {
         </div>
       ) : (
         <div className="trips-list">
+          {openProblem && <Problem {...openProblem} />}
           {res.trips!.map((trip) => (
             <article className="trip-card" key={trip.plan_id}>
               <b>{trip.destinations.join(", ")}</b>
               <span className="hint">{t("From {origin} · {start} to {end}", { origin: trip.origin, start: dayLabel(trip.start_date, lang), end: dayLabel(trip.end_date, lang) })}</span>
+              <TripMeta trip={trip} />
               <div className="row-wrap">
-                <button type="button" className="btn btn-primary btn-sm" onClick={() => open(trip)} disabled={!trip.itinerary && !trip.share_token}>{t("View details")}</button>
+                <button type="button" className="btn btn-primary btn-sm" onClick={() => void open(trip)} disabled={opening !== null}>{opening === trip.plan_id ? `${t("Loading")}…` : t("View details")}</button>
+                <Link className="btn btn-quiet btn-sm" href={`/trip/live/?trip=${encodeURIComponent(trip.plan_id)}`}>{t("Trip mode")}</Link>
                 {trip.share_token && <Link className="btn btn-quiet btn-sm" href={`/t/${encodeURIComponent(trip.share_token)}/`}>{t("Share")}</Link>}
               </div>
             </article>

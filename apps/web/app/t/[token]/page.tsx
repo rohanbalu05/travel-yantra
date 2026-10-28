@@ -8,11 +8,11 @@ import { Problem, problemOf } from "@/components/Problem";
 import { StopsMap } from "@/components/StopsMap";
 import { API_BASE_URL } from "@/lib/api";
 import type { Itinerary } from "@/lib/contracts";
-import { MODE_NAME, categoryLabel, clock, dayLabel, duration, inr, weekday } from "@/lib/format";
+import { categoryLabel, clock, dayLabel, duration, inr, weekday } from "@/lib/format";
 import { ApiError, apiJSON } from "@/lib/http";
 import { useI18n } from "@/lib/i18n";
 import { GOA_ITINERARY, SAMPLE_SHARE_TOKEN } from "@/lib/mockPlan";
-import { dayRows } from "@/lib/planView";
+import { dayRows, legModeName } from "@/lib/planView";
 import "../../plan/plan.css";
 
 async function sharedTrip(token: string, signal: AbortSignal): Promise<Itinerary> {
@@ -61,7 +61,7 @@ function Shared({ it }: { it: Itinerary }) {
                   <span className="it-time">{r.kind === "stop" ? (r.at ? clock(r.at.start) : duration(r.place.typical_visit_minutes)) : r.kind === "move" ? clock(r.leg.depart) : t("Night")}</span>
                   <span className={r.kind === "stop" ? "mk mk-stop" : r.kind === "move" ? "mk mk-move" : "mk mk-stay"}>{r.kind === "stop" ? r.n : r.kind === "move" ? "→" : "H"}</span>
                   <div className="it-body">
-                    <b>{r.kind === "stop" ? r.place.name : r.kind === "move" ? t("{mode} to {place}", { mode: t(MODE_NAME[r.leg.mode]), place: r.leg.to }) : r.name}</b>
+                    <b>{r.kind === "stop" ? r.place.name : r.kind === "move" ? t("{mode} to {place}", { mode: t(legModeName(r.leg)), place: r.leg.to }) : r.name}</b>
                     {r.kind === "stop" && <small>{t(categoryLabel(r.place.category))}</small>}
                   </div>
                 </div>

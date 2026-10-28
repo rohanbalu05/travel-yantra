@@ -112,6 +112,7 @@ export default function SettingsPage() {
       <section className="panel panel-pad st-sec st-danger" aria-labelledby="del-h">
         <h2 className="h3" id="del-h">{t("Delete my data")}</h2>
         <p style={{ margin: 0 }}>{t("Deletes your saved trips, your choices on this page and your account data. Shared plan links stop working. This cannot be undone.")}</p>
+        <p style={{ margin: 0 }}><Link href="/data-deletion/">{t("Delete your data")}</Link>: {t("other ways, such as WhatsApp or email.")}</p>
         {deleted ? (
           <p className="st-done" role="status">
             {deleted.server === null

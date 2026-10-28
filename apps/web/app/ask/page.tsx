@@ -16,13 +16,18 @@ import "../guide.css";
 type Turn = { id: number; q: string; a?: GuideAnswer; problem?: { message: string; retryable: boolean } };
 
 // Starter questions and topics: dictionary keys, asked in the traveller's language. With a plan they
-// name its first stop (QA #119); without one, the Goa sample's Basilica.
-const SAMPLE_PLACE = "the Basilica of Bom Jesus";
-const tries = (place: string): { q: string; v: Vars; k: string }[] => [
-  { q: "Why is {place} famous?", v: { place }, k: "History" },
-  { q: "What should we wear to {place}?", v: { place }, k: "Etiquette" },
-  { q: "Where is the nearest hospital?", v: {}, k: "Emergency" },
-];
+// name its first stop (QA #119); without one, general questions (never a sample trip's place).
+const tries = (place: string | null): { q: string; v: Vars; k: string }[] =>
+  place
+    ? [
+        { q: "Why is {place} famous?", v: { place }, k: "History" },
+        { q: "What should we wear to {place}?", v: { place }, k: "Etiquette" },
+        { q: "Where is the nearest hospital?", v: {}, k: "Emergency" },
+      ]
+    : [
+        { q: "What should we wear to a temple?", v: {}, k: "Etiquette" },
+        { q: "Where is the nearest hospital?", v: {}, k: "Emergency" },
+      ];
 
 function Emergency({ places }: { places: Place[] }) {
   const { t } = useI18n();
@@ -47,7 +52,7 @@ export default function AskGuide() {
   const account = useAccount();
   const city = plan?.itinerary.request.destinations[0] ?? null;
   const firstStop = plan?.itinerary.days.flatMap((d) => d.stops ?? [])[0];
-  const TRIES = tries(firstStop ? firstStop.native_names?.[lang] ?? firstStop.name : t(SAMPLE_PLACE));
+  const TRIES = tries(firstStop ? firstStop.native_names?.[lang] ?? firstStop.name : null);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
@@ -97,7 +102,7 @@ export default function AskGuide() {
     <AppShell>
       <div>
         <div className="ag-head">
-          <h1 className="page-title">{t("Ask the guide")}</h1>
+          <h1 className="page-title">{city ? t("Ask the guide about {city}", { city }) : t("Ask the guide")}</h1>
           <p className="page-sub">{city ? t("History, food, culture and what to do in an emergency in {city}. Every answer names its sources; if there is no source, the guide says so instead of guessing.", { city }) : t("History, food, culture and what to do in an emergency. Every answer names its sources; if there is no source, the guide says so instead of guessing.")}</p>
         </div>
         <div className="split">

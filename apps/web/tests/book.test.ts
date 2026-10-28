@@ -30,12 +30,12 @@ describe("routes client", () => {
     expect(JSON.parse(init.body as string)).toMatchObject({ travellers: 4 });
   });
 
-  it("GETs the IRCTC card with the rail leg's stations and a sample party, no names", async () => {
+  it("GETs the IRCTC card with the rail leg's stations and a sample party, no names, and no default class", async () => {
     const fn = fakeFetch({});
     await irctcCard({ from: "KSR Bengaluru City Jn", to: "Madgaon Jn", date: "2026-12-11", party: "goa_family" }, undefined, "http://api.test");
     const url = new URL((fn.mock.calls[0] as unknown as [string])[0]);
     expect(url.pathname).toBe("/routes/irctc-card");
-    expect(Object.fromEntries(url.searchParams)).toEqual({ from: "KSR Bengaluru City Jn", to: "Madgaon Jn", date: "2026-12-11", party: "goa_family", travel_class: "3A" });
+    expect(Object.fromEntries(url.searchParams)).toEqual({ from: "KSR Bengaluru City Jn", to: "Madgaon Jn", date: "2026-12-11", party: "goa_family" });
   });
 
   it("GETs the PNR mock", async () => {

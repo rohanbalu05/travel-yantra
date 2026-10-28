@@ -38,6 +38,10 @@ test("plan Goa from Home to the itinerary, revise a day and rate it", async ({ p
 
 test("book: train card, PNR timeline and stays", async ({ page }) => {
   await page.goto("/plan/start/?mode=form");
+  await page.getByLabel("From").fill("Bengaluru");
+  await page.getByLabel("To", { exact: true }).fill("Goa");
+  await page.getByLabel("First day").fill("2026-12-11");
+  await page.getByLabel("Last day").fill("2026-12-14");
   await page.getByRole("button", { name: "Plan my trip" }).last().click();
   await expect(page.getByText("Your plan is ready")).toBeVisible({ timeout: 20_000 });
 
@@ -52,7 +56,8 @@ test("book: train card, PNR timeline and stays", async ({ page }) => {
 
 test("Katha with labelled legends and sources, and the guide with an emergency answer", async ({ page }) => {
   await page.goto("/katha/place/?subject=Basilica%20of%20Bom%20Jesus");
-  await page.getByRole("button", { name: /^10 / }).click(); // nothing loads until a length is picked
+  await page.getByRole("button", { name: /^5 / }).click(); // nothing loads until a length is picked (10 is hidden until TY2 passes it)
+  await expect(page.getByRole("button", { name: /^10 / })).toHaveCount(0);
   await expect(page.locator(".seg.legend").first()).toContainText("As the story goes");
   await expect(page.locator(".srcs li")).toHaveCount(2);
   await page.locator("a.cite").first().click();
@@ -103,13 +108,15 @@ test("study: ty arm plans in the app, baseline arm uses the timer with no app na
   await expect(page.getByText("Thank you. You can close this tab.")).toBeVisible();
 });
 
-test("privacy and data-deletion pages are public and linked from the footer", async ({ page }) => {
+test("privacy is linked from the footer; data deletion from Settings only", async ({ page }) => {
   await page.goto("/home/");
   await page.getByRole("contentinfo").getByRole("link", { name: "Privacy policy" }).click();
   await expect(page).toHaveURL(/\/privacy\/$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Privacy policy");
   await expect(page.getByRole("link", { name: "rohan@aizyantra.com" }).first()).toHaveAttribute("href", "mailto:rohan@aizyantra.com");
-  await page.getByRole("contentinfo").getByRole("link", { name: "Delete your data" }).click();
+  await expect(page.getByRole("contentinfo").getByRole("link", { name: "Delete your data" })).toHaveCount(0);
+  await page.goto("/settings/");
+  await page.getByRole("link", { name: "Delete your data" }).click();
   await expect(page).toHaveURL(/\/data-deletion\/$/);
   await expect(page.getByText(/delete my data/i).first()).toBeVisible();
   await noSidewaysScroll(page);

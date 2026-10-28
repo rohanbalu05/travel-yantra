@@ -55,3 +55,24 @@ export function citedParts(text: string): CitedPart[] {
   if (last < text.length) parts.push({ text: text.slice(last) });
   return parts;
 }
+
+/** One entry of TY2's Katha library (GET /guide/katha/library). Day stories come from a plan, not the library. */
+export type LibraryItem = { subject_kind: "place" | "city"; subject: string; city?: string | null; lengths: number[]; langs: Lang[]; has_audio: boolean };
+
+/** Known subjects, used with no API or until TY2's library route is deployed. */
+export const LIBRARY_FALLBACK: LibraryItem[] = [
+  { subject_kind: "city", subject: "Mysuru", city: "Mysuru", lengths: [2, 5], langs: ["en"], has_audio: false },
+  { subject_kind: "city", subject: "Goa", city: "Goa", lengths: [2, 5], langs: ["en"], has_audio: false },
+  { subject_kind: "place", subject: "Basilica of Bom Jesus", city: "Goa", lengths: [2, 5], langs: ["en"], has_audio: false },
+];
+
+/** TY2's library in `lang`; the fallback list while the route is missing (404/405) or with no API. */
+export async function kathaLibrary(lang: Lang, signal?: AbortSignal, base = API_BASE_URL): Promise<{ items: LibraryItem[]; live: boolean }> {
+  if (!base) return { items: LIBRARY_FALLBACK, live: false };
+  try {
+    return { items: await apiJSON<LibraryItem[]>(`/guide/katha/library?lang=${encodeURIComponent(lang)}`, { signal, base }), live: true };
+  } catch (e) {
+    if (e instanceof ApiError && (e.status === 404 || e.status === 405)) return { items: LIBRARY_FALLBACK, live: false };
+    throw e;
+  }
+}

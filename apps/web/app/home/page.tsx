@@ -9,7 +9,9 @@ import { listTrips, useAccount, type SavedTrip } from "@/lib/account";
 import { dayLabel } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
-import { savePlanInput } from "@/lib/plan";
+import { savePlanInput, savePlanResult } from "@/lib/plan";
+import { latestTrips, loadTrip } from "@/lib/trips";
+import { TripMeta } from "@/components/TripMeta";
 import "./home.css";
 
 // Sample data only (Arjun Rao and family), shown and labelled as samples until the person has trips.
@@ -34,21 +36,35 @@ export default function HomePage() {
   const router = useRouter();
   const { lang, t } = useI18n();
   const user = useAccount()?.user;
-  // Signed in with Google: their own first name. Otherwise the sample persona (Arjun Rao and family).
-  const firstName = user && !user.demo && user.name ? user.name.split(" ")[0] : "Arjun";
+  // Signed in: their own first name. Never the sample persona's name for a real visitor.
+  const firstName = user?.name ? user.name.split(" ")[0] : null;
+  const greeting = useGreeting(firstName);
   const [playing, setPlaying] = useState(false);
   // Saved trips from the API (signed in) or this browser; null until known.
   const [mine, setMine] = useState<SavedTrip[] | null>(null);
   useEffect(() => {
     let live = true;
     listTrips()
-      .then((r) => live && setMine(r.trips))
+      .then((r) => live && setMine(latestTrips(r.trips)))
       .catch(() => live && setMine([]));
     return () => {
       live = false;
     };
   }, []);
   const [ask, setAsk] = useState("");
+  const [opening, setOpening] = useState<string | null>(null);
+  // The owner's own trip reopens the editable Itinerary; on failure, My trips explains.
+  const openTrip = async (trip: SavedTrip) => {
+    setOpening(trip.plan_id);
+    try {
+      savePlanResult(await loadTrip(trip));
+      router.push("/plan/itinerary/");
+    } catch {
+      router.push("/trips/");
+    }
+  };
+  // Sample reminders only for a first-time visitor, labelled; never beside a real person's trips.
+  const showSampleNeeds = mine !== null && !mine.length && !(user && !user.demo);
   // Typed text goes straight to planning; an empty box opens the full start page.
   const planIt = () => {
     const text = ask.trim();
@@ -61,7 +77,7 @@ export default function HomePage() {
     <AppShell>
       <div>
         <div className="hm-greet">
-          <h1>{t("Good evening, {name}.", { name: firstName })}</h1>
+          <h1 suppressHydrationWarning>{greeting}</h1>
           <p className="page-sub">{t("Plan something new, or hear the story of where you are going.")}</p>
         </div>
 
@@ -138,11 +154,12 @@ export default function HomePage() {
           {mine?.length ? (
             <div className="trips">
               {mine.slice(0, 3).map((trip) => (
-                <Link key={trip.plan_id} className="trip" href={trip.share_token ? `/t/${encodeURIComponent(trip.share_token)}/` : "/trips/"}>
-                  <div className="trip-top"><b>{trip.title}</b></div>
+                <button key={trip.plan_id} type="button" className="trip" disabled={opening !== null} aria-busy={opening === trip.plan_id} onClick={() => void openTrip(trip)}>
+                  <div className="trip-top"><b>{trip.title}</b><span className="trip-open">{opening === trip.plan_id ? `${t("Loading")}…` : t("View details")}</span></div>
                   <small>{t("{from} to {to}", { from: dayLabel(trip.start_date, lang), to: dayLabel(trip.end_date, lang) })}</small>
+                  <TripMeta trip={trip} />
                   <div className="trip-route"><span>{trip.origin}</span><i /><span>{trip.destinations.at(-1)}</span></div>
-                </Link>
+                </button>
               ))}
             </div>
           ) : (
@@ -166,6 +183,7 @@ export default function HomePage() {
           )}
         </section>
 
+        {showSampleNeeds && (
         <aside className="side panel panel-pad" aria-labelledby="needs-h">
           <h2 className="h3" id="needs-h" style={{ marginBottom: 12 }}>{t("Needs you")} <span className="badge">{t("Sample")}</span></h2>
           <div className="needs">
@@ -183,6 +201,7 @@ export default function HomePage() {
             ))}
           </div>
         </aside>
+        )}
       </div>
 
       <section aria-labelledby="stories-h">
@@ -213,7 +232,7 @@ export default function HomePage() {
               <g fill="#E7B25C"><rect x="150" y="40" width="22" height="26" /><path d="M146 42 L161 14 L176 42Z" /><rect x="159" y="6" width="4" height="10" /></g>
               <text x="24" y="160" className="kn" fontSize="46" fontWeight="700" fill="#F4EFE6">ಮೈಸೂರು</text>
             </svg>
-            <div className="story-body"><b>Mysuru in 5 minutes</b><div className="story-meta"><span className="tag tag-legend">{t("Legend")}</span><span>{t("City Katha · 2, 5 or 10 min")}</span></div></div>
+            <div className="story-body"><b>Mysuru in 5 minutes</b><div className="story-meta"><span className="tag tag-legend">{t("Legend")}</span><span>{t("City Katha · 2 or 5 min")}</span></div></div>
           </Link>
           <Link className="story" href="/trip/live/">
             <svg viewBox="0 0 320 180" aria-hidden="true">
@@ -237,4 +256,20 @@ export default function HomePage() {
       </section>
     </AppShell>
   );
+}
+
+/** Good morning / afternoon / evening by this device's clock (re-read every minute). */
+function useGreeting(name: string | null): string {
+  const { t } = useI18n();
+  const [hour, setHour] = useState<number | null>(null);
+  useEffect(() => {
+    const tick = () => setHour(new Date().getHours());
+    tick();
+    const id = setInterval(tick, 60_000);
+    return () => clearInterval(id);
+  }, []);
+  if (hour === null) return name ? t("Hello, {name}.", { name }) : t("Hello.");
+  const part = hour < 5 ? "evening" : hour < 12 ? "morning" : hour < 17 ? "afternoon" : "evening";
+  const key = { morning: "Good morning", afternoon: "Good afternoon", evening: "Good evening" }[part];
+  return name ? t(`${key}, {name}.`, { name }) : t(`${key}.`);
 }

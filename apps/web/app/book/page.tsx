@@ -6,12 +6,13 @@ import { AppShell } from "@/components/AppShell";
 import { NoPlan } from "@/components/NoPlan";
 import { Problem, problemOf } from "@/components/Problem";
 import { Trail } from "@/components/Trail";
-import type { Itinerary, Mode, SellerOffer } from "@/lib/contracts";
+import { StayFacts, StayPick } from "@/components/StayFacts";
+import type { BookedJourney, Itinerary, Mode, SellerOffer, TransportOption } from "@/lib/contracts";
 import { MODE_ICON, MODE_NAME, clock, dayLabel, duration, inr } from "@/lib/format";
 import { useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { usePlanResult } from "@/lib/plan";
-import { againstBudget, pickIndex, planRailLeg, trainDiffers, trainLeg, tripCost } from "@/lib/planView";
+import { againstBudget, pickIndex, planRailLeg, planTotal, railOptionLeg, stayGroups, trainDiffers, trainLeg } from "@/lib/planView";
 import { SAMPLE_PNRS, irctcCard, partyFor, pnrStatus, type IrctcCard, type PnrStatus } from "@/lib/routes";
 import { useRevise } from "@/lib/useRevise";
 import "./book.css";
@@ -39,6 +40,58 @@ function Offers({ offers }: { offers?: SellerOffer[] }) {
   );
 }
 
+/** The main leg of an option (the train or flight itself, not the cab to the station). */
+const mainLeg = (o: TransportOption) => o.legs.find((l) => l.mode === o.mode) ?? o.legs[0];
+/** "2026-12-11T21:00:00" to the value of an <input type="datetime-local"> */
+const toLocal = (iso: string) => iso.slice(0, 16);
+
+/**
+ * "I've booked this": the train or flight number and its times. TY1's booked intent re-times
+ * the plan around the journey the traveller really has.
+ */
+function BookedForm({ o, busy, onSend, onCancel }: { o: TransportOption; busy: boolean; onSend: (b: BookedJourney) => void; onCancel: () => void }) {
+  const { t } = useI18n();
+  const leg = mainLeg(o);
+  const [ref, setRef] = useState(leg?.ref ?? "");
+  const [depart, setDepart] = useState(leg ? toLocal(leg.depart) : "");
+  const [arrive, setArrive] = useState(leg ? toLocal(leg.arrive) : "");
+  const [tried, setTried] = useState(false);
+  const needsRef = o.mode !== "road";
+  const problem = needsRef && !ref.trim() ? t(o.mode === "rail" ? "Enter the train number." : "Enter the flight number.") : !depart || !arrive ? t("Enter when it leaves and arrives.") : arrive <= depart ? t("It must arrive after it leaves.") : null;
+  if (!leg) return null;
+  return (
+    <form
+      className="booked"
+      onSubmit={(e) => {
+        e.preventDefault();
+        setTried(true);
+        if (problem) return;
+        onSend({ mode: o.mode, ref: ref.trim(), from: leg.from, to: leg.to, depart: `${depart}:00`, arrive: `${arrive}:00` });
+      }}
+    >
+      {needsRef && (
+        <label className="field">
+          <span className="label">{t(o.mode === "rail" ? "Train number" : "Flight number")}</span>
+          <input className="input" value={ref} maxLength={12} autoComplete="off" placeholder={o.mode === "rail" ? "17309" : "6E 123"} onChange={(e) => setRef(e.target.value)} />
+        </label>
+      )}
+      <label className="field">
+        <span className="label">{t("Leaves")}</span>
+        <input className="input" type="datetime-local" value={depart} onChange={(e) => setDepart(e.target.value)} />
+      </label>
+      <label className="field">
+        <span className="label">{t("Arrives")}</span>
+        <input className="input" type="datetime-local" value={arrive} min={depart} onChange={(e) => setArrive(e.target.value)} />
+      </label>
+      {tried && problem && <p className="rev-msg bad" role="alert">{problem}</p>}
+      <div className="row-wrap">
+        <button type="submit" className="btn btn-primary btn-sm" disabled={busy}>{t("Update my plan")}</button>
+        <button type="button" className="btn btn-quiet btn-sm" onClick={onCancel}>{t("Cancel")}</button>
+      </div>
+    </form>
+  );
+}
+
 // The plan's own options (TY1's Itinerary.transport), not a fresh compare: one source for Options,
 // Book and the share link (QA #104). The one in use is the mode the days were built with.
 function Travel({ it, planId }: { it: Itinerary; planId: string | null }) {
@@ -47,6 +100,11 @@ function Travel({ it, planId }: { it: Itinerary; planId: string | null }) {
   const travellers = it.request.constraints?.travellers?.length || 1;
   const opts = it.transport ?? [];
   const inUse = pickIndex(it);
+  const [booking, setBooking] = useState<number | null>(null);
+  const booked = async (b: BookedJourney) => {
+    const what = b.ref ? `${t(MODE_NAME[b.mode]).toLowerCase()} ${b.ref}` : t(MODE_NAME[b.mode]).toLowerCase();
+    if (await revise({ intent: "booked", booked: b }, t("Done: the plan now follows your {what}.", { what }))) setBooking(null);
+  };
 
   return (
     <section className="bk-sec" aria-labelledby="go-h">
@@ -66,6 +124,7 @@ function Travel({ it, planId }: { it: Itinerary; planId: string | null }) {
                 {on && <span className="badge badge-sea">{t("In your plan")}</span>}
               </div>
               <span className="price">{inr(o.total_cost_inr)}</span>
+              {o.mode === "road" && <small>{t("By car: fuel + tolls")}</small>}
               <small>{duration(o.total_minutes)} · {changes === 0 ? t("direct") : changes > 1 ? t("{n} changes", { n: changes }) : t("{n} change", { n: changes })} · {o.legs.map((l) => l.to).join(" → ")}</small>
               <Offers offers={o.offers} />
               {!on && planId && (
@@ -74,6 +133,10 @@ function Travel({ it, planId }: { it: Itinerary; planId: string | null }) {
                   {t(CHOOSE[o.mode])}
                 </button>
               )}
+              {planId && booking !== i && (
+                <button type="button" className="btn btn-quiet btn-sm" disabled={!!busy} onClick={() => setBooking(i)}>{t("I've booked this")}</button>
+              )}
+              {planId && booking === i && <BookedForm o={o} busy={!!busy} onSend={(b) => void booked(b)} onCancel={() => setBooking(null)} />}
             </article>
           );
         })}
@@ -87,8 +150,10 @@ function Travel({ it, planId }: { it: Itinerary; planId: string | null }) {
 
 function TrainCard({ it }: { it: Itinerary }) {
   // The plan's own train, so the card names the same one as Options and the Itinerary (QA #101).
-  const rail = useMemo(() => planRailLeg(it), [it]);
+  // TY3: the rail option's train (even when the plan goes by road or air), else any train in the days.
+  const rail = useMemo(() => railOptionLeg(it) ?? planRailLeg(it), [it]);
   const [card, setCard] = useState<Load<IrctcCard>>(null);
+  const [cls, setCls] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [run, setRun] = useState(0);
   const { t } = useI18n();
@@ -96,13 +161,14 @@ function TrainCard({ it }: { it: Itinerary }) {
   useEffect(() => {
     if (!rail) return;
     const ctl = new AbortController();
-    // TY3 picks the train by number when the leg has one (Leg.ref); else the first that runs. Passenger rows follow the party size.
+    // TY3 picks the train by number when the leg has one (Leg.ref); else the first leaving at or after `after`.
+    // No class unless the traveller picks one: TY3 uses the train's own default. Passenger rows follow the party size.
     const train = rail.ref && /^\d{5}$/.test(rail.ref) ? rail.ref : null;
-    irctcCard({ from: rail.from, to: rail.to, date: rail.depart.slice(0, 10), party: partyFor(it), train, travellers: it.request.constraints?.travellers?.length || 1 }, ctl.signal)
+    irctcCard({ from: rail.from, to: rail.to, date: rail.depart.slice(0, 10), party: partyFor(it), train, after: clock(rail.depart), travel_class: cls, travellers: it.request.constraints?.travellers?.length || 1 }, ctl.signal)
       .then((data) => setCard({ data }))
       .catch((e) => !ctl.signal.aborted && setCard({ problem: problemOf(e) }));
     return () => ctl.abort();
-  }, [rail, it, run]);
+  }, [rail, it, run, cls]);
 
   if (!rail) return null;
   const c = card?.data;
@@ -141,6 +207,13 @@ function TrainCard({ it }: { it: Itinerary }) {
               <div className="cfield"><small>{t("Arrives")}</small><span>{c.arrives}{c.arrives_day_offset ? ` (+${c.arrives_day_offset})` : ""}</span></div>
               <div className="cfield"><small>{t("Class · Quota")}</small><span>{c.travel_class} · {c.quota}</span></div>
             </div>
+            {(c.classes?.length ?? 0) > 1 && (
+              <div className="toggle wrap-toggle" role="group" aria-label={t("Class")}>
+                {c.classes!.map((k) => (
+                  <button key={k} type="button" className={k === c.travel_class ? "on" : undefined} aria-pressed={k === c.travel_class} onClick={() => { setCard(null); setCls(k); }}>{k}</button>
+                ))}
+              </div>
+            )}
             <div className="table-scroll">
               <table className="ptable">
                 <thead><tr><th>{t("Passenger")}</th><th>{t("Age")}</th><th>{t("Gender")}</th><th>{t("Berth")}</th></tr></thead>
@@ -210,10 +283,11 @@ function PnrTrack() {
 }
 
 function Book({ it, planId }: { it: Itinerary; planId: string | null }) {
-  const way = (it.transport ?? [])[pickIndex(it)];
-  const cost = way ? tripCost(it, way) : it.budget.total_inr;
+  // The one budget: TY1's total, the same number on every page.
+  const cost = planTotal(it);
   const vs = againstBudget(it, cost);
   const { lang, t } = useI18n();
+  const { busy, said, revise } = useRevise(planId, it.lang);
   return (
     <>
       <div className="bk-top">
@@ -230,23 +304,55 @@ function Book({ it, planId }: { it: Itinerary; planId: string | null }) {
       <TrainCard it={it} />
       <section className="bk-sec" aria-labelledby="stay-h">
         <div className="bk-sec-head"><h2 className="h2" id="stay-h">{t("Where you stay")}</h2></div>
-        {(it.stays ?? []).map((s) => (
-          <article key={s.name} className="item">
+        {stayGroups(it).map(({ chosen: s, others }) => (
+          <article key={s.id ?? s.name + s.check_in} className="item">
             <span className="item-ic"><svg className="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 18V7" /><path d="M3 14h18v4" /><path d="M3 11h7a2 2 0 0 1 2 2v1" /><path d="M12 14v-2a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v2" /></svg></span>
             <div>
               <b>{s.name}</b>
               <span className="item-sub">{t("{city} · {from} to {to} · {price} a night", { city: s.city, from: dayLabel(s.check_in, lang), to: dayLabel(s.check_out, lang), price: inr(s.price_per_night_inr) })}</span>
+              <StayFacts stay={s} />
               <Offers offers={s.offers} />
+              {planId && others.length > 0 && (
+                <details className="stay-others">
+                  <summary>{t("Other stays in {city} ({n})", { city: s.city, n: others.length })}</summary>
+                  <ul>
+                    {others.map((o) => (
+                      <li key={o.id ?? o.name}>
+                        <div>
+                          <b>{o.name}</b>
+                          <span className="item-sub">{t("{price} a night", { price: inr(o.price_per_night_inr) })}</span>
+                          <StayFacts stay={o} />
+                        </div>
+                        {o.id && (
+                          <button type="button" className="btn btn-quiet btn-sm" disabled={!!busy}
+                            onClick={() => void revise({ intent: "change_stay", stay_id: o.id }, t("Done: you stay at {name}.", { name: o.name }))}>
+                            {t("Choose this stay")}
+                          </button>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+              {planId && !others.length && <StayPick stay={s} busy={!!busy} revise={revise} />}
             </div>
           </article>
         ))}
         {!(it.stays ?? []).length && <p className="hint">{t("No stay in this plan.")}</p>}
+        <p role="status" className={said?.bad ? "rev-msg bad" : "rev-msg"} hidden={!busy && !said}>{busy ? t("Rebuilding…") : said?.text}</p>
       </section>
       <section className="bk-sec" aria-labelledby="cab-h">
         <div className="bk-sec-head"><h2 className="h2" id="cab-h">{t("Cabs")}</h2></div>
         <p className="hint" style={{ margin: 0 }}>{t("Local cabs are booked on the day. Seller links for cabs come with the seller comparison.")}</p>
       </section>
       <PnrTrack />
+      <div className="go">
+        <div>
+          <b>{t("Next: Katha")}</b>
+          <span>{t("The story of each day's stops, to hear on the way.")}</span>
+        </div>
+        <Link className="btn btn-primary btn-lg" href="/katha/day/">{t("Next: Katha")}</Link>
+      </div>
       <p><Link href="/plan/itinerary/">{t("Back to the day-by-day plan")}</Link></p>
     </>
   );

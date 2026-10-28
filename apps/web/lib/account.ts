@@ -142,20 +142,89 @@ export async function withAuth<T>(call: (headers: Record<string, string>) => Pro
   }
 }
 
-/** Google only: no phone sign-in (SMS costs money). */
-export async function signIn(): Promise<User> {
-  let user: User;
-  if (firebaseEnabled) {
-    const { auth, instance } = await firebaseAuth();
-    const cred = await auth.signInWithPopup(instance, new auth.GoogleAuthProvider());
-    user = { uid: cred.user.uid, email: cred.user.email, name: cred.user.displayName, demo: false };
-  } else {
-    user = { uid: "demo-arjun-rao", email: null, name: "Arjun Rao (sample)", demo: true };
-  }
+type FirebaseUser = { uid: string; email: string | null; displayName: string | null };
+
+/** Phones and tablets: popups are blocked or lose their result on Android Chrome, so redirect there. */
+export function prefersRedirect(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+}
+
+/** Stores the signed-in user, moves this browser's data to the account, and keeps trips by default. */
+async function finishSignIn(fb: FirebaseUser | null): Promise<User> {
+  const user: User = fb
+    ? { uid: fb.uid, email: fb.email, name: fb.displayName, demo: false }
+    : { uid: "demo-arjun-rao", email: null, name: "Arjun Rao (sample)", demo: true };
   store({ ...load(), user });
   // The first signed-in call carries this browser's X-Client-Id: TY1 moves its trips, ratings and consents to the account.
   if (!user.demo) await syncMe().catch(() => false);
+  // "Keep my trips" is on once signed in, unless this person has already made a choice.
+  const a = load();
+  if (!a.consents_updated_at && !a.consents.plan_history) await saveConsents({ ...a.consents, plan_history: true }).catch(() => {});
   return load().user ?? user;
+}
+
+/**
+ * Google sign-in. On a laptop a popup; on a phone a redirect (the page reloads, and
+ * finishRedirectSignIn picks the result up). Returns null when the page is leaving to Google.
+ * No phone sign-in (SMS costs money).
+ */
+export async function signIn(): Promise<User | null> {
+  if (!firebaseEnabled) return finishSignIn(null);
+  const { auth, instance } = await firebaseAuth();
+  const provider = new auth.GoogleAuthProvider();
+  if (prefersRedirect()) {
+    await auth.signInWithRedirect(instance, provider);
+    return null;
+  }
+  const cred = await auth.signInWithPopup(instance, provider);
+  return finishSignIn(cred.user);
+}
+
+/** After a redirect back from Google: the signed-in user, or null when this load was not a sign-in. */
+export async function finishRedirectSignIn(): Promise<User | null> {
+  if (!firebaseEnabled) return null;
+  const { auth, instance } = await firebaseAuth();
+  const cred = await auth.getRedirectResult(instance);
+  return cred ? finishSignIn(cred.user) : null;
+}
+
+/** Email and password (Firebase). `create` makes the account first. */
+export async function signInWithEmail(email: string, password: string, create: boolean): Promise<User> {
+  if (!firebaseEnabled) throw new AuthProblem("auth/operation-not-allowed");
+  const { auth, instance } = await firebaseAuth();
+  try {
+    const cred = create
+      ? await auth.createUserWithEmailAndPassword(instance, email.trim(), password)
+      : await auth.signInWithEmailAndPassword(instance, email.trim(), password);
+    return await finishSignIn(cred.user);
+  } catch (e) {
+    throw AuthProblem.from(e);
+  }
+}
+
+/** Sends Firebase's password reset email. Says nothing about whether the address has an account. */
+export async function resetPassword(email: string): Promise<void> {
+  if (!firebaseEnabled) throw new AuthProblem("auth/operation-not-allowed");
+  const { auth, instance } = await firebaseAuth();
+  try {
+    await auth.sendPasswordResetEmail(instance, email.trim());
+  } catch (e) {
+    const p = AuthProblem.from(e);
+    if (p.code !== "auth/user-not-found") throw p;
+  }
+}
+
+/** A sign-in failure with Firebase's error code, so the page can say what went wrong. */
+export class AuthProblem extends Error {
+  constructor(readonly code: string) {
+    super(code);
+  }
+  static from(e: unknown): AuthProblem {
+    if (e instanceof AuthProblem) return e;
+    const code = typeof e === "object" && e && "code" in e ? String((e as { code: unknown }).code) : "unknown";
+    return new AuthProblem(code);
+  }
 }
 
 export async function signOut() {

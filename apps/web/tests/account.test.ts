@@ -26,12 +26,18 @@ describe("account without an API (this browser)", () => {
     expect(account().user.uid).toBe("demo-arjun-rao");
   });
 
-  it("starts with every consent off and records when they change", async () => {
+  it("turns Keep my trips on at sign-in, the rest off, and records when they change", async () => {
     await signIn();
-    expect(account().consents).toEqual({ plan_history: false, location: false, analytics: false });
-    await saveConsents({ plan_history: true, location: false, analytics: false });
-    expect(account().consents.plan_history).toBe(true);
+    expect(account().consents).toEqual({ plan_history: true, location: false, analytics: false });
     expect(account().consents_updated_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+    await saveConsents({ plan_history: false, location: false, analytics: false });
+    expect(account().consents.plan_history).toBe(false);
+  });
+
+  it("keeps a choice made before signing in again", async () => {
+    await saveConsents({ plan_history: false, location: false, analytics: false });
+    await signIn();
+    expect(account().consents.plan_history).toBe(false);
   });
 
   it("keeps a trip only with the Keep my trips consent", async () => {

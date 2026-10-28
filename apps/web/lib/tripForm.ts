@@ -1,4 +1,4 @@
-import type { Mode, Pace, Traveller, TripDraft, TripRequest } from "@/lib/contracts";
+import type { BudgetStyle, Mode, Pace, Traveller, TripDraft, TripRequest } from "@/lib/contracts";
 import { GOA_REQUEST } from "@/lib/mockPlan";
 
 export type TripForm = {
@@ -20,6 +20,8 @@ export type TripForm = {
   split?: number[] | null;
   /** How the traveller wants to go; null lets the planner pick. */
   transport?: Mode | null;
+  /** Shoestring, Comfort or Luxury; null plans as Comfort (TY1). */
+  budgetStyle?: BudgetStyle | null;
   /** Still the Goa sample's choices (step-free, interests, food, budget), untouched by the traveller. */
   sample?: boolean;
 };
@@ -57,12 +59,22 @@ export function splitOf(f: TripForm): number[] {
 export const INTERESTS = ["Churches", "Temples", "Beaches", "Forts and palaces", "Food", "Nature and waterfalls", "Museums", "Markets"];
 export const PACES: [Pace, string][] = [["relaxed", "Gentle"], ["balanced", "Balanced"], ["packed", "Packed"]];
 export const FOODS = ["Vegetarian", "Jain", "Eggs are fine", "Anything"];
+export const BUDGET_STYLES: [BudgetStyle, string, string][] = [
+  ["shoestring", "Shoestring", "Hostels and homestays, buses and sleeper class"],
+  ["comfort", "Comfort", "3-star stays, 3A trains, cabs where they help"],
+  ["luxury", "Luxury", "4- and 5-star stays, flights and private cars"],
+];
 export const TRANSPORTS: [Mode | null, string][] = [[null, "You pick"], ["rail", "Train"], ["road", "Road"], ["air", "Flight"]];
 
 const isSenior = (t: Traveller) => t.age >= 60;
 const isKid = (t: Traveller) => t.age < 18;
 
-/** The form, prefilled from the Goa family sample. */
+/** An empty form: the examples are placeholders on screen, never values sent as the traveller's. */
+export function blankForm(): TripForm {
+  return { from: "", to: "", start: "", end: "", adults: 1, seniors: 0, kids: 0, stepFree: false, interests: [], pace: "balanced", food: "Anything", budget: "", transport: null, budgetStyle: null };
+}
+
+/** The form, prefilled from the Goa family sample (tests and the demo walkthrough). */
 export function goaForm(): TripForm {
   const r = GOA_REQUEST;
   const c = r.constraints ?? {};
@@ -112,7 +124,7 @@ export function formFromDraft(d: TripDraft): TripForm {
 
 /** Keeps the starting travellers (sample or draft) when the group is unchanged; otherwise numbered placeholders. */
 function travellers(f: TripForm): Traveller[] {
-  const base = f.people ?? GOA_REQUEST.constraints?.travellers ?? [];
+  const base = f.people ?? (f.sample ? (GOA_REQUEST.constraints?.travellers ?? []) : []);
   const d = counts(base);
   if (f.adults === d.adults && f.seniors === d.seniors && f.kids === d.kids) return base;
   const list: Traveller[] = [];
@@ -151,6 +163,7 @@ export function toTripRequest(f: TripForm, lang: TripRequest["lang"] = "en"): Tr
       mobility_needs: f.stepFree ? ["step-free access"] : [],
       dietary: food,
       travellers: travellers(f),
+      budget_style: f.budgetStyle ?? null,
     },
     lang,
     notes: f.interests.length ? `Interests: ${f.interests.join(", ")}.` : null,

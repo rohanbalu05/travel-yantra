@@ -23,6 +23,8 @@ export type IrctcCard = {
   booking_url: string;
   sample: boolean;
   notes: string[];
+  /** The classes this train has (TY3); the card's class is one of them. */
+  classes?: string[];
 };
 export type PnrStatus = {
   pnr: string;
@@ -52,12 +54,16 @@ export async function compareRoutes(req: CompareRequest, it: Itinerary, signal?:
   return withAuth((headers) => apiJSON<CompareResponse>("/routes/compare", { body: req, signal, base, headers }));
 }
 
-export async function irctcCard(p: { from: string; to: string; date: string; party: Party; travel_class?: string; train?: string | null; travellers?: number }, signal?: AbortSignal, base = API_BASE_URL): Promise<IrctcCard> {
+/**
+ * GET /routes/irctc-card (TY3). `train` and `after` (HH:MM) name the plan's train; with no class,
+ * TY3 uses the train's own default and lists the others in `classes`.
+ */
+export async function irctcCard(p: { from: string; to: string; date: string; party: Party; travel_class?: string | null; train?: string | null; after?: string | null; travellers?: number }, signal?: AbortSignal, base = API_BASE_URL): Promise<IrctcCard> {
   if (!base) {
     await wait(200);
-    return sampleIrctcCard(p);
+    return sampleIrctcCard({ ...p, travel_class: p.travel_class ?? undefined });
   }
-  return withAuth((headers) => apiJSON<IrctcCard>(`/routes/irctc-card?${query({ ...p, travel_class: p.travel_class ?? "3A" })}`, { signal, base, headers }));
+  return withAuth((headers) => apiJSON<IrctcCard>(`/routes/irctc-card?${query(p)}`, { signal, base, headers }));
 }
 
 export async function pnrStatus(pnr: string, signal?: AbortSignal, base = API_BASE_URL): Promise<PnrStatus> {

@@ -7,8 +7,9 @@ import { Problem, problemOf } from "@/components/Problem";
 import { getKatha, type KathaRequest, type KathaResult } from "@/lib/guide";
 import { useI18n } from "@/lib/i18n";
 
-const LENGTHS = [2, 5, 10] as const;
-type Length = (typeof LENGTHS)[number];
+// 10 minutes stays hidden until TY2 says it passes its checks (its /guide/katha answers 404 for it now).
+const LENGTHS = [2, 5] as const;
+type Length = 2 | 5 | 10;
 const LENGTH_KEY = "ty.katha.length";
 
 const noSubscribe = () => () => {};
@@ -27,6 +28,9 @@ const TAG: Record<string, string> = { history: "tag tag-history k-label", legend
 // A first telling runs 4 to 10 model calls (TY2: ~60 s for 2 min, ~200 s for 10 min); past this it has stalled.
 // The server still finishes and caches it, so Try again later is instant.
 const KATHA_TIMEOUT_MS = 210_000;
+// TY2 records audio after the text: on audio_status "pending", ask again every 20 s for a while.
+const AUDIO_POLL_MS = 20_000;
+const AUDIO_POLLS = 15;
 
 /** The story for one subject with a 2, 5 or 10 minute switch, labelled segments and numbered sources. */
 export function KathaView({ req }: { req: Omit<KathaRequest, "length_min" | "lang"> }) {
@@ -69,13 +73,31 @@ export function KathaView({ req }: { req: Omit<KathaRequest, "length_min" | "lan
   // A result for an older request (length switched mid-load) counts as loading.
   const current = result?.key === reqKey ? result : null;
   const story = current?.story;
+
+  // Audio still being recorded: the same request again, quietly, until it is ready (or we give up).
+  const [polls, setPolls] = useState(0);
+  const pending = story?.audio_status === "pending" && !story.sample;
+  useEffect(() => {
+    if (!pending || polls >= AUDIO_POLLS) return;
+    const ctl = new AbortController();
+    const timer = setTimeout(() => {
+      getKatha(JSON.parse(reqKey) as KathaRequest, ctl.signal)
+        .then((next) => setResult({ key: reqKey, story: next }))
+        .catch(() => {})
+        .finally(() => setPolls((n) => n + 1));
+    }, AUDIO_POLL_MS);
+    return () => {
+      clearTimeout(timer);
+      ctl.abort();
+    };
+  }, [pending, polls, reqKey]);
   const sources = (story?.sources ?? []).map(citationFrom);
 
   return (
     <section aria-label={t("Story")}>
       <div className="k-bar">
         <div className="toggle" role="group" aria-label={t("Length")}>
-          {LENGTHS.map((n) => (
+          {LENGTHS.map((n: Length) => (
             <button key={n} type="button" className={n === length ? "on" : undefined} aria-pressed={n === length} onClick={() => pick(n)}>{n} {t("Minutes")}</button>
           ))}
         </div>
@@ -91,6 +113,7 @@ export function KathaView({ req }: { req: Omit<KathaRequest, "length_min" | "lan
         <div className="k-story">
           {/* Read aloud by TY2 for some stories; none is not an error. The sources stay on screen (they are not read out). */}
           {(story.audio ?? []).length > 0 && <KathaPlayer key={story.audio![0].url} audio={story.audio!} />}
+          {pending && !(story.audio ?? []).length && <p className="hint" role="status">{t("The audio is being recorded. It will appear here in a minute or two.")}</p>}
           {story.segments!.map((s, i) => (
             <div key={i} className={s.label === "legend" ? "seg legend" : "seg"}>
               {LABEL[s.label] ? <span className={TAG[s.label]}>{t(LABEL[s.label])}</span> : null}

@@ -1,4 +1,7 @@
 export type {
+  BookedJourney,
+  BudgetStyle,
+  SavedPlan,
   BudgetSummary,
   Citation,
   Consents,

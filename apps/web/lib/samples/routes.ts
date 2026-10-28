@@ -29,6 +29,7 @@ export function sampleIrctcCard(p: { from: string; to: string; date: string; par
   const passengers = people.map(([name, age, gender, berth]) => ({ name, age, gender, berth }));
   return {
     train: { number: "90001", name: "Sample Goa Express" },
+    classes: ["SL", "3A", "2A"],
     from: { code: "SBC", name: "KSR Bengaluru City Jn" },
     to: { code: "MAO", name: "Madgaon Jn" },
     date: p.date,

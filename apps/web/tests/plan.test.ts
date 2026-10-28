@@ -106,11 +106,11 @@ describe("planReducer", () => {
 });
 
 describe("plan view helpers", () => {
-  it("prices the trip per way of travel and picks the cheapest that fits the budget", () => {
+  it("never estimates a trip total on the web; with no plan mode it picks the cheapest fare", () => {
     const [rail, air] = GOA_ITINERARY.transport!;
-    expect(tripCost(GOA_ITINERARY, rail)).toBe(46800 - 19200 + 4800);
-    expect(tripCost(GOA_ITINERARY, air)).toBe(46800 - 19200 + 16400);
     expect(pickIndex(GOA_ITINERARY)).toBe(0);
+    expect(tripCost(GOA_ITINERARY, rail)).toBe(GOA_ITINERARY.budget.total_inr);
+    expect(tripCost(GOA_ITINERARY, air)).toBe(air.trip_total_inr ?? null);
   });
 
   it("puts each leg after the stop it leaves, and the night's stay last", () => {

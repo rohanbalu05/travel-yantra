@@ -22,6 +22,10 @@
 .si-or::before,.si-or::after{content:"";flex:1;height:1px;background:var(--line)}
 .si-consent{display:flex;flex-direction:column;gap:12px;padding:16px;border:1px solid var(--line);border-radius:4px;background:var(--card)}
 .si-err{margin:0;padding:12px 14px;border-radius:4px;background:#F6DFD7;color:#7C2A16;font-size:14.5px;font-weight:600}
+.si-email{display:flex;flex-direction:column;gap:14px}
+.si-links{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px}
+.si-link{padding:6px 0;border:0;background:none;color:var(--ghat);font:inherit;font-size:14.5px;font-weight:700;text-decoration:underline;cursor:pointer;min-height:44px}
+.si-ok{margin:0;padding:12px 14px;border-radius:4px;background:#DCEBDF;color:#1E4A2A;font-size:14.5px;font-weight:600}
 .si-small{margin:0;font-size:14px;color:var(--muted)}
 @media (max-width:760px){
   .si-art{flex-basis:100%;gap:24px}

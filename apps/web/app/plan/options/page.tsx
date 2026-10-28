@@ -8,7 +8,7 @@ import type { Itinerary, Mode } from "@/lib/contracts";
 import { MODE_ICON, MODE_NAME, clock, dayLabel, duration, inr } from "@/lib/format";
 import { useI18n, type Vars } from "@/lib/i18n";
 import { saveChoice, useChoice, usePlanResult } from "@/lib/plan";
-import { againstBudget, nights, pickIndex, travellerCount, tripCost } from "@/lib/planView";
+import { againstBudget, legModeName, nights, pickIndex, travellerCount, tripCost } from "@/lib/planView";
 import { useRevise } from "@/lib/useRevise";
 import "../plan.css";
 
@@ -21,6 +21,7 @@ function Options({ it, planId }: { it: Itinerary; planId: string | null }) {
   const mode = (m: Mode) => t(MODE_NAME[m]);
   const opts = it.transport ?? [];
   const best = pickIndex(it);
+  const bestOpt = opts[best];
   const stored = useChoice();
   const sel = stored != null && stored < opts.length ? stored : best;
   const choose = saveChoice;
@@ -29,9 +30,9 @@ function Options({ it, planId }: { it: Itinerary; planId: string | null }) {
   const people = travellerCount(it);
   const o = opts[sel];
   const cost = o ? tripCost(it, o) : it.budget.total_inr;
+  const inUse = !o || o === bestOpt;
   const vs = againstBudget(it, cost);
   const b = it.budget;
-  const bestOpt = opts[best];
   // The traveller chose this mode (form or an earlier switch): the plan follows it, so no "our pick".
   const yours = !!it.request.transport_mode;
 
@@ -52,8 +53,8 @@ function Options({ it, planId }: { it: Itinerary; planId: string | null }) {
           <h1 className="page-title">{opts.length === 1 ? t("One way to {dest}", { dest }) : t("{n} ways to {dest}", { n: opts.length, dest })}</h1>
           <p className="page-sub">
             {people > 1
-              ? t("Compared for all {people} of you. Costs are for the whole trip: travel, {nights} nights' stay, food and tickets.", { people, nights: nights(it) })
-              : t("Compared for you. Costs are for the whole trip: travel, {nights} nights' stay, food and tickets.", { nights: nights(it) })}
+              ? t(nights(it) === 1 ? "Compared for all {people} of you. Costs are for the whole trip: travel, 1 night's stay, food and tickets." : "Compared for all {people} of you. Costs are for the whole trip: travel, {nights} nights' stay, food and tickets.", { people, nights: nights(it) })
+              : t(nights(it) === 1 ? "Compared for you. Costs are for the whole trip: travel, 1 night's stay, food and tickets." : "Compared for you. Costs are for the whole trip: travel, {nights} nights' stay, food and tickets.", { nights: nights(it) })}
           </p>
         </div>
       </div>
@@ -63,7 +64,7 @@ function Options({ it, planId }: { it: Itinerary; planId: string | null }) {
           <svg className="ic" viewBox="0 0 24 24" aria-hidden="true">{star}</svg>
           <div>
             <b>{t("Our pick: {mode}", { mode: mode(bestOpt.mode).toLowerCase() })}</b>
-            <span>{pickReason(it, best, t)}</span>
+            <span>{it.transport_reason || pickReason(it, best, t)}</span>
           </div>
         </div>
       )}
@@ -80,7 +81,7 @@ function Options({ it, planId }: { it: Itinerary; planId: string | null }) {
               </span>
               <span className="opt-figs">
                 <span><small>{t("Travel time")}</small><span>{duration(x.total_minutes)}</span></span>
-                <span><small>{t("Whole trip (est.)")}</small><span>{inr(c)}</span></span>
+                {c != null && <span><small>{t("Whole trip (est.)")}</small><span>{inr(c)}</span></span>}
               </span>
               <span className="badges">
                 {v && <span className={v.ok ? "badge badge-ok" : "badge badge-warn"}>{v.ok ? t("{amount} to spare", { amount: inr(v.diff) }) : t("Over by {amount}", { amount: inr(v.diff) })}</span>}
@@ -107,7 +108,7 @@ function Options({ it, planId }: { it: Itinerary; planId: string | null }) {
                   <span className="leg-ic"><svg className="ic" viewBox="0 0 24 24" aria-hidden="true"><path d={MODE_ICON[l.mode]} /></svg></span>
                   <div>
                     <b>{t("{from} to {to}", { from: l.from, to: l.to })}</b>
-                    <small>{mode(l.mode)} · {duration(l.minutes)} · {people > 1 ? t("{cost} for {n}", { cost: inr(l.cost_inr), n: people }) : inr(l.cost_inr)}</small>
+                    <small>{t(legModeName(l))} · {duration(l.minutes)} · {people > 1 ? t("{cost} for {n}", { cost: inr(l.cost_inr), n: people }) : inr(l.cost_inr)}</small>
                   </div>
                 </div>
               ))}
@@ -117,11 +118,16 @@ function Options({ it, planId }: { it: Itinerary; planId: string | null }) {
           <aside className="side panel panel-pad" aria-labelledby="c-h">
             <h2 className="h3" id="c-h" style={{ marginBottom: 14 }}>{t("Where the money goes")}</h2>
             <dl className="kv cost">
-              <dt>{t("Getting there, {mode}", { mode: mode(o.mode).toLowerCase() })}</dt><dd>{inr(o.total_cost_inr)}</dd>
-              <dt>{t("Stay")}</dt><dd>{inr(b.stay_inr)}</dd>
-              {!!b.food_inr && <><dt>{t("Food")}</dt><dd>{inr(b.food_inr)}</dd></>}
-              {!!b.activities_inr && <><dt>{t("Tickets and activities")}</dt><dd>{inr(b.activities_inr)}</dd></>}
-              <dt className="tot">{t("Whole trip, estimated")}</dt><dd className="tot">{inr(cost)}</dd>
+              <dt>{t("Getting there, {mode}", { mode: mode(o.mode).toLowerCase() })}</dt><dd>{inr(inUse ? b.transport_inr : o.total_cost_inr)}</dd>
+              {inUse && (
+                <>
+                  {!!b.local_transport_inr && <><dt>{t("Getting around")}</dt><dd>{inr(b.local_transport_inr)}</dd></>}
+                  <dt>{t("Stay")}</dt><dd>{inr(b.stay_inr)}</dd>
+                  {!!b.food_inr && <><dt>{t("Food")}</dt><dd>{inr(b.food_inr)}</dd></>}
+                  {!!b.activities_inr && <><dt>{t("Tickets and activities")}</dt><dd>{inr(b.activities_inr)}</dd></>}
+                </>
+              )}
+              {cost != null && <><dt className="tot">{t("Whole trip, estimated")}</dt><dd className="tot">{inr(cost)}</dd></>}
             </dl>
             {vs && <p className={vs.ok ? "badge badge-ok" : "badge badge-warn"} style={{ marginTop: 14 }}>{vs.ok ? t("{amount} under your budget", { amount: inr(vs.diff) }) : t("{amount} over your budget", { amount: inr(vs.diff) })}</p>}
           </aside>
@@ -148,7 +154,8 @@ function pickReason(it: Itinerary, best: number, t: (text: string, vars?: Vars) 
   const v = againstBudget(it, c);
   const parts = [v ? (v.ok ? t("It fits the budget with {amount} to spare", { amount: inr(v.diff) }) : t("It is the closest to your budget")) : t("It costs the least")];
   const faster = opts.filter((x) => x.total_minutes < o.total_minutes).sort((a, b) => a.total_minutes - b.total_minutes)[0];
-  if (faster && tripCost(it, faster) > c) parts.push(t("{mode} is {time} quicker but costs {amount} more", { mode: t(MODE_NAME[faster.mode]), time: duration(o.total_minutes - faster.total_minutes), amount: inr(tripCost(it, faster) - c) }));
+  const fc = faster ? tripCost(it, faster) : null;
+  if (faster && fc != null && c != null && fc > c) parts.push(t("{mode} is {time} quicker but costs {amount} more", { mode: t(MODE_NAME[faster.mode]), time: duration(o.total_minutes - faster.total_minutes), amount: inr(fc - c) }));
   return parts.join(". ") + ".";
 }
 

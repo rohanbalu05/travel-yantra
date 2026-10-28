@@ -48,3 +48,8 @@
 @media (max-width:600px){.timeline li{grid-template-columns:92px 14px minmax(0,1fr)}}
 .bk-sec .rev-msg{margin:12px 0 0;padding:10px 12px;border-radius:4px;background:#E5EEE9;color:#1B4539;font-size:14.5px;line-height:1.5}
 .bk-sec .rev-msg.bad{background:#F6EAD2;color:#5F3D0B}
+.go,.next{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-top:28px;padding:20px 22px;border-radius:4px;background:#13212B;color:#F4EFE6}
+.go b,.next b{display:block;font-family:var(--f-display);font-size:21px}
+.go span,.next span{font-size:15px;color:#C9D3D9}
+
+.booked{display:flex;flex-direction:column;gap:12px;margin-top:4px;padding:14px;border:1px solid var(--line);border-radius:4px;background:var(--white)}

@@ -12,7 +12,8 @@ import type { DayPlan, Itinerary, Mode } from "@/lib/contracts";
 import { MODE_NAME, categoryLabel, clock, dayLabel, duration, inr, weekday } from "@/lib/format";
 import { LANGS, useI18n, type Vars } from "@/lib/i18n";
 import { savePlanInput, usePlanInput, usePlanResult } from "@/lib/plan";
-import { againstBudget, dayRows, pickIndex, travellerCount, tripCost } from "@/lib/planView";
+import { StayFacts } from "@/components/StayFacts";
+import { againstBudget, chosenStays, dayRows, legModeName, pickIndex, planTotal, travellerCount } from "@/lib/planView";
 import { useRevise } from "@/lib/useRevise";
 import "../plan.css";
 
@@ -62,7 +63,8 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
   const opts = it.transport ?? [];
   // The way the days were built, not what is highlighted on Options: switching is a revise there.
   const way = opts[pickIndex(it)];
-  const cost = way ? tripCost(it, way) : it.budget.total_inr;
+  // The one budget: TY1's total, the same number on every page.
+  const cost = planTotal(it);
   const vs = againstBudget(it, cost);
   const budget = it.request.constraints?.budget_inr;
   const people = travellerCount(it);
@@ -73,8 +75,9 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
   const isNew = (id: string) => !!was && !(was.stops ?? []).some((s) => s.id === id);
   const travelMin = (day?.legs ?? []).reduce((a, l) => a + l.minutes, 0);
   const travelCost = (day?.legs ?? []).reduce((a, l) => a + l.cost_inr, 0);
-  const stay = it.stays?.[0];
-  const stayCities = [...new Set((it.stays ?? []).map((s) => s.city))];
+  const stays = chosenStays(it);
+  const stay = stays[0];
+  const stayCities = [...new Set(stays.map((s) => s.city))];
   const mode = (m: Mode) => t(MODE_NAME[m]);
   const travellers = t(people > 1 ? "{n} travellers" : "{n} traveller", { n: people });
 
@@ -143,6 +146,9 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
                       <div className="it-body">
                         <b>{r.place.name}</b>
                         <small>{t(categoryLabel(r.place.category))} · {t("about {time} there", { time: duration(r.place.typical_visit_minutes) })}</small>
+                        {r.place.ticket_url && /^https:\/\//.test(r.place.ticket_url) && (
+                          <a className="it-tickets" href={r.place.ticket_url} target="_blank" rel="noopener noreferrer">{t("Tickets")}</a>
+                        )}
                       </div>
                       {planId && (
                         <button type="button" className="btn btn-quiet btn-sm it-swap" disabled={!!busy} aria-label={t("Swap {name} for something else", { name: r.place.name })}
@@ -156,7 +162,7 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
                       <span className="it-time">{clock(r.leg.depart)}</span>
                       <span className="mk mk-move"><svg className="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /><path d="M13 6l6 6-6 6" /></svg></span>
                       <div className="it-body">
-                        <b>{t("{mode} to {place}", { mode: mode(r.leg.mode), place: r.leg.to })}</b>
+                        <b>{t("{mode} to {place}", { mode: t(legModeName(r.leg)), place: r.leg.to })}</b>
                         <small>{duration(r.leg.minutes)} · {inr(r.leg.cost_inr)}</small>
                       </div>
                     </div>
@@ -216,7 +222,8 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
           <section className="panel panel-pad" aria-labelledby="b-h">
             <h2 className="h3" id="b-h" style={{ marginBottom: 14 }}>{t("The budget")}</h2>
             <dl className="kv cost">
-              <dt>{way ? t("Getting there, {mode}", { mode: mode(way.mode).toLowerCase() }) : t("Getting there")}</dt><dd>{inr(way ? way.total_cost_inr : it.budget.transport_inr)}</dd>
+              <dt>{way ? t("Getting there, {mode}", { mode: mode(way.mode).toLowerCase() }) : t("Getting there")}</dt><dd>{inr(it.budget.transport_inr)}</dd>
+              {!!it.budget.local_transport_inr && <><dt>{t("Getting around")}</dt><dd>{inr(it.budget.local_transport_inr)}</dd></>}
               <dt>{t("Stay")}</dt><dd>{inr(it.budget.stay_inr)}</dd>
               {!!it.budget.food_inr && <><dt>{t("Food")}</dt><dd>{inr(it.budget.food_inr)}</dd></>}
               {!!it.budget.activities_inr && <><dt>{t("Tickets and activities")}</dt><dd>{inr(it.budget.activities_inr)}</dd></>}
@@ -227,10 +234,11 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
             <section className="panel panel-pad" aria-labelledby="s-h">
               <h2 className="h3" id="s-h" style={{ marginBottom: 8 }}>{t("Where you stay")}</h2>
               {/* One stay per city on multi-city trips, in the order you reach them. */}
-              {[...(it.stays ?? [])].sort((a, b) => a.check_in.localeCompare(b.check_in)).map((s) => (
+              {stays.map((s) => (
                 <div key={s.name + s.check_in} style={{ marginTop: 8 }}>
                   <p style={{ margin: 0 }}><b>{s.name}</b>, {s.city}</p>
                   <p className="hint" style={{ margin: "4px 0 0" }}>{t("{from} to {to}", { from: dayLabel(s.check_in, lang), to: dayLabel(s.check_out, lang) })} · {t("{price} a night", { price: inr(s.price_per_night_inr) })}</p>
+                  <StayFacts stay={s} />
                 </div>
               ))}
             </section>

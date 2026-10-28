@@ -36,7 +36,7 @@ export function goaEvents(mode: Mode | null = null): PlanEvent[] {
 
 /** The mock's version of a revise: drop the named stop, or the day's last stop for a lighter day. */
 export function revisedItinerary(it: Itinerary, req: ReviseRequest): Itinerary {
-  if (req.intent === "rain") return it;
+  if (req.intent === "rain" || req.intent === "booked" || req.intent === "change_stay" || req.intent === "budget_style") return it;
   if (req.intent === "transport" && req.mode) {
     // Like TY1's change_transport: the chosen mode's options first, every journey in that mode.
     const m = req.mode;
@@ -63,6 +63,9 @@ function reviseNote(req: ReviseRequest): string {
   if (req.intent === "transport") return `Switched every journey to ${req.mode === "rail" ? "train" : req.mode}`;
   if (req.intent === "rain") return "Planned the day for rain";
   if (req.intent === "move_day") return `Moved a day to ${req.city}`;
+  if (req.intent === "booked") return `Re-timed the plan around ${req.booked?.ref || "your booking"}`;
+  if (req.intent === "change_stay") return "Changed the stay and re-priced the trip";
+  if (req.intent === "budget_style") return `Re-planned for ${req.style}`;
   const day = GOA_ITINERARY.days.find((d) => d.date === req.day);
   const stop = req.intent === "swap_stop" ? day?.stops?.find((s) => s.id === req.place_id) : day?.stops?.at(-1);
   return stop ? `${req.intent === "swap_stop" ? "Swapped" : "Dropped"} ${stop.name}` : "That day is already free";

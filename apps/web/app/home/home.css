@@ -28,6 +28,8 @@
 .btn-cream{background:#F4EFE6;color:#13212B}
 .btn-cream:hover{background:#FFFFFF;color:#13212B}
 .trips{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px}
+button.trip{width:100%;font:inherit;text-align:left;cursor:pointer}
+.trip-open{font-size:14px;font-weight:700;color:var(--ghat);white-space:nowrap}
 .trip{display:flex;flex-direction:column;gap:12px;padding:18px;border:1px solid var(--line);border-radius:4px;background:var(--card);color:var(--ink);text-decoration:none}
 .trip:hover{border-color:var(--ink);color:var(--ink)}
 .trip-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}

@@ -21,7 +21,7 @@ function parts(iso: string) {
 }
 
 // Dates in the app's language, with Latin digits like the times and prices beside them.
-const locale = (lang: Lang) => `${lang}-IN-u-nu-latn`;
+export const locale = (lang: Lang) => `${lang}-IN-u-nu-latn`;
 
 /** "2026-12-11" → "Fri 11 Dec" (in `lang`) */
 export const dayLabel = (iso: string, lang: Lang = "en") =>
