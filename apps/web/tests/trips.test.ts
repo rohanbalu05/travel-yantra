@@ -67,3 +67,11 @@ describe("stays and legs", () => {
     expect(railOptionLeg(it2)?.mode).toBe("rail");
   });
 });
+
+describe("cab legs inside an option", () => {
+  it("calls the road legs of a rail or air option cabs", () => {
+    const leg = { from: "Dabolim", to: "Panaji", mode: "road" as const, depart: "", arrive: "", minutes: 38, cost_inr: 168 };
+    expect(legModeName(leg, "rail")).toBe("Cab");
+    expect(legModeName(leg, "road")).toBe("Road");
+  });
+});

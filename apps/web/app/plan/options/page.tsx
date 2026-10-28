@@ -108,7 +108,7 @@ function Options({ it, planId }: { it: Itinerary; planId: string | null }) {
                   <span className="leg-ic"><svg className="ic" viewBox="0 0 24 24" aria-hidden="true"><path d={MODE_ICON[l.mode]} /></svg></span>
                   <div>
                     <b>{t("{from} to {to}", { from: l.from, to: l.to })}</b>
-                    <small>{t(legModeName(l))} · {duration(l.minutes)} · {people > 1 ? t("{cost} for {n}", { cost: inr(l.cost_inr), n: people }) : inr(l.cost_inr)}</small>
+                    <small>{t(legModeName(l, o.mode))} · {duration(l.minutes)} · {people > 1 ? t("{cost} for {n}", { cost: inr(l.cost_inr), n: people }) : inr(l.cost_inr)}</small>
                   </div>
                 </div>
               ))}
@@ -134,7 +134,7 @@ function Options({ it, planId }: { it: Itinerary; planId: string | null }) {
         </div>
       )}
 
-      <p className="hint" style={{ margin: "16px 0 0" }}>{t("Fares are estimates from sample data until live prices are wired in. You pay the seller directly when you book.")}</p>
+      <p className="hint" style={{ margin: "16px 0 0" }}>{t("Fares and timings are estimates. Check them with the seller before you pay.")}</p>
 
       <div className="go">
         <div>

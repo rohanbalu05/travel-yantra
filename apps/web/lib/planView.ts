@@ -97,10 +97,13 @@ export function planRailLeg(it: Itinerary): Leg | undefined {
 export const railOptionLeg = (it: Itinerary): Leg | undefined =>
   (it.transport ?? []).find((o) => o.mode === "rail")?.legs.find((l) => l.mode === "rail");
 
-/** A word for a leg's mode: road legs to and from a station or airport are a cab (TY3's labels). */
-export function legModeName(l: Leg): string {
+/**
+ * A word for a leg's mode: road legs to and from a station or airport are a cab (TY3's labels),
+ * and so is every road leg inside a rail or air option (`within`).
+ */
+export function legModeName(l: Leg, within?: Mode): string {
   if (l.mode !== "road") return MODE_NAME[l.mode];
-  return l.role === "transfer" || /station|\bjn\b|junction|airport|terminal/i.test(`${l.from} ${l.to}`) ? "Cab" : MODE_NAME[l.mode];
+  return (within && within !== "road") || l.role === "transfer" || /station|\bjn\b|junction|airport|terminal/i.test(`${l.from} ${l.to}`) ? "Cab" : MODE_NAME[l.mode];
 }
 
 /** The train itself in the option the days follow (the day's journey leg also counts the ride to the station). */
