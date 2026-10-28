@@ -127,6 +127,7 @@ const VIOLATION_NAME: Record<ViolationCode, string> = {
   long_day: "a long day",
   too_much_travel: "too much travel",
   no_rest: "no time to rest",
+  budget_mismatch: "totals that did not add up",
 };
 
 function budgetOf(s: PlanState, total: string, t: (text: string, vars?: Vars) => string): string {

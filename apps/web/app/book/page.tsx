@@ -49,7 +49,7 @@ const toLocal = (iso: string) => iso.slice(0, 16);
  * "I've booked this": the train or flight number and its times. TY1's booked intent re-times
  * the plan around the journey the traveller really has.
  */
-function BookedForm({ o, busy, onSend, onCancel }: { o: TransportOption; busy: boolean; onSend: (b: BookedJourney) => void; onCancel: () => void }) {
+function BookedForm({ o, journey, busy, onSend, onCancel }: { o: TransportOption; journey: { from: string; to: string }; busy: boolean; onSend: (b: BookedJourney) => void; onCancel: () => void }) {
   const { t } = useI18n();
   const leg = mainLeg(o);
   const [ref, setRef] = useState(leg?.ref ?? "");
@@ -66,7 +66,8 @@ function BookedForm({ o, busy, onSend, onCancel }: { o: TransportOption; busy: b
         e.preventDefault();
         setTried(true);
         if (problem) return;
-        onSend({ mode: o.mode, ref: ref.trim(), from: leg.from, to: leg.to, depart: `${depart}:00`, arrive: `${arrive}:00` });
+        // TY1 matches the trip's journey by its cities; the number and times are the train's or flight's own.
+        onSend({ mode: o.mode, ref: ref.trim(), from: journey.from, to: journey.to, depart: `${depart}:00`, arrive: `${arrive}:00` });
       }}
     >
       {needsRef && (
@@ -138,7 +139,7 @@ function Travel({ it, planId }: { it: Itinerary; planId: string | null }) {
               {planId && o.mode !== "road" && booking !== i && (
                 <button type="button" className="btn btn-quiet btn-sm" disabled={!!busy} onClick={() => setBooking(i)}>{t("I've booked this")}</button>
               )}
-              {planId && booking === i && <BookedForm o={o} busy={!!busy} onSend={(b) => void booked(b)} onCancel={() => setBooking(null)} />}
+              {planId && booking === i && <BookedForm o={o} journey={{ from: it.request.origin, to: it.request.destinations[0] }} busy={!!busy} onSend={(b) => void booked(b)} onCancel={() => setBooking(null)} />}
             </article>
           );
         })}
