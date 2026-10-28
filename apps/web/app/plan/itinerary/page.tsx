@@ -54,6 +54,8 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
     }
   };
   const { busy, said, revise } = useRevise(planId, it.lang);
+  // The budget-style switch has its own outcome line (the day panel keeps the day's).
+  const style = useRevise(planId, it.lang);
   // After a revise, the stops that are new on a day flash once, as in the prototype.
   const [seen, setSeen] = useState(it);
   const [before, setBefore] = useState<Itinerary | null>(null);
@@ -240,15 +242,14 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
                   {BUDGET_STYLES.map(([v, label]) => {
                     const on = (it.request.constraints?.budget_style ?? "comfort") === v;
                     return (
-                      <button key={v} type="button" className={on ? "on" : undefined} aria-pressed={on} disabled={!!busy || on}
-                        onClick={() => revise({ intent: "budget_style", style: v }, t("Done: the plan is now {style}.", { style: t(label).toLowerCase() }))}>
+                      <button key={v} type="button" className={on ? "on" : undefined} aria-pressed={on} disabled={!!busy || !!style.busy || on}
+                        onClick={() => void style.revise({ intent: "budget_style", style: v }, t("Done: the plan is now {style}.", { style: t(label).toLowerCase() }))}>
                         {t(label)}
                       </button>
                     );
                   })}
                 </div>
-                {/* The same outcome as the day panel's status line, shown here too (not announced twice). */}
-                {(busy || said) && <p className={said?.bad ? "rev-msg bad" : "rev-msg"} aria-hidden="true">{busy ?? said?.text}</p>}
+                <p role="status" className={style.said?.bad ? "rev-msg bad" : "rev-msg"} hidden={!style.busy && !style.said}>{style.busy ?? style.said?.text}</p>
               </div>
             )}
           </section>
