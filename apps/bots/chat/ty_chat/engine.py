@@ -189,7 +189,8 @@ def price(leg: Leg, people: int) -> str:
         return f"₹{leg.cost_inr:,} for {cars} car{'s' * (cars > 1)}"
     if n == 1:
         return f"₹{leg.cost_inr:,} for 1 person"
-    return f"₹{leg.cost_inr:,} for all {n} of you (₹{round(leg.cost_inr / n):,} each)"
+    party = "both of you" if n == 2 else f"all {n} of you"
+    return f"₹{leg.cost_inr:,} for {party} (₹{round(leg.cost_inr / n):,} each)"
 
 
 def _leg_line(leg: Leg, people: int) -> str:

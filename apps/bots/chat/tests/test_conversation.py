@@ -186,5 +186,6 @@ def test_prices_are_for_the_party():
     rail = Leg.model_validate(ITINERARY["transport"][0]["legs"][0])  # ₹4,800
     assert price(rail, 4) == "₹4,800 for all 4 of you (₹1,200 each)"
     assert price(rail, 1) == "₹4,800 for 1 person"
+    assert price(rail, 2) == "₹4,800 for both of you (₹2,400 each)"
     road = rail.model_copy(update={"mode": Mode.road})
     assert price(road, 4) == "₹4,800 for 1 car" and price(road, 5) == "₹4,800 for 2 cars"
