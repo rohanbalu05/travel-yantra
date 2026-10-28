@@ -174,3 +174,19 @@ def test_every_sample_pnr_names_a_real_train_that_runs_between_its_stations(monk
     for row in _pnrs().values():
         t, dep, arr = _find_run(row["from"], row["to"], row["train"], None)
         assert not t["number"].startswith("900") and dep["code"] == row["from"] and arr["code"] == row["to"]
+
+
+def test_real_trip_gets_passenger_rows_with_its_ages_not_sample_names(client):
+    res = client.get("/routes/irctc-card", params={"from": "SBC", "to": "MAO", "date": "2026-12-11",
+                                                   "party": "none", "ages": "34,64,58,9"})
+    assert res.status_code == 200
+    body = res.json()
+    assert [p["name"] for p in body["passengers"]] == ["Passenger 1", "Passenger 2", "Passenger 3", "Passenger 4"]
+    assert [p["age"] for p in body["passengers"]] == [34, 64, 58, 9] and body["sample"] is False
+    assert [p["berth"] for p in body["passengers"]][1:3] == ["Lower", "Lower"]
+    assert "Arjun" not in body["copy_text"] and "2. Passenger 2, 64, Lower" in body["copy_text"]
+    three = irctc_card("SBC", "MAO", dt.date(2026, 12, 11), party="none", travellers=3)
+    assert len(three.passengers) == 3 and three.fare_estimate_inr == 3 * irctc_card(
+        "SBC", "MAO", dt.date(2026, 12, 11), party="none", travellers=1).fare_estimate_inr
+    assert client.get("/routes/irctc-card", params={"from": "SBC", "to": "MAO", "date": "2026-12-11",
+                                                    "party": "none", "ages": "34;64"}).status_code == 422

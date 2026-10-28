@@ -62,10 +62,12 @@ def get_irctc_card(
     travellers: int | None = Query(default=None, ge=1, le=MAX_TRAVELLERS),
     after: dt.time | None = Query(default=None, description="HH:MM; with no train, the first leaving from then"),
     style: Style | None = Query(default=None, description="budget style: picks the class when none is given"),
+    ages: str | None = Query(default=None, pattern=r"^\d{1,3}(,\d{1,3}){0,5}$",
+                             description="party=none: the travellers' ages, comma separated (up to six)"),
 ) -> IrctcCard:
     try:
         return irctc_card(from_, to, date, travel_class, party, train, travellers=travellers, after=after,
-                          style=style)
+                          style=style, ages=[int(a) for a in ages.split(",")] if ages else None)
     except NotFound as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 

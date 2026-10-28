@@ -81,7 +81,9 @@ With no `train`, the first train leaving at or after `after` (default 06:00). `c
 classes the train carries (Shatabdis: CC, EC); with no `travel_class`, or one the train lacks (a note
 says so), the card uses the class compare prices the train in for `style`, so its fare is the plan's.
 `from`/`to` take a station code or the station name from a compare rail leg. `party`
-is a sample persona (`goa_family`, `mysuru_weekend`); no names go in the URL.
+is a sample persona (`goa_family`, `mysuru_weekend`), or `none` for a real trip: "Passenger 1..N"
+rows with the ages in `ages=34,64,58,9` (or `travellers` rows), gender left blank, `sample: false`.
+No names go in the URL.
 Returns the train, stations, departure and arrival, passengers with berth
 preferences (Lower from age 45), a whole-party fare estimate, `copy_text` in
 IRCTC's form order and `booking_url`. 404 when no sample train runs from→to.

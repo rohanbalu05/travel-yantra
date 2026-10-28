@@ -36,13 +36,20 @@ PARTIES: dict[str, list[tuple[str, int, str]]] = {
                    ("Shobha", 58, "Female"), ("Meera", 22, "Female")],
     "mysuru_weekend": [("Arjun Rao", 34, "Male"), ("Meera", 22, "Female")],
 }
-Party = Literal["goa_family", "mysuru_weekend"]
+Party = Literal["goa_family", "mysuru_weekend", "none"]  # none: a real trip, no sample names
 MAX_TRAVELLERS = 6  # IRCTC books up to six passengers on one ticket
+UNKNOWN_AGE = 30  # a passenger row with no age given (only the berth choice uses it)
 
 
-def _people(party: Party, travellers: int | None) -> list[tuple[str, int, str]]:
-    """The sample party, made up to the trip's traveller count: the party first, then the
-    other sample personas, then numbered sample travellers."""
+def _people(party: Party, travellers: int | None, ages: list[int] | None = None) -> list[tuple[str, int, str]]:
+    """party "none" (a real user's trip): "Passenger 1..N" rows, one per age in `ages` (or
+    `travellers` rows), gender left for the traveller to fill. Otherwise the sample party, made
+    up to the trip's traveller count: the party first, then the other sample personas, then
+    numbered sample travellers."""
+    if party == "none":
+        n = len(ages) if ages else (travellers or 1)
+        ages = (ages or []) + [UNKNOWN_AGE] * n
+        return [(f"Passenger {i}", ages[i - 1], "") for i in range(1, min(n, MAX_TRAVELLERS) + 1)]
     base = PARTIES[party]
     if travellers is None:
         return base
@@ -223,8 +230,10 @@ def _berths(party: list[tuple[str, int, str]], cls: str) -> list[str]:
 def irctc_card(src: str, dst: str, date: dt.date, travel_class: TravelClass | None = None,
                party: Party = "goa_family", train: str | None = None,
                data_dir: Path | None = None, travellers: int | None = None,
-               after: dt.time | None = None, style: Style | None = None) -> IrctcCard:
+               after: dt.time | None = None, style: Style | None = None,
+               ages: list[int] | None = None) -> IrctcCard:
     """travellers: the trip's party size (the sample party is made up or cut to it).
+    party "none" with ages: the real trip's passengers as "Passenger N" rows with those ages.
     travel_class: when it is omitted or the train does not carry it, the class compare prices
     this train in for the budget style (fares.rail_class; style None is "mid"), so the card's
     fare is the plan's fare. after: with no train named, the first train leaving from then."""
@@ -239,7 +248,7 @@ def irctc_card(src: str, dst: str, date: dt.date, travel_class: TravelClass | No
         travel_class = chosen
     dep_min = _dep(dep)
     arr_min = arr["arr"] if arr["arr"] is not None else arr["dep"]
-    people = _people(party, travellers)
+    people = _people(party, travellers, ages)
     passengers = [Passenger(name=n, age=age, gender=g, berth=berth)
                   for (n, age, g), berth in zip(people, _berths(people, travel_class), strict=True)]
     km = haversine_km(a["lat"], a["lon"], b["lat"], b["lon"]) * RAIL_DETOUR  # as timetable.Ride.km
@@ -248,17 +257,19 @@ def irctc_card(src: str, dst: str, date: dt.date, travel_class: TravelClass | No
     lines = [f"From: {a['code']} ({a['name']})", f"To: {b['code']} ({b['name']})", f"Date: {date_irctc}",
              f"Class: {travel_class}", "Quota: General",
              f"Train: {t['number']} {t['name']}, departs {_hhmm(dep_min)}", "Passengers:"]
-    lines += [f"{i}. {p.name}, {p.age}, {p.gender}, {p.berth}" for i, p in enumerate(passengers, 1)]
+    lines += [", ".join(x for x in (f"{i}. {p.name}", str(p.age), p.gender, p.berth) if x)
+              for i, p in enumerate(passengers, 1)]
     return IrctcCard(
         train=TrainRef(number=t["number"], name=t["name"]),
         from_=StationRef(code=a["code"], name=a["name"]), to=StationRef(code=b["code"], name=b["name"]),
         date=date, date_irctc=date_irctc, departs=_hhmm(dep_min), arrives=_hhmm(arr_min),
         arrives_day_offset=arr["day"] - dep["day"], travel_class=travel_class,
         classes=classes, passengers=passengers,
-        fare_estimate_inr=fare, copy_text="\n".join(lines),
+        fare_estimate_inr=fare, copy_text="\n".join(lines), sample=party != "none",
         notes=notes + [("Sample timetable" if (data_dir or rail_dir()) == SAMPLE_RAIL_DIR
                 else "Timetable from datameet (about 2016): check the train runs that day on IRCTC")
-               + "; sample travellers.",
+               + ("; type each passenger's name and gender as on their ID." if party == "none"
+                  else "; sample travellers."),
                "Fare is an estimate; IRCTC shows the real fare when you book."],
     )
 
