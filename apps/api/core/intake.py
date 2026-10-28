@@ -95,7 +95,8 @@ def prompt(text: str, today: date) -> str:
         "writer (name 'You') unless they say they are not going; 'with my parents and sister' is 4 people, "
         "'me and my wife' is 2, 'solo' is 1. Use a role as the name when no name is given. When an age is not "
         "stated, estimate it from the role: parents of an adult 60, grandparents 75, a child 8, a spouse, "
-        "sibling or friend 30. A message that does not say who is going has no travellers.\n"
+        "sibling or friend 30. 'Just me' or 'solo' is 1; 'a couple' is 2. A message that does not say who is "
+        "going has no travellers. A day trip is 1 day.\n"
         "transport_mode: rail, road or air only when they state a preference (train; car, bus or drive; "
         "flight); empty when they do not say or are not sure. budget_style: shoestring (cheap, backpacking, "
         "low budget), comfort, or luxury, only when they say so.\n\n"
@@ -103,7 +104,58 @@ def prompt(text: str, today: date) -> str:
     )
 
 
+_NUM = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9, "ten": 10,
+        "do": 2, "teen": 3, "char": 4}
+_N = r"(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten)"
+_SOLO = re.compile(r"\b(just me|only me|solo|alone|by myself|on my own|akela|akeli|single traveller)\b")
+_COUPLE = re.compile(r"\b(couple|honeymoon|my (wife|husband|partner)|me and my (wife|husband|partner|girlfriend|boyfriend)"
+                     r"|two of us|both of us|hum do|do log)\b")
+_FRIENDS = re.compile(rf"\bwith {_N} (friends|others|colleagues)\b")
+_COUNT = re.compile(rf"\b{_N} (people|persons|adults|of us|travellers|travelers|friends|pax|log|members)\b")
+_MY_AGE = re.compile(r"\b(?:i am|i'm|im|aged|age)\s+(\d{1,2})\b")
+_BOTH_AGE = re.compile(r"\b(?:both|all|each)\s+(?:are\s+|aged\s+)?(\d{1,2})\b")
+
+
+def party_from_text(text: str) -> list[DraftTraveller]:
+    """How many go, from plain words ("just me", "a couple", "two adults", "with 3 friends"), with the ages
+    stated ("I am 20", "both 38"); 30 when not stated. Empty when the text does not say. The model's list
+    wins when it has one; this keeps a stated count from being asked again."""
+    t = normalise(text)
+    count = 0
+    if m := _FRIENDS.search(t):
+        count = int(_NUM.get(m.group(1), m.group(1))) + 1
+    elif m := _COUNT.search(t):
+        count = int(_NUM.get(m.group(1), m.group(1)))
+    elif _COUPLE.search(t):
+        count = 2
+    elif _SOLO.search(t):
+        count = 1
+    if not 1 <= count <= 20:
+        return []
+    ages = [30] * count
+    if m := _BOTH_AGE.search(t):
+        ages = [int(m.group(1))] * count
+    if m := _MY_AGE.search(t):
+        ages[0] = int(m.group(1))
+    return [DraftTraveller(name="You" if i == 0 else f"Traveller {i + 1}", age=a) for i, a in enumerate(ages)]
+
+
+_DAYS = re.compile(rf"\b{_N}[ -]days?\b")
+
+
+def days_from_text(text: str) -> int | None:
+    """The trip's length in days from plain words: "a day trip" is 1, "5 days" or "3-day" is that many."""
+    t = normalise(text)
+    if m := _DAYS.search(t):
+        return int(_NUM.get(m.group(1), m.group(1)))
+    return 1 if re.search(r"\bday trip\b", t) else None
+
+
 def to_request(draft: IntakeDraft, lang: Lang, notes: str | None = None) -> IntakeResult:
+    if not draft.travellers and notes and (party := party_from_text(notes)):
+        draft = draft.model_copy(update={"travellers": party})
+    if draft.start_date and not draft.end_date and not draft.days and notes and (n := days_from_text(notes)):
+        draft = draft.model_copy(update={"days": n})
     if draft.start_date and not draft.end_date and draft.days and 0 < draft.days <= 60:
         draft = draft.model_copy(update={"end_date": draft.start_date + timedelta(days=draft.days - 1)})
     missing = []
@@ -203,6 +255,8 @@ def quick_parse(text: str, lang: Lang, today: date) -> IntakeResult | None:
     rest = (t[:route.start()] + " " + t[route.end():dates.start()] + " " + t[dates.end():]).replace(",", " ")
     if not (origin and dest and start and end) or set(rest.split()) - _FILLER:
         return None
+    if not count and (said := party_from_text(text)):
+        count = len(said)
     travellers = [DraftTraveller(name="You" if i == 0 else f"Traveller {i + 1}", age=30) for i in range(count)]
     draft = IntakeDraft(origin=origin, destinations=[dest], start_date=start, end_date=end, travellers=travellers)
     return to_request(draft, lang, notes=text[:500])

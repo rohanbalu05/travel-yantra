@@ -45,6 +45,25 @@ def test_quick_parse_reads_form_like_messages_without_the_model(text, origin, de
     assert len(r.constraints.travellers) == people and model.calls == 0
 
 
+@pytest.mark.parametrize("text, ages", [
+    ("I'm a student on a shoestring budget, Bengaluru to Mysuru for a day trip on 14 Nov, just me.", [30]),
+    ("Luxury trip for a couple from Bengaluru to Kochi, 5 days from 10 Dec.", [30, 30]),
+    # TY3's live QA: the web sends the first message and the answer together; the answer must count.
+    ("Bengaluru to Goa, 11-14 Dec\nJust me, I am 20. No children or seniors.", [20]),
+    ("Kochi, Munnar and Alleppey, 5 days from 10 Dec\nTwo adults, both 38. No children or seniors.", [38, 38]),
+    ("Goa with 3 friends from Pune, 11-14 Dec", [30] * 4),
+    ("hum do log, Bengaluru se Mysuru", [30, 30]),
+])
+def test_a_stated_party_is_never_asked_again(text, ages):
+    from core.intake import party_from_text
+
+    assert [t.age for t in party_from_text(text)] == ages
+    # The model left travellers empty: the text still counts, so the question is not asked again.
+    draft = IntakeDraft(origin="Bengaluru", destinations=["Goa"], start_date=date(2026, 12, 11), days=3)
+    result = asyncio.run(intake(PlanText(text=text), CountingModel(draft), today=TODAY))
+    assert result.request is not None and [t.age for t in result.request.constraints.travellers] == ages
+
+
 def test_never_assume_one_traveller():
     model = CountingModel(IntakeDraft())
     result = asyncio.run(intake(PlanText(text="Bengaluru to Goa, 11-14 Dec"), model, today=TODAY))
@@ -136,3 +155,14 @@ def test_prompt_counts_the_writer_as_a_traveller():
 def test_a_word_that_only_starts_like_a_month_is_not_a_date():
     assert quick_parse("Bengaluru to Goa 11-14 decide later", Lang.en, TODAY) is None
     assert quick_parse("Bengaluru to Goa 11-14 December for 2", Lang.en, TODAY).request.end_date == date(2026, 12, 14)
+
+
+def test_a_day_trip_or_n_days_with_a_start_date_are_the_dates():
+    draft = IntakeDraft(origin="Bengaluru", destinations=["Mysuru"], start_date=date(2026, 11, 14),
+                        travellers=[{"name": "You", "age": 20}])
+    one = asyncio.run(intake(PlanText(text="Bengaluru to Mysuru for a day trip on 14 Nov, just me"),
+                             CountingModel(draft), today=TODAY)).request
+    assert (one.start_date, one.end_date) == (date(2026, 11, 14), date(2026, 11, 14))
+    five = asyncio.run(intake(PlanText(text="Kochi, Munnar and Alleppey, 5 days from 14 Nov, just me"),
+                              CountingModel(draft), today=TODAY)).request
+    assert five.end_date == date(2026, 11, 18)
