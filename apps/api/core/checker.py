@@ -2,14 +2,23 @@
 
 from __future__ import annotations
 
+import math
 from datetime import datetime, timedelta
 
-from ty_contracts import BudgetSummary, Itinerary, Stay, Violation, ViolationCode
+from ty_contracts import (
+    BudgetStyle,
+    BudgetSummary,
+    Itinerary,
+    Stay,
+    Violation,
+    ViolationCode,
+)
 
 from .solver import (
     ELDERLY_AGE,
     REST_NOTE,
     RETURN_BUFFER_MIN,
+    SEATS_PER_CAR,
     Limits,
     Travel,
     after_hop,
@@ -23,6 +32,9 @@ from .solver import (
 # Estimates (reversible): the sample budgets use these, so the Goa sample totals ₹46,800.
 ACTIVITY_INR_PER_STOP_PERSON = 150
 FOOD_INR_PER_DAY_PERSON = 750
+# Food per person per day by budget style (stated estimates: street food and thalis; sit-down restaurants;
+# hotel restaurants). No style plans as comfort.
+FOOD_BY_STYLE = {BudgetStyle.shoestring: 400, BudgetStyle.comfort: FOOD_INR_PER_DAY_PERSON, BudgetStyle.luxury: 1800}
 LONG_DAY_HOURS = 10
 # Elderly travellers: more than this many hours out without a break is a no_rest violation.
 ELDERLY_MAX_OUT_HOURS = 6
@@ -34,26 +46,34 @@ def chosen_stays(itinerary: Itinerary) -> list[Stay]:
 
 
 def budget(itinerary: Itinerary) -> BudgetSummary:
-    """Transport is every journey in the plan (out, between cities, home), per traveller; a plan without an
-    outbound journey on day 1 counts the first transport option instead. Stays are the chosen stay per city,
-    priced for the whole party per night."""
-    people = max(len(itinerary.request.constraints.travellers), 1)
+    """The one budget every screen shows. Transport is every journey in the plan (out, between cities, home),
+    as TY3 prices it for the whole party; a plan without an outbound journey on day 1 counts the first
+    transport option instead. Getting around is the rides from the station and between stops, one cab per
+    SEATS_PER_CAR people. Stays are the chosen stay per city, for the party per night. Food follows the
+    budget style."""
+    c = itinerary.request.constraints
+    people = max(len(c.travellers), 1)
     journeys = [leg for d in itinerary.days for leg in (hop_of(d), out_of(d)) if leg]
-    transport = sum(leg.cost_inr for leg in journeys) * people
+    transport = sum(leg.cost_inr for leg in journeys)
     first = itinerary.days[0] if itinerary.days else None
     hop = hop_of(first) if first is not None else None
     # role "outbound", or (plans saved before Leg.role) a day-1 journey from the origin
     outbound = hop is not None and (hop.role == "outbound" or (hop.role is None and hop.from_ == itinerary.request.origin))
     if not outbound and itinerary.transport:
-        transport += itinerary.transport[0].total_cost_inr * people
+        transport += itinerary.transport[0].total_cost_inr
+    cabs = math.ceil(people / SEATS_PER_CAR)
+    local = sum(leg.cost_inr for d in itinerary.days for leg in d.legs if leg.role in (None, "transfer")
+                and leg not in journeys) * cabs
     stay = sum(s.price_per_night_inr * max((s.check_out - s.check_in).days, 1) for s in chosen_stays(itinerary))
     stops = sum(len(d.stops) for d in itinerary.days)
     activities = ACTIVITY_INR_PER_STOP_PERSON * stops * people
-    food = FOOD_INR_PER_DAY_PERSON * len(itinerary.days) * people
-    total = transport + stay + activities + food
-    cap = itinerary.request.constraints.budget_inr
-    return BudgetSummary(transport_inr=transport, stay_inr=stay, activities_inr=activities, food_inr=food,
-                         total_inr=total, within_budget=None if cap is None else total <= cap)
+    per_day = FOOD_BY_STYLE[c.budget_style or BudgetStyle.comfort]
+    food = per_day * len(itinerary.days) * people
+    total = transport + local + stay + activities + food
+    cap = c.budget_inr
+    return BudgetSummary(transport_inr=transport, local_transport_inr=local, stay_inr=stay, activities_inr=activities,
+                         food_inr=food, food_per_person_day_inr=per_day, total_inr=total,
+                         within_budget=None if cap is None else total <= cap)
 
 
 def check(itinerary: Itinerary, travel: Travel | None = None) -> list[Violation]:

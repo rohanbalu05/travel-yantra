@@ -30,8 +30,25 @@ def place(pid, mins, lat=15.50, lng=73.91, hours=None):
                  opening_hours=hours or [], source="test")
 
 
-def test_budget_matches_the_goa_sample():
-    assert budget(GOA) == GOA.budget.model_copy(update={"within_budget": True})
+def test_budget_of_the_goa_sample_counts_every_journey_and_getting_around():
+    b = budget(GOA)
+    assert (b.stay_inr, b.activities_inr, b.food_inr) == (GOA.budget.stay_inr, GOA.budget.activities_inr,
+                                                          GOA.budget.food_inr)
+    # Journeys as routes prices them (for the whole party); four people fit one cab for getting around.
+    assert b.transport_inr == GOA.transport[0].total_cost_inr  # the sample's days carry no journeys
+    assert b.local_transport_inr == sum(leg.cost_inr for d in GOA.days for leg in d.legs if leg.role in (None, "transfer"))
+    assert b.local_transport_inr > 0 and b.food_per_person_day_inr == 750
+    assert b.total_inr == b.transport_inr + b.local_transport_inr + b.stay_inr + b.activities_inr + b.food_inr
+
+
+def test_food_follows_the_budget_style_and_a_big_party_takes_two_cabs():
+    def styled(style, people=4):
+        c = GOA.request.constraints.model_copy(update={"budget_style": style,
+                                                       "travellers": GOA.request.constraints.travellers[:1] * people})
+        return budget(GOA.model_copy(update={"request": GOA.request.model_copy(update={"constraints": c})}))
+
+    assert [styled(s).food_per_person_day_inr for s in ("shoestring", "comfort", "luxury")] == [400, 750, 1800]
+    assert styled("comfort", 5).local_transport_inr == 2 * styled("comfort", 4).local_transport_inr
 
 
 def test_a_solved_goa_plan_is_clean():
@@ -40,7 +57,8 @@ def test_a_solved_goa_plan_is_clean():
 
 def test_over_budget_is_repaired_by_the_cheaper_option():
     air_first = list(reversed(GOA.transport))
-    it = solved(transport=air_first)
+    cap = budget(solved(transport=air_first)).total_inr - 1  # air is just over, rail fits
+    it = solved(request=with_constraints(GOA.request, budget_inr=cap), transport=air_first)
     assert codes(it) == [ViolationCode.over_budget]
     fixed, rounds = check_and_repair(it)
     assert codes(fixed) == [] and rounds == 1

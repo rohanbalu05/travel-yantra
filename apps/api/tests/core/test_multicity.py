@@ -65,7 +65,8 @@ def test_journeys_cost_money_but_only_local_road_time_counts_against_the_cap():
     without = it.model_copy(deep=True)
     day = without.days[3]
     without.days[3] = day.model_copy(update={"legs": day.legs[1:], "notes": [n for n in day.notes if not n.startswith("Travel")]})
-    assert budget(it).transport_inr - budget(without).transport_inr == hop.cost_inr * 2
+    # Routes prices a journey for the whole party; the budget adds it once.
+    assert budget(it).transport_inr - budget(without).transport_inr == hop.cost_inr
     # A tight cap judges only stop-to-stop legs; the inter-city journey moves the day's start instead.
     tight = it.model_copy(deep=True)
     tight.request.constraints.max_travel_hours_per_day = 1

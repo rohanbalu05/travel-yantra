@@ -13,7 +13,6 @@ from .solver import (
     city_of,
     fits,
     hop_of,
-    journey,
     limits,
     out_of,
     rebuild_day,
@@ -45,16 +44,46 @@ def _day(it: Itinerary, d: date | None) -> DayPlan | None:
 
 
 
+def _cheaper_mode(it: Itinerary, travel: Travel) -> list[str]:
+    """Over budget on a mode we picked (not one the traveller chose): every journey (out, between cities,
+    home) moves to the cheapest other mode, and transport_reason says why."""
+    from .accounts import plan_mode
+    from .revise import ReviseError, change_transport
+    from .steps import MODE_NOUN
+
+    used = plan_mode(it)
+    if it.request.transport_mode is not None or used is None:
+        return []
+    firsts: dict = {}
+    for o in it.transport:
+        firsts.setdefault(o.mode, o)
+    now = firsts.get(used)
+    cheaper = sorted((o for o in firsts.values() if now and o.total_cost_inr < now.total_cost_inr),
+                     key=lambda o: o.total_cost_inr)
+    for option in cheaper:
+        request = it.request
+        try:
+            change_transport(it, option.mode, travel)
+        except ReviseError:
+            continue
+        it.request = request  # still the traveller's own request: no mode chosen
+        noun, before = MODE_NOUN[option.mode], MODE_NOUN[used]
+        cap = request.constraints.budget_inr or 0
+        it.transport_reason = f"{noun.capitalize()}: the {before} would take the trip over your ₹{cap:,} budget."
+        return [f"Switched to the {noun} to stay within budget"]
+    return []
+
+
 def _cheaper(it: Itinerary, travel: Travel, lim: Limits) -> list[str]:
-    if len(it.transport) > 1:
+    if done := _cheaper_mode(it, travel):
+        return done
+    first = it.days[0] if it.days else None
+    if len(it.transport) > 1 and (first is None or hop_of(first) is None):
+        # No journeys in the days (older plans): the budget counts the first option, so put the cheapest first.
         cheapest = min(it.transport, key=lambda o: o.total_cost_inr)
         if cheapest is not it.transport[0] and cheapest.total_cost_inr < it.transport[0].total_cost_inr:
             it.transport.remove(cheapest)
             it.transport.insert(0, cheapest)
-            first = it.days[0] if it.days else None
-            hop = hop_of(first) if first else None
-            if hop and hop.role == "outbound":  # day 1 travels on the chosen option: switch it too
-                rebuild_day(it, first.date, list(first.stops), travel, lim, hop=journey(hop.from_, hop.to, cheapest, "outbound"))
             return [f"Switched to {cheapest.mode.value} to save money"]
     for chosen in chosen_stays(it):
         same = [s for s in it.stays if s.check_in == chosen.check_in]

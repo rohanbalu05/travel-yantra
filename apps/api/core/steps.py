@@ -6,10 +6,13 @@ Only intake (Flash-Lite), story (Flash-Lite) and narrator (Flash) call the model
 from __future__ import annotations
 
 import asyncio
+import math
+import os
 from datetime import date, datetime, time, timedelta
 from functools import lru_cache
 
 from ty_contracts import (
+    BudgetStyle,
     Itinerary,
     KathaStory,
     Lang,
@@ -34,6 +37,7 @@ from .solver import (
     ELDERLY_AGE,
     RETURN_BUFFER_MIN,
     RETURN_DEPART,
+    SEATS_PER_CAR,
     Travel,
     after_hop,
     day_titles,
@@ -53,7 +57,22 @@ HOP_DEPART = time(8, 0)
 TRAIN_EARLIEST = time(6, 0)
 TRAIN_AFTERNOON = time(12, 0)
 TRAIN_LIMIT = 30
+# Choosing how to travel when the traveller did not: a journey there and back may take this share of the
+# trip's waking hours (WAKING_HOURS a day) before a faster way wins; a shoestring trip accepts more.
+WAKING_HOURS = 14
+FAIR_SHARE = {BudgetStyle.shoestring: 0.4, BudgetStyle.comfort: 0.25, BudgetStyle.luxury: 0.15}
+MODE_NOUN = {Mode.rail: "train", Mode.road: "drive", Mode.air: "flight"}
 LANG_NAME = {Lang.en: "English", Lang.hi: "Hindi", Lang.kn: "Kannada", Lang.ta: "Tamil", Lang.te: "Telugu", Lang.bn: "Bengali"}
+
+
+def samples_allowed() -> bool:
+    """Sample places, options and stays (fakes.py) fill gaps only in tests and demos (TY_SAMPLE_DATA=1).
+    Real users never see sample data presented as real."""
+    return os.getenv("TY_SAMPLE_DATA") == "1"
+
+
+def party(request: TripRequest) -> int:
+    return max(len(request.constraints.travellers), 1)
 
 
 def _dump(items) -> list:
@@ -96,21 +115,24 @@ def _compare():
 
 
 @lru_cache(maxsize=256)
-def _compared(origin: str, destination: str, day: date, depart: time = time(8, 0)) -> tuple[TransportOption, ...]:
-    """Cached per route, day and departure time: the graph search is deterministic for the same inputs."""
+def _compared(origin: str, destination: str, day: date, depart: time = time(8, 0),
+              travellers: int = 1) -> tuple[TransportOption, ...]:
+    """Cached per route, day, departure time and party: the graph search is deterministic for the same
+    inputs. TY3 prices every option for the whole party (rail and air per person, road per car)."""
     from routes.compare import CompareRequest, UnknownPlace
 
     try:
-        found = _compare().compare(CompareRequest(origin=origin, destination=destination, date=day, depart_time=depart))
+        found = _compare().compare(CompareRequest(origin=origin, destination=destination, date=day, depart_time=depart,
+                                                  travellers=travellers))
     except UnknownPlace:
         return ()
     return tuple(o.option for o in found.options)
 
 
-def chosen_options(request: TripRequest) -> list[TransportOption]:
+def chosen_options(request: TripRequest, options: list[TransportOption] | None = None) -> list[TransportOption]:
     """The ranked options with the first one made concrete: when it is rail, the real train the outbound
     journey takes (so the listed option and day 1's journey match)."""
-    options = transport_options(request)
+    options = transport_options(request) if options is None else prefer(options, request.transport_mode)
     first = next((c for c, d in split_days(request) if d), None)
     if options and first:
         options = [timed(request, request.origin, first, request.start_date, options[0], "outbound"), *options[1:]]
@@ -118,10 +140,64 @@ def chosen_options(request: TripRequest) -> list[TransportOption]:
 
 
 def transport_options(request: TripRequest) -> list[TransportOption]:
-    """Ranked options from TY3's /routes/compare service for origin to first destination (one way).
-    Falls back to the sample options when routes does not know a city."""
-    options = [o.model_copy(deep=True) for o in _compared(request.origin, request.destinations[0], request.start_date)]
-    return prefer(options or fakes.transport(request), request.transport_mode)
+    """Ranked options from TY3's /routes/compare service for origin to first destination (one way), for the
+    party. Nothing when routes does not know a city (sample options only with samples_allowed)."""
+    options = [o.model_copy(deep=True) for o in
+               _compared(request.origin, request.destinations[0], request.start_date, travellers=party(request))]
+    if not options and samples_allowed():
+        options = fakes.transport(request)
+    return prefer(options, request.transport_mode)
+
+
+def _hm(minutes: int) -> str:
+    return f"{minutes // 60}h{minutes % 60:02d}"
+
+
+def pick_mode(request: TripRequest, options: list[TransportOption]) -> tuple[Mode | None, str | None]:
+    """When the traveller did not choose: weigh door-to-door time against the trip's length. A way whose
+    journey there and back takes more than a fair share of the trip's waking hours loses to a faster one;
+    among the fair ones the cheapest wins (luxury: the quickest). Returns the mode and the reason, in words."""
+    if request.transport_mode or not options:
+        return None, None
+    best: dict[Mode, TransportOption] = {}
+    for o in options:
+        best.setdefault(o.mode, o)
+    style = request.constraints.budget_style or BudgetStyle.comfort
+    days = (request.end_date - request.start_date).days + 1
+    awake = days * WAKING_HOURS * 60
+    fair = [o for o in best.values() if 2 * o.total_minutes <= FAIR_SHARE[style] * awake]
+    quickest = min(best.values(), key=lambda o: (o.total_minutes, o.total_cost_inr))
+    if style == BudgetStyle.luxury or not fair:
+        pick = quickest
+    else:
+        pick = min(fair, key=lambda o: (o.total_cost_inr, o.total_minutes))
+    noun = MODE_NOUN[pick.mode]
+    trip = f"a {days}-day trip"
+    slow = sorted((o for o in best.values() if o not in fair and o.total_cost_inr < pick.total_cost_inr),
+                  key=lambda o: o.total_cost_inr)
+    if len(best) == 1:
+        why = f"the only way we found ({_hm(pick.total_minutes)} each way)"
+    elif style == BudgetStyle.luxury:
+        why = f"the quickest way, {_hm(pick.total_minutes)} door to door, for a luxury trip"
+    elif not fair:
+        why = f"the quickest way ({_hm(pick.total_minutes)} door to door); every way takes a big part of {trip}"
+    elif slow:
+        cheaper = slow[0]
+        why = (f"the {MODE_NOUN[cheaper.mode]} costs less but takes {_hm(cheaper.total_minutes)} each way, too much "
+               f"of {trip}; the {noun} takes {_hm(pick.total_minutes)} door to door")
+    else:
+        why = f"the cheapest way that keeps travel to a fair part of {trip} ({_hm(pick.total_minutes)} each way)"
+    return pick.mode, f"{noun.capitalize()}: {why}."
+
+
+def plan_transport(r: TripRequest) -> tuple[list[TransportOption], dict[str, Leg], Leg | None, str | None]:
+    """The options (the one the days follow first), the journey into each city, the provisional journey home
+    and why that mode. Without a chosen mode, pick_mode decides and every journey prefers it."""
+    options = transport_options(r)
+    mode, reason = pick_mode(r, options)
+    rp = r.model_copy(update={"transport_mode": mode}) if mode else r
+    options = chosen_options(rp, options)
+    return options, hops(rp, options), home(rp), reason
 
 
 def prefer(options, mode: Mode | None) -> list:
@@ -133,13 +209,12 @@ def prefer(options, mode: Mode | None) -> list:
 
 async def transport(state: dict, model: Model):
     r = _request(state)
-    options = chosen_options(r)
-    journeys = hops(r, options)
-    back = home(r)
+    options, journeys, back, reason = await asyncio.to_thread(plan_transport, r)
     more = f" and {len(journeys) - 1} between cities" if len(journeys) > 1 else ""
     return ({"transport": _dump(options),
              "hops": {c: leg.model_dump(mode="json", by_alias=True) for c, leg in journeys.items()},
-             "home": back.model_dump(mode="json", by_alias=True) if back else None},
+             "home": back.model_dump(mode="json", by_alias=True) if back else None,
+             "transport_reason": reason},
             f"Found {len(options)} ways to travel{more}")
 
 
@@ -157,7 +232,9 @@ def city_places(request: TripRequest, city: str, hours: bool = False) -> list[Pl
         from guide.hours import live_hours
 
         found = live_hours(found)
-    return found or fakes.places(request.model_copy(update={"destinations": [city]}))
+    if not found and samples_allowed():
+        found = fakes.places(request.model_copy(update={"destinations": [city]}))
+    return found
 
 
 def place_options(request: TripRequest) -> list[Place]:
@@ -172,20 +249,20 @@ async def places(state: dict, model: Model):
 
 
 @lru_cache(maxsize=256)
-def _trains(a: str, b: str, day: date, earliest: time) -> tuple[TransportOption, ...]:
+def _trains(a: str, b: str, day: date, earliest: time, travellers: int = 1) -> tuple[TransportOption, ...]:
     """TY3's real rail journeys from a to b leaving at or after `earliest` that day, in departure order
-    (up to TRAIN_LIMIT, enough to reach the day's last train on these corridors)."""
+    (up to TRAIN_LIMIT, enough to reach the day's last train on these corridors), priced for the party."""
     from routes.compare import UnknownPlace
 
     try:
-        return tuple(_compare().rail_departures(a, b, day, earliest=earliest, limit=TRAIN_LIMIT))
+        return tuple(_compare().rail_departures(a, b, day, earliest=earliest, limit=TRAIN_LIMIT, travellers=travellers))
     except (UnknownPlace, ValueError):
         return ()
 
 
 def morning_train(request: TripRequest, a: str, b: str, day: date) -> TransportOption | None:
     """The first train after 06:00 that arrives before the day's visits start; else the first after 06:00."""
-    trains = _trains(a, b, day, TRAIN_EARLIEST)
+    trains = _trains(a, b, day, TRAIN_EARLIEST, party(request))
     start = datetime.combine(day, limits(request).start)
     return next((t for t in trains if t.legs[-1].arrive <= start), trains[0] if trains else None)
 
@@ -193,10 +270,10 @@ def morning_train(request: TripRequest, a: str, b: str, day: date) -> TransportO
 def evening_train(request: TripRequest, a: str, b: str, day: date, after: time = RETURN_DEPART) -> TransportOption | None:
     """The first train that leaves at or after `after`; when none leaves that late, the day's last train
     (the checker then trims the visits to make it)."""
-    later = _trains(a, b, day, after)
+    later = _trains(a, b, day, after, party(request))
     if later:
         return later[0]
-    afternoon = _trains(a, b, day, TRAIN_AFTERNOON)
+    afternoon = _trains(a, b, day, TRAIN_AFTERNOON, party(request))
     return afternoon[-1] if afternoon else None
 
 
@@ -214,7 +291,7 @@ def hop(request: TripRequest, a: str, b: str, day: date, depart: time = HOP_DEPA
     """The journey from a to b on `day`: TY3's best-ranked option (a real train when that is rail, else
     leaving at `depart`), or a road estimate between the two cities' top places when routes does not know
     a city."""
-    found = prefer(_compared(a, b, day, depart), request.transport_mode)
+    found = prefer(_compared(a, b, day, depart, party(request)), request.transport_mode)
     # Chosen road but routes has no road option: fall through to our own road estimate below. For rail or air
     # there is nothing to estimate, so the best option of any mode stands.
     if found and (request.transport_mode in (None, found[0].mode) or request.transport_mode is not Mode.road):
@@ -223,6 +300,7 @@ def hop(request: TripRequest, a: str, b: str, day: date, depart: time = HOP_DEPA
     if not pa or not pb:
         return None
     minutes, cost = Travel().edge(pa[0], pb[0])
+    cost *= math.ceil(party(request) / SEATS_PER_CAR)  # a road estimate is per car
     leave = datetime.combine(day, depart)
     return Leg(**{"from": a}, to=b, mode=Mode.road, depart=leave, arrive=leave + timedelta(minutes=minutes),
                minutes=minutes, cost_inr=cost, role=role)
@@ -297,7 +375,7 @@ def city_stays(request: TripRequest, city: str, check_in: date, nights: int) -> 
         found = rank_stays(city, check_in, check_out, party=people, limit=3)
     except (UnknownPlace, ValueError):
         found = []
-    if found:
+    if found or not samples_allowed():
         return found
     one = request.model_copy(update={"destinations": [city]})
     return [s.model_copy(update={"check_in": check_in, "check_out": check_out}) for s in fakes.stays(one)]
@@ -341,7 +419,7 @@ def _missing_stays(request: TripRequest, stays: list[dict]) -> list[str]:
 
 
 def assemble(r: TripRequest, pools: dict[str, list[Place]], options: list[TransportOption], journeys: dict[str, Leg],
-             back: Leg | None, stays_found: list[Stay]) -> Itinerary:
+             back: Leg | None, stays_found: list[Stay], transport_reason: str | None = None) -> Itinerary:
     """Solve the days and put the itinerary together with its budget and warnings."""
     days, _ = solve_trip(r, pools, journeys, home=back)
     days = day_titles(days, r)
@@ -353,6 +431,7 @@ def assemble(r: TripRequest, pools: dict[str, list[Place]], options: list[Transp
         warnings=[f"No places found yet for {c}" for c in empty]
         + _missing_stays(r, [s.model_dump(mode="json") for s in stays_found]),
         season_notes=season_notes(r),
+        transport_reason=transport_reason,
     )
     retime_home(it)
     it.budget = budget(it)
@@ -375,9 +454,9 @@ def season_notes(r: TripRequest) -> list[SeasonNote]:
 
 def replan(r: TripRequest) -> Itinerary:
     """The whole deterministic plan for a request, without the agents (revise uses it)."""
-    options = chosen_options(r)
+    options, journeys, back, reason = plan_transport(r)
     pools = {city: city_places(r, city, hours=True) for city in r.destinations}
-    return assemble(r, pools, options, hops(r, options), home(r), stay_options(r))
+    return assemble(r, pools, options, journeys, back, stay_options(r), reason)
 
 
 async def solver(state: dict, model: Model):
@@ -389,6 +468,7 @@ async def solver(state: dict, model: Model):
         {c: Leg.model_validate(v) for c, v in state.get("hops", {}).items()},
         Leg.model_validate(state["home"]) if state.get("home") else None,
         [Stay.model_validate(s) for s in state["stays"]],
+        state.get("transport_reason"),
     )
     stops = sum(len(d.stops) for d in it.days)
     return {"itinerary": it.model_dump(mode="json", by_alias=True)}, f"Planned {stops} stops over {len(it.days)} days"
@@ -415,6 +495,9 @@ async def final_check(state: dict, model: Model):
     retime_home(it)  # repairs may have shortened the last day
     it.budget = budget(it)
     it.days = day_titles(it.days, it.request)  # repairs may have emptied or filled a day
+    from .revise import price_options
+
+    await asyncio.to_thread(price_options, it)  # each option's whole-trip total (re-plans per mode)
     left = len(it.warnings) - len(before.warnings)
     return {"itinerary": it.model_dump(mode="json", by_alias=True)}, (f"{left} issue{'s' * (left > 1)} left as warnings" if left else "")
 

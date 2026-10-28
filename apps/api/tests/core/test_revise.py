@@ -129,3 +129,11 @@ def test_swap_then_lighter_changes_the_day_through_the_endpoint():
     assert len(after) == len(before) - 1 and set(after) < set(before)
     assert lighter[-1]["plan_id"] == swapped["plan_id"] == first["plan_id"]
     assert lighter[1]["message"].startswith(("Moved", "Dropped"))
+
+
+def test_an_intent_without_a_handler_is_a_422_never_a_silent_rain_plan():
+    done = plan_goa()
+    r = client.post(f"/plan/{done['plan_id']}/revise", json={"intent": "remove_stop", "place_id": "x"})
+    assert r.status_code == 422 and "not available yet" in r.json()["detail"]
+    with pytest.raises(ReviseError):
+        revise(goa_plan(), ReviseRequest(intent="budget_style", style="luxury"))

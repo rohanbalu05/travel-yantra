@@ -51,7 +51,8 @@ def test_sample_trip_streams_every_stage_and_a_valid_itinerary(body):
     assert sorted(e["step"] for e in events[1:5]) == ["places", "stays", "story", "transport"]
     assert s[5] == "solving" and s[6] == "checking" and s[-2:] == ["narrating", "done"]
     assert events[0]["partial"] is None and events[5]["partial"] is not None
-    assert events[6]["iteration"] == 1 and events[6]["violations"] == []
+    # The Goa family's flight goes over its budget; round 1 moves every journey to the train (below).
+    assert events[6]["iteration"] == 1 and [v["code"] for v in events[6]["violations"]] in ([], ["over_budget"])
 
     final = Itinerary.model_validate(events[-1]["partial"])
     assert final.request.destinations == body["destinations"]
@@ -82,22 +83,20 @@ def test_free_text_missing_dates_ends_with_questions():
     assert any("date" in q.lower() for q in events[0]["questions"])
 
 
-def test_over_budget_plan_streams_a_repair_round(monkeypatch):
-    cheap_first = steps.fakes.transport
-
-    def air_first(request):
-        return list(reversed(cheap_first(request)))
-
-    monkeypatch.setattr(steps, "transport_options", air_first)
+def test_over_budget_plan_streams_a_repair_round():
     events = frames(client.post("/plan", json=GOA))
     s = stages(events)
-    # Round 1 sees the air fare over budget and switches day 1's journey to rail; later rounds may also
-    # pick a cheaper stay or move stops the later arrival no longer leaves time for.
-    assert s[6] == "checking" and events[6]["violations"][0]["code"] == "over_budget"
-    assert s[7] == "repairing" and events[7]["message"].startswith("Switched to rail to save money")
-    final = Itinerary.model_validate(events[-1]["partial"])
+    # The 4-day Goa trip picks the flight (the train is 15 h each way), which takes the family over its
+    # ₹60,000 budget: round 1 moves every journey (out and home) to the train and says why.
     first = Itinerary.model_validate(events[5]["partial"])
+    assert first.days[0].legs[0].mode.value == "air" and first.transport_reason.startswith("Flight:")
+    assert s[6] == "checking" and events[6]["violations"][0]["code"] == "over_budget"
+    assert s[7] == "repairing" and events[7]["message"].startswith("Switched to the train to stay within budget")
+    final = Itinerary.model_validate(events[-1]["partial"])
     assert final.transport[0].mode.value == "rail" and final.days[0].legs[0].mode.value == "rail"
+    assert final.days[-1].legs[-1].role == "home" and final.days[-1].legs[-1].mode.value == "rail"
+    assert final.request.transport_mode is None and "over your ₹60,000 budget" in final.transport_reason
+    assert final.budget.within_budget is True
     assert final.budget.total_inr < first.budget.total_inr
 
 

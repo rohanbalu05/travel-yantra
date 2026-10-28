@@ -40,12 +40,16 @@ def candidates(it: Itinerary, city: str | None = None) -> list[Place]:
     from guide.hours import live_hours
     from guide.planner import places_for
 
+    from .steps import samples_allowed
+
     used = {p.id for d in it.days for p in d.stops}
     pool: list[Place] = []
     for c in [city] if city else it.request.destinations:
         one = it.request.model_copy(update={"destinations": [c]})
         # Revise runs in a worker thread, so live_hours (Places, cached) may call the network here.
-        pool += [*live_hours(places_for(c, exclude=frozenset(used))), *fakes.places(one), *fakes.alternatives(one)]
+        pool += live_hours(places_for(c, exclude=frozenset(used)))
+        if samples_allowed():
+            pool += [*fakes.places(one), *fakes.alternatives(one)]
     return [p for p in {p.id: p for p in pool}.values() if p.id not in used]
 
 
@@ -109,8 +113,10 @@ def rain(it: Itinerary, d: date | None, travel: Travel, lim: Limits) -> str:
     return "Rain plan: " + ("; ".join(changes) if changes else "every stop is already indoors")
 
 
-def revise(it: Itinerary, req: ReviseRequest, travel: Travel | None = None) -> tuple[Itinerary, str, int]:
-    """Apply one intent, then check and repair. Returns the plan, what changed, and the repair rounds."""
+def revise(it: Itinerary, req: ReviseRequest, travel: Travel | None = None,
+           priced: bool = True) -> tuple[Itinerary, str, int]:
+    """Apply one intent, then check and repair. Returns the plan, what changed, and the repair rounds.
+    With `priced`, each transport option also gets its whole-trip total (price_options)."""
     travel = travel or Travel()
     it = it.model_copy(deep=True)
     if req.lang:
@@ -124,15 +130,46 @@ def revise(it: Itinerary, req: ReviseRequest, travel: Travel | None = None) -> t
         it, what = move_day(it, req.city)
     elif req.intent is ReviseIntent.transport:
         what = change_transport(it, req.mode, travel)
-    else:
+    elif req.intent is ReviseIntent.rain:
         what = rain(it, req.day, travel, lim)
+    else:
+        raise ReviseError(f"{req.intent.value}: this change is not available yet")
     it, rounds = check_and_repair(it, travel)
     from .steps import retime_home
 
     retime_home(it)  # the last day may have changed
     it.budget = budget(it)
     it.days = day_titles(it.days, it.request)
+    if priced:
+        price_options(it)
     return it, what, rounds
+
+
+def price_options(it: Itinerary) -> Itinerary:
+    """Set TransportOption.trip_total_inr on every option: the option in use is the plan's own total; the
+    first option of another mode is the total the transport revise to that mode gives (so the number shown
+    before switching is the number after); another option of a mode is that mode's total with this option's
+    fare instead. A mode the revise cannot switch to gets None."""
+    from .accounts import plan_mode
+
+    used = plan_mode(it)
+    totals: dict = {}
+    firsts = {}
+    for o in it.transport:
+        firsts.setdefault(o.mode, o)
+    for mode, first in firsts.items():
+        if mode is used:
+            totals[mode] = it.budget.total_inr
+            continue
+        try:
+            switched, _, _ = revise(it, ReviseRequest(intent=ReviseIntent.transport, mode=mode), priced=False)
+        except ReviseError:
+            continue
+        totals[mode] = switched.budget.total_inr
+    for o in it.transport:
+        base, first = totals.get(o.mode), firsts[o.mode]
+        o.trip_total_inr = None if base is None else max(base - first.total_cost_inr + o.total_cost_inr, 0)
+    return it
 
 
 def move_day(it: Itinerary, city: str) -> tuple[Itinerary, str]:
@@ -171,6 +208,7 @@ def change_transport(it: Itinerary, mode: Mode, travel: Travel) -> str:
     if not options or options[0].mode is not mode:
         raise ReviseError(f"there is no {mode.value} option for this trip")
     it.request, it.transport = req, options
+    it.transport_reason = None  # the traveller chose
     lim = limits(req)
     starts = {dates[0]: city for city, dates in split_days(req) if dates}
     journeys, back = hops(req, options), home(req)

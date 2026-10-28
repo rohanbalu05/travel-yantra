@@ -25,6 +25,8 @@ from ty_contracts import (
 )
 
 WEEKDAYS = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
+# Road costs (cabs, a car) are per vehicle; a party needs one per this many people.
+SEATS_PER_CAR = 4
 ELDERLY_AGE = 60
 # Elderly travellers get a rest break before the next stop once they have been out this long.
 REST_AFTER_MIN = 180
