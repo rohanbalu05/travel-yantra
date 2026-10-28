@@ -58,7 +58,7 @@ export async function compareRoutes(req: CompareRequest, it: Itinerary, signal?:
  * GET /routes/irctc-card (TY3). `train` and `after` (HH:MM) name the plan's train; with no class,
  * TY3 uses the train's own default and lists the others in `classes`.
  */
-export async function irctcCard(p: { from: string; to: string; date: string; party: Party; travel_class?: string | null; train?: string | null; after?: string | null; travellers?: number; ages?: string | null }, signal?: AbortSignal, base = API_BASE_URL): Promise<IrctcCard> {
+export async function irctcCard(p: { from: string; to: string; date: string; party: Party; travel_class?: string | null; train?: string | null; after?: string | null; travellers?: number; ages?: string | null; style?: string | null }, signal?: AbortSignal, base = API_BASE_URL): Promise<IrctcCard> {
   if (!base) {
     await wait(200);
     return sampleIrctcCard({ ...p, travel_class: p.travel_class ?? undefined });

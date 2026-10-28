@@ -166,9 +166,10 @@ function TrainCard({ it, planId }: { it: Itinerary; planId: string | null }) {
     if (!rail) return;
     const ctl = new AbortController();
     // TY3 picks the train by number when the leg has one (Leg.ref); else the first leaving at or after `after`.
-    // No class unless the traveller picks one: TY3 uses the train's own default. Passenger rows follow the party size.
+    // No class unless the traveller picks one: TY3 picks the class the plan's budget style rides (TY1's null is comfort),
+    // so the card's fare matches the rail option's. Passenger rows follow the party size.
     const train = rail.ref && /^\d{5}$/.test(rail.ref) ? rail.ref : null;
-    irctcCard({ from: rail.from, to: rail.to, date: rail.depart.slice(0, 10), ...cardParty(it, isDemoPlan(planId)), train, after: clock(rail.depart), travel_class: cls }, ctl.signal)
+    irctcCard({ from: rail.from, to: rail.to, date: rail.depart.slice(0, 10), ...cardParty(it, isDemoPlan(planId)), train, after: clock(rail.depart), travel_class: cls, style: it.request.constraints?.budget_style ?? "comfort" }, ctl.signal)
       .then((data) => setCard({ data }))
       .catch((e) => !ctl.signal.aborted && setCard({ problem: problemOf(e) }));
     return () => ctl.abort();
