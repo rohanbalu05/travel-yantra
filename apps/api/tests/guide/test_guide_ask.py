@@ -470,6 +470,8 @@ def test_a_places_match_far_from_the_trip_is_ignored() -> None:
     ("Sample Hospital - Old Airport Road", "Sample Hospital - Old Airport Road"),  # a branch stays
     ("Sample Cafe – Top Restaurant In Kochi", "Sample Cafe"),
     ("Sample Pharmacy", "Sample Pharmacy"),
+    ("Sample Tiffin Room (STR) - Vegetarian Restaurant", "Sample Tiffin Room (STR)"),  # live, Mysuru
+    ("Sample Hotel Since 1982 - Gandhi Square", "Sample Hotel Since 1982 - Gandhi Square"),
 ])  # fmt: skip
 def test_clean_name_drops_listing_ad_copy(raw, clean) -> None:
     assert ask_mod.clean_name(raw) == clean

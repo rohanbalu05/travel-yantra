@@ -1,0 +1,155 @@
+{
+ "outline": {
+  "theme": "The palace is not a static monument but a living center that dictates the rhythm of the city around it.",
+  "hook": "You are standing on ground that has swallowed three previous palaces, each one turning to ash before the current stone structure rose in 1912.",
+  "gap": "Why does this specific building command the entire layout of the city?",
+  "people": [
+   "Alamelamma",
+   "Kakasura Madappa"
+  ],
+  "bridge": "Just as you organize your own home around the kitchen or the hearth, the entire city of Mysuru is arranged around this single point.",
+  "peak": "Imagine the weight of eighty kilos of gold on the back of an elephant, the centerpiece of the Dasara procession that turns this palace into the starting line for the entire state.",
+  "ending": "The lights dim, the crowds disperse, and the stone walls settle back into the shadow of Chamundi Hill, waiting for the next cycle of fire and gold.",
+  "chapters": [
+   {
+    "title": "The Fourth Foundation",
+    "hook": "Look down at the stone beneath your feet and realize it is the fourth attempt to hold this ground.",
+    "gap": "What happened to the wooden structure that stood here before the current one?",
+    "beats": [
+     {
+      "text": "In 1897, a royal wedding turned into a disaster when the wooden palace caught fire, leaving only embers behind.",
+      "facts": [
+       1
+      ],
+      "label": "history"
+     },
+     {
+      "text": "The current building was finished in 1912, designed with Mughal-style domes that intentionally clash with other architectural traditions.",
+      "facts": [
+       9
+      ],
+      "label": "history"
+     }
+    ]
+   },
+   {
+    "title": "The Weight of the Past",
+    "hook": "People often walk past the main gate without looking up at the arch.",
+    "gap": "What is the meaning of the two-headed bird watching you from above?",
+    "beats": [
+     {
+      "text": "People here say the double-headed bird on the gate is a symbol of power, though it is shadowed by the older legend of Queen Alamelamma, who fled to the Kaveri river in 1610 to protect temple jewels from the new rulers.",
+      "facts": [
+       3,
+       5
+      ],
+      "label": "legend"
+     },
+     {
+      "text": "Within these walls, there are twelve temples, some of which predate the palace itself, standing as quiet anchors in the grounds.",
+      "facts": [
+       11
+      ],
+      "label": "history"
+     }
+    ]
+   },
+   {
+    "title": "The Hidden Details",
+    "hook": "Most visitors rush to the center of the Durbar Hall, but they are missing the perspective of the king.",
+    "gap": "What happens when you stop following the crowd?",
+    "beats": [
+     {
+      "text": "Move to the left row of the Durbar Hall to see the space as it was intended, then walk slowly along the corridor to study the oil paintings of the 1930s Dasara procession.",
+      "facts": [
+       4,
+       7
+      ],
+      "label": "history"
+     },
+     {
+      "text": "In the Kalyana Mantapa, ignore the eye-level displays and look up at the glass ceiling to stand under the intricate peacocks.",
+      "facts": [
+       6
+      ],
+      "label": "history"
+     },
+     {
+      "text": "It is here that the cook Kakasura Madappa once improvised a sweet in the palace kitchen, creating what we now know as Mysore pak.",
+      "facts": [
+       13
+      ],
+      "label": "history"
+     }
+    ]
+   },
+   {
+    "title": "The City's Pulse",
+    "hook": "You are standing in a place that draws more visitors than the Taj Mahal in some years.",
+    "gap": "Why does the palace face the hill?",
+    "beats": [
+     {
+      "text": "Look east toward Chamundi Hill; the palace is oriented to face this sacred site, anchoring the city's geography.",
+      "facts": [
+       2,
+       8
+      ],
+      "label": "history"
+     },
+     {
+      "text": "On Sunday nights, the palace is illuminated by nearly a lakh of bulbs, a reminder that this is the starting line for the state's most important procession, featuring a golden howdah weighing eighty kilos.",
+      "facts": [
+       10,
+       12
+      ],
+      "label": "history"
+     },
+     {
+      "text": "Eat before you arrive, as the food inside is nonexistent and the stalls outside are not worth your time.",
+      "facts": [
+       14
+      ],
+      "label": "history"
+     }
+    ]
+   }
+  ]
+ },
+ "critiques": {
+  "en": [
+   "Hook: 4/5\nTheme: 3/5\nSpecifics: 4/5\nPeak: 3/5\nEnding: 3/5\nHonesty: 5/5\n\nThree biggest problems:\n1. The theme is stated too abstractly in the first paragraph (\"making the palace a living center...\") rather than being shown through the actions of people and the physical rhythm of the city.\n2. The curiosity gap (\"what happened to the wooden structure\") is opened and then immediately closed in the very next sentence, which ruins the suspense.\n3. The draft lacks a clear bridge to the reader's own life and does not build to a strong emotional peak or end on a striking, non-summarizing image.",
+   "Hook: 3/5 (The third sentence is about a legend, but the opening doesn't start with a person at a moment or a clear contradiction. A tired traveler might find it a bit dry).\nTheme: 4/5 (The theme of the palace dictating the rhythm of the city is present, but it is only fully articulated at the very end of the second paragraph).\nSpecifics: 4/5 (Good use of names and numbers, but sensory details could be sharper and more immediate).\nPeak: 3/5 (The peak is not clearly defined at the two-thirds mark; the transition between the curse and the temples feels flat).\nEnding: 4/5 (Ends on a conceptual note rather than a strong, lingering visual image).\nHonesty: 5/5 (Labels and citations are used correctly).\n\nThree biggest problems:\n1. **Violates the \"Lead with History\" rule**: The draft opens with a [LEGEND] paragraph. The house style explicitly demands: \"When the facts hold history, the story opens on it, not on a legend.\" The historical temple usage must come first.\n2. **Weak Hook and Missing Curiosity Gap**: The opening does not start with a person at a moment, a contradiction, or a question, and it lacks a clear curiosity gap opened early and closed near the end.\n3. **Weak Bridge to the Reader's Life**: The comparison of organizing a home around a kitchen is generic and does not create a strong, active bridge to the reader's own daily life or movement.",
+   "Scores:\n- Hook: 3/5 (The opening question is a bit generic; a tired traveler might not feel compelled by \"What happens when you stop following the crowd?\")\n- Theme: 4/5 (The theme of the palace dictating the city's rhythm is present but gets lost in the description of the architecture and the wedding hall.)\n- Specifics: 5/5 (Good use of the provided facts, names, and sensory details.)\n- Peak: 3/5 (The peak is flat; the transition between the wedding hall and the kitchen lacks dramatic tension.)\n- Ending: 2/5 (The ending is a summary of the draft's points, which violates the house style.)\n- Honesty: 5/5 (The facts are cited correctly.)\n\nThree Biggest Problems:\n1. **Weak Hook and Curiosity Gap**: The opening does not start with a specific person at a moment or a strong contradiction, and there is no clear curiosity gap opened early to be closed near the end.\n2. **Summary Ending**: The final paragraph ends with a summary of the palace as an \"engine\" of art, iron, and sugar, which violates the rule against summarizing.\n3. **Weak Theme Integration**: The connection between the palace's internal spaces and the rhythm of the city outside (like the procession route or the sweet shop queue) is mentioned but does not drive every paragraph.",
+   "Scores:\n- Hook: 3/5 (The first sentence uses a superlative comparison and opens with \"You are standing in\", which violates the spirit of the hook rules, though it tries to engage).\n- Theme: 4/5 (The theme of a living center is present, but the third paragraph drifts into a food guide rather than keeping the focus on how the palace dictates the city's rhythm).\n- Specifics: 5/5 (Good use of checkable facts like Chamundi Hill, eighty kilos, and Mylari).\n- Peak: 3/5 (The peak about the golden howdah is placed well but lacks a strong narrative obstacle or tension).\n- Ending: 4/5 (Ends on a nice image of the shadow of the hill, but could be tighter).\n- Honesty: 5/5 (Citations are accurate to the provided facts).\n\nThree biggest problems:\n1. The hook opens with a comparison to the Taj Mahal and uses \"You are standing in\", violating the house style rules against opening with \"located in\" style setups, and lacks a specific person at a specific moment.\n2. The story lacks a central character who wants something and meets an obstacle (People, not lists). We need a real person, like the lead elephant or a palace electrician, to carry the facts.\n3. The curiosity gap is weak. The question of why the palace faces the hill is asked and immediately answered in the same paragraph, closing the gap too early."
+  ],
+  "hi": [
+   "Hook: 4/5\nTheme: 3/5\nSpecifics: 4/5\nPeak: 3/5\nEnding: 3/5\nHonesty: 5/5\n\nThree biggest problems:\n1. The theme of the palace dictating the city's rhythm is barely felt; it is only briefly mentioned at the end of the second paragraph without showing how the city moves to its beat.\n2. The curiosity gap about what happened to the wooden structure is opened but closed too quickly in the same paragraph, losing the narrative tension.\n3. The language in the draft feels a bit formal and essay-like in places (\"संरचना\", \"बिंदु\") rather than the natural, conversational Hindustani of a storyteller.",
+   "**Scores:**\n- **Hook:** 3/5 (The question about the bird is decent, but a tired traveler might find the transition to the long curse story a bit slow).\n- **Theme:** 2/5 (The theme of the palace dictating the city's daily rhythm is lost under the heavy focus on the curse and temple descriptions).\n- **Specifics:** 4/5 (Good use of names and numbers, but lacks sensory connection to the city's active rhythm).\n- **Peak:** 2/5 (The peak is flat; it feels like a list of temples rather than a dramatic realization of the palace's living force).\n- **Ending:** 2/5 (Ends on a generic summary about the past and present rather than a sharp, sensory image of the living city).\n- **Honesty:** 3/5 (The draft mixes history and legend too closely in the first paragraph without clear boundaries, and attributes the curse directly to the gate's bird).\n\n**Three Biggest Problems:**\n1. **Theme Deviation and Weak Peak:** The draft fails to show how the palace acts as a living center dictating the city's daily rhythm. Instead, it gets bogged down in the details of the curse and static temple descriptions.\n2. **Structural and Label Confusion:** The first paragraph is labeled [LEGEND] but crams in the Gandaberunda bird, the Alamelamma curse, and a bridge to the reader's life, making it messy. The transition between the bird [5] and the queen [3] is forced.\n3. **Banned Words and Style Violations:** The draft uses forbidden concepts like \"गवाही देते हैं\" (testament to) and \"इतिहास के करीब\" (steeped in history). It also lacks a clear curiosity gap opened early and closed late.",
+   "Hook: 4/5 (The hook is decent but could be sharper for a tired traveler).\nTheme: 3/5 (The draft focuses on details and the sweet's origin, but the theme of the palace dictating the city's daily rhythm is weak).\nSpecifics: 5/5 (Good use of the facts, numbers, and sensory details).\nPeak: 3/5 (The peak is misplaced; the sweet story at the end feels like a detour rather than a climax of the city's rhythm).\nEnding: 3/5 (Ends on a description of a shop rather than a strong, resonant image of the palace's rhythm).\nHonesty: 5/5 (No fake history or legends, correct citations).\n\nThree biggest problems:\n1. **Weak Theme Connection**: The theme is that the palace dictates the city's rhythm. The draft tells stories about paintings and a sweet, but fails to connect them to how the palace actively drives the daily life and movement of Mysuru today.\n2. **Missing Curiosity Gap**: There is no clear curiosity gap opened early in the text that remains unresolved until near the end.\n3. **Weak Peak and Ending**: The story peaks too early and ends on a flat note about buying sweets, rather than a powerful image of the palace's living connection to the city.",
+   "### Scores and Problems\n\n**Scores:**\n- **Hook:** 2/5 (The draft opens with a rhetorical question and a superlative comparison, which violates the house style. A tired traveller would likely skip the third sentence as it feels like a guidebook introduction rather than a personal, immediate moment.)\n- **Theme:** 3/5 (The theme of the palace as a living center is present, but it gets diluted by generic travel advice in the third paragraph.)\n- **Specifics:** 4/5 (Good use of numbers like eighty kilos of gold and one lakh bulbs, but sensory details could be sharper and more grounded in the immediate surroundings.)\n- **Peak:** 3/5 (The peak is placed around the second paragraph, but it lacks the dramatic tension of a character meeting an obstacle.)\n- **Ending:** 2/5 (The ending feels like a summary of the night falling, rather than a strong, lingering image.)\n- **Honesty:** 4/5 (The facts are generally cited correctly, but there is no legend or disputed claim included to show honest labeling.)\n\n**Three Biggest Problems:**\n1. **Violation of Hook and Opening Rules:** The draft opens with a rhetorical question (\"क्या आप जानते हैं...\") and a superlative comparison with the Taj Mahal, which directly violates the house style. It also lacks a clear curiosity gap opened early and closed late.\n2. **Lack of a Legend Paragraph:** The house style and formatting instructions require the use of `[HISTORY]`, `[LEGEND]`, or `[DISPUTED]` labels. The draft only uses `[HISTORY]` and misses the opportunity to tell a local legend (such as the story of the goddess Chamundeshwari killing the demon) using honest legend framing (\"लोग कहते हैं...\").\n3. **Inclusion of Forbidden Words and Guidebook Tone:** The draft uses a preachy, guidebook-like tone in the third paragraph (\"इस ऐतिहासिक यात्रा के बीच...\", \"गलती से बच सकें\") and includes forbidden concepts/phrases. It fails to weave the practical advice (eating before visiting) into a human story of struggle or a bridge to the reader's own life."
+  ]
+ },
+ "trim": {
+  "en": null,
+  "hi": null
+ },
+ "calls": [
+  "katha model call: outline Mysore Palace 10min 10.8s",
+  "katha model call: draft Mysore Palace ch1/4 en 3.7s",
+  "katha model call: critique Mysore Palace ch1/4 en 3.8s",
+  "katha model call: draft Mysore Palace ch2/4 en 4.0s",
+  "katha model call: critique Mysore Palace ch2/4 en 6.2s",
+  "katha model call: draft Mysore Palace ch3/4 en 4.6s",
+  "katha model call: critique Mysore Palace ch3/4 en 8.2s",
+  "katha model call: draft Mysore Palace ch4/4 en 3.5s",
+  "katha model call: critique Mysore Palace ch4/4 en 8.3s",
+  "katha model call: draft Mysore Palace ch1/4 hi 3.9s",
+  "katha model call: critique Mysore Palace ch1/4 hi 6.3s",
+  "katha model call: draft Mysore Palace ch2/4 hi 4.9s",
+  "katha model call: critique Mysore Palace ch2/4 hi 6.9s",
+  "katha model call: draft Mysore Palace ch3/4 hi 6.9s",
+  "katha model call: critique Mysore Palace ch3/4 hi 14.8s",
+  "katha model call: draft Mysore Palace ch4/4 hi 5.1s",
+  "katha model call: critique Mysore Palace ch4/4 hi 7.0s"
+ ]
+}

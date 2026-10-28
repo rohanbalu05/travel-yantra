@@ -201,7 +201,10 @@ def care_tier(place: Place) -> int:
 #: Road") stays.
 AD_TAIL = re.compile(
     r"\s+[-–—:]\s+(?=.*\b(?:best|top|leading|no\.?\s?1|#1|24\s?[x/]\s?7|multi-?speciality|super-?speciality"
-    r"|hospital in|clinic in|restaurant in|in [A-Z]\w+\s*$))",
+    r"|hospital in|clinic in|restaurant in|in [A-Z]\w+\s*$"
+    # a bare category after the name ("GTR - Vegetarian Restaurant", live in Mysuru)
+    r"|(?:pure\s+)?(?:veg\w*|multi-?cuisine|south indian|north indian|family)?\s*"
+    r"(?:restaurants?|hotel|caf[eé]|hospitals?|clinic|pharmacy|chemists?|medicals?)\s*$))",
     re.I,
 )
 

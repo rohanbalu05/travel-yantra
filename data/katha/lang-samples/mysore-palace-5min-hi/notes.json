@@ -1,0 +1,105 @@
+{
+ "outline": {
+  "theme": "The palace is not a static monument but a living center of gravity for the city.",
+  "hook": "You are standing on ground that has swallowed three previous palaces, each one turning to ash before the current stone structure rose in 1912.",
+  "gap": "Why does this specific patch of earth demand such persistent rebuilding?",
+  "people": [
+   "Alamelamma",
+   "Kakasura Madappa"
+  ],
+  "bridge": "Just as you arrange your own home around the kitchen or the hearth, this entire city is built to orbit this single point.",
+  "peak": "Imagine the weight of eighty kilos of gold pressing down on an elephant's back as the procession begins, the same way you feel the weight of your own daily routines.",
+  "ending": "The lights flicker off, leaving the stone to hold the silence of the hill, while the scent of gram flour and ghee lingers in the memory of the kitchen.",
+  "chapters": [
+   {
+    "title": "The Weight of the Past",
+    "hook": "Look at the arch above the main gate and find the two-headed bird carved into the stone.",
+    "gap": "What secrets are held by the twelve temples hidden within these walls?",
+    "beats": [
+     {
+      "text": "The palace you see is the fourth to stand here, replacing a wooden structure that burned during a royal wedding in 1897.",
+      "facts": [
+       1
+      ],
+      "label": "history"
+     },
+     {
+      "text": "People here say that in 1610, a widowed queen named Alamelamma fled to the Kaveri river to protect temple jewels from the new rulers, casting a shadow over the site.",
+      "facts": [
+       3
+      ],
+      "label": "legend"
+     },
+     {
+      "text": "Within these walls, twelve temples remain, some far older than the palace itself, standing as quiet anchors while the world outside changes.",
+      "facts": [
+       11
+      ],
+      "label": "history"
+     }
+    ]
+   },
+   {
+    "title": "The Living City",
+    "hook": "Most visitors rush to the center of the Durbar Hall, but you should move to the left row to see the space as the king once did.",
+    "gap": "Why does this palace draw more crowds than the Taj Mahal?",
+    "beats": [
+     {
+      "text": "This building is a deliberate mixture of styles, featuring domes that look Mughal, finished in 1912 to serve as the city's heart.",
+      "facts": [
+       9
+      ],
+      "label": "history"
+     },
+     {
+      "text": "In the kitchen, a cook named Kakasura Madappa improvised a sweet called Mysore pak, a taste that defines the city more than the architecture.",
+      "facts": [
+       13
+      ],
+      "label": "history"
+     },
+     {
+      "text": "During Dasara, the palace becomes the starting line for a procession featuring a golden howdah weighing eighty kilos, carried by an elephant.",
+      "facts": [
+       10
+      ],
+      "label": "history"
+     },
+     {
+      "text": "The palace draws visitor numbers that rival or exceed the Taj Mahal because it remains the center of gravity for everything in Mysuru.",
+      "facts": [
+       2,
+       12
+      ],
+      "label": "history"
+     }
+    ]
+   }
+  ]
+ },
+ "critiques": {
+  "en": [
+   "[HISTORY]\nA young bride stood in her wedding dress in 1897, watching her home turn to ash around her [1]. The wooden palace of Mysuru was burning to the ground during the royal celebrations, forcing the regent queen, Kempananjammanni, to make a desperate choice [1]. She refused to let her family's legacy dissolve into smoke again, so she hired a British architect to build a fourth palace made of stone, iron, and glass [1]. As you look at the cool gray granite of the walls in front of you, run your fingers over the stone. You are touching a mother's massive, fireproof shield, built over fifteen years to protect her children from the flames [1]. \n\n[LEGEND]\nThe story goes that the ground beneath your feet was already carrying a dark weight long before the fire. People here say that in 1610, a widowed queen named Alamelamma fled to the Kaveri river to keep the temple jewels out of the hands of the new Mysuru rulers [3]. Before she leapt into the deep water, she cursed the royal family, declaring that the kings would never bear natural heirs [3]. For generations, the rulers had to adopt their successors, and even today, the family still honors an image of the cursed queen inside these very walls to appease her spirit [3]. You can smell the sweet incense burning near her shrine, a quiet scent drifting through the stone corridors.\n\n[HISTORY]\nThis palace is not a dead museum; it is the physical heart around which the entire city still moves. Just as you arrange your own life around a central kitchen table, the people of Mysuru arrange their days around these grounds. Walk toward the south gate and you will find the Shweta Varahaswamy temple, which has stood here since the fourteenth century, long before the palace itself was built [11]. The palace grounds actually hold twelve such temples [11]. Listen for the sharp, clear ring of brass bells as local worshippers walk past you to pray, their bare feet smoothing the ancient stone steps [11]. The city does not merely look at this monument; it lives inside it.\n(rewrite not used: missing or shorter than the draft)",
+   "Scores:\n- Hook: 3/5 (The question in the second sentence is decent, but the first sentence lacks a strong personal moment or contradiction to grip a tired traveler).\n- Theme: 4/5 (The theme of a living center of gravity is present, but the paragraphs drift into lists of architectural details and festival descriptions rather than tightly focusing on the city's orbit around it).\n- Specifics: 5/5 (Good use of numbers like 1912, eighty kilos, and Sayyaji Rao Road, with sensory details like the smell of ghee and the thunder of drums).\n- Peak: 3/5 (The peak about the elephant procession is placed around the two-thirds mark, but it feels like a description of an event rather than a dramatic narrative peak).\n- Ending: 4/5 (The image of the light bulbs and the taste of sugar is strong, but it slightly repeats the \"Taj Mahal\" comparison from the first paragraph, violating the rule of telling each fact once).\n- Honesty: 4/5 (Facts are cited well, but the draft lacks a LEGEND paragraph which is required by the house style if any legendary or oral-history elements like the sweet's invention are introduced, or it needs a clear legendary framing).\n\nThree Biggest Problems:\n1. **Weak Hook and Curiosity Gap**: The opening paragraph starts with visitor advice (\"Most visitors rush...\") rather than a compelling human moment, conflict, or contradiction. The curiosity gap about why this palace draws more crowds than the Taj Mahal is opened but immediately answered in the next sentence, failing to keep the reader hooked until the end.\n2. **Lack of a LEGEND Paragraph**: The story of Kakasura Madappa inventing Mysore pak is told as absolute historical fact in a [HISTORY] section, but the source material notes he \"reportedly\" named it on the spot, which borders on local lore. To comply with house style, this origin story should be framed in its own [LEGEND] paragraph, explicitly using legend-marking language (\"People here say...\", \"The story goes...\").\n3. **Repetitive Fact Citations**: The comparison to the Taj Mahal's visitor numbers [2] and the 1912 completion date [9, 12] are repeated across multiple paragraphs (Paragraph 1 and Paragraph 4). House style strictly dictates that we must tell each fact only once."
+  ],
+  "hi": [
+   "Scores:\n- Hook: 3/5 (The first sentence is a bit dry, but the second sentence about three burned palaces creates some interest.)\n- Theme: 3/5 (The theme of a \"living center of gravity\" is mentioned but gets lost in the descriptions of the fire and the legend.)\n- Specifics: 4/5 (Good use of facts, but lacks some sensory details like the smell of sandalwood or the sound of temple bells.)\n- Peak: 3/5 (The peak is flat; the transition between the legend and the temples lacks dramatic tension.)\n- Ending: 2/5 (The draft ends on a generic summary statement rather than a strong, lasting image.)\n- Honesty: 4/5 (Citations are present, but the legend is told a bit too factually in some parts.)\n\nThree biggest problems:\n1. **Weak Hook and Theme Integration**: The opening does not start with a person at a moment or a clear contradiction. The theme—that the palace is a living, breathing center of gravity for the city rather than a dead museum—is stated flatly instead of being felt through the actions of the people who still use it daily.\n2. **Lack of a Clear Curiosity Gap**: The draft asks about \"secrets buried in twelve temples\" but doesn't set up a compelling mystery that connects the past fire, the curse, and the modern-day worshipers, leaving the reader with no strong reason to keep listening.\n3. **Overuse of Forbidden Words and Passive Tone**: The draft uses forbidden concepts and lacks the direct, spoken Hindustani rhythm. It reads more like a translated guidebook than a story written for the ear with short, punchy sentences.",
+   "### Scores and Problems\n\n**Scores:**\n- **Hook:** 3/5 (The third sentence is a rhetorical question about the Taj Mahal, which is a bit dry, though the first sentence tries to place the reader in a moment.)\n- **Theme:** 4/5 (The theme of the palace as a living center of gravity is present, but gets diluted by lists of architectural styles and the recipe of Mysore Pak.)\n- **Specifics:** 4/5 (Good use of names and numbers, but some sensory details feel generic rather than immediate.)\n- **Peak:** 3/5 (The peak about the elephant carrying the heavy gold howdah is placed well, but the connection to the reader's life feels forced.)\n- **Ending:** 3/5 (The ending tries to summarize the Taj Mahal comparison again and uses banned words like 'रौनक देखने लायक होती है'.)\n- **Honesty:** 4/5 (The facts are generally cited well, but the story of Mysore Pak is told as absolute historical fact rather than citing its traditional/reported nature.)\n\n**Three Biggest Problems:**\n1. **Use of Banned Words and Phrases:** The draft uses several forbidden expressions or their close Hindi equivalents, such as \"रौनक देखने लायक होती है\" (akin to breathtaking/vibrant) and \"दिल है\" (cliché). It also uses a double rhetorical question in the first paragraph.\n2. **Weak Curiosity Gap:** The curiosity gap about why the palace draws more crowd than the Taj Mahal is opened, but it is closed too early and then repeated at the end, violating the rule of telling each fact only once.\n3. **Lack of a Legend Paragraph:** The draft labels the Mysore Pak story as [HISTORY], but the facts state \"reportedly\", and such origin stories of local dishes function best as local lore or legends. More importantly, the house style requires at least one [LEGEND] paragraph that explicitly uses legend-introducing language (\"लोग कहते हैं...\", \"कहा जाता है...\"), which is missing."
+  ]
+ },
+ "trim": {
+  "en": null,
+  "hi": null
+ },
+ "calls": [
+  "katha model call: outline Mysore Palace 5min 10.9s",
+  "katha model call: draft Mysore Palace ch1/2 en 4.4s",
+  "katha model call: critique Mysore Palace ch1/2 en 4.3s",
+  "katha model call: draft Mysore Palace ch2/2 en 4.8s",
+  "katha model call: critique Mysore Palace ch2/2 en 9.1s",
+  "katha model call: draft Mysore Palace ch1/2 hi 3.6s",
+  "katha model call: critique Mysore Palace ch1/2 hi 6.7s",
+  "katha model call: draft Mysore Palace ch2/2 hi 4.4s",
+  "katha model call: critique Mysore Palace ch2/2 hi 7.9s"
+ ]
+}
