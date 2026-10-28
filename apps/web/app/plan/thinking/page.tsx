@@ -203,10 +203,12 @@ export default function PlanThinking() {
 
   const resend = () => {
     if (!body || !answers.trim()) return;
-    const original = "text" in body ? body.text : "";
+    // Intake sees what it asked and the answer, with everything sent before (the text, or the form's request).
+    const qa = `${state.questions.join(" ")}\n${answers.trim()}`.trim();
     setState(initialPlanState());
     setAnswers("");
-    savePlanInput({ text: `${original}\n${answers.trim()}`.trim().slice(0, 4000), lang: body.lang ?? "en" });
+    if ("text" in body) savePlanInput({ text: `${body.text}\n${qa}`.trim().slice(0, 4000), lang: body.lang ?? "en" });
+    else savePlanInput({ ...body, notes: [body.notes, qa].filter(Boolean).join("\n").slice(0, 2000) });
   };
 
   const planning = state.intake !== null;
