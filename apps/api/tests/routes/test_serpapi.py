@@ -97,3 +97,21 @@ def test_file_store_is_shared_between_instances(tmp_path):
 def test_periods_use_india_time():
     late = dt.datetime(2026, 10, 27, 19, 0, tzinfo=dt.UTC)  # 00:30 IST on the 28th
     assert apicache.day_period(late) == "2026-10-28" and apicache.month_period(late) == "2026-10"
+
+
+def test_usage_counts_live_calls_against_the_caps(monkeypatch):
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    from routes import apicache, router
+    from routes.serpapi import PROVIDER
+
+    monkeypatch.setenv("SERPAPI_MONTHLY_CAP", "90")
+    store = apicache.get_store()
+    assert store.spend(PROVIDER, apicache.month_period(), 90) and store.spend(PROVIDER, apicache.day_period(), 20)
+    app = FastAPI()
+    app.include_router(router)
+    body = TestClient(app).get("/routes/usage").json()
+    assert body["serpapi"] == {"month": 1, "month_cap": 90, "today": 1, "day_cap": 20}
+    assert body["routes_api"]["month"] == 0 and body["routes_api"]["month_cap"] > 0
+    assert "key" not in str(body).lower()

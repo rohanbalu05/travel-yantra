@@ -92,6 +92,12 @@ IRCTC's form order and `booking_url`. 404 when no sample train runs from→to.
 up to `at` (default now): `timeline`, `current_status`, per-passenger status,
 `chart_prepared`. Unknown PNR: 404 `"unknown sample PNR"`.
 
+## GET /routes/usage
+
+Live calls counted in the shared store: `serpapi` (this month and today, with
+`SERPAPI_MONTHLY_CAP` and `SERPAPI_DAILY_CAP`) and `routes_api` (this month, with
+`ROUTES_MONTHLY_CAP`). Counts only. At a cap, calls stop and cached answers are used.
+
 ## Metrics
 
 `POST /routes/metrics/event` with `{session_id, task, arm: ty|baseline, event:

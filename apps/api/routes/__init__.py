@@ -1,5 +1,6 @@
 import datetime as dt
 import json
+import os
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.concurrency import run_in_threadpool
@@ -98,6 +99,25 @@ async def post_metric_event(request: Request, store: Store = Depends(get_store),
     except StoreFull as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     return {"ok": True}
+
+
+@router.get("/usage")
+def get_usage() -> dict:
+    """Live calls this month (and SerpApi today) against the caps, from the shared store:
+    counts only, no keys. SerpApi stops at SERPAPI_MONTHLY_CAP, below the free plan's limit."""
+    from . import apicache, roads, serpapi
+
+    store = apicache.get_store()
+    month, day = apicache.month_period(), apicache.day_period()
+    return {
+        "month": month,
+        "serpapi": {"month": store.count(serpapi.PROVIDER, month), "month_cap": serpapi._cap("SERPAPI_MONTHLY_CAP",
+                                                                                             serpapi.MONTHLY_CAP),
+                    "today": store.count(serpapi.PROVIDER, day), "day_cap": serpapi._cap("SERPAPI_DAILY_CAP",
+                                                                                          serpapi.DAILY_CAP)},
+        "routes_api": {"month": store.count(roads.REF, month),
+                       "month_cap": int(os.environ.get("ROUTES_MONTHLY_CAP") or roads.MONTHLY_CAP)},
+    }
 
 
 @router.get("/metrics/summary", response_model=list[TaskSummary])
