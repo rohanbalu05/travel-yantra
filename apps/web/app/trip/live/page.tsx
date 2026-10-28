@@ -89,7 +89,7 @@ function TripLive() {
   const account = useAccount();
   const params = useSearchParams();
   const clock = useClock();
-  const [trips, setTrips] = useState<SavedTrip[] | null>(null);
+  const [listed, setListed] = useState<SavedTrip[] | null>(null);
   const [listProblem, setListProblem] = useState<{ message: string; retryable: boolean } | null>(null);
   const [pick, setPick] = useState<string | null>(params.get("trip"));
   const [trip, setTrip] = useState<Loaded | null>(null);
@@ -100,26 +100,37 @@ function TripLive() {
   const [geoNote, setGeoNote] = useState<string | null>(null);
   const watch = useRef<number | null>(null);
   const gen = useRef(0);
+  const loadedFor = useRef<string | null>(null);
   const [replan, setReplan] = useState<{ busy: boolean; note?: string; bad?: boolean }>({ busy: false });
   const [near, setNear] = useState<Near | null>(null);
   const [nearBusy, setNearBusy] = useState<Kind | null>(null);
 
-  // Saved trips: the API's or this browser's; with no API, the sample trip too.
+  // Saved trips: the API's list (signed in) and the ones kept in this browser, which
+  // the API doesn't list for a browser that isn't signed in. With no API, the sample too.
   useEffect(() => {
     let live = true;
     listTrips()
-      .then((r) => live && setTrips(API_BASE_URL ? r.trips : [...r.trips, SAMPLE]))
+      .then((r) => live && setListed(r.trips))
       .catch((e) => live && setListProblem(problemOf(e)));
     return () => {
       live = false;
     };
   }, []);
+  const kept = account?.trips;
+  const trips = useMemo(() => {
+    if (listed === null) return null;
+    const here = kept ?? [];
+    // The browser's copy wins for the same plan: it carries the whole itinerary.
+    const merged = [...here, ...listed.filter((x) => !here.some((h) => h.plan_id === x.plan_id))];
+    return API_BASE_URL ? merged : [...merged, SAMPLE];
+  }, [listed, kept]);
 
   // Open the picked trip: in full from this browser, else its share page's plan.
   useEffect(() => {
-    if (!pick || !trips) return;
+    if (!pick || !trips || loadedFor.current === pick) return;
     const s = trips.find((x) => x.plan_id === pick);
     if (!s) return;
+    loadedFor.current = pick; // once per pick, so a re-planned day isn't replaced by the saved copy
     let live = true;
     (s.itinerary ? Promise.resolve(s.itinerary) : apiJSON<Itinerary>(`/trips/${encodeURIComponent(s.share_token)}`))
       .then((itinerary) => live && setTrip({ itinerary, plan_id: s.plan_id, title: s.title, sample: s === SAMPLE }))
@@ -152,6 +163,7 @@ function TripLive() {
 
   const choose = (planId: string | null) => {
     gen.current += 1; // answers for the trip being left are dropped
+    loadedFor.current = null;
     setPick(planId);
     setTrip(null);
     setLoadProblem(null);
