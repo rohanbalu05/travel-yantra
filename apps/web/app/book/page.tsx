@@ -122,6 +122,7 @@ function Travel({ it, planId }: { it: Itinerary; planId: string | null }) {
                 <svg className="ic" viewBox="0 0 24 24" aria-hidden="true"><path d={MODE_ICON[o.mode]} /></svg>
                 <b>{t(MODE_NAME[o.mode])}</b>
                 {on && <span className="badge badge-sea">{t("In your plan")}</span>}
+                {o.legs.some((l) => l.booked) && <span className="badge badge-ok">{t("Booked")}</span>}
               </div>
               <span className="price">{inr(o.total_cost_inr)}</span>
               {o.mode === "road" && <small>{t("By car: fuel + tolls")}</small>}

@@ -165,7 +165,8 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
                       <span className="mk mk-move"><svg className="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /><path d="M13 6l6 6-6 6" /></svg></span>
                       <div className="it-body">
                         <b>{t("{mode} to {place}", { mode: t(legModeName(r.leg)), place: r.leg.to })}</b>
-                        <small>{duration(r.leg.minutes)} · {inr(r.leg.cost_inr)}</small>
+                        <small>{duration(r.leg.minutes)} · {inr(r.leg.cost_inr)}{r.leg.ref ? ` · ${r.leg.ref}` : ""}</small>
+                        {r.leg.booked && <span className="badge badge-ok" style={{ alignSelf: "flex-start" }}>{t("Booked")}</span>}
                       </div>
                     </div>
                   ) : (
