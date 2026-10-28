@@ -35,8 +35,9 @@ Progress = Callable[[PlanEvent], Awaitable[None]]
 
 # Pydantic and FastAPI wording: for the logs, never for the traveller (D-54).
 NOT_FOR_USERS = re.compile(
-    r"^(?:validation:|HTTP \d)|value error|field required|input should|string should|"
-    r"extra inputs|needs (?:place|day|city|mode|style|stay|booked|now)",
+    r"^(?:validation:|HTTP \d|not found$|method not allowed$)|value error|field required|"
+    r"(?:input|string|list|tuple|set|dict) should|assertion failed|extra inputs|"
+    r"\bneeds (?:place|place_id|day|city|mode|style|stay_id|stay_pick|booked|now)\b",
     re.IGNORECASE,
 )
 

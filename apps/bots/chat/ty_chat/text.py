@@ -224,6 +224,18 @@ ADD = re.compile(
     r"\s*[.!]?\s*$",
     re.IGNORECASE,
 )
+# The ADD_MORE words at the start of an add, with a joining word ("another stop at Fort Aguada").
+ADD_MORE_LEAD = re.compile(
+    r"^(?:(?:one\s+)?more|another|other|something\s+else|anything\s+else|extra)\s+"
+    r"(?:places?|stops?|sights?|things?(?:\s+to\s+(?:do|see))?)(?:\s+(?:at|called|like|named))?\s*:?\s*",
+    re.IGNORECASE,
+)
+# Not an add: a remove, a swap or a refusal that happens to say "another place".
+NOT_ADD = re.compile(
+    r"^\s*(?:remove|delete|drop|skip|cut|swap|replace|change|no\b|don'?t|do\s+not)"
+    r"|\b(?:no|any)\s+more\b|\bdon'?t\s+want\b|\bdo\s+not\s+want\b",
+    re.IGNORECASE,
+)
 # "more places on day 2", "another place", "something else to do on day 3": add, place not named.
 ADD_MORE = re.compile(
     r"\b(?:more|another|other|one\s+more|something\s+else|anything\s+else|extra)\s+"
@@ -298,11 +310,13 @@ def keyword_edit(text: str) -> tuple[str, dict] | None:
         return "move_day", {"city": mv["city"].strip()}
     if m := MOVE_STOP.match(text):
         return "move_stop", {"place": m["what"].strip(" ."), "day": int(m["day"])}
-    if ADD_MORE.search(text) and words <= 12:
-        return "add_stop", {"place": None, "day": day_number(text)}
     if m := ADD.match(text):
         day = m["day"] or m["nth"]
-        return "add_stop", {"place": m["what"].strip(" ."), "day": int(day) if day else None}
+        # "add another stop at Fort Aguada" names Fort Aguada; "add another place" names nothing.
+        place = ADD_MORE_LEAD.sub("", m["what"].strip(" .")).strip(" .") or None
+        return "add_stop", {"place": place, "day": int(day) if day else None}
+    if ADD_MORE.search(text) and words <= 12 and not NOT_ADD.search(text):
+        return "add_stop", {"place": None, "day": day_number(text)}
     if m := REMOVE.match(text):
         return "remove_stop", {"place": m["what"].strip(" ."), "day": day_number(text)}
     if (m := STAY.search(text)) and words <= 8:

@@ -49,6 +49,45 @@ async def test_ty1_sentences_are_still_shown(planned, api):
     ]
 
 
+@pytest.mark.parametrize(
+    "said, intent, place",
+    [
+        ("remove another place on day 2", "remove_stop", "another place on day 2"),
+        ("add another stop at Fort Aguada on day 2", "add_stop", "Fort Aguada"),
+        ("add another place", "add_stop", None),
+        ("more places on day 2", "add_stop", None),
+    ],
+)
+def test_add_more_never_steals_other_edits(said, intent, place):
+    from ty_chat.text import keyword_edit
+
+    got = keyword_edit(said)
+    assert got[0] == intent and got[1]["place"] == place
+
+
+@pytest.mark.parametrize("said", ["I do not want any more places", "no more places please"])
+def test_refusals_are_not_adds(said):
+    from ty_chat.text import keyword_edit
+
+    assert keyword_edit(said) is None
+
+
+@pytest.mark.parametrize(
+    "detail, shown",
+    [
+        ("List should have at least 1 item after validation", False),
+        ("Assertion failed, bad", False),
+        ("Not Found", False),
+        ("Day 2 needs days off to rest", True),
+        ("Sat 12 Dec is full with Dudhsagar Falls; it fits on Fri 11 Dec", True),
+    ],
+)
+def test_which_api_words_travellers_see(detail, shown):
+    from ty_chat.api import ApiError
+
+    assert ApiError(422, detail).readable is shown
+
+
 async def test_more_places_asks_which_until_ty1_ships_it(planned, api):
     events = await send(planned, "more places on day 2")
     assert texts(events) == [WHICH_PLACE] and not api.bodies("/plan/p1/revise")
