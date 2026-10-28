@@ -77,6 +77,7 @@ MIN_FLIGHT_KM = 200  # airports closer than this: no flight looked up (Bengaluru
 STATION_KM = 40  # stations considered for a city, by road
 STATION_K = 3  # nearest served stations per city (each one a road edge, so a Routes API call)
 WALK_KM = 1.0  # closer than this, walk to the station
+MAX_DRIVE_MIN = 15 * 60  # a longer drive is not offered (Chennai-Delhi by road is about 38 h)
 INR_PER_MIN = 10.0  # picking a flight: arriving a minute earlier is worth this much fare (reversible guess)
 
 # City centre points (approximate) and aliases, shared with stays and the rail build: data/cities.json.
@@ -432,6 +433,10 @@ class CompareService:
                 f = self._rail(src, dst, start, req.travellers, rail_class)
             else:
                 f = self._find(g, src, dst, mode, start, req.travellers, live)
+                if f and mode is Mode.road and f.option.total_minutes > MAX_DRIVE_MIN:
+                    unavailable.append(Unavailable(mode=mode, reason=f"{src.name} to {dst.name} is a drive of over "
+                                                   f"{MAX_DRIVE_MIN // 60} hours; go by rail or air"))
+                    continue
             if f:
                 found.append(f)
             else:

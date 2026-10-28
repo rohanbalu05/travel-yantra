@@ -85,3 +85,20 @@ def test_one_fare_model_rail_legs_by_style_and_drives_by_car(india):
     km = road.legs[0].cost_inr / 2  # two cars of fuel and the expressway toll
     assert road.legs[0].cost_inr % 2 == 0 and km > 2 * toll("bengaluru", "mysuru")
     assert any("fuel" in n and "toll" in n for n in mid.notes)
+
+
+def test_no_drive_longer_than_fifteen_hours():
+    from routes.compare import MAX_DRIVE_MIN
+    from routes.graph import Edge
+
+    class LongRoad(HaversineRoadProvider):
+        """Like the Routes API: no distance limit."""
+
+        def road_edge(self, a, b):
+            e = HaversineRoadProvider(max_km=5000).road_edge(a, b)
+            return e if e is None else Edge(e.src, e.dst, e.mode, e.minutes, e.cost_inr, e.comfort, e.ref, e.km)
+
+    r = CompareService(road=LongRoad(), live=False).compare(
+        CompareRequest(origin="Chennai", destination="Delhi", date=dt.date(2026, 12, 11)))
+    assert "road" not in {o.option.mode.value for o in r.options}
+    assert any(u.mode.value == "road" and "15 hours" in u.reason for u in r.unavailable) and MAX_DRIVE_MIN == 900
