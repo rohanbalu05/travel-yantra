@@ -210,3 +210,34 @@ def test_running_late_re_plans_the_rest_of_today_and_keeps_the_journey_home():
                                    if p.id in before - after)
     with pytest.raises(ReviseError, match="not a day of this trip"):
         revise(it, ReviseRequest(intent="rest_of_day", now="2027-01-01T10:00:00"))
+
+
+def test_more_places_on_a_day_adds_the_best_nearby_ones_that_fit(goa):
+    # Web chat: "give me some more places to visit on wednesday" came back as "Value error, add_stop needs place…".
+    day = min((d for d in goa.days if d.stops and "Dudhsagar Falls" not in on(goa, d.date)), key=lambda d: len(d.stops))
+    out, what, _ = revise(goa, ReviseRequest(intent="add_stop", day=day.date))
+    new = [p.name for p in next(d for d in out.days if d.date == day.date).stops if p.name not in on(goa, day.date)]
+    assert 1 <= len(new) <= 2 and what.startswith("Added ") and what.endswith(f"to {day.date:%a %d %b}")
+    assert all(n in what for n in new)
+    one, _, _ = revise(goa, ReviseRequest(intent="add_stop", day=day.date, count=1))
+    assert sum(len(d.stops) for d in one.days) <= sum(len(d.stops) for d in goa.days) + 1
+    # A far day (a waterfall two hours out) has nothing near it: say so, and name a day with room.
+    falls = where(goa, "Dudhsagar Falls")
+    with pytest.raises(ReviseError, match=f"No more places fit {falls:%a %d %b}"):
+        revise(goa, ReviseRequest(intent="add_stop", day=falls))
+
+
+def test_bad_requests_get_one_plain_sentence():
+    lines = client.post("/plan", json=GOA.model_dump(mode="json")).text.splitlines()
+    pid = [json.loads(x[6:]) for x in lines if x.startswith("data: ")][-1]["plan_id"]
+    r = client.post(f"/plan/{pid}/revise", json={"intent": "lighter_day"})
+    assert r.status_code == 422 and r.json() == {"detail": "Say which day to make lighter."}
+    r = client.post(f"/plan/{pid}/revise", json={"intent": "add_stop", "count": 9})
+    assert r.status_code == 422 and r.json()["detail"].startswith("Please check count: ")
+    bad = {"origin": "Bengaluru", "destinations": ["Goa"], "start_date": "2026-12-14", "end_date": "2026-12-11"}
+    assert client.post("/plan", json=bad).json() == {"detail": "The trip's last day must not be before its first day."}
+    assert client.post("/plan", json={"text": ""}).json()["detail"].startswith("Please check text: ")
+    assert "Value error" not in json.dumps([client.post(f"/plan/{pid}/revise", json={"intent": i}).json()
+                                            for i in ("swap_stop", "transport", "booked", "rest_of_day")])
+    # Other lanes' routes keep FastAPI's own 422 list.
+    assert isinstance(client.post("/routes/compare", json={}).json()["detail"], list)

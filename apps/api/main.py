@@ -8,8 +8,11 @@ from contextlib import asynccontextmanager
 from importlib import import_module
 from types import ModuleType
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from core import router as core_router
 
@@ -64,6 +67,36 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(core_router)
+
+
+def plain(errors: list[dict], body: object = None) -> str:
+    """One plain sentence for a 422 (never pydantic's "Value error, …"): our validators' own sentence, else
+    the field and what is wrong with it. /plan takes a form or free text; only the matching one's errors count."""
+    kind = "PlanText" if isinstance(body, dict) and "text" in body else "TripRequest"
+    def branch(e: dict) -> str:
+        loc = e.get("loc", ())
+        part = str(loc[1]) if len(loc) > 1 else ""
+        return next((k for k in ("PlanText", "TripRequest") if k in part), "")
+
+    errs = [e for e in errors if branch(e) in ("", kind)] or errors
+    e = errs[0]
+    start = 2 if branch(e) else 1
+    msg = str(e.get("msg", "Something in the request is not right"))
+    if msg.startswith(("Value error, ", "Assertion failed, ")):
+        msg = msg.split(", ", 1)[1]
+        return msg if msg.endswith(".") else msg[0].upper() + msg[1:] + "."
+    field = " ".join(str(x).replace("_", " ") for x in e.get("loc", ())[start:] if not isinstance(x, int))
+    return f"Please check {field}: {msg[0].lower() + msg[1:]}." if field else msg[0].upper() + msg[1:] + "."
+
+
+@app.exception_handler(RequestValidationError)
+async def plain_422(request: Request, exc: RequestValidationError):
+    """/plan and its revise, read and delete answer a bad request with a plain sentence the web and chat can
+    show as it is; other lanes' routes keep FastAPI's list."""
+    if not request.url.path.startswith("/plan"):
+        return await request_validation_exception_handler(request, exc)
+    return JSONResponse({"detail": plain(list(exc.errors()), exc.body)}, status_code=422)
+
 
 for name in LANES:
     try:

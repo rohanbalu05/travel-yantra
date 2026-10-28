@@ -28,6 +28,7 @@ from .checker import budget
 from .repair import check_and_repair
 from .solver import (
     _KEEP,
+    FOOD,
     Limits,
     Travel,
     city_of,
@@ -270,7 +271,44 @@ def place_on(it: Itinerary, place: Place, city: str, day: date | None, travel: T
     return f"{verb} {place.name} to {target.date:%a %d %b}" + (f" ({'; '.join(moved)})" if moved else "")
 
 
+def _and(names: list[str]) -> str:
+    return names[0] if len(names) == 1 else f"{', '.join(names[:-1])} and {names[-1]}"
+
+
+def more_places(it: Itinerary, d: date | None, count: int, travel: Travel, lim: Limits) -> str:
+    """"Some more places on Wednesday": the best places this plan does not use, near that day's area, that
+    fit its time (at most one food stop a day). Without a day, the day with the most room."""
+    days = [_day(it, d)] if d else sorted(it.days, key=lambda x: (len(x.stops), x.date))
+    for day in days:
+        city = city_of(it.request, day.date) or it.request.destinations[0]
+        rank = ranks(it, city)
+        have_food = any(p.category == FOOD for p in day.stops)
+        pool = sorted(candidates(it, city), key=lambda p: (rank.get(p.id, LOW), p.id))
+        # The traveller asked for more: the pace's cap may go up by what they asked for.
+        roomy = replace(lim, max_stops=max(lim.max_stops, len(day.stops) + count))
+        added: list[Place] = []
+        for p in pool:
+            if len(added) == count:
+                break
+            if p.category == FOOD and (have_food or any(a.category == FOOD for a in added)):
+                continue
+            stops = [*day.stops, *added, p]
+            if in_area([*day.stops, *added], p, travel) and fits(day.date, stops, travel, roomy, hop_of(day), out_of(day)):
+                added.append(p)
+        if added:
+            rebuild_day(it, day.date, [*day.stops, *added], travel, roomy)
+            return f"Added {_and([p.name for p in added])} to {day.date:%a %d %b}"
+    if d:
+        room = next((x for x in sorted(it.days, key=lambda x: len(x.stops)) if x.date != d
+                     and len(x.stops) < lim.max_stops), None)
+        hint = f"; {room.date:%a %d %b} has room" if room else ""
+        raise ReviseError(f"No more places fit {d:%a %d %b}{hint}")
+    raise ReviseError("No more places fit this trip's days")
+
+
 def add_stop(it: Itinerary, req: ReviseRequest, travel: Travel, lim: Limits) -> str:
+    if not req.place and not req.place_id:
+        return more_places(it, req.day, req.count or 2, travel, lim)
     place, city = find_place(it, req.place, req.place_id)
     if (day := _where(it, place.id)) is not None or any(_name(p) == _name(place) for d in it.days for p in d.stops):
         on = day or next(d for d in it.days if any(_name(p) == _name(place) for p in d.stops))
@@ -581,6 +619,7 @@ def revise(it: Itinerary, req: ReviseRequest, travel: Travel | None = None,
     from .steps import retime_home
 
     retime_home(it)  # new journeys or stops on the last day: the real train home before checking
+    it.budget = budget(it)  # the change moved journeys, stays or stops: price it before checking
     it, rounds = check_and_repair(it, travel, fix_budget=False)
     retime_home(it)  # repairs may have shortened the last day
     it = finish(it, travel)  # anything the re-timing broke (the budget) becomes a warning

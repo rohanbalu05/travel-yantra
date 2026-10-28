@@ -75,13 +75,13 @@ class TripRequest(_Model):
     @model_validator(mode="after")
     def _dates_in_order(self) -> TripRequest:
         if self.end_date < self.start_date:
-            raise ValueError("end_date must not be before start_date")
+            raise ValueError("The trip's last day must not be before its first day.")
         if self.days_per_destination is not None:
             days = (self.end_date - self.start_date).days + 1
             if len(self.days_per_destination) != len(self.destinations) or sum(self.days_per_destination) != days:
-                raise ValueError("days_per_destination needs one count per destination, adding up to the trip's days")
+                raise ValueError("Give one number of days per destination, adding up to the trip's days.")
             if any(n < 0 for n in self.days_per_destination):
-                raise ValueError("days_per_destination counts must not be negative")
+                raise ValueError("The days per destination must not be negative.")
         return self
 
 
@@ -378,6 +378,8 @@ class ViolationCode(StrEnum):
     long_day = "long_day"
     too_much_travel = "too_much_travel"
     no_rest = "no_rest"
+    # The budget's parts do not add up to its total, or are out of date with the plan.
+    budget_mismatch = "budget_mismatch"
 
 
 class Violation(_Model):
@@ -465,7 +467,7 @@ class BookedJourney(_Model):
     @model_validator(mode="after")
     def _times_in_order(self) -> BookedJourney:
         if self.arrive < self.depart:
-            raise ValueError("arrive must not be before depart")
+            raise ValueError("The arrival must not be before the departure.")
         return self
 
 
@@ -476,7 +478,8 @@ class ReviseRequest(_Model):
     lighter_day: day. swap_stop: place_id. rain: optional day (all days when missing). move_day: city (that
     destination gains a day from a neighbour). transport: mode (every journey switches, stops are kept).
     add_stop: place (a name; a corpus place id works too) or place_id, optional day (else the best-fitting
-    day). remove_stop: place_id. move_stop: place_id and day. change_stay: stay_id, or stay_pick "cheaper" or
+    day); with neither place nor place_id ("more places on Wednesday"), the best `count` places (1-3, default 2)
+    near that day's area that fit it. remove_stop: place_id. move_stop: place_id and day. change_stay: stay_id, or stay_pick "cheaper" or
     "better_rated", optional city. budget_style: style. booked: booked (the plan is re-timed around it).
     rest_of_day: now, optional lat and lng (today's remaining stops are re-planned from there; the stay
     and the journey home are kept)."""
@@ -492,6 +495,8 @@ class ReviseRequest(_Model):
     stay_pick: Literal["cheaper", "better_rated"] | None = None
     style: BudgetStyle | None = None
     booked: BookedJourney | None = None
+    # add_stop without a place: how many places to add (1-3; None is 2).
+    count: int | None = Field(default=None, ge=1, le=3)
     # rest_of_day: the traveller's local time and position.
     now: datetime | None = None
     lat: float | None = Field(default=None, ge=-90, le=90)
@@ -501,17 +506,18 @@ class ReviseRequest(_Model):
     def _needs(self) -> ReviseRequest:
         i = ReviseIntent
         need = {
-            i.lighter_day: (self.day is not None, "lighter_day needs day"),
-            i.swap_stop: (bool(self.place_id), "swap_stop needs place_id"),
-            i.move_day: (bool(self.city), "move_day needs city"),
-            i.transport: (self.mode is not None, "transport needs mode"),
-            i.add_stop: (bool(self.place or self.place_id), "add_stop needs place or place_id"),
-            i.remove_stop: (bool(self.place_id), "remove_stop needs place_id"),
-            i.move_stop: (bool(self.place_id) and self.day is not None, "move_stop needs place_id and day"),
-            i.change_stay: (bool(self.stay_id or self.stay_pick), "change_stay needs stay_id or stay_pick"),
-            i.budget_style: (self.style is not None, "budget_style needs style"),
-            i.booked: (self.booked is not None, "booked needs booked"),
-            i.rest_of_day: (self.now is not None, "rest_of_day needs now"),
+            i.lighter_day: (self.day is not None, "Say which day to make lighter."),
+            i.swap_stop: (bool(self.place_id), "Say which stop to swap."),
+            i.move_day: (bool(self.city), "Say which city should get another day."),
+            i.transport: (self.mode is not None, "Say how you want to travel: road, rail or air."),
+            i.remove_stop: (bool(self.place_id), "Say which stop to remove."),
+            i.move_stop: (bool(self.place_id) and self.day is not None, "Say which stop to move, and to which day."),
+            i.change_stay: (bool(self.stay_id or self.stay_pick),
+                            "Say which stay you want, or ask for a cheaper or better-rated one."),
+            i.budget_style: (self.style is not None, "Say the budget style: shoestring, comfort or luxury."),
+            i.booked: (self.booked is not None,
+                       "Give the train or flight you booked: its number, from, to, departure and arrival."),
+            i.rest_of_day: (self.now is not None, "Send the time now to re-plan the rest of today."),
         }
         ok, message = need.get(self.intent, (True, ""))
         if not ok:

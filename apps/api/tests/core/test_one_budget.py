@@ -125,3 +125,41 @@ def test_estimated_stays_are_said_to_be_estimates():
                price_per_night_inr=3000, sample=True, id="goa:estimate-mid")
     assert _estimated_stays([est]) == ["Stay prices in Goa are estimates; search on the sellers for real ones"]
     assert _estimated_stays([est.model_copy(update={"sample": False})]) == []
+
+
+def test_a_total_that_does_not_add_up_is_flagged_repaired_and_never_served(memory_trips):
+    # D-55: WhatsApp showed "Budget ₹3,929 total" for trains ₹1,388 + ₹945 and a ₹1,906 stay.
+    from core.checker import adds_up, check, parts_sum, settled
+    from core.repair import check_and_repair
+
+    done = frames(client.post("/plan", json=MYSURU.model_dump(mode="json")))[-1]
+    it = Itinerary.model_validate(done["partial"])
+    assert adds_up(it) and it.budget.total_inr == parts_sum(it.budget)
+    wrong = it.model_copy(update={"budget": it.budget.model_copy(update={"total_inr": 3929})})
+    assert [v.code for v in check(wrong)][:1] == ["budget_mismatch"]
+    assert adds_up(check_and_repair(wrong)[0]) and adds_up(settled(wrong))
+    # A stored plan with a stale total is served (share link, owner reopen, revise) with one that adds up.
+    trip = memory_trips.get(done["plan_id"])
+    memory_trips._trips[trip.id] = type(trip)(trip.id, trip.share_token, wrong, trip.owner)
+    for served in (client.get(f"/trips/{trip.share_token}").json(), client.get(f"/plan/{trip.id}").json()["itinerary"]):
+        assert adds_up(Itinerary.model_validate(served))
+
+
+def test_every_change_keeps_the_total_equal_to_its_parts():
+    from core.checker import adds_up
+    from core.revise import revise
+    from ty_contracts import ReviseRequest
+
+    it = steps.replan(MYSURU.model_copy(update={"transport_mode": Mode.rail}))
+    day, stop = it.days[0], it.days[0].stops[0]
+    for body in ({"intent": "rain"}, {"intent": "lighter_day", "day": day.date}, {"intent": "transport", "mode": "road"},
+                 {"intent": "swap_stop", "place_id": stop.id}, {"intent": "remove_stop", "place_id": stop.id},
+                 {"intent": "add_stop", "day": it.days[-1].date}, {"intent": "budget_style", "style": "luxury"},
+                 {"intent": "change_stay", "stay_pick": "cheaper"},
+                 {"intent": "rest_of_day", "now": f"{day.date}T12:00:00"}):
+        try:
+            out, _, _ = revise(it, ReviseRequest(**body))
+        except Exception as e:  # a change that does not fit this plan is a 422, not a wrong total
+            assert type(e).__name__ == "ReviseError", body
+            continue
+        assert adds_up(out), body

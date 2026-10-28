@@ -240,6 +240,7 @@ export interface ReviseRequest {
   stay_pick?: "cheaper" | "better_rated" | null;
   style?: BudgetStyle | null;
   booked?: BookedJourney | null;
+  count?: number | null;
   now?: string | null;
   lat?: number | null;
   lng?: number | null;
@@ -362,5 +363,5 @@ export interface Violation {
   place_id?: string | null;
 }
 
-export type ViolationCode = "over_budget" | "closed" | "long_day" | "too_much_travel" | "no_rest";
+export type ViolationCode = "over_budget" | "closed" | "long_day" | "too_much_travel" | "no_rest" | "budget_mismatch";
 

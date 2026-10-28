@@ -80,6 +80,26 @@ def budget(itinerary: Itinerary) -> BudgetSummary:
                          within_budget=None if cap is None else total <= cap)
 
 
+def parts_sum(b: BudgetSummary) -> int:
+    return b.transport_inr + b.local_transport_inr + b.stay_inr + b.activities_inr + b.food_inr
+
+
+def adds_up(itinerary: Itinerary) -> bool:
+    """The plan's budget is the one budget(it) gives, and its total is the sum of its parts (D-55)."""
+    b = itinerary.budget
+    return b.total_inr == parts_sum(b) and b == budget(itinerary)
+
+
+def settled(itinerary: Itinerary, log=None) -> Itinerary:
+    """The itinerary with a budget that adds up, recomputed (and logged, without ids) when it did not.
+    Every save and every read goes through it, so no screen ever shows a total that does not add up."""
+    if not adds_up(itinerary):
+        if log is not None:
+            log.warning("budget did not add up; recomputed")
+        itinerary = itinerary.model_copy(update={"budget": budget(itinerary)})
+    return itinerary
+
+
 def check(itinerary: Itinerary, travel: Travel | None = None) -> list[Violation]:
     travel = travel or Travel()
     req = itinerary.request
@@ -87,6 +107,10 @@ def check(itinerary: Itinerary, travel: Travel | None = None) -> list[Violation]
     out: list[Violation] = []
 
     b = budget(itinerary)
+    if not adds_up(itinerary):
+        out.append(Violation(code=ViolationCode.budget_mismatch,
+                             message=f"The budget shows ₹{itinerary.budget.total_inr:,}, but its parts add up to "
+                                     f"₹{b.total_inr:,}"))
     if b.within_budget is False:
         out.append(Violation(code=ViolationCode.over_budget,
                              message=f"Total ₹{b.total_inr:,} is over the ₹{req.constraints.budget_inr:,} budget"))

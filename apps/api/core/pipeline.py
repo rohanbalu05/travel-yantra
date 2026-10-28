@@ -26,6 +26,7 @@ from ty_contracts import (
 
 from . import llm, steps
 from .accounts import keeps_history
+from .checker import settled
 from .repair import MAX_ROUNDS
 from .trips import TripChanged, get_store
 
@@ -121,7 +122,7 @@ async def run_plan(body: TripRequest | PlanText, client: str | None = None) -> A
                 yield _event(event.author, message, state, delta)
         finally:
             await events.aclose()
-        final = Itinerary.model_validate(state["itinerary"])
+        final = settled(Itinerary.model_validate(state["itinerary"]), log)
         # Linked to the caller's id only if it opted in to plan history (checked here, not before the first event).
         owner = client if client and await asyncio.to_thread(keeps_history, client) else None
         trip = await asyncio.to_thread(lambda: get_store().save(final, owner=owner))
@@ -137,6 +138,7 @@ def revise_events(trip_id: str, revised: Itinerary, what: str, rounds: int, owne
                   version: int | None = None) -> list[PlanEvent]:
     """The revise stream (card #20): what changed, the check result, then done with the trip's ids (the
     same trip, a new version; `owner` claims it when it had none)."""
+    revised = settled(revised, log)
     try:
         trip = get_store().update(trip_id, revised, owner=owner, version=version)
     except TripChanged:

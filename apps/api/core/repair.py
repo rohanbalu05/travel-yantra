@@ -32,7 +32,9 @@ def repair(itinerary: Itinerary, violations: list[Violation], travel: Travel | N
     lim = limits(it.request)
     actions: list[str] = []
     for v in violations:
-        if v.code is ViolationCode.over_budget:
+        if v.code is ViolationCode.budget_mismatch:
+            actions.append("Recomputed the budget from its parts")  # it.budget = budget(it) below
+        elif v.code is ViolationCode.over_budget:
             actions += _cheaper(it, travel, lim) if fix_budget else []
         elif v.code is ViolationCode.closed and v.place_id:
             actions += _move_or_drop(it, v.day, v.place_id, travel, lim, v.message)

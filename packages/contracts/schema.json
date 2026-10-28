@@ -1387,7 +1387,7 @@
     },
     "ReviseRequest": {
       "additionalProperties": false,
-      "description": "Body of POST /plan/{plan_id}/revise. The response streams PlanEvents like /plan; done keeps the\ntrip's plan_id and share_token (one trip, a new version).\n\nlighter_day: day. swap_stop: place_id. rain: optional day (all days when missing). move_day: city (that\ndestination gains a day from a neighbour). transport: mode (every journey switches, stops are kept).\nadd_stop: place (a name; a corpus place id works too) or place_id, optional day (else the best-fitting\nday). remove_stop: place_id. move_stop: place_id and day. change_stay: stay_id, or stay_pick \"cheaper\" or\n\"better_rated\", optional city. budget_style: style. booked: booked (the plan is re-timed around it).\nrest_of_day: now, optional lat and lng (today's remaining stops are re-planned from there; the stay\nand the journey home are kept).",
+      "description": "Body of POST /plan/{plan_id}/revise. The response streams PlanEvents like /plan; done keeps the\ntrip's plan_id and share_token (one trip, a new version).\n\nlighter_day: day. swap_stop: place_id. rain: optional day (all days when missing). move_day: city (that\ndestination gains a day from a neighbour). transport: mode (every journey switches, stops are kept).\nadd_stop: place (a name; a corpus place id works too) or place_id, optional day (else the best-fitting\nday); with neither place nor place_id (\"more places on Wednesday\"), the best `count` places (1-3, default 2)\nnear that day's area that fit it. remove_stop: place_id. move_stop: place_id and day. change_stay: stay_id, or stay_pick \"cheaper\" or\n\"better_rated\", optional city. budget_style: style. booked: booked (the plan is re-timed around it).\nrest_of_day: now, optional lat and lng (today's remaining stops are re-planned from there; the stay\nand the journey home are kept).",
       "properties": {
         "intent": {
           "$ref": "#/$defs/ReviseIntent"
@@ -1513,6 +1513,20 @@
             }
           ],
           "default": null
+        },
+        "count": {
+          "anyOf": [
+            {
+              "maximum": 3,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Count"
         },
         "now": {
           "anyOf": [
@@ -2297,7 +2311,8 @@
         "closed",
         "long_day",
         "too_much_travel",
-        "no_rest"
+        "no_rest",
+        "budget_mismatch"
       ],
       "title": "ViolationCode",
       "type": "string"

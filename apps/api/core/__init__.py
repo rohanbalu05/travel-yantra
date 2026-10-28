@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -16,10 +17,12 @@ from ty_contracts import (
 
 from .accounts import client_id, get_accounts, keeps_history
 from .accounts import router as accounts_router
+from .checker import settled
 from .pipeline import revise_events, run_plan
 from .revise import ReviseError, revise
 from .trips import get_store
 
+log = logging.getLogger("core.pipeline")
 router = APIRouter()
 router.include_router(accounts_router)
 # Seconds between SSE comment keepalives while a step is still running (Cloud Run drops idle streams).
@@ -81,7 +84,7 @@ def get_plan(plan_id: str, client: str | None = Depends(client_id)) -> SavedPlan
     """The latest version of a trip, to reopen it editable. Same rules as revise: 404, or 403 for a trip
     that belongs to another account or browser."""
     trip = _own(plan_id, client)
-    return SavedPlan(plan_id=trip.id, share_token=trip.share_token, itinerary=trip.itinerary,
+    return SavedPlan(plan_id=trip.id, share_token=trip.share_token, itinerary=settled(trip.itinerary, log),
                      version=trip.version, updated_at=trip.changed_at)
 
 
@@ -92,7 +95,7 @@ async def revise_plan(plan_id: str, body: ReviseRequest, client: str | None = De
     # Store calls (Postgres) and the solver are blocking; keep them off the event loop.
     trip = await asyncio.to_thread(_own, plan_id, client)
     try:
-        revised, what, rounds = await asyncio.to_thread(revise, trip.itinerary, body)
+        revised, what, rounds = await asyncio.to_thread(revise, settled(trip.itinerary, log), body)
     except ReviseError as exc:
         raise HTTPException(422, str(exc)) from exc
 
@@ -121,4 +124,4 @@ def shared_trip(share_token: str) -> Itinerary:
     trip = get_store().by_share_token(share_token)
     if trip is None:
         raise HTTPException(404, "trip not found")
-    return trip.itinerary
+    return settled(trip.itinerary, log)

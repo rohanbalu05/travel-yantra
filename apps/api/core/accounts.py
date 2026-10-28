@@ -311,7 +311,9 @@ def plan_mode(it: Itinerary) -> Mode | None:
 
 
 def _summary(t: Trip) -> TripSummary:
-    it = t.itinerary
+    from .checker import settled
+
+    it = settled(t.itinerary)
     r = it.request
     span = f"{r.start_date:%d %b}" if r.start_date == r.end_date else f"{r.start_date:%d %b} – {r.end_date:%d %b}"
     return TripSummary(plan_id=t.id, share_token=t.share_token, title=f"{', '.join(r.destinations)}, {span}",
