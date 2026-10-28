@@ -134,7 +134,8 @@ function Travel({ it, planId }: { it: Itinerary; planId: string | null }) {
                   {t(CHOOSE[o.mode])}
                 </button>
               )}
-              {planId && booking !== i && (
+              {/* A car journey has no number to book; trains and flights do. */}
+              {planId && o.mode !== "road" && booking !== i && (
                 <button type="button" className="btn btn-quiet btn-sm" disabled={!!busy} onClick={() => setBooking(i)}>{t("I've booked this")}</button>
               )}
               {planId && booking === i && <BookedForm o={o} busy={!!busy} onSend={(b) => void booked(b)} onCancel={() => setBooking(null)} />}
