@@ -36,6 +36,12 @@ def test_outside_regions(said, far):
     assert rules.outside_regions(rules.destinations(said, strict=True), said) == far
 
 
+def test_same_place_edges():
+    assert rules.same_place("Goa", ["North Goa"]) and rules.same_place("Mysore", ["Mysuru"])
+    assert not rules.same_place("Goa", ["१२"]) and not rules.same_place("12", ["Goa"])
+    assert rules.same_place("मैसूर", ["मैसूर पैलेस"]) and not rules.same_place("मैसूर", ["मसूरी"])
+
+
 async def test_trip_outside_the_regions_is_not_planned(engine, api):
     events = await send(engine, "Plan Bengaluru to Manali, 11-14 Dec, 4 of us")
     assert texts(events) == [outside(["Manali"])] and not api.bodies("/plan")

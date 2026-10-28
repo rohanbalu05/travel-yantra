@@ -168,7 +168,9 @@ def is_full_trip(text: str) -> bool:
 def same_place(a: str, names: list[str]) -> bool:
     """"Goa" matches "North Goa"; "Mysore" matches "Mysuru" (old and new spellings)."""
     a = _norm(a)
-    return any(a in _norm(n) or _norm(n) in a for n in names if n)
+    if not a:
+        return False
+    return any(b and (a in b or b in a) for b in (_norm(n) for n in names))
 
 
 SPELLINGS = {
@@ -189,7 +191,9 @@ SPELLINGS = {
 
 def _norm(name: str) -> str:
     """Lower case, each old spelling replaced word by word ("Mysore Palace" -> "mysuru palace")."""
-    return " ".join(SPELLINGS.get(w, w) for w in re.findall(r"[^\W\d_]+", name.casefold()))
+    # Split on spaces, digits and punctuation only: Indic vowel signs are not \w and must stay.
+    words = re.findall(r"[^\s\d.,;:!?'\"()/&+_\-–—।]+", name.casefold())
+    return " ".join(SPELLINGS.get(w, w) for w in words)
 
 
 # Keyword edits once a plan exists. Keywords stay English in the hints so users can copy them.
