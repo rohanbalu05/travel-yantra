@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from core import fakes
 from core.checker import budget, check
-from core.revise import INDOOR, ReviseError, revise
+from core.revise import ReviseError, indoor, revise
 from core.solver import solve
 from main import app
 from ty_contracts import Itinerary, ReviseRequest
@@ -49,17 +49,17 @@ def test_swap_stop_replaces_it_with_a_place_not_already_planned():
 
 def test_rain_moves_every_stop_indoors_and_passes_the_checker():
     it = goa_plan()
-    assert any(p.category not in INDOOR for d in it.days for p in d.stops)  # Miramar beach, Fontainhas walk
+    assert any(not indoor(p) for d in it.days for p in d.stops)  # Miramar beach, Fontainhas walk
     out, what, _ = revise(it, ReviseRequest(intent="rain"))
-    assert all(p.category in INDOOR for d in out.days for p in d.stops)
+    assert all(indoor(p) for d in out.days for p in d.stops)
     assert what.startswith("Rain plan:") and check(out) == []
 
 
 def test_rain_on_one_day_leaves_the_other_days_alone():
     it = goa_plan()
-    wet = next(d for d in it.days if any(p.category not in INDOOR for p in d.stops))
+    wet = next(d for d in it.days if any(not indoor(p) for p in d.stops))
     out, _, _ = revise(it, ReviseRequest(intent="rain", day=wet.date))
-    assert all(p.category in INDOOR for p in next(d for d in out.days if d.date == wet.date).stops)
+    assert all(indoor(p) for p in next(d for d in out.days if d.date == wet.date).stops)
     for d_old, d_new in zip(it.days, out.days):
         if d_old.date != wet.date:
             assert ids(it, d_old.date) == ids(out, d_new.date)
@@ -91,7 +91,7 @@ def test_revise_endpoint_streams_and_keeps_one_trip():
     # P9: one trip identity across revisions; the share link follows the latest version.
     assert (events[-1]["plan_id"], events[-1]["share_token"]) == (done["plan_id"], done["share_token"])
     revised = Itinerary.model_validate(events[-1]["partial"])
-    assert all(p.category in INDOOR for d in revised.days for p in d.stops)
+    assert all(indoor(p) for d in revised.days for p in d.stops)
     assert Itinerary.model_validate(client.get(f"/trips/{done['share_token']}").json()) == revised
     saved = client.get(f"/plan/{done['plan_id']}").json()
     assert saved["version"] == 2 and Itinerary.model_validate(saved["itinerary"]) == revised
@@ -137,3 +137,67 @@ def test_an_intent_without_a_handler_is_a_422_never_a_silent_rain_plan():
     assert r.status_code == 422 and "not available yet" in r.json()["detail"]
     with pytest.raises(ReviseError):
         revise(goa_plan(), ReviseRequest(intent="budget_style", style="luxury"))
+
+
+MYSURU_REAL = {"origin": "Bengaluru", "destinations": ["Mysuru"], "start_date": "2026-10-31", "end_date": "2026-11-01",
+               "constraints": {"travellers": [{"name": "Arjun", "age": 40}, {"name": "Meera", "age": 38}]}}
+
+
+def corpus_plan():
+    from core import steps
+
+    return steps.replan(steps.TripRequest.model_validate(MYSURU_REAL))
+
+
+def test_lighter_never_drops_the_days_top_sight():
+    # Rohan's live test: "Make Sat lighter" dropped Mysore Palace.
+    from core.revise import ranks
+
+    it = corpus_plan()
+    day = max(it.days, key=lambda d: len(d.stops))
+    rank = ranks(it, "Mysuru")
+    top = min(day.stops, key=lambda p: rank.get(p.id, 10_000))
+    out, what, _ = revise(it, ReviseRequest(intent="lighter_day", day=day.date))
+    assert top.id in ids(out, day.date) and len(ids(out, day.date)) < len(day.stops)
+    assert top.name not in what
+
+
+def test_swap_never_picks_the_same_site():
+    # Chamundeshwari Temple was swapped for Chamundi Hill (the hill it stands on).
+    from core.revise import same_site
+
+    it = corpus_plan()
+    for day in it.days:
+        for old in day.stops:
+            out, what, _ = revise(it, ReviseRequest(intent="swap_stop", place_id=old.id))
+            new = [p for p in next(d for d in out.days if d.date == day.date).stops if p.id not in ids(it)]
+            assert all(not same_site(p, old) for p in new), what
+
+
+def test_same_site_by_distance_or_name():
+    from core.revise import same_site
+    from ty_contracts import Place
+
+    def at(name, lat, lng):
+        return Place(id=name, name=name, lat=lat, lng=lng, category="x", typical_visit_minutes=30, source="test")
+
+    temple = at("Chamundeshwari Temple", 12.2724, 76.6702)
+    assert same_site(temple, at("Chamundi Hills viewpoint", 12.30, 76.70))  # a shared name, 4 km away
+    assert same_site(temple, at("Nandi", 12.2760, 76.6720))  # 450 m
+    assert not same_site(temple, at("Mysore Palace", 12.3052, 76.6552))
+
+
+def test_rain_uses_indoor_places_never_food_and_never_the_same_place_again():
+    from core.revise import indoor
+
+    it = corpus_plan()
+    out, what, _ = revise(it, ReviseRequest(intent="rain"))
+    stops = [p for d in out.days for p in d.stops]
+    assert stops and all(indoor(p) and p.category != "food" for p in stops)
+    assert len({p.name for p in stops}) == len(stops)
+    for change in what.removeprefix("Rain plan: ").split("; "):
+        if " → " in change:
+            a, b = change.split(" → ")
+            assert a != b, what
+    goa, gwhat, _ = revise(goa_plan(), ReviseRequest(intent="rain"))
+    assert "Basilica of Bom Jesus → Basilica of Bom Jesus" not in gwhat

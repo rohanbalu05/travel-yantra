@@ -5,6 +5,8 @@ Deterministic edits, then the same check-and-repair loop as /plan. No model call
 
 from __future__ import annotations
 
+import math
+import re
 from datetime import date
 
 from ty_contracts import Itinerary, Mode, Place, ReviseIntent, ReviseRequest
@@ -26,8 +28,56 @@ from .solver import (
     split_days,
 )
 
-# Categories that keep you dry. Everything else (beach, viewpoint, neighbourhood walks, forts) is outdoor.
-INDOOR = {"museum", "gallery", "heritage", "temple", "church", "market", "palace", "aquarium", "mall", "food"}
+# Categories that keep you dry, for places outside TY2's corpus (samples); corpus places use TY2's
+# guide.planner.is_indoor (palace interiors yes, Hampi's open temples no). Food stops, markets, beaches,
+# viewpoints, forts and walks are not a rain plan.
+INDOOR = {"museum", "gallery", "heritage", "temple", "church", "palace", "aquarium"}
+# A swap never lands on the same site: within this distance, or sharing a distinctive name
+# (Chamundeshwari Temple and Chamundi Hills).
+SAME_SITE_KM = 1.0
+GENERIC_WORDS = {"temple", "palace", "museum", "church", "beach", "market", "garden", "gardens", "statue", "hills",
+                 "falls", "lake", "fort", "cathedral", "basilica", "gallery", "viewpoint", "national", "sunset",
+                 "street", "quarter", "latin", "india", "state", "sweet", "zoological"}
+LOW = 10_000  # rank of a place the planner does not list
+
+
+def indoor(p: Place) -> bool:
+    from guide.planner import SOURCE, is_indoor
+
+    return is_indoor(p) if p.source == SOURCE else p.category in INDOOR
+
+
+def _km(a: Place, b: Place) -> float:
+    dlat, dlng = math.radians(b.lat - a.lat), math.radians(b.lng - a.lng)
+    h = math.sin(dlat / 2) ** 2 + math.cos(math.radians(a.lat)) * math.cos(math.radians(b.lat)) * math.sin(dlng / 2) ** 2
+    return 6371 * 2 * math.asin(math.sqrt(h))
+
+
+def _stems(name: str) -> set[str]:
+    return {w[:6] for w in re.findall(r"[a-z]+", name.lower()) if len(w) >= 5 and w not in GENERIC_WORDS}
+
+
+def same_site(a: Place, b: Place) -> bool:
+    return _km(a, b) < SAME_SITE_KM or bool(_stems(a.name) & _stems(b.name))
+
+
+def _name(p: Place) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", p.name.lower()).strip()
+
+
+def ranks(it: Itinerary, city: str) -> dict[str, int]:
+    """The planner's order for a city (0 is its top sight); samples after it in tests."""
+    from guide.planner import places_for
+
+    from .steps import samples_allowed
+
+    order = places_for(city)
+    if samples_allowed():
+        order += fakes.places(it.request.model_copy(update={"destinations": [city]}))
+    out: dict[str, int] = {}
+    for i, p in enumerate(order):
+        out.setdefault(p.id, i)
+    return out
 
 
 class ReviseError(ValueError):
@@ -50,7 +100,9 @@ def candidates(it: Itinerary, city: str | None = None) -> list[Place]:
         pool += live_hours(places_for(c, exclude=frozenset(used)))
         if samples_allowed():
             pool += [*fakes.places(one), *fakes.alternatives(one)]
-    return [p for p in {p.id: p for p in pool}.values() if p.id not in used]
+    # Never the same place again under another id (a sample and a corpus copy of one basilica).
+    names = {_name(p) for d in it.days for p in d.stops}
+    return [p for p in {p.id: p for p in pool}.values() if p.id not in used and _name(p) not in names]
 
 
 
@@ -66,8 +118,14 @@ def lighter_day(it: Itinerary, d: date, travel: Travel, lim: Limits) -> str:
     day = _day(it, d)
     if not day.stops:
         return f"{d:%a %d %b} is already free"
-    # Take out the longest visit; move it to the lightest day that can take it, else drop it.
-    out = max(day.stops, key=lambda p: (p.typical_visit_minutes, p.id))
+    rank = ranks(it, city_of(it.request, d) or it.request.destinations[0])
+    if len(day.stops) == 1:
+        return f"{d:%a %d %b} has only {day.stops[0].name} left; nothing taken out"
+    # Take out the lowest-priority stop (never the day's top sight); move it to the lightest day that can
+    # take it, else drop it.
+    top = min(day.stops, key=lambda p: (rank.get(p.id, LOW), p.id))
+    out = max((p for p in day.stops if p.id != top.id),
+              key=lambda p: (rank.get(p.id, LOW), p.typical_visit_minutes, p.id))
     rebuild_day(it, d, [p for p in day.stops if p.id != out.id], travel, lim)
     for other in sorted(it.days, key=lambda x: (len(x.stops), x.date)):
         same_city = city_of(it.request, other.date) == city_of(it.request, d)
@@ -84,8 +142,9 @@ def swap_stop(it: Itinerary, place_id: str, travel: Travel, lim: Limits) -> str:
         raise ReviseError(f"{place_id} is not in this plan")
     old = next(p for p in day.stops if p.id == place_id)
     keep = [p for p in day.stops if p.id != place_id]
-    near = sorted(candidates(it, city_of(it.request, day.date)),
-                  key=lambda p: (p.category != old.category, travel.minutes(old, p), p.id))
+    # Not the same site again (within ~1 km, or Chamundeshwari Temple for Chamundi Hills), nor a stop's twin.
+    pool = [p for p in candidates(it, city_of(it.request, day.date)) if not any(same_site(p, q) for q in [old, *keep])]
+    near = sorted(pool, key=lambda p: (p.category != old.category, travel.minutes(old, p), p.id))
     new = next((p for p in near if fits(day.date, [*keep, p], travel, lim, hop_of(day), out_of(day))), None)
     rebuild_day(it, day.date, [*keep, new] if new else keep, travel, lim)
     if new is None:
@@ -98,9 +157,9 @@ def rain(it: Itinerary, d: date | None, travel: Travel, lim: Limits) -> str:
     days = [_day(it, d)] if d else list(it.days)
     changes = []
     for day in days:
-        spare = [p for p in candidates(it, city_of(it.request, day.date)) if p.category in INDOOR]
-        keep = [p for p in day.stops if p.category in INDOOR]
-        for old in (p for p in day.stops if p.category not in INDOOR):
+        spare = [p for p in candidates(it, city_of(it.request, day.date)) if indoor(p)]
+        keep = [p for p in day.stops if indoor(p)]
+        for old in (p for p in day.stops if not indoor(p)):
             pick = min(spare, key=lambda p: (travel.minutes(old, p), p.id), default=None)
             if pick and fits(day.date, [*keep, pick], travel, lim, hop_of(day), out_of(day)):
                 spare.remove(pick)
