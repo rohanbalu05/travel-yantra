@@ -104,7 +104,7 @@ def test_postgres_accounts_and_owned_trips():
     a = store.save(goa, owner=uid)
     b = store.save(goa, owner=uid, revised_from=a.id)
     stranger = store.save(goa, revised_from=a.id)  # someone else's revision of my trip
-    assert [t.id for t in store.by_owner(uid)] == [b.id, a.id]
+    assert [t.id for t in store.by_owner(uid)] == [b.id]  # one row per trip: the newest of the chain
     acc.add_rating(Rating(uid, a.id, 5, None, "en"))
     assert store.delete_owner(uid) + acc.delete(uid) == 4
     assert store.by_owner(uid) == [] and store.get(stranger.id).revised_from is None
