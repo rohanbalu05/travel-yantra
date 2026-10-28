@@ -169,7 +169,7 @@ def _station_for(value: str, train: str | None, data_dir: Path | None, board: bo
     except UnknownPlace as exc:
         raise NotFound(f"unknown station or city {value!r}") from exc
     stations, trains = _rail(data_dir)
-    t = next((t for t in trains if t["number"] == train), None)
+    t = next((t for t in sorted(trains, key=lambda t: t["number"] != train) if _is_train(t, train)), None)
     served = dict(get_timetable(data_dir).near(city.lat, city.lon, STATION_KM, STATION_K))  # compare's stations
     near = [(s, km) for s in (t["stops"] if t else []) if (km := served.get(s["code"])) is not None]
     if not near:
@@ -189,6 +189,11 @@ def _hhmm(minutes: int) -> str:
     return f"{minutes // 60:02d}:{minutes % 60:02d}"
 
 
+def _is_train(t: dict, number: str) -> bool:
+    """The train, or a slip portion of it ("17603-Slip2" books as 17603)."""
+    return t["number"] == number or t["number"].split("-")[0] == number
+
+
 def _dep(stop: dict) -> int:
     return stop["dep"] if stop["dep"] is not None else stop["arr"]
 
@@ -200,7 +205,7 @@ def _find_run(src: str, dst: str, train: str | None, data_dir: Path | None,
     _, trains = _rail(data_dir)
     runs = []
     for t in trains:
-        if train and t["number"] != train:
+        if train and not _is_train(t, train):
             continue
         codes = [s["code"] for s in t["stops"]]
         if src in codes and dst in codes and codes.index(src) < codes.index(dst):
@@ -209,7 +214,7 @@ def _find_run(src: str, dst: str, train: str | None, data_dir: Path | None,
         which = f"train {train}" if train else "no train"
         raise NotFound(f"{which} does not run from {src} to {dst}")
     at = (after or DEFAULT_AFTER).hour * 60 + (after or DEFAULT_AFTER).minute
-    runs.sort(key=lambda r: (_dep(r[1]) % 1440, r[0]["number"]))
+    runs.sort(key=lambda r: (r[0]["number"] != train if train else False, _dep(r[1]) % 1440, r[0]["number"]))
     return next((r for r in runs if _dep(r[1]) % 1440 >= at), runs[0])
 
 
@@ -256,11 +261,11 @@ def irctc_card(src: str, dst: str, date: dt.date, travel_class: TravelClass | No
     date_irctc = date.strftime("%d-%m-%Y")
     lines = [f"From: {a['code']} ({a['name']})", f"To: {b['code']} ({b['name']})", f"Date: {date_irctc}",
              f"Class: {travel_class}", "Quota: General",
-             f"Train: {t['number']} {t['name']}, departs {_hhmm(dep_min)}", "Passengers:"]
+             f"Train: {t['number'].split('-')[0]} {t['name']}, departs {_hhmm(dep_min)}", "Passengers:"]
     lines += [", ".join(x for x in (f"{i}. {p.name}", str(p.age), p.gender, p.berth) if x)
               for i, p in enumerate(passengers, 1)]
     return IrctcCard(
-        train=TrainRef(number=t["number"], name=t["name"]),
+        train=TrainRef(number=t["number"].split("-")[0], name=t["name"]),
         from_=StationRef(code=a["code"], name=a["name"]), to=StationRef(code=b["code"], name=b["name"]),
         date=date, date_irctc=date_irctc, departs=_hhmm(dep_min), arrives=_hhmm(arr_min),
         arrives_day_offset=arr["day"] - dep["day"], travel_class=travel_class,

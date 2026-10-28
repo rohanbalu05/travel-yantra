@@ -277,7 +277,7 @@ class CompareService:
         legs += [Leg(**{"from": self._station(r.board).name}, to=self._station(r.alight).name, mode=Mode.rail,
                      depart=r.depart, arrive=r.arrive, minutes=r.minutes,
                      cost_inr=rail_fare(r.km, self.train_class(r.train, style)) * travellers,
-                     ref=r.train)
+                     ref=r.train.split("-")[0])  # a slip portion ("17603-Slip2") books as its train
                  for r in j.rides]
         end = j.rides[-1].arrive
         legs.append(Leg(**{"from": self._station(j.egress).name}, to=dst.name, mode=Mode.road, depart=end,

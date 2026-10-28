@@ -190,3 +190,21 @@ def test_real_trip_gets_passenger_rows_with_its_ages_not_sample_names(client):
         "SBC", "MAO", dt.date(2026, 12, 11), party="none", travellers=1).fare_estimate_inr
     assert client.get("/routes/irctc-card", params={"from": "SBC", "to": "MAO", "date": "2026-12-11",
                                                     "party": "none", "ages": "34;64"}).status_code == 422
+
+
+def test_slip_portion_books_as_its_train():
+    """Hyderabad to Hampi rides 17603-Slip2 in datameet: the leg and the card both say 17603."""
+    from routes.compare import CompareService
+    from routes.graph import HaversineRoadProvider
+
+    svc = CompareService(road=HaversineRoadProvider(), data_dir=DATA_DIR, live=False)
+    opts = svc.rail_departures("Hyderabad", "Hampi", dt.date(2026, 11, 21), travellers=2)
+    legs = [leg for o in opts for leg in o.legs if leg.mode.value == "rail"]
+    assert legs and all(leg.ref and leg.ref.isdigit() and len(leg.ref) == 5 for leg in legs)
+    slip = next((leg for leg in legs if leg.ref == "17603"), None)
+    assert slip is not None  # 17603-Slip2 in the datameet subset
+    if slip is not None:
+        card = irctc_card(slip.from_, slip.to, dt.date(2026, 11, 21), party="none", train="17603", data_dir=DATA_DIR,
+                          travellers=2, after=slip.depart.time())
+        assert card.train.number == "17603" and card.departs == slip.depart.strftime("%H:%M")
+        assert card.fare_estimate_inr == slip.cost_inr
