@@ -223,5 +223,6 @@
   }
   .input {
     flex-basis: 100%;
+    min-height: 72px; /* two lines, if a placeholder still wraps */
   }
 }
