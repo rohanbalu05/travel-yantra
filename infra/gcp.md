@@ -112,10 +112,14 @@ it.
 
 ### Deploy pipeline notes
 
-- Deploys run on every push to main that touches a service path, through
-  WIF. Since 28 Oct 2026, no deploys from the laptop.
+- Deploys run after a green ci run on main (`workflow_run`), for that ci
+  run's commit, through WIF. A red or cancelled ci means no deploy; a manual
+  run first checks that its commit has a green ci run. Since 28 Oct 2026, no
+  deploys from the laptop.
 - `cancel-in-progress: false`: each run finishes, and only the newest
-  waiting run is kept. The plan diffs from the last green deploy.
+  waiting run is kept. `.github/scripts/deploy_plan.py` compares each service
+  with the commit it runs now (its `GIT_SHA` env), so a skipped commit's
+  changes still ship and an older commit never replaces a newer one.
 - Builds use `--async` and poll every 15 s, with matrix `max-parallel: 3`.
   gcloud's own wait polls every second, and five jobs hit Cloud Build's
   per-minute read quota (429).

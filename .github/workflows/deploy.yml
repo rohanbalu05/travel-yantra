@@ -1,84 +1,91 @@
 name: deploy
 
 # Deploys changed services to Cloud Run (asia-south1) through Workload
-# Identity Federation. Defers cleanly while no Google Cloud project exists.
+# Identity Federation, only for a commit whose ci run on main passed (P4).
 
 on:
-  push:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
     branches: [main]
-    paths:
-      - apps/api/**
-      - apps/web/**
-      - apps/mcp/**
-      - apps/bots/**
-      - services/translate/**
-      - packages/contracts/**
-      - infra/web/**
-      - infra/cloudbuild/**
-      - .github/workflows/deploy.yml
   workflow_dispatch:
 
 permissions:
   contents: read
 
-# Main takes about a push a minute and a deploy takes several, so cancelling
-# in-progress runs meant none ever finished. As in ci.yml (V3-U): each run
-# finishes, GitHub keeps only the newest waiting run, and the plan diffs from
-# the last green deploy, so a skipped push's services still ship.
+# Each run finishes and GitHub keeps only the newest waiting one. A skipped
+# commit's services still ship: the plan compares each service with the commit
+# it runs now (GIT_SHA on Cloud Run), and never replaces a newer one.
 concurrency:
-  group: deploy-${{ github.ref }}
+  group: deploy-main
   cancel-in-progress: false
+
+env:
+  # The ci-green commit (workflow_run), or main's head on a manual run.
+  SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
 
 jobs:
   plan:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       contents: read
       actions: read
+      id-token: write
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ env.SHA }}
           fetch-depth: 0
-      - id: plan
+      - name: ci passed on this commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # workflow_run already means green; a manual run checks for itself.
+          n=$(gh run list -R "$GITHUB_REPOSITORY" --workflow ci --commit "$SHA" --status success \
+            --limit 1 --json databaseId --jq length)
+          [ "$n" = "1" ] || { echo "::error::no green ci run for $SHA; not deploying"; exit 1; }
+          echo "ci green for $SHA"
+      - id: gcp
         env:
           HAVE_GCP: ${{ vars.GCP_PROJECT_ID != '' && vars.GCP_WIF_PROVIDER != '' && vars.GCP_DEPLOY_SA != '' }}
-          GH_TOKEN: ${{ github.token }}
-          BEFORE: ${{ github.event.before }}
+        run: echo "ok=$HAVE_GCP" >> "$GITHUB_OUTPUT"
+      - if: steps.gcp.outputs.ok == 'true'
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+      - if: steps.gcp.outputs.ok == 'true'
+        uses: google-github-actions/setup-gcloud@v2
+      - id: plan
+        env:
+          HAVE_GCP: ${{ steps.gcp.outputs.ok }}
+          PROJECT: ${{ vars.GCP_PROJECT_ID }}
         run: |
           if [ "$HAVE_GCP" != "true" ]; then
             echo "deploy deferred: no Google Cloud project yet"
             echo 'matrix=[]' >> "$GITHUB_OUTPUT"; exit 0
           fi
-          # Diff from the last green deploy, not just this push's parent: a run
-          # cancelled by a newer push must not drop the services it would have shipped.
-          base=$(gh run list -R "$GITHUB_REPOSITORY" --workflow deploy --branch main --status success \
-            --limit 1 --json headSha --jq '.[0].headSha // empty' 2>/dev/null || true)
-          git cat-file -e "$base" 2>/dev/null || base=$BEFORE
-          git cat-file -e "$base" 2>/dev/null || base=HEAD~1
-          echo "diff base: $base"
-          changed=$(git diff --name-only "$base" HEAD)
-          # A manual run or a change to the deploy plumbing redeploys everything.
-          all=false
-          [ "${{ github.event_name }}" = "workflow_dispatch" ] && all=true
-          echo "$changed" | grep -qE '^(\.github/workflows/deploy\.yml|infra/cloudbuild/)' && all=true
-          out=()
-          # name:source dir:Dockerfile (ty-translate is the Gemini image, V3-W;
-          # services/translate/Dockerfile.indictrans2 is never built).
-          for entry in ty-api:apps/api:apps/api/Dockerfile ty-web:apps/web:infra/web/Dockerfile \
-                       ty-translate:services/translate:services/translate/Dockerfile \
-                       ty-bots:apps/bots/whatsapp:apps/bots/whatsapp/Dockerfile ty-mcp:apps/mcp:apps/mcp/Dockerfile; do
-            IFS=: read -r name dir dockerfile <<< "$entry"
-            [ -f "$dockerfile" ] || { echo "skip $name: no $dockerfile"; continue; }
-            [ -f "$dir/package.json" ] || [ -f "$dir/pyproject.toml" ] || { echo "skip $name: no project in $dir"; continue; }
-            if [ "$all" != "true" ] && ! echo "$changed" | grep -qE "^($dir/|packages/contracts/|$(dirname "$dockerfile")/)"; then
-              echo "skip $name: unchanged"; continue
-            fi
-            out+=("{\"name\":\"$name\",\"dir\":\"$dir\",\"dockerfile\":\"$dockerfile\"}")
+          # The commit each service runs now; empty if the service doesn't exist.
+          live='{}'
+          for name in ty-api ty-web ty-translate ty-bots ty-mcp; do
+            s=$(gcloud run services describe "$name" --region asia-south1 --project "$PROJECT" \
+              --format json 2>/dev/null \
+              | jq -r '[.spec.template.spec.containers[0].env[]? | select(.name == "GIT_SHA") | .value][0] // ""' \
+              || true)
+            echo "$name live at ${s:-unknown}"
+            live=$(jq -cn --argjson m "$live" --arg n "$name" --arg s "$s" '$m + {($n): $s}')
           done
-          echo "matrix=[$(IFS=,; echo "${out[*]}")]" >> "$GITHUB_OUTPUT"
+          all=""
+          [ "${{ github.event_name }}" = "workflow_dispatch" ] && all=--all
+          matrix=$(python3 .github/scripts/deploy_plan.py "$SHA" "$live" $all)
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
   deploy:
     needs: plan
@@ -97,6 +104,8 @@ jobs:
         service: ${{ fromJSON(needs.plan.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SHA }}
       - uses: google-github-actions/auth@v2
         with:
           project_id: ${{ vars.GCP_PROJECT_ID }}
@@ -105,7 +114,7 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v2
       - name: Build ${{ matrix.service.name }}
         env:
-          IMAGE: asia-south1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/ty/${{ matrix.service.name }}:${{ github.sha }}
+          IMAGE: asia-south1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/ty/${{ matrix.service.name }}:${{ env.SHA }}
           PROJECT: ${{ vars.GCP_PROJECT_ID }}
           DEPLOY_SA: ${{ vars.GCP_DEPLOY_SA }}
           FB_API_KEY: ${{ vars.NEXT_PUBLIC_FIREBASE_API_KEY }}
@@ -161,8 +170,8 @@ jobs:
         # secrets and env are set once by infra/gcp/run-services.sh and kept.
         run: |
           gcloud run deploy "${{ matrix.service.name }}" \
-            --image "asia-south1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/ty/${{ matrix.service.name }}:${{ github.sha }}" \
-            --update-env-vars "GIT_SHA=${{ github.sha }}" \
+            --image "asia-south1-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/ty/${{ matrix.service.name }}:${{ env.SHA }}" \
+            --update-env-vars "GIT_SHA=${{ env.SHA }}" \
             --region asia-south1 --project "${{ vars.GCP_PROJECT_ID }}" --quiet
       - name: Warm ty-api's guide model
         # V3-AC: request-based CPU starves the background warm-up, so one real
