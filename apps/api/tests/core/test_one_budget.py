@@ -101,3 +101,17 @@ def test_real_users_never_get_sample_places_options_or_stays(monkeypatch):
     assert steps.city_stays(GOA, "Goa", GOA.start_date, 3) == []
     monkeypatch.setenv("TY_SAMPLE_DATA", "1")
     assert steps.city_places(GOA, "Goa") and steps.transport_options(GOA) and steps.city_stays(GOA, "Goa", GOA.start_date, 3)
+
+
+def test_the_budget_style_reaches_routes_for_rail_class_and_stays(monkeypatch):
+    seen = {}
+
+    def rank(city, check_in, check_out, **kw):
+        seen.update(kw)
+        return []
+
+    monkeypatch.setattr("routes.stays.rank_stays", rank)
+    lux = GOA.model_copy(update={"constraints": GOA.constraints.model_copy(update={"budget_style": "luxury"})})
+    steps.city_stays(lux, "Goa", GOA.start_date, 2)
+    assert seen["budget_style"] == "luxury" and seen["limit"] == 5
+    assert steps.routes_style(GOA) is None and steps.routes_style(trip(3, "shoestring")) == "budget"

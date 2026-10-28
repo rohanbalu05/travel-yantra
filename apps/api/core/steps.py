@@ -75,6 +75,15 @@ def party(request: TripRequest) -> int:
     return max(len(request.constraints.travellers), 1)
 
 
+# TY3's words for a budget style (rail class and stay band); None is "mid".
+ROUTES_STYLE = {BudgetStyle.shoestring: "budget", BudgetStyle.comfort: "mid", BudgetStyle.luxury: "luxury"}
+
+
+def routes_style(request: TripRequest) -> str | None:
+    style = request.constraints.budget_style
+    return ROUTES_STYLE[BudgetStyle(style)] if style else None
+
+
 def _dump(items) -> list:
     return [x.model_dump(mode="json", by_alias=True) for x in items]
 
@@ -116,14 +125,14 @@ def _compare():
 
 @lru_cache(maxsize=256)
 def _compared(origin: str, destination: str, day: date, depart: time = time(8, 0),
-              travellers: int = 1) -> tuple[TransportOption, ...]:
+              travellers: int = 1, rail_class: str | None = None) -> tuple[TransportOption, ...]:
     """Cached per route, day, departure time and party: the graph search is deterministic for the same
     inputs. TY3 prices every option for the whole party (rail and air per person, road per car)."""
     from routes.compare import CompareRequest, UnknownPlace
 
     try:
         found = _compare().compare(CompareRequest(origin=origin, destination=destination, date=day, depart_time=depart,
-                                                  travellers=travellers))
+                                                  travellers=travellers), rail_class=rail_class)
     except UnknownPlace:
         return ()
     return tuple(o.option for o in found.options)
@@ -143,7 +152,8 @@ def transport_options(request: TripRequest) -> list[TransportOption]:
     """Ranked options from TY3's /routes/compare service for origin to first destination (one way), for the
     party. Nothing when routes does not know a city (sample options only with samples_allowed)."""
     options = [o.model_copy(deep=True) for o in
-               _compared(request.origin, request.destinations[0], request.start_date, travellers=party(request))]
+               _compared(request.origin, request.destinations[0], request.start_date, travellers=party(request),
+                         rail_class=routes_style(request))]
     if not options and samples_allowed():
         options = fakes.transport(request)
     return prefer(options, request.transport_mode)
@@ -249,20 +259,22 @@ async def places(state: dict, model: Model):
 
 
 @lru_cache(maxsize=256)
-def _trains(a: str, b: str, day: date, earliest: time, travellers: int = 1) -> tuple[TransportOption, ...]:
+def _trains(a: str, b: str, day: date, earliest: time, travellers: int = 1,
+            rail_class: str | None = None) -> tuple[TransportOption, ...]:
     """TY3's real rail journeys from a to b leaving at or after `earliest` that day, in departure order
     (up to TRAIN_LIMIT, enough to reach the day's last train on these corridors), priced for the party."""
     from routes.compare import UnknownPlace
 
     try:
-        return tuple(_compare().rail_departures(a, b, day, earliest=earliest, limit=TRAIN_LIMIT, travellers=travellers))
+        return tuple(_compare().rail_departures(a, b, day, earliest=earliest, limit=TRAIN_LIMIT, travellers=travellers,
+                                                rail_class=rail_class))
     except (UnknownPlace, ValueError):
         return ()
 
 
 def morning_train(request: TripRequest, a: str, b: str, day: date) -> TransportOption | None:
     """The first train after 06:00 that arrives before the day's visits start; else the first after 06:00."""
-    trains = _trains(a, b, day, TRAIN_EARLIEST, party(request))
+    trains = _trains(a, b, day, TRAIN_EARLIEST, party(request), routes_style(request))
     start = datetime.combine(day, limits(request).start)
     return next((t for t in trains if t.legs[-1].arrive <= start), trains[0] if trains else None)
 
@@ -270,10 +282,10 @@ def morning_train(request: TripRequest, a: str, b: str, day: date) -> TransportO
 def evening_train(request: TripRequest, a: str, b: str, day: date, after: time = RETURN_DEPART) -> TransportOption | None:
     """The first train that leaves at or after `after`; when none leaves that late, the day's last train
     (the checker then trims the visits to make it)."""
-    later = _trains(a, b, day, after, party(request))
+    later = _trains(a, b, day, after, party(request), routes_style(request))
     if later:
         return later[0]
-    afternoon = _trains(a, b, day, TRAIN_AFTERNOON, party(request))
+    afternoon = _trains(a, b, day, TRAIN_AFTERNOON, party(request), routes_style(request))
     return afternoon[-1] if afternoon else None
 
 
@@ -291,7 +303,7 @@ def hop(request: TripRequest, a: str, b: str, day: date, depart: time = HOP_DEPA
     """The journey from a to b on `day`: TY3's best-ranked option (a real train when that is rail, else
     leaving at `depart`), or a road estimate between the two cities' top places when routes does not know
     a city."""
-    found = prefer(_compared(a, b, day, depart, party(request)), request.transport_mode)
+    found = prefer(_compared(a, b, day, depart, party(request), routes_style(request)), request.transport_mode)
     # Chosen road but routes has no road option: fall through to our own road estimate below. For rail or air
     # there is nothing to estimate, so the best option of any mode stands.
     if found and (request.transport_mode in (None, found[0].mode) or request.transport_mode is not Mode.road):
@@ -372,7 +384,7 @@ def city_stays(request: TripRequest, city: str, check_in: date, nights: int) -> 
     people = max(len(request.constraints.travellers), 1)
     check_out = check_in + timedelta(days=nights)
     try:
-        found = rank_stays(city, check_in, check_out, party=people, limit=3)
+        found = rank_stays(city, check_in, check_out, party=people, limit=5, budget_style=routes_style(request))
     except (UnknownPlace, ValueError):
         found = []
     if found or not samples_allowed():
