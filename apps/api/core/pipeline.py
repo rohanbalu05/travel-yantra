@@ -27,7 +27,7 @@ from ty_contracts import (
 from . import llm, steps
 from .accounts import keeps_history
 from .repair import MAX_ROUNDS
-from .trips import get_store
+from .trips import TripChanged, get_store
 
 log = logging.getLogger(__name__)
 
@@ -133,10 +133,15 @@ async def run_plan(body: TripRequest | PlanText, client: str | None = None) -> A
         yield PlanEvent(stage=PlanStage.error, message="Planning failed. Please try again.", retryable=retryable)
 
 
-def revise_events(trip_id: str, revised: Itinerary, what: str, rounds: int, owner: str | None = None) -> list[PlanEvent]:
+def revise_events(trip_id: str, revised: Itinerary, what: str, rounds: int, owner: str | None = None,
+                  version: int | None = None) -> list[PlanEvent]:
     """The revise stream (card #20): what changed, the check result, then done with the trip's ids (the
     same trip, a new version; `owner` claims it when it had none)."""
-    trip = get_store().update(trip_id, revised, owner=owner)
+    try:
+        trip = get_store().update(trip_id, revised, owner=owner, version=version)
+    except TripChanged:
+        return [PlanEvent(stage=PlanStage.error, retryable=True,
+                          message="This plan changed in another window. Reopen it and try again.")]
     if trip is None:  # deleted while revising
         return [PlanEvent(stage=PlanStage.error, message="This plan was deleted.", retryable=False)]
     checked = "Plan checks passed" if rounds == 0 else f"Checked and repaired in {rounds} round{'s' * (rounds > 1)}"

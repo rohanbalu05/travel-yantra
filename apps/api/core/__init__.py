@@ -99,7 +99,7 @@ async def revise_plan(plan_id: str, body: ReviseRequest, client: str | None = De
     async def events():
         yield PlanEvent(stage=PlanStage.intake, message="Revising your plan…")
         owner = client if client and await asyncio.to_thread(keeps_history, client) else None
-        for event in await asyncio.to_thread(revise_events, trip.id, revised, what, rounds, owner):
+        for event in await asyncio.to_thread(revise_events, trip.id, revised, what, rounds, owner, trip.version):
             yield event
 
     return stream(events())

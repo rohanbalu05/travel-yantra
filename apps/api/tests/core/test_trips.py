@@ -46,3 +46,14 @@ def test_postgres_store_and_migration_is_idempotent():
     url = os.environ["DATABASE_URL"]
     PgStore(url)  # applies the migration
     roundtrip(PgStore(url))  # applies it again, then round-trips
+
+
+def test_a_stale_revise_never_overwrites_a_newer_version():
+    from core.trips import TripChanged
+
+    store = MemoryStore()
+    a = store.save(GOA)
+    store.update(a.id, GOA, version=1)  # another tab saved version 2
+    with pytest.raises(TripChanged):
+        store.update(a.id, GOA, version=1)
+    assert store.get(a.id).version == 2 and store.update(a.id, GOA, version=2).version == 3

@@ -115,3 +115,13 @@ def test_the_budget_style_reaches_routes_for_rail_class_and_stays(monkeypatch):
     steps.city_stays(lux, "Goa", GOA.start_date, 2)
     assert seen["budget_style"] == "luxury" and seen["limit"] == 5
     assert steps.routes_style(GOA) is None and steps.routes_style(trip(3, "shoestring")) == "budget"
+
+
+def test_estimated_stays_are_said_to_be_estimates():
+    from core.steps import _estimated_stays
+    from ty_contracts import Stay
+
+    est = Stay(name="Estimate: 3-star hotel in Goa", city="Goa", check_in=GOA.start_date, check_out=GOA.end_date,
+               price_per_night_inr=3000, sample=True, id="goa:estimate-mid")
+    assert _estimated_stays([est]) == ["Stay prices in Goa are estimates; search on the sellers for real ones"]
+    assert _estimated_stays([est.model_copy(update={"sample": False})]) == []

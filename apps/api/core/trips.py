@@ -50,12 +50,17 @@ def new_ids() -> tuple[str, str]:
 class TripStore(Protocol):
     def save(self, itinerary: Itinerary, owner: str | None = None, revised_from: str | None = None) -> Trip: ...
     def get(self, trip_id: str) -> Trip | None: ...
-    def update(self, trip_id: str, itinerary: Itinerary, owner: str | None = None) -> Trip | None: ...
+    def update(self, trip_id: str, itinerary: Itinerary, owner: str | None = None,
+               version: int | None = None) -> Trip | None: ...
     def by_share_token(self, token: str) -> Trip | None: ...
     def by_owner(self, owner: str) -> list[Trip]: ...
     def delete_owner(self, owner: str) -> int: ...
     def reassign_owner(self, old: str, new: str) -> int: ...
     def delete(self, trip_id: str) -> bool: ...
+
+
+class TripChanged(Exception):
+    """The trip got a newer version (another tab or channel) since this revise read it."""
 
 
 class MemoryStore:
@@ -76,12 +81,16 @@ class MemoryStore:
     def get(self, trip_id: str) -> Trip | None:
         return self._trips.get(trip_id)
 
-    def update(self, trip_id: str, itinerary: Itinerary, owner: str | None = None) -> Trip | None:
-        """A new version of the trip: same id and share token. `owner` claims a trip that has none."""
+    def update(self, trip_id: str, itinerary: Itinerary, owner: str | None = None,
+               version: int | None = None) -> Trip | None:
+        """A new version of the trip: same id and share token. `owner` claims a trip that has none. With
+        `version`, TripChanged when the stored trip is no longer that version (no silent overwrite)."""
         with self._lock:
             old = self._trips.get(trip_id)
             if old is None:
                 return None
+            if version is not None and old.version != version:
+                raise TripChanged(trip_id)
             trip = replace(old, itinerary=itinerary.model_copy(deep=True), owner=old.owner or owner,
                            version=old.version + 1, updated_at=datetime.now(UTC))
             self._trips[trip_id] = trip
@@ -182,12 +191,16 @@ class PgStore:
     def get(self, trip_id: str) -> Trip | None:
         return self._one("id", trip_id)
 
-    def update(self, trip_id: str, itinerary: Itinerary, owner: str | None = None) -> Trip | None:
+    def update(self, trip_id: str, itinerary: Itinerary, owner: str | None = None,
+               version: int | None = None) -> Trip | None:
         with self._connect() as conn:
             row = conn.execute(
                 f"UPDATE trips SET itinerary = %s::jsonb, owner = coalesce(owner, %s), version = version + 1, "
-                f"updated_at = now() WHERE id = %s RETURNING {self._COLUMNS}",
-                (itinerary.model_dump_json(by_alias=True), owner, trip_id)).fetchone()
+                f"updated_at = now() WHERE id = %s AND (%s::int IS NULL OR version = %s::int) RETURNING {self._COLUMNS}",
+                (itinerary.model_dump_json(by_alias=True), owner, trip_id, version, version)).fetchone()
+            if row is None and version is not None and conn.execute(
+                    "SELECT 1 FROM trips WHERE id = %s", (trip_id,)).fetchone():
+                raise TripChanged(trip_id)
         return None if row is None else self._trip(row)
 
     def by_share_token(self, token: str) -> Trip | None:

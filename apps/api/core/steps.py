@@ -472,6 +472,15 @@ def _missing_stays(request: TripRequest, stays: list[dict]) -> list[str]:
             if (n < len(split) - 1 or len(split) == 1 or len(dates) > 1) and dates[0] not in check_ins]
 
 
+def _estimated_stays(stays: list[Stay]) -> list[str]:
+    """Say so when a city's chosen stay is an estimate (TY3's sample=true), never present it as a booking."""
+    from .checker import chosen_stays
+
+    fake = Itinerary.model_construct(stays=stays)
+    cities = dict.fromkeys(s.city for s in chosen_stays(fake) if s.sample)
+    return [f"Stay prices in {c} are estimates; search on the sellers for real ones" for c in cities]
+
+
 def assemble(r: TripRequest, pools: dict[str, list[Place]], options: list[TransportOption], journeys: dict[str, Leg],
              back: Leg | None, stays_found: list[Stay], transport_reason: str | None = None) -> Itinerary:
     """Solve the days and put the itinerary together with its budget and warnings."""
@@ -483,7 +492,7 @@ def assemble(r: TripRequest, pools: dict[str, list[Place]], options: list[Transp
         budget={"transport_inr": 0, "stay_inr": 0, "total_inr": 0},
         # Unused candidates are not a problem (the planner offers more than a trip holds); an empty pool is.
         warnings=[f"No places found yet for {c}" for c in empty]
-        + _missing_stays(r, [s.model_dump(mode="json") for s in stays_found]),
+        + _missing_stays(r, [s.model_dump(mode="json") for s in stays_found]) + _estimated_stays(stays_found),
         season_notes=season_notes(r),
         transport_reason=transport_reason,
     )
