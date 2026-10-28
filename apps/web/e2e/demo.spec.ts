@@ -16,6 +16,10 @@ test("plan Goa from Home to the itinerary, revise a day and rate it", async ({ p
   await expect(page).toHaveURL(/\/plan\/thinking\/$/);
   await expect(page.getByText("Your plan is ready")).toBeVisible({ timeout: 20_000 });
   await noSidewaysScroll(page);
+  // Refresh on the Plan step shows the same plan at once; it never plans again.
+  await page.reload();
+  await expect(page.getByText("Your plan is ready")).toBeVisible({ timeout: 2_000 });
+  await expect(page.getByText("Still planning")).toHaveCount(0);
   await page.getByRole("link", { name: /See the 2 ways to go/ }).click();
 
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("2 ways to Goa");

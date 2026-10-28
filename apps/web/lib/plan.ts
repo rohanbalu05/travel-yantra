@@ -70,6 +70,8 @@ async function* streamEvents(
 const INPUT_KEY = "ty.plan.input";
 const RESULT_KEY = "ty.plan.result";
 const CHOICE_KEY = "ty.plan.choice";
+// The input the stored result was made from: coming back to the Plan step (refresh, Back) shows it, never plans again.
+const DONE_KEY = "ty.plan.done";
 const CHANGED = "ty-plan-stored";
 
 export type PlanResult = { itinerary: Itinerary; plan_id: string | null; share_token?: string | null };
@@ -113,11 +115,17 @@ function useStored<T>(key: string): T | null | undefined {
   }, [raw]);
 }
 
-export const savePlanInput = (body: PlanBody) => write(INPUT_KEY, body);
+/** A new request to plan: always planned afresh, even when it reads the same as the last one. */
+export function savePlanInput(body: PlanBody) {
+  write(DONE_KEY, null);
+  write(INPUT_KEY, body);
+}
 export const usePlanInput = () => useStored<PlanBody>(INPUT_KEY);
 export const savePlanResult = (r: PlanResult) => write(RESULT_KEY, r);
 export const usePlanResult = () => useStored<PlanResult>(RESULT_KEY);
 export const saveChoice = (i: number) => write(CHOICE_KEY, i);
+export const savePlannedFrom = (inputKey: string) => write(DONE_KEY, inputKey);
+export const usePlannedFrom = () => useStored<string>(DONE_KEY);
 export const useChoice = () => useStored<number>(CHOICE_KEY);
 /** Forget the highlighted option, so pages follow the plan's own mode (a new plan or a transport switch). */
 export function clearChoice() {

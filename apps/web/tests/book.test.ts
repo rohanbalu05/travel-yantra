@@ -112,3 +112,31 @@ describe("map pins", () => {
     expect([p.x, p.y]).toEqual([50, 50]);
   });
 });
+
+describe("IRCTC card passengers", () => {
+  it("never shows or copies the sample family for a real plan: one row per traveller, ages only", async () => {
+    const { cardCopyText, cardRows, isDemoPlan, sampleCard } = await loadCardHelpers();
+    const it2 = { ...GOA_ITINERARY, request: { ...GOA_ITINERARY.request, constraints: { travellers: [{ name: "Adult 1", age: 35 }, { name: "Senior 1", age: 65 }] } } };
+    expect(isDemoPlan("abc123")).toBe(false);
+    const rows = cardRows(sampleCard, it2, false);
+    expect(rows).toEqual([
+      { name: "", age: 35, gender: "", berth: "No preference" },
+      { name: "", age: 65, gender: "", berth: "Lower" },
+    ]);
+    const text = cardCopyText(sampleCard, rows, false);
+    for (const p of sampleCard.passengers) expect(text).not.toContain(p.name);
+    expect(text).toContain("Passenger 2: age 65");
+  });
+
+  it("keeps the sample party in the anonymous demo", async () => {
+    const { cardRows, isDemoPlan, sampleCard } = await loadCardHelpers();
+    expect(isDemoPlan("sample-goa-family")).toBe(true);
+    expect(cardRows(sampleCard, GOA_ITINERARY, true).map((r) => r.name)).toEqual(sampleCard.passengers.map((p) => p.name));
+  });
+});
+
+async function loadCardHelpers() {
+  const r = await import("@/lib/routes");
+  const { sampleIrctcCard } = await import("@/lib/samples/routes");
+  return { ...r, sampleCard: sampleIrctcCard({ from: "A", to: "B", date: "2026-12-11", party: "goa_family" }) };
+}

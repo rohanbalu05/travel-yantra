@@ -76,3 +76,34 @@ export async function pnrStatus(pnr: string, signal?: AbortSignal, base = API_BA
 
 /** The sample party whose names TY3 fills into the IRCTC card (no names travel in the URL). */
 export const partyFor = (it: Itinerary): Party => (it.request.destinations.some((d) => /mysu/i.test(d)) ? "mysuru_weekend" : "goa_family");
+
+export type CardRow = { name: string; age: number | null; gender: string; berth: string };
+
+/**
+ * Passenger rows for the IRCTC card. The anonymous demo (the Goa sample plan) keeps TY3's sample
+ * party; a real plan gets one row per traveller in its party, with their age and no name (the
+ * traveller types names into IRCTC; we never invent them).
+ */
+export function cardRows(card: IrctcCard, it: Itinerary, demo: boolean): CardRow[] {
+  if (demo) return card.passengers.map((p) => ({ ...p }));
+  const people = it.request.constraints?.travellers ?? [];
+  const n = Math.max(1, people.length);
+  return Array.from({ length: n }, (_, i) => ({ name: "", age: people[i]?.age ?? null, gender: "", berth: people[i] && people[i].age >= 60 ? "Lower" : "No preference" }));
+}
+
+/** The text "Copy all details" puts on the clipboard: TY3's own for the demo, else built from real rows only. */
+export function cardCopyText(card: IrctcCard, rows: CardRow[], demo: boolean): string {
+  if (demo) return card.copy_text;
+  return [
+    `From: ${card.from.code} (${card.from.name})`,
+    `To: ${card.to.code} (${card.to.name})`,
+    `Date: ${card.date_irctc}`,
+    `Class: ${card.travel_class}`,
+    `Quota: ${card.quota}`,
+    `Train: ${card.train.number} ${card.train.name}, departs ${card.departs}`,
+    ...rows.map((r, i) => `Passenger ${i + 1}: age ${r.age ?? "?"}, berth ${r.berth}`),
+  ].join("\n");
+}
+
+/** The anonymous demo: no plan id, or the mock's sample plan. */
+export const isDemoPlan = (planId: string | null) => !planId || planId.startsWith("sample-");

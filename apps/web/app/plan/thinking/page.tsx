@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Trail } from "@/components/Trail";
 import type { ViolationCode } from "@/lib/contracts";
@@ -9,10 +9,16 @@ import { inr } from "@/lib/format";
 import { rememberTrip } from "@/lib/account";
 import { useI18n, type Vars } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
+import { API_BASE_URL } from "@/lib/api";
+import { NoPlan } from "@/components/NoPlan";
 import { GOA_REQUEST } from "@/lib/mockPlan";
-import { PlanHttpError, clearChoice, savePlanInput, savePlanResult, streamPlan, usePlanInput, type PlanBody } from "@/lib/plan";
+import { PlanHttpError, clearChoice, savePlanInput, savePlanResult, savePlannedFrom, streamPlan, usePlanInput, usePlanResult, usePlannedFrom, type PlanBody } from "@/lib/plan";
 import { AGENTS, initialPlanState, planReducer, type Agent, type PlanState } from "@/lib/planState";
 import "../plan.css";
+
+// A plan usually takes 15–40 s. Past a minute say so; past four, stop and offer to try again.
+const SLOW_MS = 60_000;
+const PLAN_TIMEOUT_MS = 240_000;
 
 const AGENT_INFO: Record<Agent, { name: string; sub: string; icon: React.ReactNode }> = {
   transport: {
@@ -131,17 +137,29 @@ function budgetOf(s: PlanState, total: string, t: (text: string, vars?: Vars) =>
 export default function PlanThinking() {
   const { t } = useI18n();
   const stored = usePlanInput();
-  // Opening this page directly (nothing typed yet) plans the Goa sample.
-  const body: PlanBody | null = stored === undefined ? null : (stored ?? GOA_REQUEST);
+  const result = usePlanResult();
+  const plannedFrom = usePlannedFrom();
+  // Nothing typed yet: the offline demo plans the Goa sample; the live app asks for a trip instead.
+  const body: PlanBody | null = stored === undefined ? null : (stored ?? (API_BASE_URL ? null : GOA_REQUEST));
   const bodyKey = body ? JSON.stringify(body) : "";
-  const [state, setState] = useState<PlanState>(initialPlanState);
+  const [live, setState] = useState<PlanState>(initialPlanState);
   const [run, setRun] = useState(0);
   const [answers, setAnswers] = useState("");
+  const [slow, setSlow] = useState(false);
+  // This input was already planned (refresh, Back, the stepper): show that result, never plan again.
+  const already = !!bodyKey && plannedFrom === bodyKey && !!result && run === 0;
+
+  const state = useMemo(
+    () => (already && result ? planReducer(initialPlanState(), { stage: "done", message: "", partial: result.itinerary, plan_id: result.plan_id, share_token: result.share_token ?? null }) : live),
+    [already, result, live],
+  );
 
   useEffect(() => {
-    if (!bodyKey) return;
+    if (!bodyKey || plannedFrom === undefined || result === undefined || already) return;
     const input = JSON.parse(bodyKey) as PlanBody;
     const ctl = new AbortController();
+    const slowTimer = setTimeout(() => setSlow(true), SLOW_MS);
+    const stopTimer = setTimeout(() => ctl.abort("timeout"), PLAN_TIMEOUT_MS);
     (async () => {
       try {
         for await (const ev of streamPlan(input, ctl.signal)) {
@@ -149,23 +167,36 @@ export default function PlanThinking() {
           setState((s) => planReducer(s, ev));
         }
       } catch (e) {
-        if (ctl.signal.aborted) return;
-        const message = e instanceof PlanHttpError ? e.message : "We could not reach the planner. Check your connection.";
-        setState((s) => ({ ...s, status: "error", error: { message, retryable: !(e instanceof PlanHttpError) } }));
+        if (ctl.signal.aborted && ctl.signal.reason !== "timeout") return;
+        const message = ctl.signal.reason === "timeout" ? "The planner took too long. Try again." : e instanceof PlanHttpError ? e.message : "We could not reach the planner. Check your connection.";
+        setState((s) => ({ ...s, status: "error", error: { message, retryable: ctl.signal.reason === "timeout" || !(e instanceof PlanHttpError) } }));
+      } finally {
+        clearTimeout(slowTimer);
+        clearTimeout(stopTimer);
       }
     })();
-    return () => ctl.abort();
-  }, [bodyKey, run]);
+    return () => {
+      clearTimeout(slowTimer);
+      clearTimeout(stopTimer);
+      ctl.abort("left");
+    };
+    // `already`, `plannedFrom` and `result` only gate the first run; a new input or Try again plans again.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bodyKey, run, plannedFrom === undefined, result === undefined]);
 
   useEffect(() => {
     if (state.status !== "done" || !state.itinerary) return;
+    if (already) return; // shown from storage, not a new plan
     savePlanResult({ itinerary: state.itinerary, plan_id: state.planId, share_token: state.shareToken });
+    savePlannedFrom(bodyKey);
     clearChoice(); // a choice made on an earlier plan's options does not carry over
     void rememberTrip(state.itinerary, state.planId, state.shareToken); // only with the Keep my trips consent
     track("plan_shown");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.status, state.itinerary, state.planId, state.shareToken]);
 
   const retry = () => {
+    setSlow(false);
     setState(initialPlanState());
     setRun((r) => r + 1);
   };
@@ -181,6 +212,8 @@ export default function PlanThinking() {
   const planning = state.intake !== null;
   const it = state.itinerary;
   const ways = it?.transport?.length ?? 0;
+
+  if (stored === null && !body) return <AppShell><NoPlan /></AppShell>;
 
   return (
     <AppShell>
@@ -242,7 +275,7 @@ export default function PlanThinking() {
                 <Link className="btn btn-primary btn-lg" href={ways > 1 ? "/plan/options/" : "/plan/itinerary/"}>{ways > 1 ? t("See the {ways} ways to go", { ways }) : t("See the plan")}</Link>
               </>
             ) : (
-              <div><b>{t("Still planning")}</b><span>{state.narrating ? t("Writing your day-by-day plan.") : t("About 15 seconds. Keep this page open.")}</span></div>
+              <div><b>{t("Still planning")}</b><span>{state.narrating ? t("Writing your day-by-day plan.") : slow ? t("This is taking longer than usual. Keep this page open; it can take up to four minutes.") : t("About 15 seconds. Keep this page open.")}</span></div>
             )}
           </div>
         )}

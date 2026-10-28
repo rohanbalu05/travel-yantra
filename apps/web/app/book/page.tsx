@@ -13,7 +13,7 @@ import { useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { usePlanResult } from "@/lib/plan";
 import { againstBudget, pickIndex, planTotal, railOptionLeg, stayGroups, trainDiffers, trainLeg } from "@/lib/planView";
-import { SAMPLE_PNRS, irctcCard, partyFor, pnrStatus, type IrctcCard, type PnrStatus } from "@/lib/routes";
+import { SAMPLE_PNRS, cardCopyText, cardRows, irctcCard, isDemoPlan, partyFor, pnrStatus, type IrctcCard, type PnrStatus } from "@/lib/routes";
 import { useRevise } from "@/lib/useRevise";
 import "./book.css";
 
@@ -148,7 +148,7 @@ function Travel({ it, planId }: { it: Itinerary; planId: string | null }) {
   );
 }
 
-function TrainCard({ it }: { it: Itinerary }) {
+function TrainCard({ it, planId }: { it: Itinerary; planId: string | null }) {
   // The plan's own train, so the card names the same one as Options and the Itinerary (QA #101).
   // TY3: the rail option's own train leg (stations, number and time from that one leg), even when the
   // plan goes by road or air. No rail option: no card.
@@ -173,10 +173,13 @@ function TrainCard({ it }: { it: Itinerary }) {
 
   if (!rail) return null;
   const c = card?.data;
+  // Real plans: the party's ages, names left for the traveller (never the sample family's).
+  const demo = isDemoPlan(planId);
+  const rows = c ? cardRows(c, it, demo) : [];
   const copy = async () => {
     if (!c) return;
     try {
-      await navigator.clipboard.writeText(c.copy_text);
+      await navigator.clipboard.writeText(cardCopyText(c, rows, demo));
       setCopied(true);
     } catch {
       setCopied(false);
@@ -198,7 +201,7 @@ function TrainCard({ it }: { it: Itinerary }) {
           <div className="copy">
             <div className="copy-head">
               <b>{t("Ready for IRCTC: {train}", { train: `${c.train.number} ${c.train.name}` })}</b>
-              {c.sample && <span className="badge">{t("Sample")}</span>}
+              {c.sample && demo && <span className="badge">{t("Sample")}</span>}
             </div>
             <div className="cgrid">
               <div className="cfield"><small>{t("From")}</small><span>{c.from.code} · {c.from.name}</span></div>
@@ -218,7 +221,7 @@ function TrainCard({ it }: { it: Itinerary }) {
             <div className="table-scroll">
               <table className="ptable">
                 <thead><tr><th>{t("Passenger")}</th><th>{t("Age")}</th><th>{t("Gender")}</th><th>{t("Berth")}</th></tr></thead>
-                <tbody>{c.passengers.map((p) => <tr key={p.name}><td>{p.name}</td><td>{p.age}</td><td>{p.gender}</td><td>{p.berth}</td></tr>)}</tbody>
+                <tbody>{rows.map((p, i) => <tr key={i}><td>{p.name || <span className="hint">{t("Passenger {n}: name as on ID", { n: i + 1 })}</span>}</td><td>{p.age ?? "—"}</td><td>{p.gender || "—"}</td><td>{t(p.berth)}</td></tr>)}</tbody>
               </table>
             </div>
             {trainDiffers(rail, c, it) && (
@@ -302,7 +305,7 @@ function Book({ it, planId }: { it: Itinerary; planId: string | null }) {
         <div><small>{vs && !vs.ok ? t("Over budget by") : t("Left over")}</small><b>{vs ? inr(vs.diff) : "—"}</b></div>
       </div>
       <Travel it={it} planId={planId} />
-      <TrainCard it={it} />
+      <TrainCard it={it} planId={planId} />
       <section className="bk-sec" aria-labelledby="stay-h">
         <div className="bk-sec-head"><h2 className="h2" id="stay-h">{t("Where you stay")}</h2></div>
         {stayGroups(it).map(({ chosen: s, others }) => (

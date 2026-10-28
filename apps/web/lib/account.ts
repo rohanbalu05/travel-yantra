@@ -338,7 +338,7 @@ export async function deleteMyData(): Promise<{ server: number | null }> {
     // Nothing stored.
   }
   try {
-    for (const k of ["ty.plan.input", "ty.plan.result", "ty.plan.choice", "ty.metrics.session", "ty.study"]) sessionStorage.removeItem(k);
+    for (const k of ["ty.plan.input", "ty.plan.result", "ty.plan.choice", "ty.plan.done", "ty.metrics.session", "ty.study"]) sessionStorage.removeItem(k);
     window.dispatchEvent(new Event("ty-plan-stored"));
   } catch {
     // Nothing stored.
