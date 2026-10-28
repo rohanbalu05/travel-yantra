@@ -65,6 +65,18 @@ def test_lunch_is_a_gap_between_visits_in_the_window():
     assert LUNCH_FROM <= datetime.strptime(lunch[6:11], "%H:%M").time() <= LUNCH_UNTIL
 
 
+def test_stops_without_known_hours_say_check_hours_never_guessed():
+    from core.solver import CHECK_HOURS
+    from ty_contracts import OpeningHours
+
+    known = place("known", 60).model_copy(update={"opening_hours": [
+        OpeningHours(day=d, opens=time(9), closes=time(18)) for d in ("mon", "tue", "wed", "thu", "fri", "sat", "sun")]})
+    plan, _ = build_day(date(2026, 12, 12), [known, place("unknown", 60, lat=15.51)], Travel(), limits(GOA))
+    assert [n for n in plan.notes if n.startswith(CHECK_HOURS)] == [CHECK_HOURS + "unknown"]
+    plan, _ = build_day(date(2026, 12, 12), [known], Travel(), limits(GOA))
+    assert not any(n.startswith(CHECK_HOURS) for n in plan.notes)
+
+
 def test_a_long_visit_over_midday_includes_lunch_and_a_food_stop_is_lunch():
     lim = limits(GOA)
     day = date(2026, 12, 12)

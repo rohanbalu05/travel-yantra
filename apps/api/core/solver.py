@@ -50,6 +50,8 @@ LUNCH_UNTIL = time(14, 0)
 LUNCH_MIN = 45
 LUNCH_NOTE = re.compile(r"^Lunch \d\d:\d\d–\d\d:\d\d$")
 FOOD = "food"
+# Stops whose opening hours nobody knows (TY2: no Places match, or Places has none): said, never guessed.
+CHECK_HOURS = "Check hours before you go: "
 # A travel-only day's first note (and title): "Travel day: train 17309, 15:15 → 05:47".
 TRAVEL_DAY = "Travel day: "
 # Grouping by area: a day's stops stay within this road time of one another, and the first and last days
@@ -359,6 +361,8 @@ def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorde
     notes = [REST_NOTE] if rested else []
     if lunch:
         notes.append(f"Lunch {lunch:%H:%M}–{lunch + timedelta(minutes=LUNCH_MIN):%H:%M}")
+    if unknown := [p.name for p in stops if not p.opening_hours]:
+        notes.append(CHECK_HOURS + ", ".join(unknown))
     if transfer:
         legs.insert(0, transfer)
     if hop:
@@ -419,7 +423,7 @@ def rebuild_day(it: Itinerary, d: date, stops: list[Place], travel: Travel, lim:
     # Journey lines in the older wording ("Travel: A → B by rail, 3h20") are ours too; a traveller's own
     # note that merely starts with "Travel: " is not.
     keep = [n for n in old.notes if n not in generated and not OLD_JOURNEY_NOTE.match(n)
-            and not LUNCH_NOTE.match(n) and not n.startswith(TRAVEL_DAY)]
+            and not LUNCH_NOTE.match(n) and not n.startswith((TRAVEL_DAY, CHECK_HOURS))]
     it.days[i] = plan.model_copy(update={"notes": keep + plan.notes, "title": old.title})
 
 
