@@ -39,19 +39,23 @@ class FakeApi:
         self.chats: list[httpx.Request] = []
         self.media = b"OggS voice"
         self.status = 200
+        self.media_url = "https://lookaside.fbsbx.com/whatsapp_business/attachments/?mid=1"
+        self.fetched: list[str] = []
 
     def bodies(self) -> list[dict]:
         return [json.loads(r.content) for r in self.chats]
 
     def __call__(self, req: httpx.Request) -> httpx.Response:
+        if req.url.host not in ("api.test", "graph.facebook.com"):
+            self.fetched.append(req.url.host)
         if req.url.path == "/chat":
             self.chats.append(req)
             return httpx.Response(self.status, text=sse(*self.events))
         if req.url.host == "graph.facebook.com":
             assert req.headers["authorization"] == "Bearer fake-token"
-            info = {"url": "https://media.example/v.ogg", "mime_type": "audio/ogg", "file_size": 10}
+            info = {"url": self.media_url, "mime_type": "audio/ogg", "file_size": 10}
             return httpx.Response(200, json=info)
-        if req.url.host == "media.example":
+        if req.url.host == "lookaside.fbsbx.com":
             return httpx.Response(200, content=self.media)
         return httpx.Response(404)
 
@@ -153,6 +157,14 @@ def test_voice_note_too_long_is_refused(bot, api, monkeypatch):
     monkeypatch.setattr(chat_mod, "MAX_AUDIO_BYTES", 4)
     post(client, load("voice.json"))
     assert api.chats == [] and fake.sent[0][1].startswith("That voice note is too long")
+
+
+def test_media_url_outside_meta_is_not_fetched(bot, api):
+    client, fake = bot
+    api.media_url = "https://evil.example/x"
+    post(client, load("voice.json"))
+    assert api.chats == [] and fake.sent == [(USER, chat_mod.NO_MEDIA)]
+    assert api.fetched == []
 
 
 def test_other_media_gets_text_only_reply(bot, api):

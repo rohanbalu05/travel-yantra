@@ -77,3 +77,6 @@ class Conversation(BaseModel):
     plan_id: str | None = None
     share_token: str | None = None
     plan_ids: list[str] = Field(default_factory=list)  # every plan made here, for delete my data
+    # Voice notes transcribed today (UTC day number), for the per-caller daily cap.
+    voice_day: int = 0
+    voice_count: int = 0

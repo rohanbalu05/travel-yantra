@@ -22,6 +22,8 @@ from .sender import GRAPH, digits
 
 log = logging.getLogger(__name__)
 MAX_AUDIO_BYTES = 3_000_000  # /chat takes about 3 MB of audio
+# Where Cloud API media URLs point (lookaside.fbsbx.com today); the token goes nowhere else.
+META_HOSTS = (".fbsbx.com", ".fbcdn.net", ".whatsapp.net", ".facebook.com")
 NOT_TEXT = "Sorry, I can read text, voice notes and locations. Please type your message."
 TOO_LONG = "That voice note is too long for me. Please keep it under two minutes, or type it."
 NO_MEDIA = "I could not download that voice note. Please send it again, or type your message."
@@ -117,6 +119,11 @@ class Chat:
                 info = meta.json()
                 if int(info.get("file_size") or 0) > MAX_AUDIO_BYTES:
                     return TOO_LONG
+                host = httpx.URL(info["url"]).host
+                if not host.endswith(META_HOSTS):
+                    # The token goes only to Meta's own media hosts.
+                    log.error("voice note: media host is not Meta's")
+                    return NO_MEDIA
                 data = bytearray()
                 async with client.stream("GET", info["url"], headers=auth) as r:
                     r.raise_for_status()

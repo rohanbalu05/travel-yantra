@@ -176,6 +176,30 @@ async def test_voice_note_is_heard_then_handled(engine, api, lite):
     assert api.bodies("/plan")[0]["text"] == lite.words and of(events, "plan")
 
 
+async def test_voice_notes_are_capped_per_day(engine, lite, clock, monkeypatch):
+    from ty_chat import engine as engine_mod
+
+    monkeypatch.setattr(engine_mod, "VOICE_PER_DAY", 2)
+    lite.words = "hello"
+    audio = {"data": base64.b64encode(b"x").decode(), "mime": "audio/ogg"}
+    for _ in range(2):
+        await send(engine, audio=audio)
+    assert texts(await send(engine, audio=audio)) == [engine_mod.VOICE_CAP]
+    assert len(lite.heard) == 2
+    clock.now += 86400  # the next day
+    await send(engine, audio=audio)
+    assert len(lite.heard) == 3
+
+
+async def test_done_is_sent_when_saving_fails(engine, store, monkeypatch):
+    async def broken(cid, conv):
+        raise OSError("database down")
+
+    monkeypatch.setattr(store, "put", broken)
+    events = await send(engine, "hello")
+    assert events[-1].type == "done"
+
+
 async def test_silent_voice_note(engine, lite):
     audio = {"data": base64.b64encode(b"x").decode(), "mime": "audio/ogg"}
     assert texts(await send(engine, audio=audio)) == [NOT_HEARD]

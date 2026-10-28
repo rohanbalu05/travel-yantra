@@ -64,7 +64,9 @@ NOTHING_OPEN = "There is no trip open just now. Tell me where you would like to 
 NOT_HEARD = "I could not make out any words in that voice note. Please try again, or type it."
 BAD_AUDIO = "I could not open that voice note. Please send it again, or type your message."
 HEARING_FAILED = "I could not listen to that voice note just now. Please type your message."
-PLAN_FAILED = "I could not make that plan just now: {why}. Please try again in a minute."
+VOICE_PER_DAY = 40  # Flash-Lite transcriptions per caller per day (UTC)
+VOICE_CAP = "That is a lot of voice notes for one day. Please type your message instead."
+PLAN_FAILED ="I could not make that plan just now: {why}. Please try again in a minute."
 BUSY = "The planner is busy just now. Please try again in a minute."
 SORRY = "Sorry, something went wrong on our side. Please try again in a minute."
 SAME_PLACE = (
@@ -302,10 +304,13 @@ class Engine:
                 log.exception("chat reply failed (%s)", body.channel)
                 await emit(ChatEvent(type="error", text=await self._tr(SORRY, conv.lang)))
             conv = turn.conv  # delete my data starts a fresh one
-            if turn.forgotten:
-                await self.store.delete(cid)
-            else:
-                await self.store.put(cid, conv)
+            try:
+                if turn.forgotten:
+                    await self.store.delete(cid)
+                else:
+                    await self.store.put(cid, conv)
+            except Exception:  # the reply is out; done must still tell the client the plan id
+                log.exception("chat state not saved")
             await emit(
                 ChatEvent(
                     type="done",
@@ -440,6 +445,14 @@ class Engine:
         except (binascii.Error, ValueError):
             await self.say(t, BAD_AUDIO)
             return None
+        c, day = t.conv, int(self.clock() // 86400)
+        if c.voice_day != day:
+            c.voice_day, c.voice_count = day, 0
+        if c.voice_count >= VOICE_PER_DAY:
+            log.warning("voice note refused: daily cap of %d reached", VOICE_PER_DAY)
+            await self.say(t, VOICE_CAP)
+            return None
+        c.voice_count += 1
         lite = self.lite or get_lite()
         try:
             words = (await lite.transcribe(data, audio.mime)).strip()
