@@ -44,6 +44,16 @@ for (const [size, opts] of Object.entries(sizes)) {
   }
 }
 
+// The longest scripts at phone width: the Plan page with the chat box (TY5) and buttons.
+for (const lang of ["kn", "bn"]) {
+  const ctx = await browser.newContext(sizes.phone);
+  await ctx.addInitScript((l) => localStorage.setItem("ty.lang", l), lang);
+  const page = await ctx.newPage();
+  await page.goto(`${base}/plan/start/`, { waitUntil: "networkidle" });
+  await shot(page, `phone-${lang}-plan-words`);
+  await ctx.close();
+}
+
 // One live plan (phone, English), then the pages that need it, and My trips after.
 {
   const ctx = await browser.newContext(sizes.phone);
