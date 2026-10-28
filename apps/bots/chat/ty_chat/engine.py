@@ -57,7 +57,7 @@ HELP = (
 )
 OUTSIDE = (
     "Sorry, {places} is outside the regions I plan for now: " + REGIONS_LINE + ". "
-    "I would be glad to plan a trip there, for example: Plan Bengaluru to Mysuru, 21-22 Nov, 2 of us"
+    "Try a trip in one of them, for example: Plan Bengaluru to Mysuru, 21-22 Nov, 2 of us"
 )
 
 
