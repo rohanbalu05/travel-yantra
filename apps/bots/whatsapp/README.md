@@ -1,16 +1,21 @@
 # apps/bots/whatsapp (TY5)
 
-WhatsApp Cloud API webhook for the **test number only**. Plain-text chat in English, Hinglish
-or Indic script:
+WhatsApp Cloud API webhook for the **test number only**. It is a thin client of the chat engine
+(`apps/bots/chat`, `POST /chat` on ty-api): the same conversation rules, edits, guide and stories
+as the web chat panel. See `apps/bots/chat/README.md` for what the engine understands.
 
-- `Bengaluru to Goa, 11-14 Dec` (or `Bengaluru se Goa 11 Dec se 14 Dec tak`) → `POST /plan` → day-by-day summary.
-- Anything else → `POST /guide/ask` in the language of the message's script.
-- After a plan: `share` (link), `lighter day 2`, `rain` / `rain day 3`, `swap <place>`, `extra day in <city>` (move_day) → `POST /plan/{id}/revise`. Plans quote up to two of TY2's season notes, with their sources.
-- While a plan or revision is being made, a short "working on your plan" note goes out first.
-- `delete my data` (or `forget me`, `मेरा डेटा हटाओ`): forgets the sender's plans, language and location and calls `DELETE /plan/{id}` (TY1) for every plan they made; plans the API could not delete point to the contact email.
-- A shared location is sent with guide questions for an hour (emergencies).
-- Voice notes and other media → a polite text-only reply.
-- `story Mysore Palace` (`katha … 5 min in Hindi`, `मैसूर पैलेस की कहानी`) → `POST /guide/katha` (place, then city): the story in the user's language, its sources, then its narrated chapters as audio messages when TY2's `audio` URLs match that language. Hindi and Kannada are written by the guide natively; other languages are translated from English.
+- Text → `POST {API_BASE_URL}/chat`; the reply's notes ("Working on your plan") go out first, then
+  the reply in WhatsApp-sized parts, then any story audio as audio messages.
+- Voice notes → downloaded from the Cloud API (`WHATSAPP_TOKEN`, at most 3 MB) and posted to
+  `/chat` as audio; the API transcribes them with Gemini 3.1 Flash-Lite, the bot echoes what was
+  heard (🎤 “…”), and the words are handled as text.
+- A shared location → `/chat` (used for nearby and emergency questions for an hour).
+- Other media → a polite text-only reply.
+- Messages from senders outside `WHATSAPP_ALLOWED_RECIPIENTS` are skipped before any API or model
+  call (no reply could reach them).
+- The conversation id is `wa-` + an HMAC of the sender's number with the app secret: stable per
+  sender, never the number, and not guessable from it. Rotating the app secret starts new
+  conversations (plans already made stay in the API).
 
 Endpoints: `GET /webhook` (Meta verification), `POST /webhook` (messages; `X-Hub-Signature-256`
 checked against the app secret; replies are sent inside the request, because Cloud Run throttles CPU
@@ -30,10 +35,8 @@ query string.
 | `WHATSAPP_TOKEN` | Cloud API access token for sending replies |
 | `WHATSAPP_PHONE_NUMBER_ID` | The test number's phone number id |
 | `WHATSAPP_ALLOWED_RECIPIENTS` | Comma-separated test recipient numbers; nobody else is ever messaged (unset = send nothing) |
-| `API_BASE_URL` | Travel Yantra API; unset = offline Goa sample answers |
-| `TRANSLATE_URL` | ty-translate; replies in the user's script language. Unset = English. On Cloud Run an ID token is sent |
+| `API_BASE_URL` | Travel Yantra API (ty-api) with `POST /chat`; unset = a "not connected" reply |
 | `WHATSAPP_WABA_ID` | Only for `python -m app.webhook_check` (read-only: which apps the WhatsApp account's webhooks go to) |
-| `SHARE_BASE_URL` | ty-web URL; share links are `{SHARE_BASE_URL}/t/{token}/`. Unset = the API's JSON |
 
 ## Run and test
 

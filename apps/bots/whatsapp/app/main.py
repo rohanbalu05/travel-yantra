@@ -12,11 +12,12 @@ from collections import OrderedDict
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import PlainTextResponse
 
-from .brain import MAX_REPLY, Brain
+from .chat import Chat
 from .sender import CloudApiSender, Sender
 
 log = logging.getLogger(__name__)
 SORRY = "Sorry, something went wrong on our side. Please try again in a minute."
+MAX_REPLY = 4000  # WhatsApp text bodies are capped at 4096 characters
 
 
 def signature_ok(body: bytes, header: str | None, secret: str) -> bool:
@@ -84,21 +85,25 @@ class Seen:
         return True
 
 
-def create_app(brain: Brain | None = None, sender: Sender | None = None) -> FastAPI:
+def create_app(chat: Chat | None = None, sender: Sender | None = None) -> FastAPI:
     app = FastAPI(title="Travel Yantra WhatsApp bot")
-    brain = brain or Brain()
+    chat = chat or Chat()
     sender = sender or CloudApiSender()
     seen = Seen()
 
     async def handle(msg: dict) -> None:
         to = msg.get("from", "")
+        if not sender.allows(to):
+            # Not a test recipient: no reply could reach them, so make no plan or model call.
+            log.warning("skipping a %s message from a sender not in the allowed list", msg.get("type"))
+            return
 
         async def notify(text: str) -> None:
             await sender.send_text(to, text)
 
         audio: list[str] = []
         try:
-            reply = await brain.handle(msg, notify=notify, audio=audio)
+            reply = await chat.handle(msg, notify=notify, audio=audio)
         except Exception:
             log.exception("reply failed for a %s message", msg.get("type"))
             reply, audio = SORRY, []

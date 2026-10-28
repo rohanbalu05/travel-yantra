@@ -7,15 +7,16 @@ import httpx
 import pytest
 from fastapi.testclient import TestClient
 
+from app import chat as chat_mod
 from app import sender as sender_mod
-from app.brain import NOT_TEXT, VOICE, Brain
+from app.chat import NOT_TEXT, Chat, client_id
 from app.main import SORRY, create_app, split
 from app.sender import CloudApiSender, FakeSender
-from app.translate import Translator
 
 PAYLOADS = Path(__file__).parent / "payloads"
 SECRET = "test-app-secret"  # fake, used only by these tests
 USER = "15550001111"  # fictional sample number
+API = "http://api.test"
 
 
 def load(name: str) -> bytes:
@@ -26,12 +27,51 @@ def sign(body: bytes, secret: str = SECRET) -> str:
     return "sha256=" + hmac.new(secret.encode(), body, hashlib.sha256).hexdigest()
 
 
+def sse(*events: dict) -> str:
+    return "".join(f": ping\n\ndata: {json.dumps(e)}\n\n" for e in events)
+
+
+class FakeApi:
+    """POST /chat answers with `events`; the Graph API serves one voice note."""
+
+    def __init__(self) -> None:
+        self.events: list[dict] = [{"type": "text", "text": "the reply"}, {"type": "done"}]
+        self.chats: list[httpx.Request] = []
+        self.media = b"OggS voice"
+        self.status = 200
+
+    def bodies(self) -> list[dict]:
+        return [json.loads(r.content) for r in self.chats]
+
+    def __call__(self, req: httpx.Request) -> httpx.Response:
+        if req.url.path == "/chat":
+            self.chats.append(req)
+            return httpx.Response(self.status, text=sse(*self.events))
+        if req.url.host == "graph.facebook.com":
+            assert req.headers["authorization"] == "Bearer fake-token"
+            info = {"url": "https://media.example/v.ogg", "mime_type": "audio/ogg", "file_size": 10}
+            return httpx.Response(200, json=info)
+        if req.url.host == "media.example":
+            return httpx.Response(200, content=self.media)
+        return httpx.Response(404)
+
+
 @pytest.fixture
-def bot(monkeypatch):
+def api(monkeypatch):
+    fake = FakeApi()
+    real = httpx.AsyncClient
+    monkeypatch.setattr(
+        chat_mod.httpx, "AsyncClient", lambda **kw: real(transport=httpx.MockTransport(fake), **kw)
+    )
+    return fake
+
+
+@pytest.fixture
+def bot(monkeypatch, api):
     monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
     monkeypatch.setenv("WHATSAPP_VERIFY_TOKEN", "test-verify-token")
     fake = FakeSender()
-    app = create_app(brain=Brain(base="", translator=Translator(base="")), sender=fake)
+    app = create_app(chat=Chat(base=API, token="fake-token"), sender=fake)
     with TestClient(app) as client:
         yield client, fake
 
@@ -40,6 +80,137 @@ def post(client, body: bytes, signature: str | None = None):
     headers = {"content-type": "application/json"}
     headers["x-hub-signature-256"] = signature if signature is not None else sign(body)
     return client.post("/webhook", content=body, headers=headers)
+
+
+class Canned:
+    """A chat that returns a fixed reply (and notes or audio) without any HTTP."""
+
+    def __init__(self, reply="the plan", notes=(), audio=(), boom=False) -> None:
+        self.reply, self.notes, self.audio, self.boom = reply, notes, audio, boom
+
+    async def handle(self, msg, notify=None, audio=None):
+        if self.boom:
+            raise RuntimeError("api down")
+        for n in self.notes:
+            await notify(n)
+        audio.extend(self.audio)
+        return self.reply
+
+
+def run(monkeypatch, chat) -> FakeSender:
+    monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
+    fake = FakeSender()
+    with TestClient(create_app(chat=chat, sender=fake)) as client:
+        post(client, load("text_en.json"))
+    return fake
+
+
+def test_text_goes_to_chat_and_the_reply_comes_back(bot, api):
+    client, fake = bot
+    api.events = [
+        {"type": "note", "text": "Working on your plan now"},
+        {"type": "plan", "plan_id": "p1"},
+        {"type": "text", "text": "Goa from Bengaluru\nDay 1: Basilica"},
+        {"type": "chips", "chips": ["share"]},
+        {"type": "done", "plan_id": "p1", "plan_changed": True},
+    ]
+    assert post(client, load("text_en.json")).status_code == 200
+    assert fake.sent == [
+        (USER, "Working on your plan now"),
+        (USER, "Goa from Bengaluru\nDay 1: Basilica"),
+    ]
+    [body] = api.bodies()
+    assert body["channel"] == "whatsapp" and "Goa" in body["text"]
+    # The conversation id is keyed by the number, but neither holds nor reveals it.
+    cid = api.chats[0].headers["x-client-id"]
+    assert cid == client_id(USER) and cid.startswith("wa-") and USER not in cid
+
+
+def test_same_sender_same_conversation(monkeypatch):
+    monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
+    assert client_id("+1 555 000 1111") == client_id(USER) != client_id("15550002222")
+    other = client_id(USER)
+    monkeypatch.setenv("WHATSAPP_APP_SECRET", "another-secret")
+    assert client_id(USER) != other
+
+
+def test_voice_note_is_downloaded_and_sent_as_audio(bot, api):
+    client, fake = bot
+    api.events = [
+        {"type": "heard", "text": "गोवा की यात्रा"},
+        {"type": "text", "text": "ठीक है"},
+        {"type": "done"},
+    ]
+    post(client, load("voice.json"))
+    [body] = api.bodies()
+    assert body["audio"]["data"] == "T2dnUyB2b2ljZQ=="  # base64 of the fake media
+    assert body["audio"]["mime"].startswith("audio/ogg")
+    assert fake.sent == [(USER, "🎤 “गोवा की यात्रा”"), (USER, "ठीक है")]
+
+
+def test_voice_note_too_long_is_refused(bot, api, monkeypatch):
+    client, fake = bot
+    monkeypatch.setattr(chat_mod, "MAX_AUDIO_BYTES", 4)
+    post(client, load("voice.json"))
+    assert api.chats == [] and fake.sent[0][1].startswith("That voice note is too long")
+
+
+def test_other_media_gets_text_only_reply(bot, api):
+    client, fake = bot
+    payload = json.loads(load("voice.json"))
+    msg = payload["entry"][0]["changes"][0]["value"]["messages"][0]
+    msg.update(type="image", id="wamid.SAMPLE.image")
+    post(client, json.dumps(payload).encode())
+    assert fake.sent == [(USER, NOT_TEXT)] and api.chats == []
+
+
+def test_location_goes_to_chat(bot, api):
+    client, _ = bot
+    post(client, load("location.json"))
+    [body] = api.bodies()
+    assert set(body["location"]) == {"lat", "lng"} and "text" not in body
+
+
+def test_chat_http_error_says_busy(bot, api):
+    client, fake = bot
+    api.status = 503
+    post(client, load("text_en.json"))
+    assert fake.sent == [(USER, chat_mod.BUSY)]
+
+
+def test_senders_not_allowed_cost_nothing(monkeypatch, api):
+    monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
+    monkeypatch.setenv("WHATSAPP_ALLOWED_RECIPIENTS", "15550002222")
+    monkeypatch.setenv("WHATSAPP_TOKEN", "fake-token")
+    monkeypatch.setenv("WHATSAPP_PHONE_NUMBER_ID", "100000000000001")
+    with TestClient(create_app(chat=Chat(base=API, token="fake-token"))) as client:
+        post(client, load("voice.json"))
+    assert api.chats == []
+
+
+def test_chat_failure_sends_sorry(monkeypatch):
+    assert run(monkeypatch, Canned(boom=True)).sent == [(USER, SORRY)]
+
+
+def test_planning_note_is_sent_before_the_plan(monkeypatch):
+    fake = run(monkeypatch, Canned(notes=["working…"]))
+    assert fake.sent == [(USER, "working…"), (USER, "the plan")]
+
+
+def test_story_audio_follows_its_text(monkeypatch):
+    urls = ["https://audio.example/1.mp3", "https://audio.example/2.mp3"]
+    fake = run(monkeypatch, Canned(reply="the story", audio=urls))
+    assert fake.sent == [(USER, "the story")]
+    assert fake.audio == [(USER, urls[0]), (USER, urls[1])]
+
+
+def test_long_reply_goes_out_in_parts(monkeypatch):
+    fake = run(monkeypatch, Canned(reply="\n\n".join(["p" * 3000] * 3)))
+    assert [len(b) for _, b in fake.sent] == [3000, 3000, 3000]
+
+
+def test_empty_reply_sends_nothing(monkeypatch):
+    assert run(monkeypatch, Canned(reply="  ")).sent == []
 
 
 def test_verify_returns_challenge(bot):
@@ -91,50 +262,6 @@ def test_signature_needs_the_secret(bot, monkeypatch):
     assert fake.sent == []
 
 
-def test_english_trip_gets_a_plan(bot):
-    client, fake = bot
-    assert post(client, load("text_en.json")).status_code == 200
-    [(to, reply)] = fake.sent
-    assert to == USER
-    assert "Goa from Bengaluru" in reply and "Day 1" in reply and "Budget: ₹" in reply
-
-
-def test_hinglish_trip_gets_a_plan(bot):
-    client, fake = bot
-    post(client, load("text_hinglish.json"))
-    [(_, reply)] = fake.sent
-    assert "Day 1" in reply
-
-
-def test_hindi_question_goes_to_the_guide(bot):
-    client, fake = bot
-    post(client, load("text_hindi.json"))
-    [(_, reply)] = fake.sent
-    assert "शाकाहारी" in reply
-
-
-def test_voice_note_gets_text_only_reply(bot):
-    client, fake = bot
-    post(client, load("voice.json"))
-    assert fake.sent == [(USER, VOICE)]
-
-
-def test_other_media_gets_text_only_reply(bot):
-    client, fake = bot
-    payload = json.loads(load("voice.json"))
-    msg = payload["entry"][0]["changes"][0]["value"]["messages"][0]
-    msg.update(type="image", id="wamid.SAMPLE.image")
-    post(client, json.dumps(payload).encode())
-    assert fake.sent == [(USER, NOT_TEXT)]
-
-
-def test_location_is_acknowledged(bot):
-    client, fake = bot
-    post(client, load("location.json"))
-    [(_, reply)] = fake.sent
-    assert reply.startswith("Got your location")
-
-
 def test_status_updates_send_nothing(bot):
     client, fake = bot
     assert post(client, load("status.json")).status_code == 200
@@ -147,19 +274,6 @@ def test_retried_webhook_replies_once(bot):
     post(client, body)
     post(client, body)
     assert len(fake.sent) == 1
-
-
-def test_brain_failure_sends_sorry(monkeypatch):
-    monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
-
-    class Broken(Brain):
-        async def handle(self, msg, notify=None, audio=None):
-            raise RuntimeError("api down")
-
-    fake = FakeSender()
-    with TestClient(create_app(brain=Broken(base=""), sender=fake)) as client:
-        assert post(client, load("text_en.json")).status_code == 200
-    assert fake.sent == [(USER, SORRY)]
 
 
 def test_non_json_body_is_400(bot):
@@ -262,22 +376,6 @@ def test_failed_delivery_status_is_logged(bot, caplog):
     assert USER not in caplog.text and fake.sent == []
 
 
-def test_planning_note_is_sent_before_the_plan(monkeypatch):
-    monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
-
-    class Slow(Brain):
-        async def _handle(self, msg):
-            from app.brain import NOTIFY
-
-            await NOTIFY.get()("working…")
-            return "the plan"
-
-    fake = FakeSender()
-    with TestClient(create_app(brain=Slow(base=""), sender=fake)) as client:
-        post(client, load("text_en.json"))
-    assert fake.sent == [(USER, "working…"), (USER, "the plan")]
-
-
 def test_verify_token_is_never_logged(bot, caplog):
     client, _ = bot
     params = {
@@ -288,26 +386,6 @@ def test_verify_token_is_never_logged(bot, caplog):
     client.get("/webhook", params=params)
     client.get("/webhook", params={**params, "hub.verify_token": "guess-token"})
     assert "test-verify-token" not in caplog.text and "guess-token" not in caplog.text
-
-
-def test_story_audio_follows_its_text(monkeypatch):
-    monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
-
-    class Teller(Brain):
-        async def _handle(self, msg):
-            from app.brain import AUDIO
-
-            AUDIO.get().extend(["https://audio.example/1.mp3", "https://audio.example/2.mp3"])
-            return "the story"
-
-    fake = FakeSender()
-    with TestClient(create_app(brain=Teller(base=""), sender=fake)) as client:
-        post(client, load("text_en.json"))
-    assert fake.sent == [(USER, "the story")]
-    assert fake.audio == [
-        (USER, "https://audio.example/1.mp3"),
-        (USER, "https://audio.example/2.mp3"),
-    ]
 
 
 async def test_cloud_sender_sends_audio_by_link(monkeypatch):
@@ -353,19 +431,6 @@ def test_split_breaks_at_paragraphs_then_lines_then_spaces():
     assert split("x" * 10, limit=4) == ["xxxx", "xxxx", "xx"]
 
 
-def test_long_reply_goes_out_in_parts(monkeypatch):
-    monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
-
-    class Long(Brain):
-        async def _handle(self, msg):
-            return "\n\n".join(["p" * 3000] * 3)
-
-    fake = FakeSender()
-    with TestClient(create_app(brain=Long(base=""), sender=fake)) as client:
-        post(client, load("text_en.json"))
-    assert [len(b) for _, b in fake.sent] == [3000, 3000, 3000]
-
-
 def test_health_reports_the_deployed_version(bot, monkeypatch):
     client, _ = bot
     monkeypatch.delenv("GIT_SHA", raising=False)
@@ -378,16 +443,3 @@ def test_split_never_sends_empty_or_padded_parts():
     assert split("\n\n" + "a" * 12, limit=10) == ["aaaaaaaaaa", "aa"]
     assert split("  " + "a" * 12 + "  ", limit=10) == ["aaaaaaaaaa", "aa"]
     assert split("abc\n\n\n\ndef", limit=4) == ["abc", "def"]
-
-
-def test_empty_reply_sends_nothing(monkeypatch):
-    monkeypatch.setenv("WHATSAPP_APP_SECRET", SECRET)
-
-    class Silent(Brain):
-        async def _handle(self, msg):
-            return "  "
-
-    fake = FakeSender()
-    with TestClient(create_app(brain=Silent(base=""), sender=fake)) as client:
-        assert post(client, load("text_en.json")).status_code == 200
-    assert fake.sent == []

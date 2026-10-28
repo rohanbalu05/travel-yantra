@@ -19,6 +19,8 @@ class Sender(Protocol):
 
     async def send_audio(self, to: str, url: str) -> None: ...
 
+    def allows(self, to: str) -> bool: ...
+
 
 def digits(number: str) -> str:
     """'+91 98450-12345' -> '919845012345'; WhatsApp's wa_id is digits only."""
@@ -63,6 +65,9 @@ class CloudApiSender:
             "set" if self.token else "UNSET",
             "set" if self.phone_id else "UNSET",
         )
+
+    def allows(self, to: str) -> bool:
+        return is_allowed(to, self.allowed)
 
     async def send_text(self, to: str, body: str) -> None:
         await self._send(
@@ -112,6 +117,9 @@ class FakeSender:
     def __init__(self) -> None:
         self.sent: list[tuple[str, str]] = []
         self.audio: list[tuple[str, str]] = []
+
+    def allows(self, to: str) -> bool:
+        return True
 
     async def send_text(self, to: str, body: str) -> None:
         self.sent.append((to, body))
