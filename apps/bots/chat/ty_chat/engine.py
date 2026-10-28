@@ -599,6 +599,12 @@ class Engine:
         if p.plan_id and p.plan_id not in c.plan_ids:
             c.plan_ids.append(p.plan_id)
         t.plan_changed = True
+        # WARNING so it shows at ty-api's log level: the opaque plan id lets TY1 check a plan a
+        # traveller saw (D-55). Never the caller id, a number or the message.
+        log.warning(
+            "chat plan %s: plan_id=%s total=%d", "changed" if changed else "made",
+            p.plan_id, p.itinerary.budget.total_inr,
+        )  # fmt: skip
         await t.emit(
             ChatEvent(
                 type="plan",
