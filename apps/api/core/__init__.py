@@ -10,6 +10,7 @@ from ty_contracts import (
     PlanStage,
     PlanText,
     ReviseRequest,
+    SavedPlan,
     TripRequest,
 )
 
@@ -64,14 +65,32 @@ async def plan(body: TripRequest | PlanText, client: str | None = Depends(client
     return stream(run_plan(body, client))
 
 
-@router.post("/plan/{plan_id}/revise")
-async def revise_plan(plan_id: str, body: ReviseRequest, client: str | None = Depends(client_id)):
-    """Lighter day, swap a stop, or a rain plan. 404 for an unknown plan, 422 when the day or stop is not
-    in it; otherwise streams PlanEvents ending in done with a new plan_id (the old plan is kept)."""
-    # Store calls (Postgres) and the solver are blocking; keep them off the event loop.
-    trip = await asyncio.to_thread(lambda: get_store().get(plan_id))
+def _own(plan_id: str, client: str | None):
+    """The trip, if the caller may change it: a trip with an owner needs that caller (403); one without is
+    the plan_id holder's (the id is the capability)."""
+    trip = get_store().get(plan_id)
     if trip is None:
         raise HTTPException(404, "plan not found")
+    if trip.owner is not None and trip.owner != client:
+        raise HTTPException(403, "this plan belongs to someone else")
+    return trip
+
+
+@router.get("/plan/{plan_id}", response_model=SavedPlan, response_model_by_alias=True)
+def get_plan(plan_id: str, client: str | None = Depends(client_id)) -> SavedPlan:
+    """The latest version of a trip, to reopen it editable. Same rules as revise: 404, or 403 for a trip
+    that belongs to another account or browser."""
+    trip = _own(plan_id, client)
+    return SavedPlan(plan_id=trip.id, share_token=trip.share_token, itinerary=trip.itinerary,
+                     version=trip.version, updated_at=trip.changed_at)
+
+
+@router.post("/plan/{plan_id}/revise")
+async def revise_plan(plan_id: str, body: ReviseRequest, client: str | None = Depends(client_id)):
+    """Apply one change. 404 for an unknown plan, 403 for someone else's, 422 when the change does not fit
+    it; otherwise streams PlanEvents ending in done with the same plan_id and share_token (a new version)."""
+    # Store calls (Postgres) and the solver are blocking; keep them off the event loop.
+    trip = await asyncio.to_thread(_own, plan_id, client)
     try:
         revised, what, rounds = await asyncio.to_thread(revise, trip.itinerary, body)
     except ReviseError as exc:
@@ -90,11 +109,7 @@ async def revise_plan(plan_id: str, body: ReviseRequest, client: str | None = De
 def delete_plan(plan_id: str, client: str | None = Depends(client_id)) -> Response:
     """Delete one plan by its id (the creator's capability; a share token is not enough). A plan linked to an
     account or browser needs that caller (403 otherwise). Its share link stops working; ratings of it go too."""
-    trip = get_store().get(plan_id)
-    if trip is None:
-        raise HTTPException(404, "plan not found")
-    if trip.owner is not None and trip.owner != client:
-        raise HTTPException(403, "this plan belongs to someone else")
+    _own(plan_id, client)
     get_store().delete(plan_id)
     get_accounts().delete_ratings_for([plan_id])
     return Response(status_code=204)

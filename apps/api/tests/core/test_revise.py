@@ -82,17 +82,21 @@ def plan_goa():
     return done
 
 
-def test_revise_endpoint_streams_and_keeps_the_old_plan():
+def test_revise_endpoint_streams_and_keeps_one_trip():
     done = plan_goa()
     r = client.post(f"/plan/{done['plan_id']}/revise", json={"intent": "rain"})
     assert r.status_code == 200 and r.headers["content-type"].startswith("text/event-stream")
     events = frames(r)
     assert [e["stage"] for e in events] == ["intake", "solving", "checking", "done"]
-    assert events[-1]["plan_id"] != done["plan_id"] and events[-1]["share_token"]
+    # P9: one trip identity across revisions; the share link follows the latest version.
+    assert (events[-1]["plan_id"], events[-1]["share_token"]) == (done["plan_id"], done["share_token"])
     revised = Itinerary.model_validate(events[-1]["partial"])
     assert all(p.category in INDOOR for d in revised.days for p in d.stops)
-    # The original plan is still there and can be revised again.
+    assert Itinerary.model_validate(client.get(f"/trips/{done['share_token']}").json()) == revised
+    saved = client.get(f"/plan/{done['plan_id']}").json()
+    assert saved["version"] == 2 and Itinerary.model_validate(saved["itinerary"]) == revised
     assert client.post(f"/plan/{done['plan_id']}/revise", json={"intent": "rain"}).status_code == 200
+    assert client.get(f"/plan/{done['plan_id']}").json()["version"] == 3
 
 
 def test_revise_endpoint_errors():
@@ -123,5 +127,5 @@ def test_swap_then_lighter_changes_the_day_through_the_endpoint():
                                  json={"intent": "lighter_day", "day": sunday["date"]}))
     after = [s["id"] for s in lighter[-1]["partial"]["days"][-1]["stops"]]
     assert len(after) == len(before) - 1 and set(after) < set(before)
-    assert lighter[-1]["plan_id"] not in (first["plan_id"], swapped["plan_id"])  # clients must switch to it
+    assert lighter[-1]["plan_id"] == swapped["plan_id"] == first["plan_id"]
     assert lighter[1]["message"].startswith(("Moved", "Dropped"))

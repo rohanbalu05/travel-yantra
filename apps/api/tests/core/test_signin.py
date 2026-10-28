@@ -69,10 +69,21 @@ def test_first_sign_in_moves_the_browser_trips_ratings_and_consents_once(memory_
 
 
 def test_an_account_keeps_its_own_consents_when_a_browser_joins():
-    client.put("/me/consents", json={"analytics": True}, headers=bearer("other-token"))
+    client.put("/me/consents", json={"analytics": True, "plan_history": False}, headers=bearer("other-token"))
     client.put("/me/consents", json={"plan_history": True}, headers={"X-Client-Id": BROWSER})
     me = Me.model_validate(client.get("/me", headers=bearer("other-token", BROWSER)).json())
     assert me.consents.analytics and not me.consents.plan_history
+
+
+def test_a_signed_in_account_keeps_plan_history_until_it_turns_it_off():
+    me = Me.model_validate(client.get("/me", headers=bearer("good-token")).json())
+    assert me.consents.plan_history and not me.consents.location and me.consents_updated_at is None
+    trip = done(client.post("/plan", json=MYSURU, headers=bearer("good-token")))
+    assert [t["plan_id"] for t in client.get("/me/trips", headers=bearer("good-token")).json()] == [trip["plan_id"]]
+    client.put("/me/consents", json={"plan_history": False}, headers=bearer("good-token"))
+    assert client.get("/me/trips", headers=bearer("good-token")).json() == []
+    done(client.post("/plan", json=MYSURU, headers=bearer("good-token")))
+    assert client.get("/me/trips", headers=bearer("good-token")).json() == []
 
 
 def test_signed_in_plans_and_delete_me(memory_accounts):

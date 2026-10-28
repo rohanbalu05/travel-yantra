@@ -48,11 +48,21 @@ def test_plans_are_listed_only_with_the_plan_history_consent():
     second = done(client.post("/plan", json=GOA, headers=ME))
     revised = done(client.post(f"/plan/{second['plan_id']}/revise", json={"intent": "rain"}, headers=ME))
     trips = [TripSummary.model_validate(t) for t in client.get("/me/trips", headers=ME).json()]
-    assert [t.plan_id for t in trips] == [revised["plan_id"], second["plan_id"], first["plan_id"]]  # newest first
+    # P9: a revise is the same trip (one row, its latest version), most recently changed first.
+    assert revised["plan_id"] == second["plan_id"]
+    assert [t.plan_id for t in trips] == [second["plan_id"], first["plan_id"]]
+    assert trips[0].total_inr == revised["partial"]["budget"]["total_inr"] and trips[0].updated_at > trips[0].created_at
     assert trips[-1].title == "Mysuru, 31 Oct – 01 Nov" and trips[-1].share_token == first["share_token"]
+    assert trips[-1].travellers == len(MYSURU["constraints"]["travellers"]) and trips[-1].mode is not None
     assert client.get("/me/trips", headers=OTHER).json() == []
     done(client.post("/plan", json=MYSURU))  # no header: never linked
-    assert len(client.get("/me/trips", headers=ME).json()) == 3
+    assert len(client.get("/me/trips", headers=ME).json()) == 2
+    # Only the owner reopens or changes it.
+    assert client.get(f"/plan/{second['plan_id']}", headers=ME).json()["version"] == 2
+    assert client.get(f"/plan/{second['plan_id']}", headers=OTHER).status_code == 403
+    assert client.get(f"/plan/{second['plan_id']}").status_code == 403
+    assert client.post(f"/plan/{second['plan_id']}/revise", json={"intent": "rain"}, headers=OTHER).status_code == 403
+    assert client.get("/plan/nope", headers=ME).status_code == 404
 
 
 def test_ratings_work_with_or_without_an_id(memory_accounts):

@@ -1,6 +1,8 @@
 """Trip storage (card #37): Postgres when DATABASE_URL is set, else in memory (lost on restart).
 
-A trip id is the plan_id clients use for revise; the share token opens a read-only copy.
+A trip id is the plan_id clients use for revise; the share token opens a read-only copy. A revise updates
+the trip in place (same id and share token, version + 1), so one trip is one entry however often it changes.
+Trips saved before that have a `revised_from` chain; only the newest of a chain is listed.
 """
 
 from __future__ import annotations
@@ -11,7 +13,7 @@ import secrets
 import threading
 import uuid
 from collections import OrderedDict
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Protocol
@@ -32,6 +34,12 @@ class Trip:
     owner: str | None = None
     revised_from: str | None = None
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    version: int = 1
+    updated_at: datetime | None = None
+
+    @property
+    def changed_at(self) -> datetime:
+        return self.updated_at or self.created_at
 
 
 def new_ids() -> tuple[str, str]:
@@ -42,6 +50,7 @@ def new_ids() -> tuple[str, str]:
 class TripStore(Protocol):
     def save(self, itinerary: Itinerary, owner: str | None = None, revised_from: str | None = None) -> Trip: ...
     def get(self, trip_id: str) -> Trip | None: ...
+    def update(self, trip_id: str, itinerary: Itinerary, owner: str | None = None) -> Trip | None: ...
     def by_share_token(self, token: str) -> Trip | None: ...
     def by_owner(self, owner: str) -> list[Trip]: ...
     def delete_owner(self, owner: str) -> int: ...
@@ -67,12 +76,26 @@ class MemoryStore:
     def get(self, trip_id: str) -> Trip | None:
         return self._trips.get(trip_id)
 
+    def update(self, trip_id: str, itinerary: Itinerary, owner: str | None = None) -> Trip | None:
+        """A new version of the trip: same id and share token. `owner` claims a trip that has none."""
+        with self._lock:
+            old = self._trips.get(trip_id)
+            if old is None:
+                return None
+            trip = replace(old, itinerary=itinerary.model_copy(deep=True), owner=old.owner or owner,
+                           version=old.version + 1, updated_at=datetime.now(UTC))
+            self._trips[trip_id] = trip
+            self._trips.move_to_end(trip_id)
+            return trip
+
     def by_share_token(self, token: str) -> Trip | None:
         return next((t for t in list(self._trips.values()) if secrets.compare_digest(t.share_token, token)), None)
 
     def by_owner(self, owner: str) -> list[Trip]:
-        """Newest first."""
-        return sorted((t for t in list(self._trips.values()) if t.owner == owner), key=lambda t: t.created_at, reverse=True)
+        """One per trip (the newest of an old revised_from chain), most recently changed first."""
+        mine = [t for t in list(self._trips.values()) if t.owner == owner]
+        superseded = {t.revised_from for t in mine}
+        return sorted((t for t in mine if t.id not in superseded), key=lambda t: t.changed_at, reverse=True)
 
     def delete(self, trip_id: str) -> bool:
         with self._lock:
@@ -83,7 +106,7 @@ class MemoryStore:
             mine = [k for k, t in self._trips.items() if t.owner == old]
             for k in mine:
                 t = self._trips[k]
-                self._trips[k] = Trip(t.id, t.share_token, t.itinerary, new, t.revised_from, t.created_at)
+                self._trips[k] = replace(t, owner=new)
             return len(mine)
 
     def delete_owner(self, owner: str) -> int:
@@ -117,7 +140,7 @@ class PgStore:
             )
         return Trip(trip_id, token, itinerary, owner, revised_from)
 
-    _COLUMNS = "id, share_token, itinerary, owner, revised_from, created_at"
+    _COLUMNS = "id, share_token, itinerary, owner, revised_from, created_at, version, updated_at"
     _SELECT = {
         "id": f"SELECT {_COLUMNS} FROM trips WHERE id = %s",
         "share_token": f"SELECT {_COLUMNS} FROM trips WHERE share_token = %s",
@@ -125,7 +148,7 @@ class PgStore:
 
     @staticmethod
     def _trip(row) -> Trip:
-        return Trip(row[0], row[1], Itinerary.model_validate(row[2]), row[3], row[4], row[5])
+        return Trip(row[0], row[1], Itinerary.model_validate(row[2]), row[3], row[4], row[5], row[6], row[7])
 
     def _one(self, key: str, value: str) -> Trip | None:
         with self._connect() as conn:
@@ -134,8 +157,10 @@ class PgStore:
 
     def by_owner(self, owner: str) -> list[Trip]:
         with self._connect() as conn:
-            rows = conn.execute(f"SELECT {self._COLUMNS} FROM trips WHERE owner = %s ORDER BY created_at DESC",
-                                (owner,)).fetchall()
+            rows = conn.execute(
+                f"SELECT {self._COLUMNS} FROM trips t WHERE owner = %s AND NOT EXISTS "
+                "(SELECT 1 FROM trips n WHERE n.revised_from = t.id AND n.owner = t.owner) "
+                "ORDER BY coalesce(updated_at, created_at) DESC", (owner,)).fetchall()
         return [self._trip(r) for r in rows]
 
     def delete(self, trip_id: str) -> bool:
@@ -156,6 +181,14 @@ class PgStore:
 
     def get(self, trip_id: str) -> Trip | None:
         return self._one("id", trip_id)
+
+    def update(self, trip_id: str, itinerary: Itinerary, owner: str | None = None) -> Trip | None:
+        with self._connect() as conn:
+            row = conn.execute(
+                f"UPDATE trips SET itinerary = %s::jsonb, owner = coalesce(owner, %s), version = version + 1, "
+                f"updated_at = now() WHERE id = %s RETURNING {self._COLUMNS}",
+                (itinerary.model_dump_json(by_alias=True), owner, trip_id)).fetchone()
+        return None if row is None else self._trip(row)
 
     def by_share_token(self, token: str) -> Trip | None:
         return self._one("share_token", token)

@@ -20,7 +20,15 @@ from typing import Protocol
 from fastapi import APIRouter, Depends, Header, HTTPException
 from fastapi.responses import JSONResponse
 
-from ty_contracts import Consents, ConsentsUpdate, Me, RatingIn, TripSummary
+from ty_contracts import (
+    Consents,
+    ConsentsUpdate,
+    Itinerary,
+    Me,
+    Mode,
+    RatingIn,
+    TripSummary,
+)
 
 from . import auth
 from .trips import MIGRATIONS, Trip, get_store
@@ -97,6 +105,12 @@ def link_browser(anon: str, uid: str) -> None:
     log.warning("linked a browser to an account: %d items moved", moved)  # no ids in the log
 
 
+def default_consents(uid: str) -> Consents:
+    """Before any choice: a signed-in account keeps its plan history (that is why people sign in; they can
+    turn it off); an anonymous browser keeps nothing."""
+    return Consents(plan_history=uid.startswith(auth.ACCOUNT_PREFIX))
+
+
 @dataclass
 class Rating:
     uid: str | None
@@ -127,7 +141,7 @@ class MemoryAccounts:
         self._lock = threading.Lock()
 
     def consents(self, uid: str) -> tuple[Consents, datetime | None]:
-        return self._consents.get(uid, (Consents(), None))
+        return self._consents.get(uid, (default_consents(uid), None))
 
     def set_consents(self, uid: str, update: ConsentsUpdate) -> tuple[Consents, datetime]:
         with self._lock:
@@ -204,7 +218,7 @@ class PgAccounts:
             row = conn.execute("SELECT plan_history, location, analytics, updated_at FROM consents WHERE uid = %s",
                                (uid,)).fetchone()
         if row is None:
-            return Consents(), None
+            return default_consents(uid), None
         return Consents(plan_history=row[0], location=row[1], analytics=row[2]), row[3]
 
     def set_consents(self, uid: str, update: ConsentsUpdate) -> tuple[Consents, datetime]:
@@ -289,12 +303,21 @@ def _me(who: Identity) -> Me:
     return Me(uid=who.uid, email=who.email, name=who.name, consents=consents, consents_updated_at=updated)
 
 
+def plan_mode(it: Itinerary) -> Mode | None:
+    """The chosen mode, else the outbound journey's."""
+    if it.request.transport_mode:
+        return it.request.transport_mode
+    return next((leg.mode for d in it.days for leg in d.legs if leg.role == "outbound"), None)
+
+
 def _summary(t: Trip) -> TripSummary:
-    r = t.itinerary.request
+    it = t.itinerary
+    r = it.request
     span = f"{r.start_date:%d %b}" if r.start_date == r.end_date else f"{r.start_date:%d %b} – {r.end_date:%d %b}"
     return TripSummary(plan_id=t.id, share_token=t.share_token, title=f"{', '.join(r.destinations)}, {span}",
                        origin=r.origin, destinations=r.destinations, start_date=r.start_date, end_date=r.end_date,
-                       created_at=t.created_at)
+                       created_at=t.created_at, updated_at=t.changed_at, mode=plan_mode(it),
+                       travellers=max(len(r.constraints.travellers), 1), total_inr=it.budget.total_inr)
 
 
 # Store calls (Postgres) are blocking; the endpoints are plain `def`, so FastAPI runs them in its threadpool.
