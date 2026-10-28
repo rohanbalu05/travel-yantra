@@ -70,8 +70,12 @@ def test_only_its_maker_may_change_a_trip_without_an_owner():
     # Signed in later on the same browser: the browser id sent with the sign-in still counts.
     assert client.get(f"/plan/{pid}", headers=maker).status_code == 200
     assert client.get("/plan/not-a-plan").json() == {"detail": "This plan was not found. It may have been deleted."}
-    # Deleting the browser's data takes its trips, kept or not.
+    # Deleting the browser's data takes its trips, kept or not, and their ratings.
+    client.post("/ratings", json={"plan_id": pid, "score": 4})
     assert client.delete("/me", headers=maker).status_code == 202 and client.get(f"/trips/{done['share_token']}").status_code == 404
+    from core.accounts import get_accounts
+
+    assert all(r.plan_id != pid for r in get_accounts().ratings)
     # A plan made without any id (older clients) stays the plan_id holder's.
     lines = client.post("/plan", json=body).text.splitlines()
     anon = [json.loads(x[6:]) for x in lines if x.startswith("data: ")][-1]["plan_id"]

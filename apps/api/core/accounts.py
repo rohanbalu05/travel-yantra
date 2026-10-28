@@ -355,12 +355,13 @@ def put_consents(body: ConsentsUpdate, who: Identity = Depends(require_identity)
 
 
 @router.delete("/me", status_code=202)
-def delete_me(uid: str = Depends(require_client)) -> dict:
+def delete_me(uid: str = Depends(require_client), ids: tuple[str, ...] = Depends(caller_ids)) -> dict:
     """Everything for this id: its trips (their share links stop working), consents and ratings."""
     plan_ids = [t.id for t in get_store().by_owner(uid)]
-    # Its own trips, and the ones it made without keeping a history (no owner, its maker key).
-    items = get_store().delete_owner(uid) + get_store().delete_creator(creator_key(uid)) \
-        + get_accounts().delete(uid, plan_ids)
+    # Its own trips, and the ones made without keeping a history (no owner) under any id it speaks for: the
+    # account and the browser it signed in from. Ratings of all of them go too.
+    made = [pid for c in dict.fromkeys((uid, *ids)) for pid in get_store().delete_creator(creator_key(c))]
+    items = get_store().delete_owner(uid) + len(made) + get_accounts().delete(uid, plan_ids + made)
     log.warning("deleted account data: %d items", items)  # no id in the log
     return {"deleted": True, "items": items}
 

@@ -86,6 +86,14 @@ def test_a_signed_in_account_keeps_plan_history_until_it_turns_it_off():
     assert client.get("/me/trips", headers=bearer("good-token")).json() == []
 
 
+def test_delete_me_signed_in_also_takes_the_browsers_unkept_trips(memory_accounts):
+    # Planned anonymously without plan history (no owner), then signed in on that browser and deleted the account.
+    anon = {"X-Client-Id": BROWSER}
+    trip = done(client.post("/plan", json=MYSURU, headers=anon))
+    assert client.delete("/me", headers=bearer("good-token", BROWSER)).status_code == 202
+    assert client.get(f"/trips/{trip['share_token']}").status_code == 404
+
+
 def test_signed_in_plans_and_delete_me(memory_accounts):
     client.put("/me/consents", json={"plan_history": True}, headers=bearer("good-token"))
     trip = done(client.post("/plan", json=MYSURU, headers=bearer("good-token", BROWSER)))

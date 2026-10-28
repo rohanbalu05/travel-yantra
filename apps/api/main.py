@@ -81,7 +81,7 @@ def plain(errors: list[dict], body: object = None) -> str:
     errs = [e for e in errors if branch(e) in ("", kind)] or errors
     e = errs[0]
     start = 2 if branch(e) else 1
-    msg = str(e.get("msg", "Something in the request is not right"))
+    msg = str(e.get("msg") or "something in the request is not right")
     if msg.startswith(("Value error, ", "Assertion failed, ")):
         msg = msg.split(", ", 1)[1]
         return msg if msg.endswith(".") else msg[0].upper() + msg[1:] + "."

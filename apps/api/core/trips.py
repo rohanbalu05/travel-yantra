@@ -59,7 +59,7 @@ class TripStore(Protocol):
     def by_share_token(self, token: str) -> Trip | None: ...
     def by_owner(self, owner: str) -> list[Trip]: ...
     def delete_owner(self, owner: str) -> int: ...
-    def delete_creator(self, creator: str) -> int: ...
+    def delete_creator(self, creator: str) -> list[str]: ...
     def reassign_owner(self, old: str, new: str) -> int: ...
     def delete(self, trip_id: str) -> bool: ...
 
@@ -131,13 +131,13 @@ class MemoryStore:
                 del self._trips[k]
         return len(gone)
 
-    def delete_creator(self, creator: str) -> int:
-        """Trips with no owner that this maker made (DELETE /me)."""
+    def delete_creator(self, creator: str) -> list[str]:
+        """Trips with no owner that this maker made (DELETE /me). Returns their ids."""
         with self._lock:
             gone = [k for k, t in self._trips.items() if t.owner is None and t.creator == creator]
             for k in gone:
                 del self._trips[k]
-        return len(gone)
+        return gone
 
 
 class PgStore:
@@ -204,11 +204,13 @@ class PgStore:
                          "(SELECT id FROM trips WHERE owner = %s)", (owner,))
             return conn.execute("DELETE FROM trips WHERE owner = %s", (owner,)).rowcount
 
-    def delete_creator(self, creator: str) -> int:
+    def delete_creator(self, creator: str) -> list[str]:
         with self._connect() as conn, conn.transaction():
             conn.execute("UPDATE trips SET revised_from = NULL WHERE revised_from IN "
                          "(SELECT id FROM trips WHERE owner IS NULL AND creator = %s)", (creator,))
-            return conn.execute("DELETE FROM trips WHERE owner IS NULL AND creator = %s", (creator,)).rowcount
+            rows = conn.execute("DELETE FROM trips WHERE owner IS NULL AND creator = %s RETURNING id",
+                                (creator,)).fetchall()
+        return [r[0] for r in rows]
 
     def get(self, trip_id: str) -> Trip | None:
         return self._one("id", trip_id)
