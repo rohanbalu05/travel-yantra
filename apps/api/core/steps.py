@@ -542,9 +542,9 @@ async def repair_step(state: dict, model: Model):
 async def final_check(state: dict, model: Model):
     """After the loop: leftovers become warnings. Returns an empty message when nothing was left."""
     before = _itinerary(state)
-    it = finish(before)
+    it = before.model_copy(deep=True)
     retime_home(it)  # repairs may have shortened the last day
-    it.budget = budget(it)
+    it = finish(it)  # leftovers (and anything the re-timing broke) become warnings; budget recomputed
     it.days = day_titles(it.days, it.request)  # repairs may have emptied or filled a day
     from .revise import price_options
 

@@ -44,6 +44,17 @@ RETURN_NOTE = "Return: "
 # The last day is planned to about RETURN_FILL_END; the journey home then leaves at least RETURN_BUFFER_MIN
 # after the last visit ends (RETURN_DEPART is the provisional departure the solver plans against).
 RETURN_FILL_END = time(17, 0)
+# Lunch: the first time the day reaches LUNCH_FROM..LUNCH_UNTIL without a food stop, LUNCH_MIN off.
+LUNCH_FROM = time(12, 30)
+LUNCH_UNTIL = time(14, 0)
+LUNCH_MIN = 45
+LUNCH_NOTE = re.compile(r"^Lunch \d\d:\d\d–\d\d:\d\d$")
+FOOD = "food"
+# A travel-only day's first note (and title): "Travel day: train 17309, 15:15 → 05:47".
+TRAVEL_DAY = "Travel day: "
+# Grouping by area: a day's stops stay within this road time of one another, and the first and last days
+# (arrival and departure) start from places near where the journey arrives or leaves.
+CLUSTER_MIN = 60
 # Below this, the last day takes one stop over the pace cap (not on relaxed pace).
 LAST_DAY_FILL_UNTIL = time(15, 0)
 RETURN_BUFFER_MIN = 45
@@ -153,6 +164,26 @@ class Visit:
     arrive: datetime
     start: datetime
     leave: datetime
+    # Lunch taken on arriving, before the visit starts.
+    lunch: datetime | None = None
+
+
+def lunch_at(t: datetime, lunched: bool) -> datetime | None:
+    """When lunch starts if the day reaches the lunch window at t and has not eaten yet."""
+    if lunched:
+        return None
+    day = t.date()
+    return t if datetime.combine(day, LUNCH_FROM) <= t <= datetime.combine(day, LUNCH_UNTIL) else None
+
+
+def in_area(stops: list[Place], place: Place, travel: Travel) -> bool:
+    """A day takes a moved stop only in its own area (or when it has no stops yet)."""
+    return not stops or min(travel.minutes(s, place) for s in stops) <= CLUSTER_MIN
+
+
+def ate(p: Place, start: datetime, leave: datetime) -> bool:
+    """A food stop over the lunch window is lunch."""
+    return p.category == FOOD and start.time() <= LUNCH_UNTIL and leave.time() >= LUNCH_FROM
 
 
 def schedule(day: date, stops: list[Place], travel_min: list[int], lim: Limits) -> tuple[list[Visit], str | None]:
@@ -164,23 +195,33 @@ def schedule(day: date, stops: list[Place], travel_min: list[int], lim: Limits) 
     out_since = t
     end = datetime.combine(day, lim.end)
     visits: list[Visit] = []
+    lunched = False  # a food stop over the window counts (ate)
     for i, p in enumerate(stops):
         if i:
             t += timedelta(minutes=travel_min[i - 1])
             if lim.rest and t - out_since >= timedelta(minutes=REST_AFTER_MIN):
                 t += timedelta(minutes=REST_MIN)
                 out_since = t
+        arrive = t
+        lunch = None if p.category == FOOD else lunch_at(t, lunched)
+        if lunch:
+            t, lunched, out_since = t + timedelta(minutes=LUNCH_MIN), True, t + timedelta(minutes=LUNCH_MIN)
         window = hours_on(p, day)
         if window is None:
             return visits, f"{p.name} is closed on {WEEKDAYS[day.weekday()]}"
         opens, closes = (datetime.combine(day, w) for w in window)
         start = max(t, opens)
         leave = start + timedelta(minutes=p.typical_visit_minutes)
+        noon = datetime.combine(day, LUNCH_FROM)
+        if not lunched and not lunch and p.category != FOOD and start < noon < leave:
+            # A long visit over midday (a waterfall, a fort): lunch there, and the visit takes that much longer.
+            lunch, leave, lunched = noon, leave + timedelta(minutes=LUNCH_MIN), True
         if leave > closes:
             return visits, f"{p.name} closes at {window[1]:%H:%M}"
         if leave > end:
             return visits, f"{p.name} runs past {lim.end:%H:%M}"
-        visits.append(Visit(p, t, start, leave))
+        lunched = lunched or ate(p, start, leave)
+        visits.append(Visit(p, arrive, start, leave, lunch))
         t = leave
     return visits, None
 
@@ -226,6 +267,15 @@ def home_note(out: Leg) -> str:
     return f"{MODE_WORD[out.mode]} home {out.from_} → {out.to}, {_times(out)}"
 
 
+def travel_day(legs: list[Leg]) -> str:
+    """"Travel day: train 17309, 15:15 → 05:47" for the journeys of a day with no visits."""
+    parts = []
+    for leg in legs:
+        what = MODE_WORD[leg.mode].lower() + (f" {leg.ref}" if leg.ref else "")
+        parts.append(f"{what}, {leg.depart:%H:%M} → {leg.arrive:%H:%M}")
+    return TRAVEL_DAY + "; ".join(parts)
+
+
 def day_titles(days: list[DayPlan], request: TripRequest) -> list[DayPlan]:
     """Give each day a short heading: day number, date and what happens ("Arrive in Mysuru", "Mysuru, then
     home", "Free day in Coorg")."""
@@ -233,7 +283,9 @@ def day_titles(days: list[DayPlan], request: TripRequest) -> list[DayPlan]:
     for n, d in enumerate(days, 1):
         city = city_of(request, d.date) or request.destinations[0]
         hop, home = hop_of(d), out_of(d)
-        if hop and home:
+        if not d.stops and (hop or home):
+            what = travel_day([leg for leg in (hop, home) if leg])
+        elif hop and home:
             what = f"{city} day trip"
         elif hop:
             what = f"Arrive in {city}"
@@ -287,12 +339,19 @@ def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorde
     mins = [travel.minutes(a, b) for a, b in zip(stops, stops[1:])]
     visits, problem = schedule(day, stops, mins, lim)
     rested = any(b.arrive - a.leave > timedelta(minutes=m) for a, b, m in zip(visits, visits[1:], mins))
+    rested = rested and lim.rest
+    lunch = next((v.lunch for v in visits if v.lunch), None)
+    if not lunch and visits and not any(ate(v.place, v.start, v.leave) for v in visits) and \
+            LUNCH_FROM <= visits[-1].leave.time() <= LUNCH_UNTIL:
+        lunch = visits[-1].leave  # after the day's last visit
     legs = []
     for a, b in zip(visits, visits[1:]):
         minutes, cost = travel.edge(a.place, b.place)
         legs.append(Leg(**{"from": a.place.name}, to=b.place.name, mode=Mode.road, depart=a.leave,
                         arrive=a.leave + timedelta(minutes=minutes), minutes=minutes, cost_inr=cost))
     notes = [REST_NOTE] if rested else []
+    if lunch:
+        notes.append(f"Lunch {lunch:%H:%M}–{lunch + timedelta(minutes=LUNCH_MIN):%H:%M}")
     if transfer:
         legs.insert(0, transfer)
     if hop:
@@ -301,6 +360,8 @@ def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorde
     if out:
         legs.append(out)
         notes.append(home_note(out))
+    if not stops and (hop or out):
+        notes.insert(0, travel_day([leg for leg in (hop, out) if leg]))
     times = [StopTime(place_id=v.place.id, arrive=v.arrive, start=v.start, leave=v.leave) for v in visits]
     return DayPlan(date=day, stops=stops, legs=legs, notes=notes, schedule=times), problem
 
@@ -350,7 +411,8 @@ def rebuild_day(it: Itinerary, d: date, stops: list[Place], travel: Travel, lim:
     # Plans saved before Leg.role wrote their journey notes as "Travel: ..." and "Return: ...".
     # Journey lines in the older wording ("Travel: A → B by rail, 3h20") are ours too; a traveller's own
     # note that merely starts with "Travel: " is not.
-    keep = [n for n in old.notes if n not in generated and not OLD_JOURNEY_NOTE.match(n)]
+    keep = [n for n in old.notes if n not in generated and not OLD_JOURNEY_NOTE.match(n)
+            and not LUNCH_NOTE.match(n) and not n.startswith(TRAVEL_DAY)]
     it.days[i] = plan.model_copy(update={"notes": keep + plan.notes, "title": old.title})
 
 
@@ -436,16 +498,22 @@ def solve(request: TripRequest, places: list[Place], travel: Travel | None = Non
     rank = {p.id: i for i, p in enumerate(left)}
     dates = trip_days(request)
     days: list[DayPlan] = []
+    # Where journeys arrive and leave: the first and last days start near it, so a far sight (Dudhsagar)
+    # goes to a full day in the middle, not to an arrival afternoon.
+    centre = _city_point(request.destinations[0])
     for n, d in enumerate(dates):
         hop = first_hop if n == 0 else None
         out = last_out if n == len(dates) - 1 else None
         share = min(lim.max_stops, math.ceil(len(left) / (len(dates) - n)))
-        seed = next((p for p in left if fits(d, [p], travel, lim, hop, out)), None)
+        edge = (hop or out) and centre is not None and len(dates) > 1
+        seeds = sorted(left, key=lambda p: (RANK_MINUTES * rank[p.id] + (travel.minutes(centre, p) if edge else 0), p.id))
+        seed = next((p for p in seeds if fits(d, [p], travel, lim, hop, out)), None)
         chosen = [seed] if seed and share else []
         while chosen and len(chosen) < share:
-            # Near the day's stops, but a much more popular place is worth a short detour.
-            near = sorted(left, key=lambda p: (min(travel.minutes(c, p) for c in chosen) + RANK_MINUTES * rank[p.id], p.id))
-            added = next((p for p in near if p not in chosen and fits(d, [*chosen, p], travel, lim, hop, out)), None)
+            # Near the day's stops (one area a day), but a much more popular place is worth a short detour.
+            near = sorted((p for p in left if p not in chosen and min(travel.minutes(c, p) for c in chosen) <= CLUSTER_MIN),
+                          key=lambda p: (min(travel.minutes(c, p) for c in chosen) + RANK_MINUTES * rank[p.id], p.id))
+            added = next((p for p in near if fits(d, [*chosen, p], travel, lim, hop, out)), None)
             if added is None:
                 break
             chosen.append(added)
@@ -454,7 +522,8 @@ def solve(request: TripRequest, places: list[Place], travel: Travel | None = Non
             plan, _ = build_day(d, chosen, travel, lim, hop=hop, out=out)
             if plan.schedule and plan.schedule[-1].leave.time() < LAST_DAY_FILL_UNTIL:
                 more = replace(lim, max_stops=lim.max_stops + 1)
-                near = sorted((p for p in left if p not in chosen),
+                near = sorted((p for p in left if p not in chosen
+                               and min(travel.minutes(c, p) for c in chosen) <= CLUSTER_MIN),
                               key=lambda p: (min(travel.minutes(c, p) for c in chosen) + RANK_MINUTES * rank[p.id], p.id))
                 extra = next((p for p in near if fits(d, [*chosen, p], travel, more, hop, out)), None)
                 if extra:

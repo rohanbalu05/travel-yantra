@@ -12,7 +12,6 @@ from datetime import date
 from ty_contracts import Itinerary, Mode, Place, ReviseIntent, ReviseRequest
 
 from . import fakes
-from .checker import budget
 from .repair import check_and_repair
 from .solver import (
     _KEEP,
@@ -22,6 +21,7 @@ from .solver import (
     day_titles,
     fits,
     hop_of,
+    in_area,
     limits,
     out_of,
     rebuild_day,
@@ -129,7 +129,8 @@ def lighter_day(it: Itinerary, d: date, travel: Travel, lim: Limits) -> str:
     rebuild_day(it, d, [p for p in day.stops if p.id != out.id], travel, lim)
     for other in sorted(it.days, key=lambda x: (len(x.stops), x.date)):
         same_city = city_of(it.request, other.date) == city_of(it.request, d)
-        if other.date != d and same_city and fits(other.date, [*other.stops, out], travel, lim, hop_of(other), out_of(other)):
+        if other.date != d and same_city and in_area(other.stops, out, travel) \
+                and fits(other.date, [*other.stops, out], travel, lim, hop_of(other), out_of(other)):
             rebuild_day(it, other.date, [*other.stops, out], travel, lim)
             return f"Moved {out.name} to {other.date:%a %d %b}"
     it.warnings.append(f"Dropped {out.name} to make {d:%a %d %b} lighter")
@@ -193,11 +194,13 @@ def revise(it: Itinerary, req: ReviseRequest, travel: Travel | None = None,
         what = rain(it, req.day, travel, lim)
     else:
         raise ReviseError(f"{req.intent.value}: this change is not available yet")
-    it, rounds = check_and_repair(it, travel)
+    from .repair import finish
     from .steps import retime_home
 
-    retime_home(it)  # the last day may have changed
-    it.budget = budget(it)
+    retime_home(it)  # new journeys or stops on the last day: the real train home before checking
+    it, rounds = check_and_repair(it, travel)
+    retime_home(it)  # repairs may have shortened the last day
+    it = finish(it, travel)  # anything the re-timing broke (the budget) becomes a warning
     it.days = day_titles(it.days, it.request)
     if priced:
         price_options(it)

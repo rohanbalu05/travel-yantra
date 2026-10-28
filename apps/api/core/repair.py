@@ -13,6 +13,7 @@ from .solver import (
     city_of,
     fits,
     hop_of,
+    in_area,
     limits,
     out_of,
     rebuild_day,
@@ -32,6 +33,9 @@ def repair(itinerary: Itinerary, violations: list[Violation], travel: Travel | N
             actions += _cheaper(it, travel, lim)
         elif v.code is ViolationCode.closed and v.place_id:
             actions += _move_or_drop(it, v.day, v.place_id, travel, lim, v.message)
+        elif v.code in DAY_CODES and v.day and v.place_id:
+            # A stop that cannot be visited that day at all: move it to a day that can take it, else drop it.
+            actions += _move_or_drop(it, v.day, v.place_id, travel, lim, v.message)
         elif v.code in DAY_CODES and v.day:
             actions += _lighten(it, v, travel, lim)
     it.budget = budget(it)
@@ -49,7 +53,7 @@ def _cheaper_mode(it: Itinerary, travel: Travel) -> list[str]:
     home) moves to the cheapest other mode, and transport_reason says why."""
     from .accounts import plan_mode
     from .revise import ReviseError, change_transport
-    from .steps import MODE_NOUN
+    from .steps import MODE_NOUN, retime_home
 
     used = plan_mode(it)
     if it.request.transport_mode is not None or used is None:
@@ -67,6 +71,7 @@ def _cheaper_mode(it: Itinerary, travel: Travel) -> list[str]:
         except ReviseError:
             continue
         it.request = request  # still the traveller's own request: no mode chosen
+        retime_home(it)  # the real train home (and its fare) before the next check
         noun, before = MODE_NOUN[option.mode], MODE_NOUN[used]
         cap = request.constraints.budget_inr or 0
         it.transport_reason = f"{noun.capitalize()}: the {before} would take the trip over your ₹{cap:,} budget."
@@ -110,7 +115,8 @@ def _move_or_drop(it: Itinerary, d: date | None, place_id: str, travel: Travel, 
     rebuild_day(it, day.date, [p for p in day.stops if p.id != place_id], travel, lim)
     for other in sorted(it.days, key=lambda x: len(x.stops)):
         same_city = city_of(it.request, other.date) == city_of(it.request, day.date)
-        if other.date != day.date and same_city and fits(other.date, [*other.stops, place], travel, lim, hop_of(other), out_of(other)):
+        if other.date != day.date and same_city and in_area(other.stops, place, travel) \
+                and fits(other.date, [*other.stops, place], travel, lim, hop_of(other), out_of(other)):
             rebuild_day(it, other.date, [*other.stops, place], travel, lim)
             return [f"Moved {place.name} to {other.date:%a %d %b}"]
     it.warnings.append(f"Dropped {place.name}: {why}")

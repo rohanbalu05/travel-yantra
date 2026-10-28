@@ -106,12 +106,14 @@ def test_when_the_last_train_leaves_too_early_visits_are_dropped_to_catch_it(mon
 
     it = steps.replan(DEMO)
     last = it.days[-1]
-    early = out_of(last).model_copy(update={"depart": out_of(last).depart.replace(hour=12, minute=30)})
+    # A train leaving 30 min before the planned visits end.
+    leave = (last.schedule[-1].leave - timedelta(minutes=30)).replace(second=0)
+    early = out_of(last).model_copy(update={"depart": leave})
     monkeypatch.setattr(steps, "hop", lambda *a, **k: early)  # pretend this is the only train left
     steps.retime_home(it)
     kept = it.days[-1]
     assert out_of(kept).depart == early.depart and 0 < len(kept.stops) < len(last.stops)
-    assert any(w.startswith("Dropped ") and "to catch the 12:30 rail home" in w for w in it.warnings)
+    assert any(w.startswith("Dropped ") and f"to catch the {leave:%H:%M} rail home" in w for w in it.warnings)
     assert kept.schedule[-1].leave <= early.depart - timedelta(minutes=45)
 
 
@@ -122,9 +124,9 @@ def test_the_last_day_takes_one_more_stop_when_the_cap_would_end_it_early_but_no
     balanced = steps.replan(DEMO)
     day = balanced.days[-1]
     assert len(day.stops) == limits(DEMO).max_stops + 1
-    # The day is filled up to the journey home: the train leaves 45 min to 2 h after the last visit.
+    # The day is filled up to the journey home: the next real train leaves 45 min to 2 h 30 after the last visit.
     gap = out_of(day).depart - day.schedule[-1].leave
-    assert timedelta(minutes=45) <= gap <= timedelta(hours=2)
+    assert timedelta(minutes=45) <= gap <= timedelta(hours=2, minutes=30)
     relaxed_req = DEMO.model_copy(update={"constraints": DEMO.constraints.model_copy(update={"pace": Pace.relaxed})})
     relaxed = steps.replan(relaxed_req)
     assert len(relaxed.days[-1].stops) <= limits(relaxed_req).max_stops

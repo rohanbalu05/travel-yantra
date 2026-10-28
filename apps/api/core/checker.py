@@ -16,15 +16,19 @@ from ty_contracts import (
 
 from .solver import (
     ELDERLY_AGE,
+    LUNCH_FROM,
+    LUNCH_MIN,
     REST_NOTE,
     RETURN_BUFFER_MIN,
     SEATS_PER_CAR,
     Limits,
     Travel,
     after_hop,
+    ate,
     hop_of,
     hours_on,
     limits,
+    lunch_at,
     out_of,
     stop_legs,
 )
@@ -100,6 +104,11 @@ def _check_day(day, lim: Limits, elderly: bool, travel: Travel) -> list[Violatio
     # A journey may open the day (visits start after it) or close it (visits end before it). Only local
     # road time counts against the daily cap.
     hop, home = hop_of(day), out_of(day)
+    if hop and after_hop(lim, hop).start >= lim.end:
+        # The journey arrives after the day ends (an overnight train): no stop can be visited that day.
+        return [Violation(code=ViolationCode.long_day, day=day.date, place_id=p.id,
+                          message=f"the {hop.mode.value} arrives {hop.arrive:%a %H:%M}, too late for visits that day")
+                for p in day.stops]
     # A long day is about time out and about: from arrival, not from boarding the train.
     begin = datetime.combine(day.date, lim.start) if hop is None else hop.arrive
     # Travel times come from the plan's own legs when they line up with the stops, else from the provider.
@@ -113,9 +122,12 @@ def _check_day(day, lim: Limits, elderly: bool, travel: Travel) -> list[Violatio
     if transfer and transfer.arrive > t:  # visits start once the ride from the station arrives
         t = transfer.arrive
     first_start = last_leave = None
+    lunched = False
     for i, p in enumerate(day.stops):
         if i:
             t += timedelta(minutes=leg_min[i - 1])
+        if p.category != "food" and lunch_at(t, lunched):  # the same lunch break the solver plans
+            t, lunched = t + timedelta(minutes=LUNCH_MIN), True
         window = hours_on(p, day.date)
         if window is None:
             out.append(Violation(code=ViolationCode.closed, day=day.date, place_id=p.id,
@@ -124,10 +136,14 @@ def _check_day(day, lim: Limits, elderly: bool, travel: Travel) -> list[Violatio
         opens, closes = (datetime.combine(day.date, w) for w in window)
         start = max(t, opens)
         leave = start + timedelta(minutes=p.typical_visit_minutes)
+        noon = datetime.combine(day.date, LUNCH_FROM)
+        if not lunched and p.category != "food" and start < noon < leave:  # lunch during a long visit
+            leave, lunched = leave + timedelta(minutes=LUNCH_MIN), True
         if leave > closes:
             out.append(Violation(code=ViolationCode.closed, day=day.date, place_id=p.id,
                                  message=f"{p.name} closes at {window[1]:%H:%M} before the visit ends"))
         first_start = first_start or start
+        lunched = lunched or ate(p, start, leave)
         last_leave, t = leave, leave
 
     missed_home = bool(last_leave and home and last_leave > home.depart - timedelta(minutes=RETURN_BUFFER_MIN))
