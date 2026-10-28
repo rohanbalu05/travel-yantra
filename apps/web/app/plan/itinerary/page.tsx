@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { NoPlan } from "@/components/NoPlan";
+import { PlanChat } from "@/components/PlanChat";
 import { Rating } from "@/components/Rating";
 import { StopsMap } from "@/components/StopsMap";
 import { Trail } from "@/components/Trail";
@@ -268,6 +269,8 @@ function Plan({ it, planId, shareToken }: { it: Itinerary; planId: string | null
           )}
         </aside>
       </div>
+
+      <PlanChat planId={planId} shareToken={shareToken} />
 
       <div className="next">
         <div><b>{t("Happy with it? Book it.")}</b><span>{t("Trains, the stay and the cabs. We line them up; you pay the seller directly.")}</span></div>

@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { PlanChat } from "@/components/PlanChat";
 import { Trail } from "@/components/Trail";
 import type { Lang, TripDraft } from "@/lib/contracts";
 import { LANGS, useI18n } from "@/lib/i18n";
@@ -220,6 +221,9 @@ function PlanStart() {
             </section>
           </div>
         )}
+        <div style={{ marginTop: 28 }}>
+          <PlanChat planId={null} openOnNew />
+        </div>
       </div>
     </AppShell>
   );

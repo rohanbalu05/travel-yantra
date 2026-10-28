@@ -272,3 +272,6 @@ textarea.input{min-height:132px;padding:14px;line-height:1.55;resize:vertical}
 .stay-others ul{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:10px}
 .stay-others li{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
 .stay-others li>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.plan-chat{margin-top:28px;overflow:hidden}
+.plan-chat .panel-head{display:flex;flex-direction:column;gap:4px}
+.plan-chat>:last-child{padding:0 clamp(12px,2vw,20px) clamp(12px,2vw,20px)}

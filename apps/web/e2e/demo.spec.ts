@@ -32,7 +32,7 @@ test("plan Goa from Home to the itinerary, revise a day and rate it", async ({ p
   await expect(page.locator("#day-panel .mk-stop")).toHaveCount(1);
 
   await page.getByRole("radio", { name: "4: Good" }).click();
-  await page.getByRole("button", { name: "Send" }).click();
+  await page.getByRole("complementary").getByRole("button", { name: "Send" }).click(); // the chat panel has its own Send
   await expect(page.getByText("Thank you")).toBeVisible();
 });
 
