@@ -50,12 +50,14 @@ jobs:
           echo "$changed" | grep -q '^.github/workflows/ci.yml$' && changed=$(git ls-files)
           hit() { echo "$changed" | grep -q "^$1/" && [ -f "$1/$2" ]; }
           out=()
-          for pair in contracts:packages/contracts translate:services/translate whatsapp:apps/bots/whatsapp mcp:apps/mcp; do
+          for pair in contracts:packages/contracts translate:services/translate whatsapp:apps/bots/whatsapp chat:apps/bots/chat mcp:apps/mcp; do
             name=${pair%%:*}; dir=${pair#*:}
             hit "$dir" pyproject.toml && out+=("{\"name\":\"$name\",\"dir\":\"$dir\"}")
           done
           echo "py=[$(IFS=,; echo "${out[*]}")]" >> "$GITHUB_OUTPUT"
-          if (hit apps/api pyproject.toml || hit packages/contracts pyproject.toml) && [ -f apps/api/pyproject.toml ]; then
+          # ty-api mounts TY5's chat engine (apps/bots/chat) as a path dependency.
+          if (hit apps/api pyproject.toml || hit packages/contracts pyproject.toml || hit apps/bots/chat pyproject.toml) \
+             && [ -f apps/api/pyproject.toml ]; then
             echo "api=true" >> "$GITHUB_OUTPUT"; else echo "api=false" >> "$GITHUB_OUTPUT"; fi
           hit apps/web package.json && echo "web=true" >> "$GITHUB_OUTPUT" || echo "web=false" >> "$GITHUB_OUTPUT"
 

@@ -37,6 +37,9 @@ class DeployPlan(unittest.TestCase):
         self.assertEqual(run(ALL_OLD, [".github/workflows/deploy.yml"])[0], every)
         self.assertEqual(run(ALL_OLD, ["infra/cloudbuild/image.yaml"])[0], every)
 
+    def test_chat_engine_ships_api_only(self):
+        self.assertEqual(run(ALL_OLD, ["apps/bots/chat/ty_chat/store.py"])[0], ["ty-api"])
+
     def test_unrelated_change_ships_nothing(self):
         self.assertEqual(run(ALL_OLD, ["bench/README.md"])[0], [])
 

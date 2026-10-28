@@ -25,6 +25,8 @@ SERVICES = [
     ("ty-bots", "apps/bots/whatsapp", "apps/bots/whatsapp/Dockerfile"),
     ("ty-mcp", "apps/mcp", "apps/mcp/Dockerfile"),
 ]
+# Other folders a service's image is built from (ty-api mounts TY5's chat engine).
+EXTRA = {"ty-api": ("apps/bots/chat/",)}
 # A change here redeploys every service.
 PLUMBING = (".github/workflows/deploy.yml", "infra/cloudbuild/")
 SHARED = ("packages/contracts/",)
@@ -80,7 +82,7 @@ def plan(sha, live, force_all=False, *, exists=lambda p: Path(p).is_file(),
             log(f"deploy {name}: could not diff {base[:7]}..{sha[:7]}")
             out.append(entry)
             continue
-        prefixes = (f"{src}/", f"{Path(dockerfile).parent.as_posix()}/", *SHARED, *PLUMBING)
+        prefixes = (f"{src}/", f"{Path(dockerfile).parent.as_posix()}/", *EXTRA.get(name, ()), *SHARED, *PLUMBING)
         hits = [f for f in files if f.startswith(prefixes)]
         if hits:
             log(f"deploy {name}: {len(hits)} changed since {base[:7]} (e.g. {hits[0]})")
