@@ -153,6 +153,21 @@ async def test_plan_summary_and_ids(engine, api):
     assert of(events, "chips")[0].chips[0] == "share"
 
 
+def test_a_day_without_stops_says_what_it_is():
+    from ty_contracts import Itinerary
+
+    from ty_chat.engine import summarise
+
+    it = Itinerary.model_validate(ITINERARY)
+    it.days[0].stops = []
+    it.days[0].notes = ["Travel day: train 17309, 14:27 → 06:45", "Lunch 12:30–13:15"]
+    it.days[1].stops, it.days[1].notes = [], []
+    body = summarise(it)
+    assert "rest day" not in body
+    assert "): Travel day: train 17309, 14:27 → 06:45" in body
+    assert "Note: Lunch 12:30–13:15" in body and "): free time" in body
+
+
 def test_prices_are_for_the_party():
     from ty_contracts import Leg, Mode
 

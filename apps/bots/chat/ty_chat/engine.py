@@ -218,9 +218,11 @@ def summarise(it: Itinerary) -> str:
         lines.append("Journeys:")
         lines.extend(_leg_line(leg, people) for leg in legs)
     for i, day in enumerate(it.days, start=1):
-        stops = ", ".join(p.name for p in day.stops) or "rest day"
+        notes = list(day.notes)
+        # A day without stops says what it is (TY1: "Travel day: train 17309, 14:27 → 06:45").
+        stops = ", ".join(p.name for p in day.stops) or (notes.pop(0) if notes else "free time")
         lines.append(f"Day {i} ({day.date:%a %d %b}): {stops}")
-        lines.extend(f"  Note: {n}" for n in day.notes[:2])
+        lines.extend(f"  Note: {n}" for n in notes[:2])
     for s in it.stays[: len(req.destinations)]:
         lines.append(f"Stay in {s.city}: {s.name}, ₹{s.price_per_night_inr:,} a night for the party")
     total = f"Budget: ₹{it.budget.total_inr:,} total"
