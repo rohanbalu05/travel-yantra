@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Brand, Logo } from "@/components/Brand";
-import { HowItWorks, KathaPlayer, LanguageDemo } from "@/components/LandingInteractive";
+import { HowItWorks, KathaPreview, LanguageDemo } from "@/components/landing/Demos";
+import { Journey } from "@/components/landing/Journey";
 import "./landing.css";
 
 const checks: [string, string, string][] = [
@@ -20,12 +21,20 @@ const ways: [string, string, string, string, string][] = [
   ["Road via Hubballi", "Your own pace, stops on the way", "10 to 11 h of driving", "₹5,000 to ₹6,500 fuel and tolls", "The Deccan plateau, Anmod Ghat"],
 ];
 
-// Web, WhatsApp, Telegram and the MCP server. Voice is cut.
+// Web, WhatsApp, voice and the MCP server (no Telegram).
 const channels: [string, string, string][] = [
-  ["M3 4h18v13H3zM8 21h8M12 17v4", "On the web", "The full planner with maps, side by side comparisons and the Katha library. Share a link with the family."],
-  ["M4 5h16v11H9l-5 4V5Z", "On WhatsApp", "Send a message. Get the plan, map pins, the PDF and the day's Katha back in the chat."],
-  ["M21 4L3 11l6 2 2 6 3-4 5 3 2-14ZM9 13l9-7", "On Telegram", "The same planner in a Telegram chat, with the same six languages."],
+  ["M3 4h18v13H3zM8 21h8M12 17v4", "On the web", "The full planner with maps, side by side comparisons, the live trip page and the Katha library. Share a link with the family."],
+  ["M4 5h16v11H9l-5 4V5Z", "On WhatsApp", "Send a message and get the plan, its link and the day's Katha back in the chat."],
+  ["M9 3h6v11H9zM5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21", "By voice", "Send a WhatsApp voice note in your language instead of typing, and hear each Katha read aloud."],
   ["M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16", "From your own AI assistant", "Connect the MCP server and ask for Travel Yantra plans and Katha from the tools you already use."],
+];
+
+// Where plans and Katha are built from checked places today.
+const regions: [string, string, string][] = [
+  ["Karnataka", "Bengaluru, Mysuru, Hampi, Coorg and the coast", "Palaces, temples and the Western Ghats"],
+  ["Goa", "Panaji, Old Goa, Ponda and the beaches", "Churches, temples, spice farms and the sea"],
+  ["Kerala", "Kochi, Munnar, Alappuzha and Thiruvananthapuram", "Backwaters, tea hills and old ports"],
+  ["Golden Triangle", "Delhi, Agra and Jaipur", "Forts, tombs and the Taj Mahal"],
 ];
 
 const links = {
@@ -43,6 +52,7 @@ export default function Landing() {
           <a href="#languages">Languages</a>
           <a href="#katha">Katha</a>
           <a href="#ways">Getting there</a>
+          <a href="#where">Where</a>
         </nav>
         <div className="sb-right">
           <Link className="sb-link" href="/signin/">Sign in</Link>
@@ -50,34 +60,7 @@ export default function Landing() {
         </div>
       </header>
 
-      <section className="hero">
-        <div className="hero-in">
-          <p className="hc-kicker">Plans, stories and bookings for travel in India</p>
-          <h1 className="hc-title">The whole trip, in your language.</h1>
-          <p className="hc-sub">Tell Travel Yantra where you want to go, in Kannada, Hindi, Tamil, Telugu, Bengali or English. It works out the route by road, rail or air, checks every stop, tells you the story of each place and lines up every booking.</p>
-          <div className="hc-actions">
-            <Link className="btn btn-primary" href="/signin/">Plan a trip</Link>
-            <Link className="btn btn-on-dark" href="/katha/city/">Hear a Katha</Link>
-          </div>
-        </div>
-        <div className="phone" aria-hidden="true">
-          <div className="screen">
-            <div className="ps-top"><Logo sw={1.8} /><span>Travel Yantra</span></div>
-            <div className="ps-body">
-              <div className="ps-user">Bengaluru to Goa, 11 to 14 Dec. Me, my parents and my sister. Churches, temples, a little beach. Veg food.</div>
-              <div className="ps-ai">
-                <b>Three ways to go</b>
-                <div className="ps-row"><span>Fly to Mopa</span><span>1 h 10 m</span></div>
-                <div className="ps-row"><span>Rail past Dudhsagar</span><span>overnight</span></div>
-                <div className="ps-row"><span>Road via Hubballi</span><span>10 h</span></div>
-              </div>
-              <div className="ps-ai">Katha ready for 14 places, in all six languages.</div>
-            </div>
-            <div className="ps-compose">Ask or change anything</div>
-          </div>
-          <div className="punch" />
-        </div>
-      </section>
+      <Journey />
 
       <section className="sec sec-paper" id="how">
         <div className="wrap">
@@ -106,7 +89,7 @@ export default function Landing() {
               <div className="kt-point" key={b}><b>{b}</b><span>{s}</span></div>
             ))}
           </div>
-          <KathaPlayer />
+          <KathaPreview />
         </div>
       </section>
 
@@ -155,7 +138,7 @@ export default function Landing() {
             <p>The AI understands you, compares options and writes the plan up. Before any plan reaches you, our planner tests every stop on every day, and fixes the day that fails.</p>
           </div>
           <div className="inspector">
-            <div className="inspector-head"><b>Goa with family, 4 days</b><span className="passed">41 of 41 passed</span></div>
+            <div className="inspector-head"><b>Example: Goa with family, 4 days</b><span className="passed">All passed</span></div>
             <table className="check-t">
               <tbody>
                 {checks.map(([n, s, r]) => (
@@ -182,7 +165,7 @@ export default function Landing() {
           <div>
             <div className="sec-head" style={{ marginBottom: 16 }}>
               <p className="kicker">Wherever you are</p>
-              <h2>On the web, on WhatsApp, on Telegram.</h2>
+              <h2>On the web, on WhatsApp, by voice.</h2>
             </div>
             {channels.map(([d, b, s]) => (
               <div className="chan-row" key={b}>
@@ -191,6 +174,21 @@ export default function Landing() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="sec sec-ghat" id="where">
+        <div className="wrap">
+          <div className="sec-head">
+            <p className="kicker">Where it works</p>
+            <h2>Four regions, checked place by place.</h2>
+            <p>Plans and Katha are built from places we have checked: their hours, closing days and stories. More of India follows region by region.</p>
+          </div>
+          <ul className="regions">
+            {regions.map(([n, c, s]) => (
+              <li key={n}><b>{n}</b><span>{c}</span><small>{s}</small></li>
+            ))}
+          </ul>
         </div>
       </section>
 
@@ -212,7 +210,7 @@ export default function Landing() {
             <div><h4>Project</h4><p>A final-year major project, Department of Information Science and Engineering, BMS Institute of Technology and Management, Bengaluru.</p></div>
             <div><h4>Legal</h4>{links.Legal.map(([t, h]) => <Link key={t} href={h}>{t}</Link>)}</div>
           </div>
-          <div className="foot-base"><span>Prototype with sample data. Fares, timings and ratings shown are illustrative.</span><span>2026</span></div>
+          <div className="foot-base"><span>The trips on this page are examples. When you plan, fares and timings come from the sellers and the rail timetable.</span><span>2026</span></div>
         </div>
       </footer>
     </div>
