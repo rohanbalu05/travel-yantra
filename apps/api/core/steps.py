@@ -34,6 +34,7 @@ from .intake import intake as run_intake
 from .llm import Model
 from .repair import finish, repair
 from .solver import (
+    DEPART_BUFFER_MIN,
     ELDERLY_AGE,
     RETURN_BUFFER_MIN,
     RETURN_DEPART,
@@ -49,6 +50,7 @@ from .solver import (
     schedule,
     solve_trip,
     split_days,
+    to_station,
 )
 
 # Inter-city road hops leave at this time when routes has no timetable for them.
@@ -243,6 +245,17 @@ def plan_transport(r: TripRequest) -> tuple[list[TransportOption], dict[str, Leg
     """The options (the one the days follow first), the journey into each city, the provisional journey home
     and why that mode. Without a chosen mode, pick_mode decides and every journey prefers it."""
     options = transport_options(r)
+    # D-57: choose (and say why) on the journeys the days would really take: the first option of each mode
+    # made concrete (a rail option becomes the real morning train), not the ranked estimate.
+    first = next((c for c, d in split_days(r) if d), None)
+    seen: set[Mode] = set()
+    real = []
+    for o in options:
+        if first and o.mode not in seen:
+            seen.add(o.mode)
+            o = timed(r, r.origin, first, r.start_date, o, "outbound")
+        real.append(o)
+    options = real
     mode, reason = pick_mode(r, options)
     rp = r.model_copy(update={"transport_mode": mode}) if mode else r
     options = chosen_options(rp, options)
@@ -384,7 +397,8 @@ def retime_home(it: Itinerary) -> None:
     mins = [travel.minutes(x, y) for x, y in zip(last.stops, last.stops[1:])]
     visits, _ = schedule(last.date, last.stops, mins, opened)
     ends = visits[-1].leave if visits else datetime.combine(last.date, opened.start)
-    leave = (ends + timedelta(minutes=RETURN_BUFFER_MIN)).time()
+    ride = max(RETURN_BUFFER_MIN, to_station(last.stops, out, travel) + DEPART_BUFFER_MIN)
+    leave = (ends + timedelta(minutes=ride)).time()
     same_mode = it.request.model_copy(update={"transport_mode": out.mode})
     # A booked journey home is kept as it is; only the visits fit around it.
     new = out if out.booked else hop(same_mode, out.from_, out.to, last.date, leave, role="home")
@@ -392,10 +406,17 @@ def retime_home(it: Itinerary) -> None:
         return
     if new.mode is not out.mode:
         it.warnings.append(f"No {out.mode.value} home from {out.from_} that day; the journey home is by {new.mode.value}")
-    # When even the day's last train leaves before the visits can end, drop visits from the end until it fits.
+    # When even the day's last train leaves before the visits can end (with the ride to the station), drop the
+    # lowest-ranked visits until it fits, and say so (D-56).
     stops = list(last.stops)
-    while stops and new.depart < _visits_end(last.date, stops, travel, opened) + timedelta(minutes=RETURN_BUFFER_MIN):
-        dropped = stops.pop()
+    rank = {p.id: i for i, p in enumerate(city_places(it.request, out.from_))}
+
+    def need(s: list[Place]) -> timedelta:
+        return timedelta(minutes=max(RETURN_BUFFER_MIN, to_station(s, new, travel) + DEPART_BUFFER_MIN))
+
+    while stops and new.depart < _visits_end(last.date, stops, travel, opened) + need(stops):
+        dropped = max(stops, key=lambda p: (rank.get(p.id, 10_000), p.id))
+        stops.remove(dropped)
         it.warnings.append(f"Dropped {dropped.name} to catch the {new.depart:%H:%M} {new.mode.value} home")
     if out.booked and stops == last.stops:
         return

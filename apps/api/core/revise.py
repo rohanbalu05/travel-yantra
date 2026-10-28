@@ -6,7 +6,6 @@ Deterministic edits, then the same check-and-repair loop as /plan. No model call
 from __future__ import annotations
 
 import difflib
-import math
 import re
 from dataclasses import replace
 from datetime import date, datetime, timedelta, timezone
@@ -36,6 +35,7 @@ from .solver import (
     fits,
     hop_of,
     in_area,
+    km,
     limits,
     out_of,
     rebuild_day,
@@ -61,10 +61,7 @@ def indoor(p: Place) -> bool:
     return is_indoor(p) if p.source == SOURCE else p.category in INDOOR
 
 
-def _km(a: Place, b: Place) -> float:
-    dlat, dlng = math.radians(b.lat - a.lat), math.radians(b.lng - a.lng)
-    h = math.sin(dlat / 2) ** 2 + math.cos(math.radians(a.lat)) * math.cos(math.radians(b.lat)) * math.sin(dlng / 2) ** 2
-    return 6371 * 2 * math.asin(math.sqrt(h))
+_km = km
 
 
 def _stems(name: str) -> set[str]:
@@ -423,6 +420,8 @@ def fill_day(it: Itinerary, d: date, travel: Travel, lim: Limits) -> list[str]:
 
 
 IST = timezone(timedelta(hours=5, minutes=30))
+# Within this distance of a stop, the traveller is at that stop.
+AT_STOP_KM = 0.5
 
 
 def rest_of_day(it: Itinerary, now: datetime, lat: float | None, lng: float | None, travel: Travel,
@@ -442,16 +441,22 @@ def rest_of_day(it: Itinerary, now: datetime, lat: float | None, lng: float | No
         raise ReviseError(f"{now:%a %d %b} is not a day of this trip")
     city = city_of(it.request, day.date) or it.request.destinations[0]
     when = {s.place_id: s for s in day.schedule}
-    done = [p for p in day.stops if p.id in when and when[p.id].start <= now]
+    located = lat is not None and lng is not None
+    here = Place(id="here", name="Your location", lat=lat if located else 0, lng=lng if located else 0,
+                 category="here", typical_visit_minutes=0, source="traveller")
+    at = min(day.stops, key=lambda p: km(here, p), default=None) if located else None
+    if at is not None and km(here, at) <= AT_STOP_KM:
+        # Where the traveller is says how far they got (TY6's live test: still at stop 1 at 17:42): that stop and
+        # the ones before it are done; the rest is still to come, whatever the plan's times said.
+        done = day.stops[:day.stops.index(at) + 1]
+    else:
+        done = [p for p in day.stops if p.id in when and when[p.id].start <= now]
     left = [p for p in day.stops if p not in done]
     if not left:
         return f"Nothing left to re-plan today; enjoy the rest of {day.date:%a %d %b}"
-    if lat is not None and lng is not None:
-        here = Place(id="here", name="Your location", lat=lat, lng=lng, category="here", typical_visit_minutes=0,
-                     source="traveller")
-    else:
+    if not located:
         here = done[-1] if done else (_city_point(city) or left[0])
-    start = max(now, when[done[-1].id].leave) if done else now
+    start = now if located or not done else max(now, when[done[-1].id].leave)
     out = out_of(day)
     hop = hop_of(day)
     end_lim = frame(lim, hop, out, day.date)
@@ -494,8 +499,10 @@ def rest_of_day(it: Itinerary, now: datetime, lat: float | None, lng: float | No
     it.days[i] = day.model_copy(update={"stops": [*done, *(v.place for v in visits)], "legs": legs,
                                         "schedule": schedule_, "notes": notes})
     moved = [_relocate(it, p, day.date, travel, lim, "(no time left that day)") for p in gone]
-    what = f"Re-planned the rest of {day.date:%a %d %b} from {now:%H:%M}: " + (
-        ", then ".join(v.place.name for v in visits) or "no more visits fit today")
+    if not visits:
+        # Say what happened to each stop, never just "nothing left".
+        return f"No time left today for {_and([p.name for p in gone])}: {'; '.join(moved)}"
+    what = f"Re-planned the rest of {day.date:%a %d %b} from {now:%H:%M}: " + ", then ".join(v.place.name for v in visits)
     return what + (f" ({'; '.join(moved)})" if moved else "")
 
 
@@ -505,6 +512,29 @@ def _key(name: str) -> str:
     return (corpus_city(name) or name).strip().lower()
 
 
+_STATION_WORDS = re.compile(r"\b(jn|jct|junction|railway station|station|international airport|airport|cantt|city)\b")
+
+
+def _station(name: str) -> str:
+    return re.sub(r"\s+", " ", _STATION_WORDS.sub(" ", name.lower())).strip()
+
+
+def _place_key(it: Itinerary, name: str) -> str:
+    """A city, or a station or airport the plan's own trains and flights use ("Yesvantpur JN", "Dabolim"),
+    as the key of the trip city it serves (what tickets say, TY4's live test)."""
+    req = it.request
+    first = next((c for c, d in split_days(req) if d), req.destinations[0])
+    ends: dict[str, str] = {}
+    for o in it.transport:
+        legs = [leg for leg in o.legs if leg.mode is o.mode]
+        if legs:
+            ends.setdefault(_station(legs[0].from_), _key(req.origin))
+            ends.setdefault(_station(legs[-1].to), _key(first))
+    s = _station(name)
+    hit = ends.get(s) or next((v for k, v in ends.items() if k and s and (k.startswith(s) or s.startswith(k))), None)
+    return hit or _key(name)
+
+
 def booked(it: Itinerary, b: BookedJourney, travel: Travel, lim: Limits) -> str:
     """The traveller's own train or flight replaces that journey (out, between two cities, or home); the
     days are re-timed around it (a late arrival moves or drops that day's visits; the last day ends in time
@@ -512,7 +542,7 @@ def booked(it: Itinerary, b: BookedJourney, travel: Travel, lim: Limits) -> str:
     req = it.request
     split = [(c, d) for c, d in split_days(req) if d]
     cities = [_key(c) for c, _ in split]
-    a, z, origin = _key(b.from_), _key(b.to), _key(req.origin)
+    a, z, origin = _place_key(it, b.from_), _place_key(it, b.to), _key(req.origin)
     if a == origin and z == cities[0]:
         role, day, names = "outbound", split[0][1][0], (req.origin, split[0][0])
     elif a == cities[-1] and z == origin:

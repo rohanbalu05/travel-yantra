@@ -154,7 +154,7 @@ def test_visits_past_the_departure_home_are_flagged():
     early = out_of(last).model_copy(update={"depart": out_of(last).depart.replace(hour=11)})
     late = it.model_copy(deep=True)
     late.days[-1] = last.model_copy(update={"legs": [*last.legs[:-1], early]})
-    assert any(v.code is ViolationCode.long_day and "home leaves" in v.message for v in check(late)) == bool(last.stops)
+    assert any(v.code is ViolationCode.long_day and "too little time to reach the" in v.message for v in check(late)) == bool(last.stops)
 
 
 def test_move_day_gives_a_city_a_day_from_its_neighbour_and_replans():

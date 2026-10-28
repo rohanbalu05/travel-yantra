@@ -158,6 +158,17 @@ def test_a_booked_train_out_re_times_day_one_and_is_kept():
     assert hop_of(road.days[0]).ref == "16231" and out_of(road.days[-1]).mode.value == "road"
 
 
+def test_a_booking_may_name_the_stations_or_airports_on_the_ticket():
+    # TY4 live: "Yesvantpur JN → Dabolim" was refused as "not a journey of this trip".
+    from core.solver import hop_of
+
+    it = steps.replan(GOA)
+    leg = next(leg for leg in it.transport[0].legs if leg.mode is it.transport[0].mode)
+    out, what, _ = revise(it, booking(leg.from_, leg.to, "2026-12-11T06:00", "2026-12-11T09:00", ref="6E 512",
+                                      mode=leg.mode.value))
+    assert hop_of(out.days[0]).ref == "6E 512" and (hop_of(out.days[0]).from_, hop_of(out.days[0]).to) == ("Bengaluru", "Goa")
+
+
 def test_a_booked_train_home_is_never_swapped_and_the_last_day_fits_before_it():
     from core.solver import out_of
 
@@ -190,9 +201,9 @@ def test_running_late_re_plans_the_rest_of_today_and_keeps_the_journey_home():
     day = max(it.days, key=lambda d: len(d.stops))
     first = day.schedule[0]
     late = first.start + timedelta(minutes=5)  # the first visit has started; the rest is re-planned from here
-    near = day.stops[-1]
+    near = day.stops[-1]  # about 3 km from it: not at any stop, so the plan's times say how far they got
     out, what, rounds = revise(it, ReviseRequest(intent="rest_of_day", now=late.isoformat(),
-                                                 lat=near.lat, lng=near.lng))
+                                                 lat=near.lat + 0.027, lng=near.lng))
     new = next(d for d in out.days if d.date == day.date)
     assert new.stops[0].id == day.stops[0].id and new.schedule[0] == first  # already started: kept
     assert all(s.start >= late for s in new.schedule[1:])
@@ -210,6 +221,22 @@ def test_running_late_re_plans_the_rest_of_today_and_keeps_the_journey_home():
                                    if p.id in before - after)
     with pytest.raises(ReviseError, match="not a day of this trip"):
         revise(it, ReviseRequest(intent="rest_of_day", now="2027-01-01T10:00:00"))
+
+
+def test_running_late_goes_by_where_the_traveller_is_and_says_what_happened_to_each_stop():
+    # TY6 live: still at Mysore Palace (stop 1) at 17:42, the reply was "Nothing left to re-plan today".
+    from datetime import datetime
+
+    it = steps.replan(steps.TripRequest.model_validate(MYSURU))
+    day = max(it.days[:-1] or it.days, key=lambda d: len(d.stops))
+    first, rest = day.stops[0], [p.name for p in day.stops[1:]]
+    late = datetime.combine(day.date, datetime.min.time()).replace(hour=17, minute=42)
+    out, what, _ = revise(it, ReviseRequest(intent="rest_of_day", now=late.isoformat(), lat=first.lat, lng=first.lng))
+    assert not what.startswith("Nothing left")
+    new = next(d for d in out.days if d.date == day.date)
+    for name in rest:
+        assert name in what or name in [p.name for p in new.stops], what
+    assert all(f"moved {n}" in what or f"dropped {n}" in what or n in [p.name for p in new.stops] for n in rest)
 
 
 def test_more_places_on_a_day_adds_the_best_nearby_ones_that_fit(goa):

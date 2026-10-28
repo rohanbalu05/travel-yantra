@@ -82,6 +82,19 @@ def test_each_option_total_is_the_total_after_switching_to_it(body):
     assert switched
 
 
+def test_the_reason_quotes_the_journey_the_days_take():
+    # D-57: the reason said "2h52 each way" while the train out took 4h02.
+    import re
+
+    from core.solver import hop_of
+
+    it = steps.replan(MYSURU.model_copy(update={"transport_mode": None}))
+    out = hop_of(it.days[0])
+    said = re.findall(r"(\d+)h(\d\d)", it.transport_reason or "")
+    assert out is not None and said
+    assert f"{out.minutes // 60}h{out.minutes % 60:02d}" in it.transport_reason
+
+
 def test_the_budget_counts_the_home_journey_and_getting_around():
     it = Itinerary.model_validate(frames(client.post("/plan", json=MYSURU.model_dump(mode="json")))[-1]["partial"])
     journeys = [leg for d in it.days for leg in d.legs if leg.role in ("outbound", "between", "home")]

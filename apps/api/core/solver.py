@@ -57,6 +57,14 @@ TRAVEL_DAY = "Travel day: "
 # Grouping by area: a day's stops stay within this road time of one another, and the first and last days
 # (arrival and departure) start from places near where the journey arrives or leaves.
 CLUSTER_MIN = 60
+# One site, one day: places this close are one site (Chamundeshwari Temple, the Nandi statue and the 1000 steps
+# on Chamundi Hill), by distance, chained; Mysore Palace and Devaraja Market (0.8 km) stay two.
+SITE_KM = 0.75
+# A departure day: the last visit ends with time to ride to the station or airport (the city point routes
+# uses), plus this, before the journey home leaves.
+DEPART_BUFFER_MIN = 15
+# The last day takes one stop over the pace cap only when the journey home leaves this long after the visits.
+FILL_GAP_MIN = 150
 # Below this, the last day takes one stop over the pace cap (not on relaxed pace).
 LAST_DAY_FILL_UNTIL = time(15, 0)
 RETURN_BUFFER_MIN = 45
@@ -176,6 +184,36 @@ def lunch_at(t: datetime, lunched: bool) -> datetime | None:
         return None
     day = t.date()
     return t if datetime.combine(day, LUNCH_FROM) <= t <= datetime.combine(day, LUNCH_UNTIL) else None
+
+
+def km(a: Place, b: Place) -> float:
+    dlat, dlng = math.radians(b.lat - a.lat), math.radians(b.lng - a.lng)
+    h = math.sin(dlat / 2) ** 2 + math.cos(math.radians(a.lat)) * math.cos(math.radians(b.lat)) * math.sin(dlng / 2) ** 2
+    return 6371 * 2 * math.asin(math.sqrt(h))
+
+
+def sites(places: list[Place]) -> dict[str, str]:
+    """Place id -> site id: places within SITE_KM of one another, chained, are one site."""
+    parent = {p.id: p.id for p in places}
+
+    def root(x: str) -> str:
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for i, a in enumerate(places):
+        for b in places[i + 1:]:
+            if km(a, b) < SITE_KM:
+                parent[root(a.id)] = root(b.id)
+    return {p.id: root(p.id) for p in places}
+
+
+def to_station(stops: list[Place], out: Leg | None, travel: Travel) -> int:
+    """Minutes from the day's last stop to where the journey home starts (the city point), 0 when unknown."""
+    if not out or not stops or (point := _city_point(out.from_)) is None:
+        return 0
+    return travel.minutes(stops[-1], point)
 
 
 def in_area(stops: list[Place], place: Place, travel: Travel) -> bool:
@@ -342,6 +380,10 @@ def build_day(day: date, stops: list[Place], travel: Travel, lim: Limits, reorde
     and the one that closes it (out), if any. Returns the plan and the first problem."""
     lim = frame(lim, hop, out, day)
     stops = order(stops, travel) if reorder else list(stops)
+    if out and stops:
+        # Departure day: leave the last stop in time to ride to the station or airport, plus a buffer.
+        ride = to_station(stops, out, travel) + DEPART_BUFFER_MIN
+        lim = replace(lim, end=max(min(lim.end, (out.depart - timedelta(minutes=ride)).time()), lim.start))
     transfer = _transfer(hop, stops[0], travel) if hop and stops and lim.start < lim.end else None
     if transfer and transfer.arrive.date() == day:
         lim = replace(lim, start=max(lim.start, transfer.arrive.time()))
@@ -507,8 +549,14 @@ def solve(request: TripRequest, places: list[Place], travel: Travel | None = Non
     lim = limits(request)
     left = list({p.id: p for p in places}.values())  # planner order, one entry per id
     rank = {p.id: i for i, p in enumerate(left)}
+    site = sites(left)
+    taken: set[str] = set()  # sites already visited on an earlier day
     dates = trip_days(request)
     days: list[DayPlan] = []
+
+    def ok(p: Place, chosen: list[Place]) -> bool:
+        """At most one food stop a day; a site's places only on the day that visits it."""
+        return not (p.category == FOOD and any(c.category == FOOD for c in chosen)) and site[p.id] not in taken
     # Where journeys arrive and leave: the first and last days start near it, so a far sight (Dudhsagar)
     # goes to a full day in the middle, not to an arrival afternoon.
     centre = _city_point(request.destinations[0])
@@ -518,25 +566,35 @@ def solve(request: TripRequest, places: list[Place], travel: Travel | None = Non
         share = min(lim.max_stops, math.ceil(len(left) / (len(dates) - n)))
         edge = (hop or out) and centre is not None and len(dates) > 1
         seeds = sorted(left, key=lambda p: (RANK_MINUTES * rank[p.id] + (travel.minutes(centre, p) if edge else 0), p.id))
-        seed = next((p for p in seeds if fits(d, [p], travel, lim, hop, out)), None)
+        seed = next((p for p in seeds if ok(p, []) and fits(d, [p], travel, lim, hop, out)), None)
         chosen = [seed] if seed and share else []
         while chosen and len(chosen) < share:
             # Near the day's stops (one area a day), but a much more popular place is worth a short detour.
             near = sorted((p for p in left if p not in chosen and min(travel.minutes(c, p) for c in chosen) <= CLUSTER_MIN),
                           key=lambda p: (min(travel.minutes(c, p) for c in chosen) + RANK_MINUTES * rank[p.id], p.id))
-            added = next((p for p in near if fits(d, [*chosen, p], travel, lim, hop, out)), None)
+            added = next((p for p in near if ok(p, chosen) and fits(d, [*chosen, p], travel, lim, hop, out)), None)
             if added is None:
                 break
             chosen.append(added)
+        # One site, one day: the rest of a site the day visits comes along when it fits (one over the cap at
+        # most), else it is left out; never on another day.
+        for p in [p for p in left if p not in chosen and chosen and site[p.id] in {site[c.id] for c in chosen}]:
+            if len(chosen) < lim.max_stops and ok(p, chosen) and \
+                    fits(d, [*chosen, p], travel, lim, hop, out):
+                chosen.append(p)
+        taken.update(site[c.id] for c in chosen)
         if out and chosen and len(chosen) == lim.max_stops and request.constraints.pace != Pace.relaxed:
-            # The last day (HQ V3-AL): when the pace's cap would end the visits early, one more stop fills it.
+            # The last day (HQ V3-AL): when the pace's cap would end the visits long before the journey home,
+            # one more stop fills it; never crammed in before an early train (D-56).
             plan, _ = build_day(d, chosen, travel, lim, hop=hop, out=out)
-            if plan.schedule and plan.schedule[-1].leave.time() < LAST_DAY_FILL_UNTIL:
+            idle = out.depart - plan.schedule[-1].leave if plan.schedule else timedelta(0)
+            if plan.schedule and plan.schedule[-1].leave.time() < LAST_DAY_FILL_UNTIL \
+                    and idle > timedelta(minutes=FILL_GAP_MIN):
                 more = replace(lim, max_stops=lim.max_stops + 1)
                 near = sorted((p for p in left if p not in chosen
                                and min(travel.minutes(c, p) for c in chosen) <= CLUSTER_MIN),
                               key=lambda p: (min(travel.minutes(c, p) for c in chosen) + RANK_MINUTES * rank[p.id], p.id))
-                extra = next((p for p in near if fits(d, [*chosen, p], travel, more, hop, out)), None)
+                extra = next((p for p in near if ok(p, chosen) and fits(d, [*chosen, p], travel, more, hop, out)), None)
                 if extra:
                     chosen.append(extra)
                     days.append(build_day(d, chosen, travel, more, hop=hop, out=out)[0])

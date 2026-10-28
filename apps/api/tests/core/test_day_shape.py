@@ -96,3 +96,36 @@ def test_the_checker_flags_stops_on_a_day_the_journey_arrives_too_late_for():
     it = fakes.sample("goa_family.json").model_copy(update={"days": [plan]})
     found = [v for v in check(it) if v.place_id == "a"]
     assert found and "arrives Sat 05:47, too late for visits that day" in found[0].message
+
+
+def test_rohans_mysuru_weekend_departure_day_is_not_crammed_and_the_hill_is_one_visit():
+    # D-56: Bengaluru to Mysuru, 31 Oct-1 Nov, 2 people, train: Day 2 had 6 stops, two food stops back to back,
+    # before the 13:43 train; Chamundeshwari Temple was on Day 1 and the Nandi statue on Day 2.
+    from core import steps
+    from core.solver import (
+        DEPART_BUFFER_MIN,
+        RETURN_BUFFER_MIN,
+        out_of,
+        sites,
+        to_station,
+    )
+    from ty_contracts import TripRequest
+
+    r = TripRequest.model_validate({"origin": "Bengaluru", "destinations": ["Mysuru"], "start_date": "2026-10-31",
+                                    "end_date": "2026-11-01", "transport_mode": "rail",
+                                    "constraints": {"travellers": [{"name": "You", "age": 30}, {"name": "Two", "age": 30}]}})
+    it = final(r)
+    last, travel = it.days[-1], Travel()
+    assert len(last.stops) <= limits(r).max_stops
+    for d in it.days:
+        assert sum(p.category == "food" for p in d.stops) <= 1, d.title
+    home = out_of(last)
+    if last.schedule:
+        ride = max(RETURN_BUFFER_MIN, to_station(last.stops, home, travel) + DEPART_BUFFER_MIN)
+        assert last.schedule[-1].leave + timedelta(minutes=ride) <= home.depart
+    hill = {"Chamundeshwari Temple", "Nandi Statue, Chamundi Hills", "Chamundi Hills 1000 Steps"}
+    days_on_hill = {d.date for d in it.days for p in d.stops if p.name in hill}
+    assert len(days_on_hill) <= 1
+    stops = [p for d in it.days for p in d.stops]
+    site = sites(stops)
+    assert all(len({d.date for d in it.days for p in d.stops if site[p.id] == s}) == 1 for s in set(site.values()))

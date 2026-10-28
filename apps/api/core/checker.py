@@ -15,6 +15,7 @@ from ty_contracts import (
 )
 
 from .solver import (
+    DEPART_BUFFER_MIN,
     ELDERLY_AGE,
     LUNCH_FROM,
     LUNCH_MIN,
@@ -31,6 +32,7 @@ from .solver import (
     lunch_at,
     out_of,
     stop_legs,
+    to_station,
 )
 
 # Estimates (reversible): the sample budgets use these, so the Goa sample totals ₹46,800.
@@ -170,10 +172,13 @@ def _check_day(day, lim: Limits, elderly: bool, travel: Travel) -> list[Violatio
         lunched = lunched or ate(p, start, leave)
         last_leave, t = leave, leave
 
-    missed_home = bool(last_leave and home and last_leave > home.depart - timedelta(minutes=RETURN_BUFFER_MIN))
+    # The last visit must leave time to ride to the station or airport, plus a buffer (at least RETURN_BUFFER_MIN).
+    ride = max(RETURN_BUFFER_MIN, to_station(day.stops, home, travel) + DEPART_BUFFER_MIN)
+    missed_home = bool(last_leave and home and last_leave > home.depart - timedelta(minutes=ride))
     if missed_home:
         out.append(Violation(code=ViolationCode.long_day, day=day.date,
-                             message=f"Visits run past {home.depart:%H:%M}, when the {home.mode.value} home leaves"))
+                             message=f"Visits leave too little time to reach the {home.mode.value} home at "
+                                     f"{home.depart:%H:%M}"))
     if first_start and last_leave:
         hours = (last_leave - begin).total_seconds() / 3600
         if hours > LONG_DAY_HOURS and not missed_home:  # one long_day per day is enough

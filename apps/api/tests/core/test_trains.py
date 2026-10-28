@@ -4,8 +4,9 @@ from core import steps
 from core.solver import RETURN_BUFFER_MIN, limits
 from ty_contracts import Mode, Pace, TripRequest
 
+# By train: these tests are about real trains (without a chosen mode the real times may pick the drive).
 DEMO = TripRequest.model_validate({"origin": "Bengaluru", "destinations": ["Mysuru"], "start_date": "2026-10-31",
-                                   "end_date": "2026-11-01"})
+                                   "end_date": "2026-11-01", "transport_mode": "rail"})
 
 
 def test_the_morning_train_is_the_first_after_six_preferring_one_that_arrives_before_the_visits():
@@ -66,7 +67,15 @@ def test_opening_hours_are_filled_only_where_asked(monkeypatch):
 
 def test_the_last_day_is_used_and_the_train_home_follows_the_last_visit():
     # QA #109: Sunday ended about 11:30 with the train home at 20:03.
-    from core.solver import RETURN_BUFFER_MIN, RETURN_FILL_END, Travel, out_of, schedule
+    from core.solver import (
+        DEPART_BUFFER_MIN,
+        RETURN_BUFFER_MIN,
+        RETURN_FILL_END,
+        Travel,
+        out_of,
+        schedule,
+        to_station,
+    )
 
     it = steps.replan(DEMO)
     last = it.days[-1]
@@ -75,9 +84,11 @@ def test_the_last_day_is_used_and_the_train_home_follows_the_last_visit():
     visits, _ = schedule(last.date, last.stops, [travel.minutes(a, b) for a, b in zip(last.stops, last.stops[1:])],
                          limits(DEMO))
     ends = visits[-1].leave
+    # D-56: the last visit leaves time to ride to the station, plus a buffer.
+    ride = timedelta(minutes=max(RETURN_BUFFER_MIN, to_station(last.stops, home, travel) + DEPART_BUFFER_MIN))
     assert ends.time() <= RETURN_FILL_END and home.mode.value == "rail"
-    assert home.depart >= ends + timedelta(minutes=RETURN_BUFFER_MIN)
-    earlier = [t for t in steps._trains("Mysuru", "Bengaluru", last.date, (ends + timedelta(minutes=RETURN_BUFFER_MIN)).time())]
+    assert home.depart >= ends + ride
+    earlier = [t for t in steps._trains("Mysuru", "Bengaluru", last.date, (ends + ride).time())]
     assert home.depart == earlier[0].legs[0].depart  # the first train from then, not the day's last
     assert home.depart - ends < timedelta(hours=3)
 
@@ -117,16 +128,27 @@ def test_when_the_last_train_leaves_too_early_visits_are_dropped_to_catch_it(mon
     assert kept.schedule[-1].leave <= early.depart - timedelta(minutes=45)
 
 
-def test_the_last_day_takes_one_more_stop_when_the_cap_would_end_it_early_but_not_on_relaxed():
-    # HQ V3-AL: fill the last day to about 15:00-17:00; relaxed pace keeps its cap.
-    from core.solver import limits, out_of
+def test_the_last_day_takes_one_more_stop_only_before_a_late_journey_home_and_never_on_relaxed():
+    # HQ V3-AL: fill the last day when the cap would end it long before the journey home; D-56: never cram
+    # it before an early train.
+    from core.solver import Travel, limits, out_of, solve
+    from ty_contracts import Leg, Place
 
-    balanced = steps.replan(DEMO)
-    day = balanced.days[-1]
-    assert len(day.stops) == limits(DEMO).max_stops + 1
-    # The day is filled up to the journey home: the next real train leaves 45 min to 2 h 30 after the last visit.
-    gap = out_of(day).depart - day.schedule[-1].leave
-    assert timedelta(minutes=45) <= gap <= timedelta(hours=2, minutes=30)
+    def at(i):
+        return Place(id=f"p{i}", name=f"Place {i}", lat=12.30 + 0.01 * i, lng=76.65, category="monument",
+                     typical_visit_minutes=45, source="test")
+
+    def home(hour):
+        leave = datetime(2026, 11, 1, hour)
+        return Leg(**{"from": "Mysuru"}, to="Bengaluru", mode=Mode.rail, depart=leave,
+                   arrive=leave + timedelta(hours=3), minutes=180, cost_inr=500, role="home")
+
+    one_day = DEMO.model_copy(update={"start_date": date(2026, 11, 1)})
+    cap = limits(one_day).max_stops
+    late, _ = solve(one_day, [at(i) for i in range(6)], Travel(), last_out=home(19))
+    early, _ = solve(one_day, [at(i) for i in range(6)], Travel(), last_out=home(13))
+    assert len(late[-1].stops) == cap + 1 and len(early[-1].stops) <= cap
+    assert out_of(early[-1]).depart - early[-1].schedule[-1].leave >= timedelta(minutes=45)
     relaxed_req = DEMO.model_copy(update={"constraints": DEMO.constraints.model_copy(update={"pace": Pace.relaxed})})
     relaxed = steps.replan(relaxed_req)
     assert len(relaxed.days[-1].stops) <= limits(relaxed_req).max_stops
