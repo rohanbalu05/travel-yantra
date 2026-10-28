@@ -319,6 +319,25 @@ def answer_nearby(
                             "Check the hours before you go.", emergency_places=found)  # fmt: skip
 
 
+#: GET /guide/nearby kinds. hospital ranks as every hospital question does (WA-19).
+NEARBY_KINDS: dict[str, Need] = {"food": RESTAURANT, "veg": VEG, "atm": ATM, "pharmacy": PHARMACY,
+                                 "hospital": ("hospitals", "hospital", URGENT_RADIUS_M, "POPULARITY")}  # fmt: skip
+
+
+def nearby_list(places: PlacesClient, lat: float, lng: float, kind: str, limit: int = 3) -> list[dict]:
+    """[{name, kind, lat, lng, distance_m, maps_url}], nearest first (hospitals: larger
+    ones first), clean names. One cached Nearby Search (Pro)."""
+    _, place_type, radius_m, rank = NEARBY_KINDS[kind]
+    big = kind == "hospital"
+    found = places.nearby(lat, lng, place_type, radius_m=radius_m, limit=URGENT_RESULTS if big else 5, rank=rank)
+    found = sorted(map(_clean, found), key=lambda p: ((care_tier(p) if big else 0), _km(lat, lng, p.lat, p.lng)))
+    return [{
+        "name": p.name, "kind": kind, "lat": p.lat, "lng": p.lng,
+        "distance_m": round(_km(lat, lng, p.lat, p.lng) * 1000),
+        "maps_url": f"https://www.google.com/maps/search/?api=1&query={p.lat:.5f},{p.lng:.5f}&query_place_id={p.id}",
+    } for p in found[:limit]]  # fmt: skip
+
+
 SYSTEM = """You are Travel Yantra's guide for travellers in India.
 Answer the question using only the numbered sources below. Rules:
 - Two to four plain sentences. No lists, no headings.

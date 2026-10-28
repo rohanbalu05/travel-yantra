@@ -184,9 +184,9 @@ def test_eval_set(db, case) -> None:
     if expect == "refusal":
         assert answer.text == REFUSAL and not answer.citations
         return
-    if expect == "emergency":
+    if expect in ("emergency", "nearby"):  # nearby: everyday help, no 112 header (HQ P8)
         assert transport.kinds == case["places"]
-        assert answer.emergency_places and "112" in answer.text
+        assert answer.emergency_places and ("112" in answer.text) == (expect == "emergency")
         assert {p.id for p in answer.emergency_places} == {f"sample-{k}-1" for k in case["places"]}
         return
     assert answer.citations and not answer.emergency_places and not transport.kinds
@@ -536,3 +536,18 @@ def test_an_overdose_is_an_emergency_not_an_errand() -> None:
 def test_nearby_help_without_a_location_asks_for_one() -> None:
     answer = asyncio.run(ask(GuideQuestion(question="nearest ATM"), NoRows(), Spy(), places()[0]))
     assert "Share your location" in answer.text and not answer.emergency_places
+
+
+def test_nearby_endpoint_lists_clean_places_with_map_links() -> None:
+    t = Typed()
+    client = PlacesClient(cache=MemoryCache(), transport=t, api_key="test-key")
+    app = FastAPI()
+    app.include_router(guide.router)
+    app.dependency_overrides[guide.get_places] = lambda: client
+    r = TestClient(app).get("/guide/nearby", params={"lat": 9.96, "lng": 76.24, "kind": "veg", "limit": 2})
+    assert r.status_code == 200
+    data = r.json()
+    assert [d["name"] for d in data] == ["Sample vegetarian_restaurant Near", "Sample vegetarian_restaurant Far"]
+    assert data[0]["kind"] == "veg" and data[0]["distance_m"] == 200 and "query_place_id=" in data[0]["maps_url"]
+    assert t.bodies[0]["includedTypes"] == ["vegetarian_restaurant"]
+    assert TestClient(app).get("/guide/nearby", params={"lat": 9.96, "lng": 76.24, "kind": "bar"}).status_code == 422

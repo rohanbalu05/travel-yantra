@@ -39,7 +39,7 @@ async def main(n: int | None) -> None:
     guide.warm_up()
     db = psycopg.connect(os.environ["DATABASE_URL"], autocommit=True)
     cases = [json.loads(line) for line in EVAL.read_text(encoding="utf-8").splitlines()]
-    cases = [c for c in cases if c["expect"] != "emergency"][:n]
+    cases = [c for c in cases if c["expect"] not in ("emergency", "nearby")][:n]
     model, rows = ask_mod.answerer(), []
     real_search = retrieve.search
 

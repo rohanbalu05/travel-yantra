@@ -15,6 +15,6 @@
 {"kind": "legend", "question": "mustard seed Ganesha", "expect": "legend", "title": "The mustard seed Ganesha"}
 {"kind": "emergency", "question": "where is the nearest hospital", "place_name": "Mysore Palace", "city": "Mysuru", "expect": "emergency", "places": ["hospital"]}
 {"kind": "emergency", "question": "my wallet was stolen, where is the police", "lat": 15.335, "lng": 76.46, "expect": "emergency", "places": ["police"]}
-{"kind": "emergency", "question": "I need a pharmacy for medicine", "city": "Hampi", "expect": "emergency", "places": ["pharmacy"]}
+{"kind": "nearby", "question": "I need a pharmacy for medicine", "city": "Hampi", "expect": "nearby", "places": ["pharmacy"]}
 {"kind": "refusal", "question": "stock price of Infosys", "expect": "refusal"}
 {"kind": "refusal", "question": "how tall is the Eiffel tower", "expect": "refusal"}

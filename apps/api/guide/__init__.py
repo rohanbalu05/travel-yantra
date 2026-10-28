@@ -2,9 +2,9 @@ import asyncio
 import logging
 import os
 from collections.abc import Iterator
-from typing import Any
+from typing import Any, Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from ty_contracts import GuideAnswer, GuideQuestion, KathaStory
 
@@ -66,6 +66,25 @@ async def post_ask(
         return await ask(req, db, model, places)
     except Exception as e:  # model quota or timeout, embedder missing, a dropped connection
         log.exception("guide ask failed")
+        raise HTTPException(503, BUSY) from e
+
+
+@router.get("/nearby")
+async def get_nearby(
+    lat: float = Query(ge=-90, le=90),
+    lng: float = Query(ge=-180, le=180),
+    kind: Literal["food", "veg", "atm", "pharmacy", "hospital"] = "food",
+    limit: int = Query(3, ge=1, le=5),
+    places: PlacesClient = Depends(get_places),
+) -> list[dict]:
+    """Help near a point for the live trip page (HQ P8): [{name, kind, lat, lng,
+    distance_m, maps_url}], from Google Maps, cached a day."""
+    from .ask import nearby_list
+
+    try:
+        return await asyncio.to_thread(nearby_list, places, lat, lng, kind, limit)
+    except Exception as e:  # no key, quota, network
+        log.exception("guide nearby failed")
         raise HTTPException(503, BUSY) from e
 
 
