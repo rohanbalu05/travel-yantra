@@ -12,7 +12,7 @@ import { MODE_ICON, MODE_NAME, clock, dayLabel, duration, inr } from "@/lib/form
 import { useI18n } from "@/lib/i18n";
 import { track } from "@/lib/metrics";
 import { usePlanResult } from "@/lib/plan";
-import { againstBudget, pickIndex, planRailLeg, planTotal, railOptionLeg, stayGroups, trainDiffers, trainLeg } from "@/lib/planView";
+import { againstBudget, pickIndex, planTotal, railOptionLeg, stayGroups, trainDiffers, trainLeg } from "@/lib/planView";
 import { SAMPLE_PNRS, irctcCard, partyFor, pnrStatus, type IrctcCard, type PnrStatus } from "@/lib/routes";
 import { useRevise } from "@/lib/useRevise";
 import "./book.css";
@@ -150,8 +150,9 @@ function Travel({ it, planId }: { it: Itinerary; planId: string | null }) {
 
 function TrainCard({ it }: { it: Itinerary }) {
   // The plan's own train, so the card names the same one as Options and the Itinerary (QA #101).
-  // TY3: the rail option's train (even when the plan goes by road or air), else any train in the days.
-  const rail = useMemo(() => railOptionLeg(it) ?? planRailLeg(it), [it]);
+  // TY3: the rail option's own train leg (stations, number and time from that one leg), even when the
+  // plan goes by road or air. No rail option: no card.
+  const rail = useMemo(() => railOptionLeg(it), [it]);
   const [card, setCard] = useState<Load<IrctcCard>>(null);
   const [cls, setCls] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
