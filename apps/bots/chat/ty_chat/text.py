@@ -224,6 +224,12 @@ ADD = re.compile(
     r"\s*[.!]?\s*$",
     re.IGNORECASE,
 )
+# "more places on day 2", "another place", "something else to do on day 3": add, place not named.
+ADD_MORE = re.compile(
+    r"\b(?:more|another|other|one\s+more|something\s+else|anything\s+else|extra)\s+"
+    r"(?:places?|stops?|sights?|things?(?:\s+to\s+(?:do|see))?|to\s+(?:do|see)|activit(?:y|ies))\b",
+    re.IGNORECASE,
+)
 MOVE_STOP = re.compile(
     r"^\s*(?:move|shift|put)\s+(?P<what>.+?)\s+(?:to|on|onto)\s+day\s*(?P<day>\d{1,2})\s*[.!]?\s*$",
     re.IGNORECASE,
@@ -292,6 +298,8 @@ def keyword_edit(text: str) -> tuple[str, dict] | None:
         return "move_day", {"city": mv["city"].strip()}
     if m := MOVE_STOP.match(text):
         return "move_stop", {"place": m["what"].strip(" ."), "day": int(m["day"])}
+    if ADD_MORE.search(text) and words <= 12:
+        return "add_stop", {"place": None, "day": day_number(text)}
     if m := ADD.match(text):
         day = m["day"] or m["nth"]
         return "add_stop", {"place": m["what"].strip(" ."), "day": int(day) if day else None}

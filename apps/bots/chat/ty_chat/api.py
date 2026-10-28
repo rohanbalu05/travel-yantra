@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -32,10 +33,23 @@ SAMPLE_PLAN_ID = "sample-goa"
 Progress = Callable[[PlanEvent], Awaitable[None]]
 
 
+# Pydantic and FastAPI wording: for the logs, never for the traveller (D-54).
+NOT_FOR_USERS = re.compile(
+    r"^(?:validation:|HTTP \d)|value error|field required|input should|string should|"
+    r"extra inputs|needs (?:place|day|city|mode|style|stay|booked|now)",
+    re.IGNORECASE,
+)
+
+
 class ApiError(Exception):
     def __init__(self, status: int, detail: str) -> None:
         super().__init__(detail)
         self.status, self.detail = status, detail
+
+    @property
+    def readable(self) -> bool:
+        """A sentence the API wrote for travellers ("Fort Aguada is already on Mon 14 Dec")."""
+        return 400 <= self.status < 500 and not NOT_FOR_USERS.search(self.detail)
 
 
 @dataclass
@@ -61,7 +75,7 @@ def detail(r: httpx.Response) -> str:
     except (ValueError, AttributeError):
         d = None
     if isinstance(d, list):
-        d = "; ".join(str(x.get("msg", x)) for x in d if isinstance(x, dict))
+        d = "validation: " + "; ".join(str(x.get("msg", x)) for x in d if isinstance(x, dict))
     return d if isinstance(d, str) and d else f"HTTP {r.status_code}"
 
 

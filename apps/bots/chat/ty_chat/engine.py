@@ -78,6 +78,17 @@ VOICE_PER_DAY = 40  # Flash-Lite transcriptions per caller per day (UTC)
 VOICE_CAP = "That is a lot of voice notes for one day. Please type your message instead."
 PLAN_FAILED ="I could not make that plan just now: {why}. Please try again in a minute."
 BUSY = "The planner is busy just now. Please try again in a minute."
+PLAN_UNCLEAR = (
+    "I could not make that plan. Please tell me where you start, where you are going, the dates "
+    "and how many of you are travelling."
+)
+WHICH_PLACE = "Which place would you like to add? For example: add Fort Aguada on day 2"
+# TY1 (V3-AZ): add_stop with only a day adds the best places near it. On once TY1 ships it.
+ADD_ANY_LIVE = False
+CANT_CHANGE = (
+    "I could not make that change. Please say it another way, for example: "
+    "add Fort Aguada on day 2, remove a place, or lighter day 2."
+)
 SORRY = "Sorry, something went wrong on our side. Please try again in a minute."
 SAME_PLACE = (
     "You already have a plan for {where}. Tell me what to change (for example: lighter day 2), "
@@ -230,9 +241,24 @@ def summarise(it: Itinerary) -> str:
         lines.append(f"Stay in {s.city}: {s.name}, ₹{s.price_per_night_inr:,} a night for the party")
     total = f"Budget: ₹{it.budget.total_inr:,} total"
     lines.append(total + (f" for {people} travellers" if people else ""))
+    if parts := budget_parts(it):
+        lines.append("  " + " · ".join(parts))
     lines.extend(f"Note: {w}" for w in it.warnings)
     lines.extend(f"Season, {n.city}: {n.text} [{i}]" for i, n in enumerate(season(it), 1))
     return "\n".join(lines)
+
+
+def budget_parts(it: Itinerary) -> list[str]:
+    """TY1's parts of the total, in the order travellers think of them; zero parts left out."""
+    b = it.budget
+    parts = [
+        ("Journeys", b.transport_inr),
+        ("Stay", b.stay_inr),
+        ("Food", b.food_inr),
+        ("Tickets", b.activities_inr),
+        ("Getting around", getattr(b, "local_transport_inr", 0)),
+    ]
+    return [f"{name} ₹{v:,}" for name, v in parts if v]
 
 
 def season(it: Itinerary, limit: int = 2) -> list[SeasonNote]:
@@ -252,13 +278,31 @@ def names(it: Itinerary) -> list[str]:
     return [req.origin, *req.destinations, *legs, *stays, *(p.name for d in it.days for p in d.stops)]
 
 
+MODE_CHIPS = {"rail": "by train", "road": "by road", "air": "fly"}
+
+
+def current_mode(it: Itinerary) -> str | None:
+    """The mode the plan travels by: the traveller's choice, else the first journey's."""
+    if it.request.transport_mode is not None:
+        return it.request.transport_mode.value
+    legs = journeys(it)
+    if legs:
+        return legs[0].mode.value
+    return it.transport[0].mode.value if it.transport else None
+
+
 def next_hint(it: Itinerary) -> tuple[str, list[str]]:
     """The follow-up keywords, with day numbers the trip has, and "extra day in <city>" when the
     trip has several cities."""
     n = len(it.days)
     light, wet = min(2, n), min(3, n)
     hint = NEXT.replace("lighter day 2", f"lighter day {light}").replace("rain day 3", f"rain day {wet}")
-    chips = ["share", f"lighter day {light}", f"rain day {wet}", "by train"]
+    # Only modes the plan has options for, never the one it already uses (D-58).
+    now = current_mode(it)
+    other = [m.value for m in dict.fromkeys(o.mode for o in it.transport) if m.value != now]
+    switch = [MODE_CHIPS[m] for m in ("rail", "road", "air") if m in other]
+    hint = hint.replace(" · by train", "".join(f" · {s}" for s in switch[:2]))
+    chips = ["share", f"lighter day {light}", f"rain day {wet}", *switch[:2]]
     if len(it.request.destinations) < 2:
         return hint, chips
     extra = f"extra day in {it.request.destinations[-1]}"
@@ -531,7 +575,10 @@ class Engine:
         except ApiError as e:
             log.warning("plan failed: HTTP %s", e.status)
             # The draft is kept as it was: the user can just send their answer again.
-            msg = PLAN_FAILED.format(why=e.detail) if 400 <= e.status < 500 else BUSY
+            msg = PLAN_FAILED.format(why=e.detail) if e.readable else BUSY
+            if 400 <= e.status < 500 and not e.readable:
+                log.warning("plan refused: %s", e.detail[:300])
+                msg = PLAN_UNCLEAR
             return await self.say(t, msg)
         if isinstance(result, Ask):
             if result.draft and (far := rules.outside_regions(result.draft.destinations)):
@@ -625,7 +672,12 @@ class Engine:
             body["place_id"] = match[0].id
             said["place"] = match[0].name
         if intent == "add_stop":
-            body["place"] = (f.get("place") or "")[:200]
+            if not f.get("place"):
+                if not ADD_ANY_LIVE:  # TY1's add_stop without a place (V3-AZ) is not live yet
+                    return await self.say(t, WHICH_PLACE)
+                body["count"] = 2
+            else:
+                body["place"] = f["place"][:200]
         if intent == "transport":
             body["mode"] = f["mode"]
         if intent == "budget_style":
@@ -654,7 +706,10 @@ class Engine:
             if e.status == 404:
                 c.itinerary = c.plan_id = c.share_token = None
                 return await self.say(t, EXPIRED)
-            return await self.say(t, e.detail if 400 <= e.status < 500 else BUSY)
+            if e.readable:
+                return await self.say(t, e.detail)
+            log.warning("revise %s refused: HTTP %s %s", intent, e.status, e.detail[:300])
+            return await self.say(t, CANT_CHANGE if 400 <= e.status < 500 else BUSY)
         mode = MODE_WORDS.get(f.get("mode") or "", f.get("mode") or "")
         fallback = CHANGED[intent].format(
             day=said["day"], place=said["place"], city=said["city"], mode=mode, style=f.get("style")
