@@ -6,6 +6,10 @@ Kerala and the Golden Triangle. The personas are families, seniors, shoestring,
 luxury and monsoon (rain). Every traveller is the sample persona (Arjun Rao and
 family).
 
+Cities match the guide corpus. On 28 Oct, b27 changed from Thiruvananthapuram
+(no places loaded) to Kochi to Munnar, and b26 now spells Alappuzha the corpus
+way, "Alleppey".
+
 | File | What it is |
 | --- | --- |
 | `requests.jsonl` | the 30 requests: id, region, persona, the words a traveller would type, and the TripRequest |
