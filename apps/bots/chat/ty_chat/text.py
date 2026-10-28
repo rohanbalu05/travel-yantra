@@ -104,7 +104,8 @@ NOT_PLACES = {
 # A message about a ticket already bought: with a plan, it is the booked edit, never a new trip.
 BOOKING = re.compile(
     r"\b(?:booked|bought|got\s+(?:the\s+)?tickets?|tickets?\s+(?:for|on)|pnr)\b"
-    r"|\b(?:train|flight)\s+(?:no\.?\s*)?(?:\d{5}|[A-Z0-9]{2}\s?-?\d{2,4})\b"
+    # A 5-digit train number, or an airline code in capitals ("6E 512", "AI-803"), not "in 20".
+    r"|\b(?:train|flight)\s+(?:no\.?\s*)?(?:\d{5}|(?-i:[A-Z]{2}|[A-Z]\d|\d[A-Z])\s?-?\d{2,4})\b"
     r"|बुक\s*(?:किया|कर\s*लिया)|टिकट",
     re.IGNORECASE,
 )

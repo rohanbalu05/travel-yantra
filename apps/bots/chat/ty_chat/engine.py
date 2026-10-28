@@ -411,8 +411,14 @@ class Engine:
         if story := rules.parse_story(text):
             log.info("route: story (%d min)", story[1])
             return await self.story(t, *story)
-        if c.itinerary is not None and not self.drafting(c) and rules.BOOKING.search(text):
+        if (
+            c.itinerary is not None
+            and not self.drafting(c)
+            and rules.BOOKING.search(text)
+            and not rules.TRIP_WORDS.search(text)
+        ):
             # "we booked train 17309 Bengaluru to Madgaon, 11 Dec" reads like a trip; it is an edit.
+            # "Plan a trip to Hampi, we booked flights" says plan or trip: a new trip, below.
             log.info("route: a booking for the plan")
             return await self.change_or_ask(t, text)
         if self.drafting(c):

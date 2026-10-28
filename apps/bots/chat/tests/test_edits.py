@@ -158,6 +158,33 @@ async def test_a_booking_with_a_route_is_an_edit_not_a_new_trip(planned, api, li
     assert api.bodies("/plan/p1/revise")[0]["booked"]["ref"] == "17309"
 
 
+async def test_a_new_trip_that_mentions_a_booking_is_still_a_new_trip(planned, api, lite):
+    api.plans = [sse(done(plan_id="p2"))]
+    await send(planned, "plan a trip to Hampi, 3-5 Jan, we booked flights already")
+    assert len(api.bodies("/plan")) == 2 and lite.edits == []
+
+
+async def test_booking_questions_still_go_to_the_guide(planned, api, lite):
+    await send(planned, "is train 12345 on time?")
+    assert api.bodies("/guide/ask") and lite.edits == [] and not api.bodies("/plan/p1/revise")
+
+
+@pytest.mark.parametrize(
+    "said, hit",
+    [
+        ("we booked train 17309", True),
+        ("flight 6E 512 is booked", True),
+        ("flight AI-803 tomorrow", True),
+        ("got tickets for the 9pm bus", True),
+        ("our train at 10 am", False),
+        ("flight in 20 days", False),
+        ("flight on 12 Dec", False),
+    ],
+)
+def test_booking_words(said, hit):
+    assert bool(rules.BOOKING.search(said)) is hit
+
+
 async def test_day_out_of_range(planned, api):
     events = await send(planned, "lighter day 9")
     assert "days 1 to" in texts(events)[0] and WHICH_DAY in texts(events)[0]
